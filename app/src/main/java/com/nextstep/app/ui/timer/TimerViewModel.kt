@@ -11,6 +11,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -20,15 +21,14 @@ import kotlinx.coroutines.launch
 class TimerViewModel(
     private val streams: FamilyDataStreams,
     private val sessions: StudySessionRepository,
+    tickMillis: Long = DEFAULT_TICK_MILLIS,
 ) : ViewModel() {
     private val selected = MutableStateFlow<String?>(null)
-    private val tick = MutableStateFlow(0L)
     private val lastSaved = MutableStateFlow<StudySessionEntity?>(null)
 
-    init {
-        viewModelScope.launch {
-            while (true) { tick.value = System.currentTimeMillis(); delay(1_000) }
-        }
+    /** 화면이 보고 있을 때만 흐르는 초 단위 시계. 구독이 끊기면 멈춥니다. */
+    private val tick = flow {
+        while (true) { emit(System.currentTimeMillis()); delay(tickMillis) }
     }
 
     val state: StateFlow<TimerUiState> = combine(streams.subjects, streams.runningTimer, streams.sessions, selected, tick) { subjects, running, sessions, sel, now ->
@@ -78,4 +78,8 @@ class TimerViewModel(
         }
     }
 
+
+    private companion object {
+        const val DEFAULT_TICK_MILLIS = 1_000L
+    }
 }

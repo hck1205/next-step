@@ -86,12 +86,29 @@ com.nextstep.app
 - 매직 넘버는 `private const val` 또는 `PlanOptions` 같은 옵션 객체로.
 - 로그 태그는 클래스 이름, `Log.w` 이상만 남긴다.
 
-## 5. 테스트
+## 5. 테스트 (기능마다 반드시)
 
-- `domain`: 모든 public 함수에 단위 테스트. 경계값(빈 입력, 하나, 경계 날짜) 포함.
-- `data.repository`: 인터페이스마다 `test/.../fake/FakeXxxRepository` 를 유지한다. 새 메서드를 추가하면 Fake 도 같이 고친다.
-- `ui.<feature>`: ViewModel 은 `MainDispatcherRule` + Fake 로 상태 전이를 검증한다.
-- CI 명령: `./gradlew :app:assembleDebug :app:testDebugUnitTest`. 빨간 상태로 머지하지 않는다.
+**규칙: 기능 하나를 만들면 그 기능의 테스트를 같은 커밋에 넣는다. 테스트 없는 기능 PR 은 미완성이다.**
+
+테스트 계층과 위치 (`app/src/test/java/com/nextstep/app/...`):
+
+| 대상 | 테스트 | 도구 |
+|---|---|---|
+| `domain/*` | 모든 public 함수. 경계값(빈 입력, 하나, 경계 날짜, 0/음수) 포함 | 순수 JUnit |
+| `data/sync/mapper/*` | `toMap` → `fromMap` 왕복이 원본과 같은지(`dirty` 제외) | `MapperRoundTripTest` |
+| `data/sync/SyncedCollection` | 병합 규칙, 배치 전송, reconcile | 메모리 저장소 |
+| `data/repository/room/*` | 비즈니스 규칙(소프트 삭제 연쇄, 학급 진도, 권한 있는 수정) | `fake/dao/*` 메모리 DAO + `RecordingSyncManager` + `FakeTimeSource` |
+| `ui/<feature>/*ViewModel` | 스트림 → UiState 파생값, 이벤트 → 저장소 호출, 필터·다이얼로그 상태 | `MainDispatcherRule` + `FakeFamilyDataStreams` + `fake/Fake*Repository` |
+
+체크리스트:
+- 새 도메인 함수 → 같은 이름의 `XxxTest` 에 케이스 추가.
+- 새 저장소 메서드 → 인터페이스 Fake 와 Room 구현 테스트 둘 다 갱신.
+- 새 화면 → `XxxViewModelTest` 에 (1) 초기 상태 (2) 이벤트별 저장소 호출 (3) 파생값 최소 1개.
+- 새 엔티티 → 매퍼 왕복 테스트 한 줄 추가.
+- 테스트 이름은 `동작_조건_기대` 대신 문장형 camelCase (`saveEventDelegatesToRepository`).
+- 테스트 데이터는 `testing/Fixtures.kt` 의 빌더를 쓴다. 테스트 안에서 엔티티 생성자를 길게 호출하지 않는다.
+
+CI 명령: `./gradlew :app:assembleDebug :app:testDebugUnitTest`. 빨간 상태로 머지하지 않는다.
 
 ## 6. 가용성·복원력
 

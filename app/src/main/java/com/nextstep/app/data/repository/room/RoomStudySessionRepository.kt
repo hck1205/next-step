@@ -3,7 +3,7 @@ package com.nextstep.app.data.repository.room
 import com.nextstep.app.data.local.dao.StudySessionDao
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.prefs.RunningTimer
-import com.nextstep.app.data.prefs.UserPreferences
+import com.nextstep.app.data.prefs.UserPreferencesStore
 import com.nextstep.app.data.repository.FamilyScope
 import com.nextstep.app.data.repository.StudySessionRepository
 import com.nextstep.app.data.repository.TimeSource
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.first
 
 class RoomStudySessionRepository(
     private val dao: StudySessionDao,
-    private val prefs: UserPreferences,
+    private val prefs: UserPreferencesStore,
     scope: FamilyScope,
     sync: SyncManager,
     time: TimeSource,

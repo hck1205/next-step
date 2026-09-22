@@ -1,0 +1,59 @@
+package com.nextstep.app.ui.settings
+
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.fake.FakeFamilyDataStreams
+import com.nextstep.app.fake.FakeMemberRepository
+import com.nextstep.app.fake.FakeOnboardingRepository
+import com.nextstep.app.testing.Fixtures
+import com.nextstep.app.ui.ViewModelTestBase
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class SettingsViewModelTest : ViewModelTestBase() {
+    private val streams = FakeFamilyDataStreams(role = Role.PARENT)
+    private val onboarding = FakeOnboardingRepository(syncAvailable = true)
+    private val members = FakeMemberRepository()
+
+    private fun vm() = SettingsViewModel(streams, onboarding, members)
+
+    @Test
+    fun stateCombinesProfileMembersAndSync() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "나", id = "me"), Fixtures.member(Role.MENTOR, "쌤"))
+        streams.myMember.value = streams.members.value.first()
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(Role.PARENT, s.profile!!.role); assertTrue(s.syncAvailable); assertEquals(2, s.members.size); assertEquals("나", s.me!!.name)
+        job.cancel()
+    }
+
+    @Test
+    fun memberEventsRequireMyMemberExceptRemove() = runTest {
+        val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
+        vm.onEvent(SettingsEvent.SetMySubjects(listOf("a")))
+        vm.onEvent(SettingsEvent.SetMentorEnabled(true))
+        vm.onEvent(SettingsEvent.UpdateMyProfile("n", "t"))
+        vm.onEvent(SettingsEvent.RemoveMember("other"))
+        settle(vm.state)
+        assertEquals(listOf("remove:other"), members.calls)
+
+        streams.myMember.value = Fixtures.member(Role.PARENT, "엄마", id = "me")
+        settle(vm.state)
+        vm.onEvent(SettingsEvent.SetMySubjects(listOf("a", "b")))
+        vm.onEvent(SettingsEvent.SetMentorEnabled(true))
+        vm.onEvent(SettingsEvent.UpdateMyProfile("엄마2", "담임"))
+        settle(vm.state)
+        assertEquals(listOf("remove:other", "subjects:me:a|b", "mentor:me:true", "profile:me:엄마2:담임"), members.calls)
+        job.cancel()
+    }
+
+    @Test
+    fun signOutAndSyncGoToOnboardingRepository() = runTest {
+        val vm = vm(); val job = subscribe(vm.state)
+        vm.onEvent(SettingsEvent.RequestSync); vm.onEvent(SettingsEvent.SignOut)
+        settle(vm.state)
+        assertEquals(listOf("requestSync", "signOut"), onboarding.calls)
+        job.cancel()
+    }
+}

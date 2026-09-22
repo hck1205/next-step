@@ -14,6 +14,7 @@
 - 역할별 권한은 `domain/access/Capabilities.kt` 한 곳에서만 판단한다. 화면에서 `role == ...` 로 분기하지 말고 `caps.canXxx` 를 쓴다.
 - 새 동기화 엔티티 = `entity` + `dao`(고정 메서드 이름) + `sync/mapper` + `SyncRegistry` 한 줄 + Room version + 테스트 Fake. 삭제는 항상 소프트 삭제.
 - Room 스키마 변경 시 `AppDatabase.version` 을 올린다. 출시 전까지는 destructive migration 허용.
+- **테스트는 기능과 같은 커밋에.** domain 함수·매퍼·Room 저장소·ViewModel 마다 단위 테스트를 쓴다(가이드 5장 표). Fake 는 `test/.../fake/`, 빌더는 `testing/Fixtures.kt`. 테스트 없는 기능은 미완성으로 본다.
 
 ## 제품 방향
 - `docs/PRODUCT_STRATEGY.md` 가 제품·비즈니스 기준 문서. 기능을 추가하기 전에 어떤 역할의 어떤 핵심 흐름을 강화하는지 여기에 맞춰 판단한다.

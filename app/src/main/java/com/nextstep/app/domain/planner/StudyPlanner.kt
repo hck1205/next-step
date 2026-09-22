@@ -54,7 +54,7 @@ object StudyPlanner {
                 if (index >= queue.size) break
                 val start = options.startTime.plusMinutes(((options.sessionMinutes + options.breakMinutes) * slot).toLong())
                 val end = start.plusMinutes(options.sessionMinutes.toLong())
-                if (end.isBefore(start)) break // 자정을 넘김
+                if (start.isBefore(options.startTime) || end.isBefore(start)) break // 자정을 넘겨 되감긴 슬롯
                 val startMs = DateUtils.toMillis(day, start)
                 val endMs = DateUtils.toMillis(day, end)
                 val overlaps = busy.any { it.startAt < endMs && it.endAt > startMs }

@@ -1,0 +1,133 @@
+package com.nextstep.app.fake
+
+import com.nextstep.app.data.local.entity.ContentEntity
+import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.NoteEntity
+import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.SyncStatus
+import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.data.prefs.RunningTimer
+import com.nextstep.app.data.prefs.UserProfile
+import com.nextstep.app.data.repository.ContentDraft
+import com.nextstep.app.data.repository.ContentRepository
+import com.nextstep.app.data.repository.EventRepository
+import com.nextstep.app.data.repository.MemberRepository
+import com.nextstep.app.data.repository.NoteRepository
+import com.nextstep.app.data.repository.OnboardingRepository
+import com.nextstep.app.data.repository.RoadmapRepository
+import com.nextstep.app.data.repository.StudyPlanRepository
+import com.nextstep.app.data.repository.StudySessionRepository
+import com.nextstep.app.data.repository.TopicRepository
+import com.nextstep.app.data.sync.FamilyInfo
+import com.nextstep.app.domain.content.ContentClassification
+import com.nextstep.app.domain.planner.StudyPlan
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+
+/** 호출을 기록하고 스트림에 반영하는 단순 Fake 들. 한 파일에 모아 두었지만 각자 독립적으로 씁니다. */
+
+class FakeTopicRepository : TopicRepository {
+    override val topics = MutableStateFlow<List<TopicEntity>>(emptyList())
+    val calls = mutableListOf<String>()
+    override fun observeBySubject(subjectId: String): Flow<List<TopicEntity>> = topics.map { l -> l.filter { it.subjectId == subjectId } }
+    override suspend fun add(subjectId: String, titles: List<String>) { calls += "add:$subjectId:${titles.joinToString("|")}" }
+    override suspend fun update(topic: TopicEntity) { calls += "update:${topic.id}"; topics.value = topics.value.filter { it.id != topic.id } + topic }
+    override suspend fun setStatus(id: String, status: TopicStatus) { calls += "status:$id:$status" }
+    override suspend fun setClassProgress(subjectId: String, upToOrderIndex: Int) { calls += "class:$subjectId:$upToOrderIndex" }
+    override suspend fun delete(id: String) { calls += "delete:$id" }
+}
+
+class FakeEventRepository : EventRepository {
+    override val events = MutableStateFlow<List<EventEntity>>(emptyList())
+    val saved = mutableListOf<EventEntity>()
+    val deleted = mutableListOf<String>()
+    override suspend fun save(event: EventEntity) { saved += event; events.value = events.value.filter { it.id != event.id } + event }
+    override suspend fun delete(id: String) { deleted += id }
+}
+
+class FakeStudySessionRepository : StudySessionRepository {
+    override val sessions = MutableStateFlow<List<StudySessionEntity>>(emptyList())
+    override val runningTimer = MutableStateFlow<RunningTimer?>(null)
+    val saved = mutableListOf<StudySessionEntity>()
+    val deleted = mutableListOf<String>()
+    var stopResult: StudySessionEntity? = null
+    override suspend fun save(session: StudySessionEntity) { saved += session }
+    override suspend fun delete(id: String) { deleted += id }
+    override suspend fun startTimer(subjectId: String?) { runningTimer.value = RunningTimer(subjectId, 0L) }
+    override suspend fun stopTimer(note: String): StudySessionEntity? { runningTimer.value = null; return stopResult }
+    override suspend fun cancelTimer() { runningTimer.value = null }
+}
+
+class FakeNoteRepository : NoteRepository {
+    override val notes = MutableStateFlow<List<NoteEntity>>(emptyList())
+    val added = mutableListOf<String>()
+    val deleted = mutableListOf<String>()
+    override suspend fun add(text: String) { added += text }
+    override suspend fun delete(id: String) { deleted += id }
+}
+
+class FakeRoadmapRepository : RoadmapRepository {
+    override val roadmap = MutableStateFlow<List<RoadmapItemEntity>>(emptyList())
+    val saved = mutableListOf<RoadmapItemEntity>()
+    val statuses = mutableListOf<Pair<String, RoadmapStatus>>()
+    val deleted = mutableListOf<String>()
+    override suspend fun save(item: RoadmapItemEntity) { saved += item }
+    override suspend fun setStatus(id: String, status: RoadmapStatus) { statuses += id to status }
+    override suspend fun delete(id: String) { deleted += id }
+}
+
+class FakeContentRepository : ContentRepository {
+    override val contents = MutableStateFlow<List<ContentEntity>>(emptyList())
+    var prepareResult: Result<ContentDraft> = Result.failure(IllegalStateException("not configured"))
+    val saved = mutableListOf<ContentEntity>()
+    val rated = mutableListOf<Pair<String, Int>>()
+    val watched = mutableListOf<Pair<String, Boolean>>()
+    val deleted = mutableListOf<String>()
+    override suspend fun prepare(url: String): Result<ContentDraft> = prepareResult
+    override suspend fun save(content: ContentEntity) { saved += content }
+    override suspend fun rate(id: String, stars: Int) { rated += id to stars }
+    override suspend fun setWatched(id: String, watched: Boolean) { this.watched += id to watched }
+    override suspend fun delete(id: String) { deleted += id }
+
+    companion object {
+        fun draft(url: String = "https://www.youtube.com/watch?v=abcdefghijk", title: String = "제목") = ContentDraft(
+            url = url, videoId = "abcdefghijk", title = title, channel = "채널", thumbnailUrl = "",
+            classification = ContentClassification("수학", com.nextstep.app.data.model.GradeLevel.MIDDLE, com.nextstep.app.data.model.ContentType.CONCEPT, listOf("방정식"), listOf("근거")),
+            metadataFetched = true,
+        )
+    }
+}
+
+class FakeStudyPlanRepository : StudyPlanRepository {
+    val applied = mutableListOf<StudyPlan>()
+    override suspend fun apply(plan: StudyPlan) { applied += plan }
+}
+
+class FakeMemberRepository : MemberRepository {
+    override val members = MutableStateFlow<List<MemberEntity>>(emptyList())
+    override val myMember = MutableStateFlow<MemberEntity?>(null)
+    val calls = mutableListOf<String>()
+    override suspend fun setSubjects(memberId: String, subjectIds: List<String>) { calls += "subjects:$memberId:${subjectIds.joinToString("|")}" }
+    override suspend fun updateProfile(memberId: String, name: String, title: String) { calls += "profile:$memberId:$name:$title" }
+    override suspend fun setMentorEnabled(memberId: String, enabled: Boolean) { calls += "mentor:$memberId:$enabled" }
+    override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
+}
+
+class FakeOnboardingRepository(override val syncAvailable: Boolean = true) : OnboardingRepository {
+    override val profile = MutableStateFlow(UserProfile(null, "", null, null, "", onboarded = false, memberId = null))
+    override val syncStatus = MutableStateFlow(SyncStatus.LOCAL_ONLY)
+    var createResult: Result<FamilyInfo> = Result.success(FamilyInfo("fam", "ABC123", "학생"))
+    var joinResult: Result<FamilyInfo> = Result.success(FamilyInfo("fam", "ABC123", "학생"))
+    val calls = mutableListOf<String>()
+    override suspend fun createFamilyAsStudent(studentName: String): Result<FamilyInfo> { calls += "create:$studentName"; return createResult }
+    override suspend fun joinFamily(role: Role, name: String, code: String, title: String): Result<FamilyInfo> { calls += "join:$role:$name:$code:$title"; return joinResult }
+    override suspend fun resumeSync() { calls += "resume" }
+    override suspend fun signOut() { calls += "signOut" }
+    override fun requestSync() { calls += "requestSync" }
+}

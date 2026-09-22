@@ -5,7 +5,6 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TopicStatus
-import com.nextstep.app.domain.insight.TalentEngine
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -75,50 +74,50 @@ class InsightEngineTest {
         assertEquals(90, byHour[20])
         assertEquals(90, byHour.sum())
     }
-}
-
-class StudyPlannerTest {
-    private val family = "fam"
-    private val math = SubjectEntity(id = "math", familyId = family, name = "수학", color = 0xFF3B82F6)
 
     @Test
-    fun plannerSkipsSlotsThatOverlapExistingEvents() {
-        val topics = listOf(
-            TopicEntity(familyId = family, subjectId = "math", title = "A", orderIndex = 0, classCovered = true, status = TopicStatus.IN_CLASS),
-            TopicEntity(familyId = family, subjectId = "math", title = "B", orderIndex = 1, classCovered = true, status = TopicStatus.IN_CLASS),
-            TopicEntity(familyId = family, subjectId = "math", title = "C", orderIndex = 2),
+    fun timeImbalanceAndGoalShortfallProduceSuggestions() {
+        val start = DateUtils.weekStart()
+        val sessions = listOf(
+            StudySessionEntity(familyId = family, subjectId = "math", startAt = DateUtils.toMillis(start, java.time.LocalTime.of(20, 0)), endAt = 0, durationMinutes = 200),
+            StudySessionEntity(familyId = family, subjectId = "eng", startAt = DateUtils.toMillis(start, java.time.LocalTime.of(21, 0)), endAt = 0, durationMinutes = 10),
         )
-        val progress = StudyStats.subjectProgress(topics, listOf(math))
-        val queue = StudyPlanner.buildQueue(progress, emptyList(), listOf(math))
-        assertEquals(listOf("복습: 수학 A", "복습: 수학 B", "예습: 수학 C"), queue.map { it.title })
-
-        val from = java.time.LocalDate.of(2026, 9, 23)
-        val busy = com.nextstep.app.data.local.entity.EventEntity(
-            familyId = family, title = "학원", startAt = DateUtils.toMillis(from, java.time.LocalTime.of(19, 0)), endAt = DateUtils.toMillis(from, java.time.LocalTime.of(20, 30)),
-        )
-        val options = PlanOptions(days = 2, startTime = java.time.LocalTime.of(19, 0), sessionMinutes = 50, breakMinutes = 10, sessionsPerDay = 2)
-        val plan = StudyPlanner.generate(queue, listOf(busy), options, from)
-        // 첫날 두 슬롯(19:00, 20:00)은 학원과 겹쳐 건너뛰고, 둘째 날 두 슬롯만 배치됩니다.
-        assertEquals(2, plan.events.size)
-        assertEquals(2, plan.tasks.size)
-        assertTrue(plan.events.all { DateUtils.toLocalDate(it.startAt) == from.plusDays(1) })
-        assertEquals("복습: 수학 A", plan.events.first().title)
-        assertEquals("수학 A", plan.tasks.first().title)
+        val insights = InsightEngine.analyze(listOf(math, english), emptyList(), emptyList(), sessions, emptyList(), emptyList())
+        assertTrue(insights.any { it.subjectId == "eng" && it.title.contains("학습 시간이 부족") })
+        assertTrue(insights.any { it.subjectId == "math" && it.title.contains("몰려") })
     }
 
     @Test
-    fun talentsFlagEfficientSubject() {
-        val eng = SubjectEntity(id = "eng", familyId = family, name = "영어", color = 0xFF10B981)
-        val base = DateUtils.toMillis(java.time.LocalDate.of(2026, 9, 1), java.time.LocalTime.of(20, 0))
-        val sessions = listOf(
-            StudySessionEntity(familyId = family, subjectId = "math", startAt = base, endAt = base + 1, durationMinutes = 300),
-            StudySessionEntity(familyId = family, subjectId = "eng", startAt = base, endAt = base + 1, durationMinutes = 30),
+    fun upcomingExamWithoutPrepTaskRaisesAlertWithAction() {
+        val examDay = DateUtils.today().plusDays(5)
+        val exam = com.nextstep.app.data.local.entity.EventEntity(
+            familyId = family, subjectId = "math", title = "중간고사", type = com.nextstep.app.data.model.EventType.EXAM,
+            startAt = DateUtils.toMillis(examDay, java.time.LocalTime.of(9, 0)), endAt = DateUtils.toMillis(examDay, java.time.LocalTime.of(10, 0)),
         )
-        val grades = listOf(
-            GradeEntity(familyId = family, subjectId = "math", title = "t", score = 70.0, date = 1),
-            GradeEntity(familyId = family, subjectId = "eng", title = "t", score = 95.0, date = 1),
-        )
-        val talents = TalentEngine.talents(listOf(math, eng), emptyList(), grades, sessions)
-        assertTrue(talents.any { it.subjectId == "eng" && it.title.contains("효율형") })
+        val without = InsightEngine.analyze(listOf(math), emptyList(), emptyList(), emptyList(), emptyList(), listOf(exam))
+        val alert = without.first { it.kind == InsightKind.ALERT && it.title.startsWith("중간고사") }
+        assertTrue(alert.action is InsightAction.CreateTask)
+        assertEquals(com.nextstep.app.data.model.TaskType.EXAM_PREP, (alert.action as InsightAction.CreateTask).type)
+
+        val prep = com.nextstep.app.data.local.entity.TaskEntity(familyId = family, subjectId = "math", title = "준비", type = com.nextstep.app.data.model.TaskType.EXAM_PREP, dueDate = examDay.toEpochDay(), createdByRole = "STUDENT")
+        val with = InsightEngine.analyze(listOf(math), emptyList(), emptyList(), emptyList(), listOf(prep), listOf(exam))
+        assertTrue(with.none { it.title.startsWith("중간고사") })
+    }
+
+    @Test
+    fun overdueTasksAndClassGapAreReported() {
+        val overdue = com.nextstep.app.data.local.entity.TaskEntity(familyId = family, title = "밀린 숙제", dueDate = DateUtils.today().minusDays(2).toEpochDay(), createdByRole = "STUDENT")
+        val gap = listOf(grade("math", 60.0, 1, classAvg = 80.0))
+        val insights = InsightEngine.analyze(listOf(math), emptyList(), gap, emptyList(), listOf(overdue), emptyList())
+        assertTrue(insights.any { it.title.contains("기한이 지난 할 일이 1개") })
+        assertTrue(insights.any { it.kind == InsightKind.WEAKNESS && it.title.contains("반 평균보다 20점") })
+    }
+
+    @Test
+    fun alertsComeBeforeStrengths() {
+        val grades = listOf(grade("math", 90.0, 1), grade("math", 75.0, 2), grade("eng", 95.0, 3))
+        val insights = InsightEngine.analyze(listOf(math, english), emptyList(), grades, emptyList(), emptyList(), emptyList())
+        val order = listOf(InsightKind.ALERT, InsightKind.WEAKNESS, InsightKind.SUGGESTION, InsightKind.STRENGTH)
+        assertTrue(insights.zipWithNext().all { (a, b) -> order.indexOf(a.kind) <= order.indexOf(b.kind) })
     }
 }

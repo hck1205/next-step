@@ -30,7 +30,7 @@ data class UserProfile(
 /** 진행 중인 학습 타이머. 앱이 종료돼도 복원되도록 DataStore 에 저장합니다. */
 data class RunningTimer(val subjectId: String?, val startedAt: Long)
 
-class UserPreferences(private val context: Context) {
+class UserPreferences(private val context: Context) : UserPreferencesStore {
     private object Keys {
         val ROLE = stringPreferencesKey("role")
         val DISPLAY_NAME = stringPreferencesKey("display_name")
@@ -43,7 +43,7 @@ class UserPreferences(private val context: Context) {
         val TIMER_STARTED_AT = longPreferencesKey("timer_started_at")
     }
 
-    val profile: Flow<UserProfile> = context.dataStore.data.map { p ->
+    override val profile: Flow<UserProfile> = context.dataStore.data.map { p ->
         UserProfile(
             role = Role.from(p[Keys.ROLE]),
             displayName = p[Keys.DISPLAY_NAME] ?: "",
@@ -55,12 +55,12 @@ class UserPreferences(private val context: Context) {
         )
     }
 
-    val runningTimer: Flow<RunningTimer?> = context.dataStore.data.map { p ->
+    override val runningTimer: Flow<RunningTimer?> = context.dataStore.data.map { p ->
         val started = p[Keys.TIMER_STARTED_AT] ?: return@map null
         RunningTimer(subjectId = p[Keys.TIMER_SUBJECT], startedAt = started)
     }
 
-    suspend fun completeOnboarding(
+    override suspend fun completeOnboarding(
         role: Role,
         displayName: String,
         familyId: String,
@@ -79,25 +79,25 @@ class UserPreferences(private val context: Context) {
         }
     }
 
-    suspend fun updateStudentName(name: String) {
+    override suspend fun updateStudentName(name: String) {
         context.dataStore.edit { it[Keys.STUDENT_NAME] = name }
     }
 
-    suspend fun startTimer(subjectId: String?, startedAt: Long) {
+    override suspend fun startTimer(subjectId: String?, startedAt: Long) {
         context.dataStore.edit { p ->
             if (subjectId != null) p[Keys.TIMER_SUBJECT] = subjectId else p.remove(Keys.TIMER_SUBJECT)
             p[Keys.TIMER_STARTED_AT] = startedAt
         }
     }
 
-    suspend fun clearTimer() {
+    override suspend fun clearTimer() {
         context.dataStore.edit { p ->
             p.remove(Keys.TIMER_SUBJECT)
             p.remove(Keys.TIMER_STARTED_AT)
         }
     }
 
-    suspend fun reset() {
+    override suspend fun reset() {
         context.dataStore.edit { it.clear() }
     }
 }

@@ -45,7 +45,8 @@ class RoomTopicRepository(
         dao.upsertAll(
             dao.getBySubject(subjectId).map { topic ->
                 val covered = topic.orderIndex <= upToOrderIndex
-                val status = if (covered && topic.status.order < TopicStatus.IN_CLASS.order) TopicStatus.IN_CLASS else topic.status
+                // 예습 완료(PREVIEWED)는 보존해야 "수업 전 예습" 을 나중에 셀 수 있습니다.
+                val status = if (covered && topic.status == TopicStatus.NOT_STARTED) TopicStatus.IN_CLASS else topic.status
                 topic.copy(classCovered = covered, status = status, updatedAt = ts, dirty = true)
             },
         )

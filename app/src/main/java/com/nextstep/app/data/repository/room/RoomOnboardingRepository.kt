@@ -7,7 +7,7 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.SyncStatus
-import com.nextstep.app.data.prefs.UserPreferences
+import com.nextstep.app.data.prefs.UserPreferencesStore
 import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.sync.FamilyInfo
@@ -19,7 +19,7 @@ import java.util.Locale
 import kotlin.random.Random
 
 class RoomOnboardingRepository(
-    private val prefs: UserPreferences,
+    private val prefs: UserPreferencesStore,
     private val memberDao: MemberDao,
     private val subjectDao: SubjectDao,
     private val sync: SyncManager,
