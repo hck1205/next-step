@@ -11,7 +11,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -77,7 +77,7 @@ data class TopLevelDestination(val route: String, val label: String, val icon: I
 private fun topLevelDestinations(role: Role): List<TopLevelDestination> = when (role) {
     Role.STUDENT -> listOf(
         TopLevelDestination(Routes.HOME, "홈", Icons.Default.Home),
-        TopLevelDestination(Routes.PROGRESS, "커리큘럼", Icons.Default.MenuBook),
+        TopLevelDestination(Routes.PROGRESS, "커리큘럼", Icons.AutoMirrored.Filled.MenuBook),
         TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
         TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
         TopLevelDestination(Routes.INSIGHTS, "분석", Icons.Default.Insights),
@@ -92,7 +92,7 @@ private fun topLevelDestinations(role: Role): List<TopLevelDestination> = when (
     Role.MENTOR -> listOf(
         TopLevelDestination(Routes.HOME, "지도", Icons.Default.Dashboard),
         TopLevelDestination(Routes.ROADMAP, "로드맵", Icons.Default.Map),
-        TopLevelDestination(Routes.PROGRESS, "진도", Icons.Default.MenuBook),
+        TopLevelDestination(Routes.PROGRESS, "진도", Icons.AutoMirrored.Filled.MenuBook),
         TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
         TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
     )

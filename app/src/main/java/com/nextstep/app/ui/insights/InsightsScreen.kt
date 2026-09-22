@@ -19,7 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -181,7 +181,7 @@ fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: 
 fun InsightCard(insight: Insight, subjects: List<SubjectEntity>, onAction: ((InsightAction) -> Unit)?) {
     val (icon, color) = when (insight.kind) {
         InsightKind.STRENGTH -> Icons.Default.ThumbUp to MaterialTheme.colorScheme.secondary
-        InsightKind.WEAKNESS -> Icons.Default.TrendingDown to MaterialTheme.colorScheme.error
+        InsightKind.WEAKNESS -> Icons.AutoMirrored.Filled.TrendingDown to MaterialTheme.colorScheme.error
         InsightKind.SUGGESTION -> Icons.Default.Lightbulb to MaterialTheme.colorScheme.primary
         InsightKind.ALERT -> Icons.Default.Warning to MaterialTheme.colorScheme.tertiary
     }

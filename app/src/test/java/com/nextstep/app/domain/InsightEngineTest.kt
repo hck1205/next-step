@@ -37,7 +37,7 @@ class InsightEngineTest {
     @Test
     fun reviewBacklogIsComputedFromClassProgress() {
         val topics = (0 until 5).map { i ->
-            TopicEntity(familyId = family, subjectId = "math", title = "단원 $i", orderIndex = i, classCovered = i < 4, status = if (i == 0) TopicStatus.REVIEWED else TopicStatus.IN_CLASS)
+            TopicEntity(familyId = family, subjectId = "math", title = "단원 $i", orderIndex = i, classCovered = i < 4, status = when { i == 0 -> TopicStatus.REVIEWED; i < 4 -> TopicStatus.IN_CLASS; else -> TopicStatus.NOT_STARTED })
         }
         val progress = StudyStats.subjectProgress(topics, listOf(math)).single()
         assertEquals(4, progress.classCovered)

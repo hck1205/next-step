@@ -14,7 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -94,7 +94,7 @@ fun CheerScreen(viewModel: CheerViewModel = viewModel(factory = AppViewModelProv
                         OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("응원 메시지") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
                         Spacer(Modifier.height(8.dp))
                         Button(onClick = { viewModel.send(text); text = "" }, enabled = text.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
-                            Icon(Icons.Default.Send, contentDescription = null); Spacer(Modifier.padding(4.dp)); Text("보내기")
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null); Spacer(Modifier.padding(4.dp)); Text("보내기")
                         }
                     }
                 }
