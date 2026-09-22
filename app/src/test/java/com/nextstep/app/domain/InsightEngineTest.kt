@@ -1,13 +1,20 @@
 package com.nextstep.app.domain
 
-import com.nextstep.app.data.local.GradeEntity
-import com.nextstep.app.data.local.StudySessionEntity
-import com.nextstep.app.data.local.SubjectEntity
-import com.nextstep.app.data.local.TopicEntity
+import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TopicStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.planner.StudyPlanner
+import com.nextstep.app.domain.planner.PlanOptions
+import com.nextstep.app.domain.insight.InsightKind
+import com.nextstep.app.domain.insight.InsightAction
+import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.time.DateUtils
 
 class InsightEngineTest {
     private val family = "fam"
@@ -85,7 +92,7 @@ class StudyPlannerTest {
         assertEquals(listOf("복습: 수학 A", "복습: 수학 B", "예습: 수학 C"), queue.map { it.title })
 
         val from = java.time.LocalDate.of(2026, 9, 23)
-        val busy = com.nextstep.app.data.local.EventEntity(
+        val busy = com.nextstep.app.data.local.entity.EventEntity(
             familyId = family, title = "학원", startAt = DateUtils.toMillis(from, java.time.LocalTime.of(19, 0)), endAt = DateUtils.toMillis(from, java.time.LocalTime.of(20, 30)),
         )
         val options = PlanOptions(days = 2, startTime = java.time.LocalTime.of(19, 0), sessionMinutes = 50, breakMinutes = 10, sessionsPerDay = 2)

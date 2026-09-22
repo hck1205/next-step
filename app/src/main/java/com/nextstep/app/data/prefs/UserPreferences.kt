@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.nextstep.app.data.model.Role
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.nextstep.app.data.local.entity.MemberEntity
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "nextstep_prefs")
 

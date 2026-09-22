@@ -25,10 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -43,14 +41,20 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
 import com.nextstep.app.ui.components.ConfirmDialog
 import com.nextstep.app.ui.components.SectionTitle
+import com.nextstep.app.ui.components.SubjectSelectDialog
 import com.nextstep.app.ui.components.SubjectTag
 import com.nextstep.app.ui.components.SyncStatusBadge
-import com.nextstep.app.ui.mentor.SubjectSelectDialog
+import com.nextstep.app.ui.settings.components.InfoRow
+
+@Composable
+fun SettingsScreen(actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    SettingsContent(state = state, actions = actions, onEvent = viewModel::onEvent)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+internal fun SettingsContent(state: SettingsUiState, actions: SettingsActions, onEvent: (SettingsEvent) -> Unit) {
     val clipboard = LocalClipboardManager.current
     var confirmSignOut by remember { mutableStateOf(false) }
     var confirmRemove by remember { mutableStateOf<String?>(null) }
@@ -62,7 +66,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
         topBar = {
             TopAppBar(
                 title = { Text("설정") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
             )
         },
     ) { padding ->
@@ -85,7 +89,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
                                 Text("멘토 역할 겸하기", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                                 Text("직접 자녀를 가르친다면 켜세요. 로드맵 큐레이팅, 과제 배정, 단원·학급 진도 관리가 열립니다.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            Switch(checked = state.me?.mentorEnabled == true, onCheckedChange = { viewModel.setMentorEnabled(it) }, enabled = state.me != null)
+                            Switch(checked = state.me?.mentorEnabled == true, onCheckedChange = { onEvent(SettingsEvent.SetMentorEnabled(it)) }, enabled = state.me != null)
                         }
                     }
                 }
@@ -150,7 +154,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
                         )
                     } else {
                         Spacer(Modifier.height(8.dp))
-                        OutlinedButton(onClick = viewModel::requestSync) { Text("지금 동기화") }
+                        OutlinedButton(onClick = { onEvent(SettingsEvent.RequestSync) }) { Text("지금 동기화") }
                     }
                 }
             }
@@ -169,21 +173,13 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
     }
 
     if (confirmSignOut) {
-        ConfirmDialog("연결 해제", "정말 이 기기에서 연결을 해제할까요?", confirmLabel = "해제", onConfirm = viewModel::signOut, onDismiss = { confirmSignOut = false })
+        ConfirmDialog("연결 해제", "정말 이 기기에서 연결을 해제할까요?", confirmLabel = "해제", onConfirm = { onEvent(SettingsEvent.SignOut) }, onDismiss = { confirmSignOut = false })
     }
     confirmRemove?.let { id ->
         val name = state.members.firstOrNull { it.id == id }?.name ?: ""
-        ConfirmDialog("연결 끊기", "'$name' 님을 구성원 목록에서 제거할까요? 상대 기기에서는 다시 코드를 입력해야 연결됩니다.", confirmLabel = "제거", onConfirm = { viewModel.removeMember(id) }, onDismiss = { confirmRemove = null })
+        ConfirmDialog("연결 끊기", "'$name' 님을 구성원 목록에서 제거할까요? 상대 기기에서는 다시 코드를 입력해야 연결됩니다.", confirmLabel = "제거", onConfirm = { onEvent(SettingsEvent.RemoveMember(id)) }, onDismiss = { confirmRemove = null })
     }
     if (showSubjects) {
-        SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { viewModel.setMySubjects(it) }
-    }
-}
-
-@Composable
-private fun InfoRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth()) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+        SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { onEvent(SettingsEvent.SetMySubjects(it)) }
     }
 }

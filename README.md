@@ -61,26 +61,32 @@ Kotlin + Jetpack Compose 로 작성했고, Room(오프라인 우선) + Firebase 
 
 ## 아키텍처
 
+코드 규칙은 [`docs/ENGINEERING_GUIDE.md`](docs/ENGINEERING_GUIDE.md) 에 있습니다. 요약:
+
 ```
 app/src/main/java/com/nextstep/app
-├── data
-│   ├── local        Room 엔티티/DAO/DB (Subject, Topic, Task, Event, Grade, StudySession, Note, Member, RoadmapItem, Content)
-│   ├── remote       YouTube oEmbed 메타데이터 수집
-│   ├── prefs        DataStore (역할, 가족 ID, 연결 코드, 실행 중 타이머)
-│   ├── repository   StudyRepository — 단일 데이터 진입점, 쓰기 후 동기화 요청
-│   └── sync         SyncManager 인터페이스, FirestoreSyncManager, NoOpSyncManager, Mappers
-├── domain           DateUtils, StudyStats(집계), InsightEngine(제안·재능 발견), StudyPlanner(커리큘럼 스케줄링), Capabilities(역할별 권한), ContentClassifier/ContentRecommender(콘텐츠 분류·추천)
-├── di               AppContainer (수동 DI)
-└── ui
-    ├── navigation   역할별 하단 탭 + NavHost
-    ├── components   공용 카드/피커/다이얼로그, Canvas 차트(막대·꺾은선·레이더·도넛·히트스트립)
-    ├── onboarding / home(학생) / parent(대시보드·격려) / mentor(지도) / roadmap / progress / calendar / grades / insights / timer / settings
-    └── theme
+├── di/                 AppContainer(구현체 조립), AppViewModelProvider
+├── data/
+│   ├── model/          enum 하나당 파일 하나
+│   ├── local/entity/   Room 엔티티 (Syncable: updatedAt/deleted/dirty)
+│   ├── local/dao/      DAO (observeAll/getById/upsert/getDirty/markClean 고정 계약)
+│   ├── prefs/          DataStore
+│   ├── remote/         VideoMetadataFetcher(인터페이스) + YouTube oEmbed 구현
+│   ├── repository/     애그리거트별 인터페이스 + FamilyDataStreams(읽기 스트림 모음)
+│   │   └── room/       Room 구현체 (SyncedWriter 공통 뼈대)
+│   └── sync/           SyncManager, SyncedCollection<T>(제네릭 병합·전송), SyncRegistry, mapper/
+├── domain/             순수 Kotlin: access(권한) · time · stats · insight · planner · content
+└── ui/
+    ├── components/     정책 없는 공용 컴포넌트·차트, 파일 하나당 하나
+    ├── navigation/     역할별 탭, Actions 조립
+    └── <feature>/      XxxScreen(상태 수집) · XxxContent(stateless) · XxxUiState · XxxEvent(sealed) · XxxActions · XxxViewModel · components/
 ```
 
-- **오프라인 우선**: Room 이 진실의 원천. 모든 엔티티는 `updatedAt`, `deleted`(소프트 삭제), `dirty`(미전송) 필드를 가집니다.
-- **동기화**: 로컬 변경 → `dirty=1` → 디바운스 후 Firestore 배치 쓰기. Firestore 스냅샷 리스너로 원격 변경 수신, `updatedAt` 이 더 최신일 때만 반영(last-write-wins).
-- **Firebase 는 선택**: `app/google-services.json` 이 없으면 로컬 전용 모드로 빌드·동작합니다. (학부모 연동만 비활성)
+- **오프라인 우선**: Room 이 진실의 원천. 모든 동기화 엔티티는 `updatedAt`, `deleted`(소프트 삭제), `dirty`(미전송)를 가집니다.
+- **제네릭 동기화**: 엔티티마다 `EntityMapper<T>` 하나와 `SyncRegistry` 한 줄만 추가하면 수신·전송이 붙습니다. 충돌은 `updatedAt` 최신 우선, 전송 실패는 지수 백오프 3회.
+- **역할별 권한**: `domain/access/Capabilities` 한 곳에서 판단하고 화면은 `caps.canXxx` 만 봅니다.
+- **테스트**: domain 순수 함수, `SyncedCollection`, ViewModel(Fake 저장소 + `MainDispatcherRule`) 단위 테스트. `./gradlew :app:testDebugUnitTest`.
+- **Firebase 는 선택**: `app/google-services.json` 이 없으면 로컬 전용 모드로 빌드·동작합니다.
 
 ## 빌드
 

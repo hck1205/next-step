@@ -83,5 +83,6 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.play.services.ads)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

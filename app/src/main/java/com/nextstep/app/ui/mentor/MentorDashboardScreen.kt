@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,20 +26,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
-import com.nextstep.app.domain.DateUtils
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
 import com.nextstep.app.ui.components.BarChart
@@ -48,29 +44,28 @@ import com.nextstep.app.ui.components.BarItem
 import com.nextstep.app.ui.components.ColorDot
 import com.nextstep.app.ui.components.DateField
 import com.nextstep.app.ui.components.EmptyState
+import com.nextstep.app.ui.components.InsightCard
 import com.nextstep.app.ui.components.LabeledProgress
 import com.nextstep.app.ui.components.OptionPicker
 import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.StatTile
 import com.nextstep.app.ui.components.SubjectPicker
+import com.nextstep.app.ui.components.SubjectSelectDialog
 import com.nextstep.app.ui.components.SubjectTag
 import com.nextstep.app.ui.components.SyncStatusBadge
 import com.nextstep.app.ui.components.subjectColor
-import com.nextstep.app.ui.insights.InsightCard
 import java.time.LocalDate
 import java.util.Locale
 
+@Composable
+fun MentorDashboardScreen(actions: MentorDashboardActions, viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    MentorDashboardContent(state = state, actions = actions, onEvent = viewModel::onEvent)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MentorDashboardScreen(
-    onOpenSettings: () -> Unit,
-    onOpenSubject: (String) -> Unit,
-    onOpenRoadmap: () -> Unit,
-    onOpenContent: () -> Unit,
-    onBack: (() -> Unit)?,
-    viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory),
-) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: MentorDashboardActions, onEvent: (MentorDashboardEvent) -> Unit) {
     var showSubjects by remember { mutableStateOf(false) }
     var showAssign by remember { mutableStateOf(false) }
     var showNote by remember { mutableStateOf(false) }
@@ -84,8 +79,8 @@ fun MentorDashboardScreen(
                         SyncStatusBadge(state.syncStatus)
                     }
                 },
-                navigationIcon = { if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
-                actions = { IconButton(onClick = onOpenSettings) { Icon(Icons.Default.Settings, contentDescription = "설정") } },
+                navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                actions = { IconButton(onClick = actions.onOpenSettings) { Icon(Icons.Default.Settings, contentDescription = "설정") } },
             )
         },
     ) { padding ->
@@ -95,7 +90,7 @@ fun MentorDashboardScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                AppCard(onClick = onOpenRoadmap) {
+                AppCard(onClick = actions.onOpenRoadmap) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text("학습 로드맵 큐레이팅", style = MaterialTheme.typography.titleMedium)
@@ -105,18 +100,18 @@ fun MentorDashboardScreen(
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        TextButton(onClick = onOpenRoadmap) { Text("열기") }
+                        TextButton(onClick = actions.onOpenRoadmap) { Text("열기") }
                     }
                 }
             }
             item {
-                AppCard(onClick = onOpenContent) {
+                AppCard(onClick = actions.onOpenContent) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text("콘텐츠 저장소", style = MaterialTheme.typography.titleMedium)
                             Text("좋은 유튜브 강의를 링크로 등록하면 자동 분류되고 학생 진도에 맞춰 추천돼요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        TextButton(onClick = onOpenContent) { Text("열기") }
+                        TextButton(onClick = actions.onOpenContent) { Text("열기") }
                     }
                 }
             }
@@ -179,7 +174,7 @@ fun MentorDashboardScreen(
             if (state.progress.isNotEmpty()) {
                 item { SectionTitle("진도 · 학급 진도 대비 복습률 (눌러서 단원 관리)") }
                 items(state.progress, key = { it.subject.id }) { p ->
-                    AppCard(onClick = { onOpenSubject(p.subject.id) }) {
+                    AppCard(onClick = { actions.onOpenSubject(p.subject.id) }) {
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 ColorDot(subjectColor(p.subject.color), 10)
@@ -230,7 +225,7 @@ fun MentorDashboardScreen(
                                 Text("마감 ${DateUtils.formatDate(DateUtils.fromEpochDay(t.dueDate))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
-                        TextButton(onClick = { viewModel.deleteTask(t.id) }) { Text("취소") }
+                        TextButton(onClick = { onEvent(MentorDashboardEvent.DeleteTask(t.id)) }) { Text("취소") }
                     }
                 }
             }
@@ -244,7 +239,7 @@ fun MentorDashboardScreen(
                             Text(n.text, style = MaterialTheme.typography.bodyLarge)
                             Text("${n.authorName} (${Role.labelOf(n.authorRole)}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if (n.authorRole == "MENTOR" && n.authorName == state.me?.name) TextButton(onClick = { viewModel.deleteNote(n.id) }) { Text("삭제") }
+                        if (n.authorRole == "MENTOR" && n.authorName == state.me?.name) TextButton(onClick = { onEvent(MentorDashboardEvent.DeleteNote(n.id)) }) { Text("삭제") }
                     }
                 }
             }
@@ -253,7 +248,7 @@ fun MentorDashboardScreen(
     }
 
     if (showSubjects) {
-        SubjectSelectDialog(state.allSubjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { viewModel.setSubjects(it) }
+        SubjectSelectDialog(state.allSubjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { onEvent(MentorDashboardEvent.SetSubjects(it)) }
     }
     if (showAssign) {
         var title by remember { mutableStateOf("") }
@@ -271,7 +266,7 @@ fun MentorDashboardScreen(
                     DateField("마감", due, onChange = { due = it })
                 }
             },
-            confirmButton = { TextButton(enabled = title.isNotBlank(), onClick = { viewModel.assignTask(title.trim(), subjectId, type, due); showAssign = false }) { Text("배정") } },
+            confirmButton = { TextButton(enabled = title.isNotBlank(), onClick = { onEvent(MentorDashboardEvent.AssignTask(title.trim(), subjectId, type, due)); showAssign = false }) { Text("배정") } },
             dismissButton = { TextButton(onClick = { showAssign = false }) { Text("취소") } },
         )
     }
@@ -281,37 +276,8 @@ fun MentorDashboardScreen(
             onDismissRequest = { showNote = false },
             title = { Text("피드백 남기기") },
             text = { OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("내용") }, modifier = Modifier.fillMaxWidth(), minLines = 2) },
-            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { viewModel.addNote(text); showNote = false }) { Text("저장") } },
+            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { onEvent(MentorDashboardEvent.AddNote(text)); showNote = false }) { Text("저장") } },
             dismissButton = { TextButton(onClick = { showNote = false }) { Text("취소") } },
         )
     }
-}
-
-/** 담당 과목 다중 선택. 아무것도 고르지 않으면 전 과목 담당. */
-@Composable
-fun SubjectSelectDialog(subjects: List<SubjectEntity>, initial: List<String>, onDismiss: () -> Unit, onSave: (List<String>) -> Unit) {
-    val selected = remember { mutableStateOf(initial.toSet()) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("담당 과목 선택") },
-        text = {
-            Column {
-                Text("아무것도 선택하지 않으면 전 과목을 담당합니다.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(8.dp))
-                subjects.forEach { s ->
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Checkbox(
-                            checked = s.id in selected.value,
-                            onCheckedChange = { checked -> selected.value = if (checked) selected.value + s.id else selected.value - s.id },
-                        )
-                        ColorDot(subjectColor(s.color), 10)
-                        Spacer(Modifier.width(8.dp))
-                        Text(s.name)
-                    }
-                }
-            }
-        },
-        confirmButton = { TextButton(onClick = { onSave(subjects.map { it.id }.filter { it in selected.value }); onDismiss() }) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
-    )
 }

@@ -5,6 +5,26 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.nextstep.app.data.local.dao.RoadmapDao
+import com.nextstep.app.data.local.dao.NoteDao
+import com.nextstep.app.data.local.dao.StudySessionDao
+import com.nextstep.app.data.local.dao.TaskDao
+import com.nextstep.app.data.local.dao.GradeDao
+import com.nextstep.app.data.local.dao.TopicDao
+import com.nextstep.app.data.local.dao.EventDao
+import com.nextstep.app.data.local.dao.SubjectDao
+import com.nextstep.app.data.local.dao.ContentDao
+import com.nextstep.app.data.local.dao.MemberDao
+import com.nextstep.app.data.local.entity.NoteEntity
+import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.ContentEntity
 
 @Database(
     entities = [

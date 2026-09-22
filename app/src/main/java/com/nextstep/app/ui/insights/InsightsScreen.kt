@@ -1,8 +1,6 @@
 package com.nextstep.app.ui.insights
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,16 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.icons.automirrored.filled.TrendingDown
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,23 +24,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.domain.Capabilities
-import com.nextstep.app.domain.Talent
-import com.nextstep.app.domain.DateUtils
-import com.nextstep.app.domain.Insight
-import com.nextstep.app.domain.InsightAction
-import com.nextstep.app.domain.InsightKind
+import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AdBanner
 import com.nextstep.app.ui.components.AppCard
@@ -57,16 +42,22 @@ import com.nextstep.app.ui.components.BarItem
 import com.nextstep.app.ui.components.DonutChart
 import com.nextstep.app.ui.components.EmptyState
 import com.nextstep.app.ui.components.HourHeatStrip
+import com.nextstep.app.ui.components.InsightCard
 import com.nextstep.app.ui.components.RadarChart
 import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.Slice
-import com.nextstep.app.ui.components.SubjectTag
+import com.nextstep.app.ui.components.TalentCard
 import com.nextstep.app.ui.components.subjectColor
+
+@Composable
+fun InsightsScreen(caps: Capabilities, actions: InsightsActions, viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    InsightsContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, actions: InsightsActions, onEvent: (InsightsEvent) -> Unit) {
     var showNote by remember { mutableStateOf(false) }
     val role = caps.role
 
@@ -74,7 +65,7 @@ fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: 
         topBar = {
             TopAppBar(
                 title = { Text(if (caps.isStudent) "학습 분석" else "학습 분석 · 재능 발견") },
-                navigationIcon = { if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
             )
         },
     ) { padding ->
@@ -95,7 +86,7 @@ fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: 
 
             item { SectionTitle(if (caps.isParent) "학습 상태 · 제안" else "강점 · 보완점 · 제안") }
             items(state.insights) { insight ->
-                InsightCard(insight, state.subjects, onAction = if (caps.canApplyInsightActions) { a -> viewModel.applyAction(a, caps.actingRoleName) } else null)
+                InsightCard(insight, state.subjects, onAction = if (caps.canApplyInsightActions) { a -> onEvent(InsightsEvent.ApplyAction(a, caps.actingRoleName)) } else null)
             }
 
             if (state.scores.size >= 3) {
@@ -158,7 +149,7 @@ fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: 
                             Text(n.text, style = MaterialTheme.typography.bodyLarge)
                             Text("${n.authorName} (${Role.labelOf(n.authorRole)}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if (n.authorRole == role.name) TextButton(onClick = { viewModel.deleteNote(n.id) }) { Text("삭제") }
+                        if (n.authorRole == role.name) TextButton(onClick = { onEvent(InsightsEvent.DeleteNote(n.id)) }) { Text("삭제") }
                     }
                 }
             }
@@ -173,65 +164,8 @@ fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: 
             onDismissRequest = { showNote = false },
             title = { Text("메모 남기기") },
             text = { OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("내용") }, modifier = Modifier.fillMaxWidth(), minLines = 2) },
-            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { viewModel.addNote(text); showNote = false }) { Text("저장") } },
+            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { onEvent(InsightsEvent.AddNote(text)); showNote = false }) { Text("저장") } },
             dismissButton = { TextButton(onClick = { showNote = false }) { Text("취소") } },
         )
-    }
-}
-
-@Composable
-fun InsightCard(insight: Insight, subjects: List<SubjectEntity>, onAction: ((InsightAction) -> Unit)?) {
-    val (icon, color) = when (insight.kind) {
-        InsightKind.STRENGTH -> Icons.Default.ThumbUp to MaterialTheme.colorScheme.secondary
-        InsightKind.WEAKNESS -> Icons.AutoMirrored.Filled.TrendingDown to MaterialTheme.colorScheme.error
-        InsightKind.SUGGESTION -> Icons.Default.Lightbulb to MaterialTheme.colorScheme.primary
-        InsightKind.ALERT -> Icons.Default.Warning to MaterialTheme.colorScheme.tertiary
-    }
-    val subject = subjects.firstOrNull { it.id == insight.subjectId }
-    AppCard {
-        Row(verticalAlignment = Alignment.Top) {
-            Box(Modifier.background(color.copy(alpha = 0.12f), MaterialTheme.shapes.small).padding(8.dp)) {
-                Icon(icon, contentDescription = insight.kind.label, tint = color)
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(insight.kind.label, style = MaterialTheme.typography.labelSmall, color = color)
-                    if (subject != null) SubjectTag(subject)
-                }
-                Text(insight.title, style = MaterialTheme.typography.titleSmall)
-                Text(insight.body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                val action = insight.action
-                if (action != null && onAction != null) {
-                    TextButton(onClick = { onAction(action) }, contentPadding = PaddingValues(0.dp)) {
-                        Text(
-                            when (action) { is InsightAction.CreateTask -> "'${action.title}' 할 일로 추가" },
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun TalentCard(talent: Talent, subjects: List<SubjectEntity>) {
-    val subject = subjects.firstOrNull { it.id == talent.subjectId }
-    val color = MaterialTheme.colorScheme.tertiary
-    AppCard {
-        Row(verticalAlignment = Alignment.Top) {
-            Box(Modifier.background(color.copy(alpha = 0.12f), MaterialTheme.shapes.small).padding(8.dp)) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = "재능", tint = color)
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("강점 신호 ${"★".repeat((talent.strength * 3).toInt().coerceIn(1, 3))}", style = MaterialTheme.typography.labelSmall, color = color)
-                    if (subject != null) SubjectTag(subject)
-                }
-                Text(talent.title, style = MaterialTheme.typography.titleSmall)
-                Text(talent.body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
     }
 }

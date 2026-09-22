@@ -7,11 +7,12 @@
 - Claude Code 웹 환경에서는 dl.google.com 이 차단되어 Android SDK/AGP 를 받을 수 없다. 로컬 컴파일 대신 **푸시 후 GitHub Actions 결과로 검증**한다.
 - `google-services.json` 이 없으면 Firebase 플러그인이 적용되지 않고 로컬 전용 모드로 빌드된다. 절대 커밋하지 않는다.
 
-## 구조 원칙
-- 레이어: `data`(Room/DataStore/동기화) → `domain`(순수 Kotlin 계산: StudyStats, InsightEngine, StudyPlanner, Capabilities) → `ui`(화면 단위 패키지 + ViewModel).
-- 새 기능은 `ui/<feature>/` 에 Screen + ViewModel 로 추가하고, 화면 간 공유 로직은 `domain` 으로 올린다. `ui` 끼리 서로 import 하는 것은 공용 컴포넌트(`ui/components`)와 명시적으로 공개한 카드(InsightCard, TalentCard, TaskRow, SessionRow)만 허용.
-- 역할별 권한은 `domain/Capabilities.kt` 한 곳에서만 판단한다. 화면에서 `role == ...` 로 분기하지 말고 `caps.canXxx` 를 쓴다.
-- 동기화 대상 엔티티는 `Syncable`(updatedAt/deleted/dirty)을 구현하고 `Mappers` + `FirestoreSyncManager` 의 listen/push 목록에 추가한다. 삭제는 항상 소프트 삭제.
+## 코드 규칙
+- **`docs/ENGINEERING_GUIDE.md` 가 코드 규칙의 기준이다.** 새 코드는 그 패턴(파일당 타입 하나, 인터페이스 경계, Screen/Content/Actions, UiState+StateFlow, 순수 domain, Fake 기반 테스트)을 예외 없이 따른다.
+- 레이어: `data`(Room/DataStore/동기화) → `domain`(순수 Kotlin) → `ui`. `ui` 는 저장소 **인터페이스**만 의존한다.
+- 새 기능은 `ui/<feature>/` 에 `XxxScreen.kt`, `XxxUiState.kt`, `XxxViewModel.kt`, `XxxActions.kt`, `components/` 로 추가한다. `ui` 끼리는 `ui/components` 와 명시적으로 공개한 카드만 import 한다.
+- 역할별 권한은 `domain/access/Capabilities.kt` 한 곳에서만 판단한다. 화면에서 `role == ...` 로 분기하지 말고 `caps.canXxx` 를 쓴다.
+- 새 동기화 엔티티 = `entity` + `dao`(고정 메서드 이름) + `sync/mapper` + `SyncRegistry` 한 줄 + Room version + 테스트 Fake. 삭제는 항상 소프트 삭제.
 - Room 스키마 변경 시 `AppDatabase.version` 을 올린다. 출시 전까지는 destructive migration 허용.
 
 ## 제품 방향

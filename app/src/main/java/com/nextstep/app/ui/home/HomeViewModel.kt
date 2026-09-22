@@ -2,61 +2,40 @@ package com.nextstep.app.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.ContentEntity
-import com.nextstep.app.data.local.RoadmapItemEntity
-import com.nextstep.app.domain.ContentRecommendation
-import com.nextstep.app.domain.ContentRecommender
-import com.nextstep.app.data.local.SubjectEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.RoadmapStatus
-import com.nextstep.app.data.local.TaskEntity
-import com.nextstep.app.data.local.TopicEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
-import com.nextstep.app.data.prefs.RunningTimer
-import com.nextstep.app.data.repository.StudyRepository
-import com.nextstep.app.domain.DateUtils
-import com.nextstep.app.domain.EventOccurrence
-import com.nextstep.app.domain.PlanOptions
-import com.nextstep.app.domain.StudyPlan
-import com.nextstep.app.domain.StudyPlanner
-import com.nextstep.app.domain.StudyStats
-import com.nextstep.app.domain.SubjectProgress
-import com.nextstep.app.domain.UpcomingExam
+import com.nextstep.app.data.repository.ContentRepository
+import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.RoadmapRepository
+import com.nextstep.app.data.repository.StudyPlanRepository
+import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.data.repository.TopicRepository
+import com.nextstep.app.domain.content.ContentRecommender
+import com.nextstep.app.domain.planner.PlanOptions
+import com.nextstep.app.domain.planner.StudyPlan
+import com.nextstep.app.domain.planner.StudyPlanner
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class HomeUiState(
-    val displayName: String = "",
-    val subjects: List<SubjectEntity> = emptyList(),
-    val todayEvents: List<EventOccurrence> = emptyList(),
-    val pendingTasks: List<TaskEntity> = emptyList(),
-    val todayMinutes: Int = 0,
-    val weekMinutes: Int = 0,
-    val weekGoalMinutes: Int = 0,
-    val runningTimer: RunningTimer? = null,
-    val progress: List<SubjectProgress> = emptyList(),
-    val nextExam: UpcomingExam? = null,
-    val loaded: Boolean = false,
-    val roadmap: List<RoadmapItemEntity> = emptyList(),
-    val events: List<com.nextstep.app.data.local.EventEntity> = emptyList(),
-    val lastPlan: StudyPlan? = null,
-    val recommendations: List<ContentRecommendation> = emptyList(),
-) {
-    /** 진행 중이거나 목표일이 가까운 로드맵 항목. */
-    val roadmapFocus: List<RoadmapItemEntity> get() = roadmap.filter { it.status != RoadmapStatus.DONE }
-        .sortedWith(compareBy<RoadmapItemEntity> { it.status != RoadmapStatus.IN_PROGRESS }.thenBy { it.targetDate ?: Long.MAX_VALUE }).take(3)
-    /** 지금 배우는 과목: 학급 진도가 시작됐고 아직 끝나지 않은 과목. */
-    val activeSubjects: List<SubjectProgress> get() = progress.filter { it.classCovered > 0 && it.classCovered < it.total }
-    val previewQueue: List<Pair<SubjectEntity, TopicEntity>> get() = progress.flatMap { p -> p.previewQueue.take(1).map { p.subject to it } }
-    val reviewQueue: List<Pair<SubjectEntity, TopicEntity>> get() = progress.flatMap { p -> p.reviewQueue.take(2).map { p.subject to it } }
-}
+class HomeViewModel(
+    private val streams: FamilyDataStreams,
+    private val tasks: TaskRepository,
+    private val topics: TopicRepository,
+    private val roadmap: RoadmapRepository,
+    private val contents: ContentRepository,
+    private val plans: StudyPlanRepository,
+) : ViewModel() {
 
-class HomeViewModel(private val repository: StudyRepository) : ViewModel() {
-
-    private val base = combine(repository.profile, repository.subjects, repository.events, repository.tasks, repository.sessions) { profile, subjects, events, tasks, sessions ->
+    private val base = combine(streams.profile, streams.subjects, streams.events, streams.tasks, streams.sessions) { profile, subjects, events, tasks, sessions ->
         HomeUiState(
             displayName = profile.displayName,
             subjects = subjects,
@@ -73,36 +52,36 @@ class HomeViewModel(private val repository: StudyRepository) : ViewModel() {
 
     private val lastPlan = kotlinx.coroutines.flow.MutableStateFlow<StudyPlan?>(null)
 
-    private val withProgress = combine(base, repository.topics, repository.runningTimer, repository.roadmap, lastPlan) { s, topics, timer, roadmap, plan ->
+    private val withProgress = combine(base, streams.topics, streams.runningTimer, streams.roadmap, lastPlan) { s, topics, timer, roadmap, plan ->
         s.copy(progress = StudyStats.subjectProgress(topics, s.subjects), runningTimer = timer, roadmap = roadmap, lastPlan = plan)
     }
 
-    val state: StateFlow<HomeUiState> = combine(withProgress, repository.contents, repository.grades) { s, contents, grades ->
+    val state: StateFlow<HomeUiState> = combine(withProgress, streams.contents, streams.grades) { s, contents, grades ->
         val exams = StudyStats.upcomingExams(s.events, emptyList())
         s.copy(recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, limit = 3))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
-    fun markContentWatched(id: String) = viewModelScope.launch { repository.setContentWatched(id, true) }
+    fun markContentWatched(id: String) = viewModelScope.launch { contents.setWatched(id, true) }
 
     /** 커리큘럼 스케줄링: 복습·로드맵·예습을 앞으로 며칠간의 자습 일정과 할 일로 배치합니다. */
     fun generatePlan(options: PlanOptions) = viewModelScope.launch {
         val s = state.value
         val queue = StudyPlanner.buildQueue(s.progress, s.roadmap, s.subjects)
         val plan = StudyPlanner.generate(queue, s.events, options)
-        if (!plan.isEmpty) repository.applyStudyPlan(plan.events, plan.tasks)
+        plans.apply(plan)
         lastPlan.value = plan
     }
 
     fun dismissPlanResult() { lastPlan.value = null }
 
-    fun setRoadmapStatus(id: String, status: RoadmapStatus) = viewModelScope.launch { repository.setRoadmapStatus(id, status) }
+    fun setRoadmapStatus(id: String, status: RoadmapStatus) = viewModelScope.launch { roadmap.setStatus(id, status) }
 
-    fun toggleTask(task: TaskEntity) = viewModelScope.launch { repository.setTaskDone(task.id, !task.done) }
+    fun toggleTask(task: TaskEntity) = viewModelScope.launch { tasks.setDone(task.id, !task.done) }
 
-    fun markTopic(topic: TopicEntity, status: TopicStatus) = viewModelScope.launch { repository.setTopicStatus(topic.id, status) }
+    fun markTopic(topic: TopicEntity, status: TopicStatus) = viewModelScope.launch { topics.setStatus(topic.id, status) }
 
     fun addQuickTask(subject: SubjectEntity, topic: TopicEntity, type: TaskType) = viewModelScope.launch {
-        repository.saveTask(
+        tasks.save(
             TaskEntity(
                 familyId = "", subjectId = subject.id, topicId = topic.id,
                 title = "${subject.name} ${topic.title} ${type.label}", type = type,
@@ -110,4 +89,18 @@ class HomeViewModel(private val repository: StudyRepository) : ViewModel() {
             ),
         )
     }
+
+    /** 화면 이벤트 단일 진입점. */
+    fun onEvent(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.MarkContentWatched -> markContentWatched(event.id)
+            is HomeEvent.GeneratePlan -> generatePlan(event.options)
+            HomeEvent.DismissPlanResult -> dismissPlanResult()
+            is HomeEvent.SetRoadmapStatus -> setRoadmapStatus(event.id, event.status)
+            is HomeEvent.ToggleTask -> toggleTask(event.task)
+            is HomeEvent.MarkTopic -> markTopic(event.topic, event.status)
+            is HomeEvent.AddQuickTask -> addQuickTask(event.subject, event.topic, event.type)
+        }
+    }
+
 }

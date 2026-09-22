@@ -2,15 +2,13 @@ package com.nextstep.app.ui.content
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.ContentEntity
-import com.nextstep.app.data.local.SubjectEntity
+import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
-import com.nextstep.app.data.repository.ContentDraft
-import com.nextstep.app.data.repository.StudyRepository
-import com.nextstep.app.domain.ContentRecommendation
-import com.nextstep.app.domain.ContentRecommender
-import com.nextstep.app.domain.StudyStats
+import com.nextstep.app.data.repository.ContentRepository
+import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.domain.content.ContentRecommender
+import com.nextstep.app.domain.stats.StudyStats
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,44 +16,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class ContentFilter(
-    val query: String = "",
-    val subjectKey: String? = null,
-    val type: ContentType? = null,
-    val level: GradeLevel? = null,
-    val hideWatched: Boolean = false,
-)
-
-/** 링크 등록 다이얼로그 상태. */
-data class AddContentState(
-    val url: String = "",
-    val loading: Boolean = false,
-    val error: String? = null,
-    val draft: ContentDraft? = null,
-)
-
-data class ContentUiState(
-    val subjects: List<SubjectEntity> = emptyList(),
-    val all: List<ContentEntity> = emptyList(),
-    val filter: ContentFilter = ContentFilter(),
-    val recommendations: List<ContentRecommendation> = emptyList(),
-    val add: AddContentState = AddContentState(),
-) {
-    val subjectKeys: List<String> get() = (subjects.map { it.name } + all.map { it.subjectKey }).filter { it.isNotBlank() }.distinct()
-    val filtered: List<ContentEntity> get() = all.filter { c ->
-        (filter.subjectKey == null || c.subjectKey == filter.subjectKey) &&
-            (filter.type == null || c.contentType == filter.type) &&
-            (filter.level == null || c.gradeLevel == filter.level || c.gradeLevel == GradeLevel.ALL) &&
-            (!filter.hideWatched || !c.watched) &&
-            (filter.query.isBlank() || listOf(c.title, c.channel, c.keywords, c.summary).any { it.contains(filter.query, ignoreCase = true) })
-    }
-}
-
-class ContentViewModel(private val repository: StudyRepository) : ViewModel() {
+class ContentViewModel(
+    private val streams: FamilyDataStreams,
+    private val contents: ContentRepository,
+) : ViewModel() {
     private val filter = MutableStateFlow(ContentFilter())
     private val add = MutableStateFlow(AddContentState())
 
-    private val base = combine(repository.subjects, repository.contents, repository.topics, repository.grades, repository.events) { subjects, contents, topics, grades, events ->
+    private val base = combine(streams.subjects, streams.contents, streams.topics, streams.grades, streams.events) { subjects, contents, topics, grades, events ->
         val progress = StudyStats.subjectProgress(topics, subjects)
         ContentUiState(
             subjects = subjects, all = contents,
@@ -79,7 +47,7 @@ class ContentViewModel(private val repository: StudyRepository) : ViewModel() {
         val url = add.value.url.trim()
         if (url.isBlank()) return@launch
         add.value = add.value.copy(loading = true, error = null)
-        repository.prepareContent(url)
+        contents.prepare(url)
             .onSuccess { add.value = add.value.copy(loading = false, draft = it) }
             .onFailure { add.value = add.value.copy(loading = false, error = it.message ?: "링크를 분석하지 못했어요") }
     }
@@ -88,7 +56,7 @@ class ContentViewModel(private val repository: StudyRepository) : ViewModel() {
 
     fun save(title: String, channel: String, subjectKey: String, level: GradeLevel, type: ContentType, keywords: String, summary: String, durationMinutes: Int) = viewModelScope.launch {
         val d = add.value.draft ?: return@launch
-        repository.saveContent(
+        contents.save(
             ContentEntity(
                 familyId = "", url = d.url, videoId = d.videoId, title = title.trim(), channel = channel.trim(), thumbnailUrl = d.thumbnailUrl,
                 subjectKey = subjectKey.trim(), gradeLevel = level, contentType = type, keywords = keywords, summary = summary.trim(), durationMinutes = durationMinutes,
@@ -97,8 +65,28 @@ class ContentViewModel(private val repository: StudyRepository) : ViewModel() {
         add.value = AddContentState()
     }
 
-    fun update(content: ContentEntity) = viewModelScope.launch { repository.saveContent(content) }
-    fun rate(id: String, stars: Int) = viewModelScope.launch { repository.rateContent(id, stars) }
-    fun setWatched(id: String, watched: Boolean) = viewModelScope.launch { repository.setContentWatched(id, watched) }
-    fun delete(id: String) = viewModelScope.launch { repository.deleteContent(id) }
+    fun update(content: ContentEntity) = viewModelScope.launch { contents.save(content) }
+    fun rate(id: String, stars: Int) = viewModelScope.launch { contents.rate(id, stars) }
+    fun setWatched(id: String, watched: Boolean) = viewModelScope.launch { contents.setWatched(id, watched) }
+    fun delete(id: String) = viewModelScope.launch { contents.delete(id) }
+
+    /** 화면 이벤트 단일 진입점. */
+    fun onEvent(event: ContentEvent) {
+        when (event) {
+            is ContentEvent.SetQuery -> setQuery(event.q)
+            is ContentEvent.SetSubject -> setSubject(event.key)
+            is ContentEvent.SetType -> setType(event.t)
+            is ContentEvent.SetLevel -> setLevel(event.l)
+            ContentEvent.ToggleHideWatched -> toggleHideWatched()
+            is ContentEvent.SetUrl -> setUrl(event.url)
+            ContentEvent.Analyze -> analyze()
+            ContentEvent.ResetAdd -> resetAdd()
+            is ContentEvent.Save -> save(event.title, event.channel, event.subjectKey, event.level, event.type, event.keywords, event.summary, event.durationMinutes)
+            is ContentEvent.Update -> update(event.content)
+            is ContentEvent.Rate -> rate(event.id, event.stars)
+            is ContentEvent.SetWatched -> setWatched(event.id, event.watched)
+            is ContentEvent.Delete -> delete(event.id)
+        }
+    }
+
 }

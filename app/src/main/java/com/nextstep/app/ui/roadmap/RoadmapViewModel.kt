@@ -2,53 +2,47 @@ package com.nextstep.app.ui.roadmap
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.ContentEntity
-import com.nextstep.app.data.local.RoadmapItemEntity
-import com.nextstep.app.data.local.SubjectEntity
-import com.nextstep.app.data.local.TopicEntity
+import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.RoadmapStatus
-import com.nextstep.app.data.repository.StudyRepository
-import com.nextstep.app.domain.StudyStats
-import com.nextstep.app.domain.SubjectProgress
+import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.RoadmapRepository
+import com.nextstep.app.domain.stats.StudyStats
+import java.time.LocalDate
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
-data class RoadmapUiState(
-    val subjects: List<SubjectEntity> = emptyList(),
-    val items: List<RoadmapItemEntity> = emptyList(),
-    val progress: List<SubjectProgress> = emptyList(),
-    val topics: List<TopicEntity> = emptyList(),
-    val studentName: String = "",
-    val contents: List<ContentEntity> = emptyList(),
-) {
-    fun contentOf(item: RoadmapItemEntity): ContentEntity? = item.contentId?.let { id -> contents.firstOrNull { it.id == id } }
-    val active: List<RoadmapItemEntity> get() = items.filter { it.status != RoadmapStatus.DONE }
-    val done: List<RoadmapItemEntity> get() = items.filter { it.status == RoadmapStatus.DONE }
-    val completion: Float get() = if (items.isEmpty()) 0f else done.size.toFloat() / items.size
-
-    /** 멘토가 로드맵을 짤 때 참고할 추천: 복습 밀린 단원, 다음 예습 단원. */
-    val suggestions: List<Pair<SubjectEntity, String>> get() = progress.flatMap { p ->
-        p.reviewQueue.take(1).map { p.subject to "복습 보강: ${it.title}" } + p.previewQueue.take(1).map { p.subject to "선행 예습: ${it.title}" }
-    }
-}
-
-class RoadmapViewModel(private val repository: StudyRepository) : ViewModel() {
-    val state: StateFlow<RoadmapUiState> = combine(repository.subjects, repository.roadmap, repository.topics, repository.profile, repository.contents) { subjects, items, topics, profile, contents ->
+class RoadmapViewModel(
+    private val streams: FamilyDataStreams,
+    private val roadmap: RoadmapRepository,
+) : ViewModel() {
+    val state: StateFlow<RoadmapUiState> = combine(streams.subjects, streams.roadmap, streams.topics, streams.profile, streams.contents) { subjects, items, topics, profile, contents ->
         RoadmapUiState(subjects, items, StudyStats.subjectProgress(topics, subjects), topics, profile.studentName, contents)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RoadmapUiState())
 
     fun save(existing: RoadmapItemEntity?, subjectId: String?, title: String, description: String, resource: String, targetDate: LocalDate?, contentId: String?) = viewModelScope.launch {
         val base = existing ?: RoadmapItemEntity(familyId = "", title = title, orderIndex = state.value.items.size)
-        repository.saveRoadmapItem(base.copy(subjectId = subjectId, title = title, description = description, resource = resource, targetDate = targetDate?.toEpochDay(), contentId = contentId))
+        roadmap.save(base.copy(subjectId = subjectId, title = title, description = description, resource = resource, targetDate = targetDate?.toEpochDay(), contentId = contentId))
     }
 
-    fun setStatus(id: String, status: RoadmapStatus) = viewModelScope.launch { repository.setRoadmapStatus(id, status) }
-    fun delete(id: String) = viewModelScope.launch { repository.deleteRoadmapItem(id) }
+    fun setStatus(id: String, status: RoadmapStatus) = viewModelScope.launch { roadmap.setStatus(id, status) }
+    fun delete(id: String) = viewModelScope.launch { roadmap.delete(id) }
 
     /** 추천 항목을 로드맵에 바로 추가. */
     fun addSuggestion(subject: SubjectEntity, title: String) = save(null, subject.id, title, "", "", LocalDate.now().plusDays(7), null)
+
+    /** 화면 이벤트 단일 진입점. */
+    fun onEvent(event: RoadmapEvent) {
+        when (event) {
+            is RoadmapEvent.ContentOf -> contentOf(event.item)
+            is RoadmapEvent.Save -> save(event.existing, event.subjectId, event.title, event.description, event.resource, event.targetDate, event.contentId)
+            is RoadmapEvent.SetStatus -> setStatus(event.id, event.status)
+            is RoadmapEvent.Delete -> delete(event.id)
+            is RoadmapEvent.AddSuggestion -> addSuggestion(event.subject, event.title)
+        }
+    }
+
 }

@@ -1,8 +1,8 @@
 package com.nextstep.app.domain
 
-import com.nextstep.app.data.local.ContentEntity
-import com.nextstep.app.data.local.SubjectEntity
-import com.nextstep.app.data.local.TopicEntity
+import com.nextstep.app.data.local.entity.ContentEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.TopicStatus
@@ -10,6 +10,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.content.ContentRecommender
+import com.nextstep.app.domain.content.ContentClassifier
+import com.nextstep.app.domain.content.YouTubeLinks
 
 class ContentTest {
     @Test

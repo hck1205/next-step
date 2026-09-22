@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Dashboard
@@ -11,7 +12,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -35,7 +35,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.domain.Capabilities
+import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.calendar.CalendarScreen
 import com.nextstep.app.ui.content.ContentLibraryScreen
@@ -51,6 +51,16 @@ import com.nextstep.app.ui.progress.SubjectDetailScreen
 import com.nextstep.app.ui.roadmap.RoadmapScreen
 import com.nextstep.app.ui.settings.SettingsScreen
 import com.nextstep.app.ui.timer.TimerScreen
+import com.nextstep.app.ui.content.ContentActions
+import com.nextstep.app.ui.home.HomeActions
+import com.nextstep.app.ui.insights.InsightsActions
+import com.nextstep.app.ui.mentor.MentorDashboardActions
+import com.nextstep.app.ui.parent.ParentDashboardActions
+import com.nextstep.app.ui.progress.ProgressActions
+import com.nextstep.app.ui.progress.SubjectDetailActions
+import com.nextstep.app.ui.roadmap.RoadmapActions
+import com.nextstep.app.ui.settings.SettingsActions
+import com.nextstep.app.ui.timer.TimerActions
 
 object Routes {
     const val HOME = "home"
@@ -150,61 +160,58 @@ private fun MainScaffold(caps: Capabilities) {
 @Composable
 private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, modifier: Modifier = Modifier) {
     val isTab: (String) -> Boolean = { route -> topLevelDestinations(caps.role).any { it.route == route } }
+    val go: (String) -> Unit = { navController.navigate(it) }
+    val back: () -> Unit = { navController.popBackStack() }
+    val backUnlessTab: (String) -> (() -> Unit)? = { route -> if (isTab(route)) null else back }
+    val openSubject: (String) -> Unit = { go(Routes.subject(it)) }
+
     NavHost(navController = navController, startDestination = Routes.HOME, modifier = modifier) {
         composable(Routes.HOME) {
             when (caps.role) {
                 Role.PARENT -> ParentDashboardScreen(
                     caps = caps,
-                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-                    onOpenSubject = { navController.navigate(Routes.subject(it)) },
-                    onOpenInsights = { navController.navigate(Routes.INSIGHTS) },
-                    onOpenMentor = { navController.navigate(Routes.MENTOR_HOME) },
-                    onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
-                    onOpenContent = { navController.navigate(Routes.CONTENT) },
+                    actions = ParentDashboardActions(
+                        onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject, onOpenInsights = { go(Routes.INSIGHTS) },
+                        onOpenMentor = { go(Routes.MENTOR_HOME) }, onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
+                    ),
                 )
                 Role.MENTOR -> MentorDashboardScreen(
-                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-                    onOpenSubject = { navController.navigate(Routes.subject(it)) },
-                    onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
-                    onOpenContent = { navController.navigate(Routes.CONTENT) },
-                    onBack = null,
+                    actions = MentorDashboardActions(
+                        onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) },
+                        onOpenContent = { go(Routes.CONTENT) }, onBack = null,
+                    ),
                 )
                 Role.STUDENT -> StudentHomeScreen(
-                    onOpenTimer = { navController.navigate(Routes.TIMER) },
-                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-                    onOpenSubject = { navController.navigate(Routes.subject(it)) },
-                    onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
-                    onOpenContent = { navController.navigate(Routes.CONTENT) },
+                    actions = HomeActions(
+                        onOpenTimer = { go(Routes.TIMER) }, onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject,
+                        onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
+                    ),
                 )
             }
         }
         composable(Routes.MENTOR_HOME) {
             MentorDashboardScreen(
-                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
-                onOpenSubject = { navController.navigate(Routes.subject(it)) },
-                onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
-                onOpenContent = { navController.navigate(Routes.CONTENT) },
-                onBack = { navController.popBackStack() },
+                actions = MentorDashboardActions(
+                    onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) },
+                    onOpenContent = { go(Routes.CONTENT) }, onBack = back,
+                ),
             )
         }
-        composable(Routes.CONTENT) { ContentLibraryScreen(caps = caps, onBack = { navController.popBackStack() }) }
+        composable(Routes.CONTENT) { ContentLibraryScreen(caps = caps, actions = ContentActions(onBack = back)) }
         composable(Routes.PROGRESS) {
-            ProgressScreen(caps = caps, onOpenSubject = { navController.navigate(Routes.subject(it)) }, onOpenRoadmap = { navController.navigate(Routes.ROADMAP) })
+            ProgressScreen(caps = caps, actions = ProgressActions(onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) }))
         }
-        composable(
-            Routes.SUBJECT,
-            arguments = listOf(navArgument("subjectId") { type = NavType.StringType }),
-        ) {
-            SubjectDetailScreen(caps = caps, onBack = { navController.popBackStack() })
+        composable(Routes.SUBJECT, arguments = listOf(navArgument("subjectId") { type = NavType.StringType })) {
+            SubjectDetailScreen(caps = caps, actions = SubjectDetailActions(onBack = back))
         }
         composable(Routes.ROADMAP) {
-            RoadmapScreen(caps = caps, onBack = if (isTab(Routes.ROADMAP)) null else { { navController.popBackStack() } }, onOpenContent = { navController.navigate(Routes.CONTENT) })
+            RoadmapScreen(caps = caps, actions = RoadmapActions(onBack = backUnlessTab(Routes.ROADMAP), onOpenContent = { go(Routes.CONTENT) }))
         }
         composable(Routes.CHEER) { CheerScreen() }
         composable(Routes.CALENDAR) { CalendarScreen(caps = caps) }
         composable(Routes.GRADES) { GradesScreen(caps = caps) }
-        composable(Routes.INSIGHTS) { InsightsScreen(caps = caps, onBack = if (isTab(Routes.INSIGHTS)) null else { { navController.popBackStack() } }) }
-        composable(Routes.TIMER) { TimerScreen(onBack = { navController.popBackStack() }) }
-        composable(Routes.SETTINGS) { SettingsScreen(onBack = { navController.popBackStack() }) }
+        composable(Routes.INSIGHTS) { InsightsScreen(caps = caps, actions = InsightsActions(onBack = backUnlessTab(Routes.INSIGHTS))) }
+        composable(Routes.TIMER) { TimerScreen(actions = TimerActions(onBack = back)) }
+        composable(Routes.SETTINGS) { SettingsScreen(actions = SettingsActions(onBack = back)) }
     }
 }

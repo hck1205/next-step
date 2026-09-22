@@ -2,12 +2,13 @@ package com.nextstep.app.ui.timer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.StudySessionEntity
-import com.nextstep.app.data.local.SubjectEntity
-import com.nextstep.app.data.prefs.RunningTimer
-import com.nextstep.app.data.repository.StudyRepository
-import com.nextstep.app.domain.DateUtils
-import com.nextstep.app.domain.StudyStats
+import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.StudySessionRepository
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.time.DateUtils
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,20 +16,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalTime
 
-data class TimerUiState(
-    val subjects: List<SubjectEntity> = emptyList(),
-    val running: RunningTimer? = null,
-    val elapsedSeconds: Long = 0,
-    val todayMinutes: Int = 0,
-    val todaySessions: List<StudySessionEntity> = emptyList(),
-    val selectedSubjectId: String? = null,
-    val lastSaved: StudySessionEntity? = null,
-)
-
-class TimerViewModel(private val repository: StudyRepository) : ViewModel() {
+class TimerViewModel(
+    private val streams: FamilyDataStreams,
+    private val sessions: StudySessionRepository,
+) : ViewModel() {
     private val selected = MutableStateFlow<String?>(null)
     private val tick = MutableStateFlow(0L)
     private val lastSaved = MutableStateFlow<StudySessionEntity?>(null)
@@ -39,7 +31,7 @@ class TimerViewModel(private val repository: StudyRepository) : ViewModel() {
         }
     }
 
-    val state: StateFlow<TimerUiState> = combine(repository.subjects, repository.runningTimer, repository.sessions, selected, tick) { subjects, running, sessions, sel, now ->
+    val state: StateFlow<TimerUiState> = combine(streams.subjects, streams.runningTimer, streams.sessions, selected, tick) { subjects, running, sessions, sel, now ->
         val todayStart = DateUtils.startOfDayMillis(DateUtils.today())
         TimerUiState(
             subjects = subjects,
@@ -56,21 +48,34 @@ class TimerViewModel(private val repository: StudyRepository) : ViewModel() {
 
     fun start() = viewModelScope.launch {
         lastSaved.value = null
-        repository.startTimer(state.value.selectedSubjectId)
+        sessions.startTimer(state.value.selectedSubjectId)
     }
 
-    fun stop() = viewModelScope.launch { lastSaved.value = repository.stopTimer() }
+    fun stop() = viewModelScope.launch { lastSaved.value = sessions.stopTimer() }
 
-    fun cancel() = viewModelScope.launch { repository.cancelTimer() }
+    fun cancel() = viewModelScope.launch { sessions.cancelTimer() }
 
     /** 타이머 없이 직접 기록. */
     fun addManual(subjectId: String?, date: LocalDate, start: LocalTime, minutes: Int, note: String) = viewModelScope.launch {
         if (minutes <= 0) return@launch
         val startMs = DateUtils.toMillis(date, start)
-        repository.saveSession(
+        sessions.save(
             StudySessionEntity(familyId = "", subjectId = subjectId, startAt = startMs, endAt = startMs + minutes * 60_000L, durationMinutes = minutes, note = note),
         )
     }
 
-    fun delete(id: String) = viewModelScope.launch { repository.deleteSession(id) }
+    fun delete(id: String) = viewModelScope.launch { sessions.delete(id) }
+
+    /** 화면 이벤트 단일 진입점. */
+    fun onEvent(event: TimerEvent) {
+        when (event) {
+            is TimerEvent.SelectSubject -> selectSubject(event.id)
+            TimerEvent.Start -> start()
+            TimerEvent.Stop -> stop()
+            TimerEvent.Cancel -> cancel()
+            is TimerEvent.AddManual -> addManual(event.subjectId, event.date, event.start, event.minutes, event.note)
+            is TimerEvent.Delete -> delete(event.id)
+        }
+    }
+
 }

@@ -2,43 +2,28 @@ package com.nextstep.app.ui.insights
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.NoteEntity
-import com.nextstep.app.data.local.SubjectEntity
-import com.nextstep.app.data.local.TaskEntity
-import com.nextstep.app.data.repository.StudyRepository
-import com.nextstep.app.domain.DateUtils
-import com.nextstep.app.domain.DayMinutes
-import com.nextstep.app.domain.Insight
-import com.nextstep.app.domain.InsightAction
-import com.nextstep.app.domain.InsightEngine
-import com.nextstep.app.domain.StudyStats
-import com.nextstep.app.domain.SubjectMinutes
-import com.nextstep.app.domain.SubjectProgress
-import com.nextstep.app.domain.SubjectScore
-import com.nextstep.app.domain.Talent
+import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.NoteRepository
+import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.insight.InsightAction
+import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class InsightsUiState(
-    val subjects: List<SubjectEntity> = emptyList(),
-    val insights: List<Insight> = emptyList(),
-    val scores: List<SubjectScore> = emptyList(),
-    val progress: List<SubjectProgress> = emptyList(),
-    val daily14: List<DayMinutes> = emptyList(),
-    val weeklyBySubject: List<SubjectMinutes> = emptyList(),
-    val byHour: IntArray = IntArray(24),
-    val notes: List<NoteEntity> = emptyList(),
-    val totalMinutes: Int = 0,
-    val talents: List<Talent> = emptyList(),
-)
+class InsightsViewModel(
+    private val streams: FamilyDataStreams,
+    private val tasks: TaskRepository,
+    private val notes: NoteRepository,
+) : ViewModel() {
 
-class InsightsViewModel(private val repository: StudyRepository) : ViewModel() {
-
-    private val a = combine(repository.subjects, repository.topics, repository.grades) { s, t, g -> Triple(s, t, g) }
-    private val b = combine(repository.sessions, repository.tasks, repository.events, repository.notes) { s, t, e, n -> Quad(s, t, e, n) }
+    private val a = combine(streams.subjects, streams.topics, streams.grades) { s, t, g -> Triple(s, t, g) }
+    private val b = combine(streams.sessions, streams.tasks, streams.events, streams.notes) { s, t, e, n -> Quad(s, t, e, n) }
 
     val state: StateFlow<InsightsUiState> = combine(a, b) { (subjects, topics, grades), (sessions, tasks, events, notes) ->
         InsightsUiState(
@@ -57,7 +42,7 @@ class InsightsViewModel(private val repository: StudyRepository) : ViewModel() {
 
     fun applyAction(action: InsightAction, createdByRole: String) = viewModelScope.launch {
         when (action) {
-            is InsightAction.CreateTask -> repository.saveTask(
+            is InsightAction.CreateTask -> tasks.save(
                 TaskEntity(
                     familyId = "", subjectId = action.subjectId, topicId = action.topicId, title = action.title, type = action.type,
                     dueDate = DateUtils.today().plusDays(1).toEpochDay(), createdByRole = createdByRole,
@@ -66,8 +51,18 @@ class InsightsViewModel(private val repository: StudyRepository) : ViewModel() {
         }
     }
 
-    fun addNote(text: String) = viewModelScope.launch { if (text.isNotBlank()) repository.addNote(text) }
-    fun deleteNote(id: String) = viewModelScope.launch { repository.deleteNote(id) }
+    fun addNote(text: String) = viewModelScope.launch { if (text.isNotBlank()) notes.add(text) }
+    fun deleteNote(id: String) = viewModelScope.launch { notes.delete(id) }
 
     private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
+
+    /** 화면 이벤트 단일 진입점. */
+    fun onEvent(event: InsightsEvent) {
+        when (event) {
+            is InsightsEvent.ApplyAction -> applyAction(event.action, event.createdByRole)
+            is InsightsEvent.AddNote -> addNote(event.text)
+            is InsightsEvent.DeleteNote -> deleteNote(event.id)
+        }
+    }
+
 }
