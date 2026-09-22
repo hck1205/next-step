@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /** 과목 선택 드롭다운. allowNone 이면 "과목 없음" 항목을 포함합니다. */
 @Composable

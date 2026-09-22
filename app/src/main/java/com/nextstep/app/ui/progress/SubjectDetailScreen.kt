@@ -48,6 +48,8 @@ import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.SubjectEditDialog
 import com.nextstep.app.ui.components.subjectColor
 import com.nextstep.app.ui.progress.components.TopicRow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun SubjectDetailScreen(caps: Capabilities, actions: SubjectDetailActions, viewModel: SubjectDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

@@ -45,6 +45,8 @@ import com.nextstep.app.ui.components.SubjectSelectDialog
 import com.nextstep.app.ui.components.SubjectTag
 import com.nextstep.app.ui.components.SyncStatusBadge
 import com.nextstep.app.ui.settings.components.InfoRow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun SettingsScreen(actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

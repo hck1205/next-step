@@ -22,6 +22,8 @@ import com.nextstep.app.data.model.EventType
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.LocalTime
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun EventEditDialog(

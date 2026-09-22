@@ -22,6 +22,8 @@ import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.grades.components.Double
 import java.time.LocalDate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun GradeEditDialog(

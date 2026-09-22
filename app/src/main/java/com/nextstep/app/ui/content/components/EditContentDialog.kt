@@ -19,6 +19,8 @@ import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.ui.components.OptionPicker
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 internal fun EditContentDialog(c: ContentEntity, subjectKeys: List<String>, canDelete: Boolean, onDismiss: () -> Unit, onDelete: () -> Unit, onSave: (ContentEntity) -> Unit) {

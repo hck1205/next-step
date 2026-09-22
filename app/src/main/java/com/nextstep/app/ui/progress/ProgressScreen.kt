@@ -29,6 +29,8 @@ import com.nextstep.app.ui.components.AppCard
 import com.nextstep.app.ui.components.EmptyState
 import com.nextstep.app.ui.components.SubjectEditDialog
 import com.nextstep.app.ui.progress.components.SubjectProgressCard
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun ProgressScreen(caps: Capabilities, actions: ProgressActions, viewModel: ProgressViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

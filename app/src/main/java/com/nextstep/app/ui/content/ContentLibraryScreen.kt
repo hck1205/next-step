@@ -47,6 +47,8 @@ import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.content.components.AddContentDialog
 import com.nextstep.app.ui.content.components.ContentRow
 import com.nextstep.app.ui.content.components.EditContentDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /**
  * 교육 콘텐츠 저장소. 유튜브 링크를 등록하면 자동 분류되고, 학생의 진도·약점에 맞춰 추천됩니다.

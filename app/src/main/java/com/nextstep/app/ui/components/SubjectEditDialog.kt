@@ -25,6 +25,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.ui.theme.SubjectPalette
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /** 과목 추가/편집 다이얼로그. */
 @Composable

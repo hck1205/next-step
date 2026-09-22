@@ -17,6 +17,8 @@ import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun TaskEditDialog(existing: TaskEntity?, subjects: List<SubjectEntity>, defaultDate: LocalDate, onDismiss: () -> Unit, onSave: (String, String?, TaskType, LocalDate) -> Unit) {

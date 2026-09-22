@@ -42,6 +42,8 @@ import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.SessionRow
 import com.nextstep.app.ui.components.SubjectPicker
 import com.nextstep.app.ui.components.SubjectTag
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun TimerScreen(actions: TimerActions, viewModel: TimerViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

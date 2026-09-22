@@ -31,6 +31,8 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.components.AppCard
 import com.nextstep.app.ui.components.ConfirmDialog
 import com.nextstep.app.ui.components.TextInputDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 internal fun TopicRow(

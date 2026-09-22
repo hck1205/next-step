@@ -25,6 +25,8 @@ import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.ui.components.OptionPicker
 import com.nextstep.app.ui.content.ContentEvent
 import com.nextstep.app.ui.content.ContentUiState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 internal fun AddContentDialog(state: ContentUiState, onEvent: (ContentEvent) -> Unit, subjectKeys: List<String>, onDismiss: () -> Unit) {

@@ -5,6 +5,7 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.insight.TalentEngine
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -117,7 +118,7 @@ class StudyPlannerTest {
             GradeEntity(familyId = family, subjectId = "math", title = "t", score = 70.0, date = 1),
             GradeEntity(familyId = family, subjectId = "eng", title = "t", score = 95.0, date = 1),
         )
-        val talents = InsightEngine.talents(listOf(math, eng), emptyList(), grades, sessions)
+        val talents = TalentEngine.talents(listOf(math, eng), emptyList(), grades, sessions)
         assertTrue(talents.any { it.subjectId == "eng" && it.title.contains("효율형") })
     }
 }

@@ -19,6 +19,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.onboarding.components.DetailStep
 import com.nextstep.app.ui.onboarding.components.RoleStep
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun OnboardingScreen(viewModel: OnboardingViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

@@ -56,6 +56,8 @@ import com.nextstep.app.ui.components.SyncStatusBadge
 import com.nextstep.app.ui.components.subjectColor
 import java.time.LocalDate
 import java.util.Locale
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun MentorDashboardScreen(actions: MentorDashboardActions, viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

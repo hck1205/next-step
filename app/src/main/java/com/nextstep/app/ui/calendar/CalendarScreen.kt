@@ -40,6 +40,8 @@ import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.SessionRow
 import com.nextstep.app.ui.components.TaskEditDialog
 import com.nextstep.app.ui.components.TaskRow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun CalendarScreen(caps: Capabilities, viewModel: CalendarViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

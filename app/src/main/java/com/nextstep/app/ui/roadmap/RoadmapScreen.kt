@@ -43,6 +43,8 @@ import com.nextstep.app.ui.components.LabeledProgress
 import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.roadmap.components.RoadmapEditDialog
 import com.nextstep.app.ui.roadmap.components.RoadmapRow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /**
  * 학습 로드맵. 멘토(또는 학부모 겸 멘토)가 큐레이팅하고, 학생이 진행 상태를 갱신하고, 학부모는 진행률을 봅니다.

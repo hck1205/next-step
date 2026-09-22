@@ -41,6 +41,8 @@ import com.nextstep.app.ui.components.StatTile
 import com.nextstep.app.ui.grades.components.GradeRow
 import com.nextstep.app.ui.grades.components.GradeTrendChart
 import java.util.Locale
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun GradesScreen(caps: Capabilities, viewModel: GradesViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

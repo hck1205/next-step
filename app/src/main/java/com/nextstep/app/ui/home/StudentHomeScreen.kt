@@ -51,6 +51,8 @@ import com.nextstep.app.ui.components.subjectColor
 import com.nextstep.app.ui.home.components.PlannerDialog
 import com.nextstep.app.ui.home.components.TimerCard
 import com.nextstep.app.ui.home.components.TopicSuggestionRow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun StudentHomeScreen(actions: HomeActions, viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

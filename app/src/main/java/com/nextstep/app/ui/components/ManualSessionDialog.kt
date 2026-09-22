@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import java.time.LocalDate
 import java.time.LocalTime
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun ManualSessionDialog(subjects: List<SubjectEntity>, onDismiss: () -> Unit, onSave: (String?, LocalDate, LocalTime, Int, String) -> Unit) {

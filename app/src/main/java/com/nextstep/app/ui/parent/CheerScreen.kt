@@ -42,6 +42,8 @@ import com.nextstep.app.ui.components.BarItem
 import com.nextstep.app.ui.components.EmptyState
 import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.StatTile
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /** 학부모 전용: 자녀에게 격려 메시지를 보내고, 오늘의 성취를 근거로 칭찬을 돕는 화면. */
 @Composable

@@ -12,6 +12,7 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.insight.TalentEngine
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
 import kotlinx.coroutines.flow.SharingStarted
@@ -52,7 +53,7 @@ class ParentDashboardViewModel(
         val events = x.events
         s.copy(
             syncStatus = x.sync,
-            talents = InsightEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(3),
+            talents = TalentEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(3),
             streak = StudyStats.studyStreak(d.sessions),
             roadmapDone = x.roadmap.count { it.status == RoadmapStatus.DONE },
             roadmapTotal = x.roadmap.size,

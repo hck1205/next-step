@@ -8,6 +8,7 @@ import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.insight.InsightAction
 import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.insight.TalentEngine
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,7 +37,7 @@ class InsightsViewModel(
             byHour = StudyStats.minutesByHour(sessions),
             notes = notes,
             totalMinutes = sessions.sumOf { it.durationMinutes },
-            talents = InsightEngine.talents(subjects, topics, grades, sessions),
+            talents = TalentEngine.talents(subjects, topics, grades, sessions),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InsightsUiState())
 

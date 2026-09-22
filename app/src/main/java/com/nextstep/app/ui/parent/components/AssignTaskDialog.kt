@@ -18,6 +18,8 @@ import com.nextstep.app.ui.components.DateField
 import com.nextstep.app.ui.components.OptionPicker
 import com.nextstep.app.ui.components.SubjectPicker
 import java.time.LocalDate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 internal fun AssignTaskDialog(subjects: List<SubjectEntity>, onDismiss: () -> Unit, onSave: (String, String?, TaskType, LocalDate) -> Unit) {

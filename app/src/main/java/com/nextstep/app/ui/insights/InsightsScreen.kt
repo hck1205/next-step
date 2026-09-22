@@ -48,6 +48,8 @@ import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.Slice
 import com.nextstep.app.ui.components.TalentCard
 import com.nextstep.app.ui.components.subjectColor
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun InsightsScreen(caps: Capabilities, actions: InsightsActions, viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

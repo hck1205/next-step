@@ -49,6 +49,8 @@ import com.nextstep.app.ui.components.SyncStatusBadge
 import com.nextstep.app.ui.components.TalentCard
 import com.nextstep.app.ui.components.subjectColor
 import com.nextstep.app.ui.parent.components.AssignTaskDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun ParentDashboardScreen(caps: Capabilities, actions: ParentDashboardActions, viewModel: ParentDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
