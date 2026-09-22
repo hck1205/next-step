@@ -24,12 +24,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 @Composable
-internal fun PlannerDialog(onDismiss: () -> Unit, onGenerate: (PlanOptions) -> Unit) {
-    var days by remember { mutableStateOf("7") }
-    var start by remember { mutableStateOf(LocalTime.of(19, 0)) }
-    var minutes by remember { mutableStateOf("50") }
-    var perDay by remember { mutableStateOf("2") }
-    var weekend by remember { mutableStateOf(true) }
+internal fun PlannerDialog(defaults: PlanOptions, onDismiss: () -> Unit, onGenerate: (PlanOptions) -> Unit) {
+    var days by remember { mutableStateOf(defaults.days.toString()) }
+    var start by remember { mutableStateOf(defaults.startTime) }
+    var minutes by remember { mutableStateOf(defaults.sessionMinutes.toString()) }
+    var perDay by remember { mutableStateOf(defaults.sessionsPerDay.toString()) }
+    var weekend by remember { mutableStateOf(defaults.includeWeekend) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("학습 계획 만들기") },

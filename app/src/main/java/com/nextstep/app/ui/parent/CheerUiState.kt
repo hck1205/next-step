@@ -18,4 +18,6 @@ data class CheerUiState(
     val notes: List<NoteEntity> = emptyList(),
     /** 데이터에 맞춰 만든 칭찬 문구 제안. */
     val cheerSuggestions: List<String> = emptyList(),
+    /** 단계별 칭찬 방향. 단계가 없으면 null. */
+    val praiseStyle: String? = null,
 )

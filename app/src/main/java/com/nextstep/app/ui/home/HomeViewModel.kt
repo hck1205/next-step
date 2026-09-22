@@ -25,6 +25,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.domain.growth.GrowthGuide
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.data.model.GradeLevel
 
 class HomeViewModel(
     private val streams: FamilyDataStreams,
@@ -56,9 +59,14 @@ class HomeViewModel(
         s.copy(progress = StudyStats.subjectProgress(topics, s.subjects), runningTimer = timer, roadmap = roadmap, lastPlan = plan)
     }
 
-    val state: StateFlow<HomeUiState> = combine(withProgress, streams.contents, streams.grades) { s, contents, grades ->
+    val state: StateFlow<HomeUiState> = combine(withProgress, streams.contents, streams.grades, streams.members) { s, contents, grades, members ->
         val exams = StudyStats.upcomingExams(s.events, emptyList())
-        s.copy(recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, limit = 3))
+        val stage = GrowthStage.of(members)
+        s.copy(
+            stage = stage,
+            planDefaults = GrowthGuide.defaultPlanOptions(stage),
+            recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, gradeLevel = stage?.gradeLevel ?: GradeLevel.ALL, limit = 3),
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     fun markContentWatched(id: String) = viewModelScope.launch { contents.setWatched(id, true) }

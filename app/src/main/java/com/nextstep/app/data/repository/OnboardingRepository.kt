@@ -14,7 +14,7 @@ interface OnboardingRepository {
     val syncAvailable: Boolean
 
     /** 학생: 새 가족을 만들고 연결 코드를 발급합니다. */
-    suspend fun createFamilyAsStudent(studentName: String): Result<FamilyInfo>
+    suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int = 0): Result<FamilyInfo>
 
     /** 학부모·멘토: 연결 코드로 학생의 가족에 참여합니다. 같은 코드로 여러 명이 참여할 수 있습니다. */
     suspend fun joinFamily(role: Role, name: String, code: String, title: String = ""): Result<FamilyInfo>

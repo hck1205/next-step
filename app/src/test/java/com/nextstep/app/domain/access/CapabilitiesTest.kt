@@ -38,7 +38,7 @@ class CapabilitiesTest {
 
     @Test
     fun mentorCuratesButNeverRecordsForTheStudent() {
-        assertTrue(mentor.canEditRoadmap); assertTrue(mentor.canSetClassProgress); assertTrue(mentor.canApplyInsightActions)
+        assertTrue(mentor.canEditRoadmap); assertTrue(mentor.canEditTopics); assertTrue(mentor.canApplyInsightActions)
         assertFalse(mentor.canMarkTopicStatus); assertFalse(mentor.canUpdateRoadmapProgress); assertFalse(mentor.canUseTimer)
         assertEquals("MENTOR", mentor.actingRoleName)
     }

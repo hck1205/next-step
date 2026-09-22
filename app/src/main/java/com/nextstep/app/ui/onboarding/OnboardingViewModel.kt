@@ -19,6 +19,7 @@ class OnboardingViewModel(
     fun setName(v: String) = _state.update { it.copy(name = v) }
     fun setCode(v: String) = _state.update { it.copy(code = v.uppercase().take(6)) }
     fun setTitle(v: String) = _state.update { it.copy(title = v) }
+    fun setGrade(gradeYear: Int) = _state.update { it.copy(gradeYear = gradeYear) }
     fun back() = _state.update { it.copy(step = (it.step - 1).coerceAtLeast(0), error = null) }
 
     fun submit() {
@@ -28,7 +29,7 @@ class OnboardingViewModel(
         if (role != Role.STUDENT && s.code.length < 6) { _state.update { it.copy(error = "6자리 연결 코드를 입력해 주세요") }; return }
         _state.update { it.copy(loading = true, error = null) }
         viewModelScope.launch {
-            val result = if (role == Role.STUDENT) onboarding.createFamilyAsStudent(s.name.trim())
+            val result = if (role == Role.STUDENT) onboarding.createFamilyAsStudent(s.name.trim(), s.gradeYear)
             else onboarding.joinFamily(role, s.name.trim(), s.code, s.title.trim())
             result.onFailure { e -> _state.update { it.copy(loading = false, error = e.message ?: "오류가 발생했습니다") } }
             // 성공 시 RootViewModel 이 profile 변경을 감지해 메인 화면으로 전환합니다.
@@ -42,6 +43,7 @@ class OnboardingViewModel(
             is OnboardingEvent.SetName -> setName(event.v)
             is OnboardingEvent.SetCode -> setCode(event.v)
             is OnboardingEvent.SetTitle -> setTitle(event.v)
+            is OnboardingEvent.SetGrade -> setGrade(event.gradeYear)
             OnboardingEvent.Back -> back()
             OnboardingEvent.Submit -> submit()
         }

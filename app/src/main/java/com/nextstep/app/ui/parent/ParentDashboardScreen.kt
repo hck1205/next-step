@@ -51,6 +51,7 @@ import com.nextstep.app.ui.components.subjectColor
 import com.nextstep.app.ui.parent.components.AssignTaskDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.components.StageCard
 
 @Composable
 fun ParentDashboardScreen(caps: Capabilities, actions: ParentDashboardActions, viewModel: ParentDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -95,6 +96,13 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
                         }
                     }
                 }
+            }
+            item {
+                StageCard(
+                    stage = state.stage, gradeLabel = state.gradeLabel,
+                    headline = state.stage?.let { "지금 해 줄 일" }, body = state.stageTip, experience = state.stageExperience,
+                    onSetGrade = actions.onOpenSettings,
+                )
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

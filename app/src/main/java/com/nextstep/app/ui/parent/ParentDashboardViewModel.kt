@@ -20,6 +20,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.domain.growth.GrowthGuide
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.time.DateUtils
 
 class ParentDashboardViewModel(
     private val streams: FamilyDataStreams,
@@ -59,6 +62,10 @@ class ParentDashboardViewModel(
             roadmapTotal = x.roadmap.size,
             mentorCount = x.members.count { it.role == "MENTOR" || it.mentorEnabled && it.role != "STUDENT" },
             parentCount = x.members.count { it.role == "PARENT" },
+            stage = GrowthStage.of(x.members),
+            gradeLabel = x.members.firstOrNull { it.role == "STUDENT" }?.gradeYear?.let { y -> GrowthStage.fromGradeYear(y)?.gradeLabel(y) },
+            stageTip = GrowthStage.of(x.members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).parentTips, DateUtils.today()) },
+            stageExperience = GrowthStage.of(x.members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).experiences, DateUtils.weekStart()) },
             recentGrades = d.grades.take(5),
             scores = StudyStats.subjectScores(d.grades, s.subjects),
             progress = StudyStats.subjectProgress(d.topics, s.subjects),

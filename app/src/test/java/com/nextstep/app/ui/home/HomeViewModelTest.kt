@@ -45,6 +45,10 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertEquals(2, s.reviewQueue.size); assertEquals("단원 2", s.previewQueue.single().second.title)
         assertEquals(listOf("진행", "예정"), s.roadmapFocus.map { it.title })
         assertEquals(1, s.activeSubjects.size)
+        assertEquals(com.nextstep.app.domain.planner.PlanOptions(), s.planDefaults)
+        streams.members.value = listOf(Fixtures.member(com.nextstep.app.data.model.Role.STUDENT, "나", gradeYear = 11))
+        val high = settle(vm.state)
+        assertEquals(com.nextstep.app.domain.growth.GrowthStage.HIGH, high.stage); assertEquals(60, high.planDefaults.sessionMinutes)
         job.cancel()
     }
 

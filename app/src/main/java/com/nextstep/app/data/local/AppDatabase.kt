@@ -39,7 +39,7 @@ import com.nextstep.app.data.local.entity.ContentEntity
         RoadmapItemEntity::class,
         ContentEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

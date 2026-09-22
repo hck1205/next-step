@@ -28,8 +28,9 @@ class RoomOnboardingAndSessionTest {
 
     @Test
     fun studentOnboardingCreatesFamilyMemberSubjectsAndStartsSync() = runTest {
-        val info = onboarding().createFamilyAsStudent("민수").getOrThrow()
+        val info = onboarding().createFamilyAsStudent("민수", gradeYear = 8).getOrThrow()
         assertEquals(6, info.pairingCode.length)
+        assertEquals(8, members.all.single().gradeYear)
         assertTrue(info.pairingCode.none { it in "01IO" })
         val profile = prefs.profile.value
         assertEquals(Role.STUDENT, profile.role); assertTrue(profile.onboarded); assertEquals(info.familyId, profile.familyId)

@@ -37,4 +37,9 @@ data class ParentDashboardUiState(
     val roadmapTotal: Int = 0,
     val mentorCount: Int = 0,
     val parentCount: Int = 0,
+    val stage: com.nextstep.app.domain.growth.GrowthStage? = null,
+    val gradeLabel: String? = null,
+    /** 오늘의 부모 팁과 경험 제안. 단계가 없으면 null. */
+    val stageTip: String? = null,
+    val stageExperience: String? = null,
 )

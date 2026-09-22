@@ -56,4 +56,14 @@ class SettingsViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("requestSync", "signOut"), onboarding.calls)
         job.cancel()
     }
+
+    @Test
+    fun setGradeYearTargetsStudentMember() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.PARENT, "엄마", id = "me"), Fixtures.member(Role.STUDENT, "나", id = "kid"))
+        val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
+        vm.onEvent(SettingsEvent.SetGradeYear(5))
+        settle(vm.state)
+        assertEquals(listOf("grade:kid:5"), members.calls)
+        job.cancel()
+    }
 }

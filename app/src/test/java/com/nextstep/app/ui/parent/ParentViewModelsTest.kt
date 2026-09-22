@@ -11,6 +11,7 @@ import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalTime
@@ -23,7 +24,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
     @Test
     fun dashboardAggregatesFamilyCounts() = runTest {
         streams.subjects.value = listOf(Fixtures.math)
-        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "나"), Fixtures.member(Role.PARENT, "엄마"), Fixtures.member(Role.PARENT, "아빠", mentorEnabled = true), Fixtures.member(Role.MENTOR, "쌤"))
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "나", gradeYear = 8), Fixtures.member(Role.PARENT, "엄마"), Fixtures.member(Role.PARENT, "아빠", mentorEnabled = true), Fixtures.member(Role.MENTOR, "쌤"))
         streams.roadmap.value = listOf(Fixtures.roadmap("a", status = RoadmapStatus.DONE), Fixtures.roadmap("b"))
         streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 40), Fixtures.session("math", today.minusDays(1), LocalTime.of(9, 0), 40))
         streams.tasks.value = listOf(Fixtures.task("지남", today.minusDays(1)))
@@ -32,6 +33,8 @@ class ParentViewModelsTest : ViewModelTestBase() {
         assertEquals(2, s.parentCount); assertEquals(2, s.mentorCount); assertEquals(1, s.roadmapDone); assertEquals(2, s.roadmapTotal)
         assertEquals(2, s.streak); assertEquals(40, s.todayMinutes); assertEquals(1, s.overdueCount)
         assertEquals(7, s.daily.size)
+        assertEquals(com.nextstep.app.domain.growth.GrowthStage.MIDDLE, s.stage); assertEquals("중2", s.gradeLabel)
+        assertTrue(s.stageTip!!.isNotBlank()); assertTrue(s.stageExperience!!.isNotBlank())
         job.cancel()
     }
 
@@ -62,6 +65,10 @@ class ParentViewModelsTest : ViewModelTestBase() {
         assertTrue(s.cheerSuggestions.any { it.contains("1시간 10분") })
         assertTrue(s.cheerSuggestions.any { it.contains("4일 연속") })
         assertTrue(s.cheerSuggestions.any { it.contains("수학") })
+        assertNull(s.praiseStyle)
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "나", gradeYear = 2))
+        val young = settle(vm.state)
+        assertTrue(young.praiseStyle!!.contains("과정")); assertTrue(young.cheerSuggestions.any { it.contains("스스로 한 게") })
         vm.onEvent(CheerEvent.Send(s.cheerSuggestions.first())); vm.onEvent(CheerEvent.Delete("x"))
         settle(vm.state)
         assertEquals(1, notes.added.size); assertEquals(listOf("x"), notes.deleted)

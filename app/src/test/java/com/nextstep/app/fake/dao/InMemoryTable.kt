@@ -10,11 +10,11 @@ open class InMemoryTable<T : Syncable> {
     protected val rows = MutableStateFlow<Map<String, T>>(emptyMap())
     val all: List<T> get() = rows.value.values.toList()
 
-    fun observeAll(familyId: String): Flow<List<T>> = rows.map { m -> m.values.filter { it.familyId == familyId && !it.deleted } }
+    open fun observeAll(familyId: String): Flow<List<T>> = rows.map { m -> m.values.filter { it.familyId == familyId && !it.deleted } }
     suspend fun getById(id: String): T? = rows.value[id]
     suspend fun upsert(item: T) { rows.value = rows.value + (item.id to item) }
     suspend fun upsertAll(items: List<T>) { rows.value = rows.value + items.associateBy { it.id } }
-    suspend fun getDirty(familyId: String): List<T> = rows.value.values.filter { it.familyId == familyId && it.dirty }
+    open suspend fun getDirty(familyId: String): List<T> = rows.value.values.filter { it.familyId == familyId && it.dirty }
     suspend fun markClean(ids: List<String>) = Unit
     fun seed(vararg items: T) { rows.value = rows.value + items.associateBy { it.id } }
 }

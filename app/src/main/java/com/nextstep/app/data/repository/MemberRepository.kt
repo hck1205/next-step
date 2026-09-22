@@ -14,5 +14,7 @@ interface MemberRepository {
     suspend fun updateProfile(memberId: String, name: String, title: String)
     /** 학부모가 멘토 역할을 겸할지. 멘토 본인은 항상 켜져 있습니다. */
     suspend fun setMentorEnabled(memberId: String, enabled: Boolean)
+    /** 학생 학년(1~12). 성장 단계의 근거. */
+    suspend fun setGradeYear(memberId: String, gradeYear: Int)
     suspend fun remove(memberId: String)
 }

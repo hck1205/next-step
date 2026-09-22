@@ -116,6 +116,7 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun setSubjects(memberId: String, subjectIds: List<String>) { calls += "subjects:$memberId:${subjectIds.joinToString("|")}" }
     override suspend fun updateProfile(memberId: String, name: String, title: String) { calls += "profile:$memberId:$name:$title" }
     override suspend fun setMentorEnabled(memberId: String, enabled: Boolean) { calls += "mentor:$memberId:$enabled" }
+    override suspend fun setGradeYear(memberId: String, gradeYear: Int) { calls += "grade:$memberId:$gradeYear" }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 
@@ -125,7 +126,7 @@ class FakeOnboardingRepository(override val syncAvailable: Boolean = true) : Onb
     var createResult: Result<FamilyInfo> = Result.success(FamilyInfo("fam", "ABC123", "학생"))
     var joinResult: Result<FamilyInfo> = Result.success(FamilyInfo("fam", "ABC123", "학생"))
     val calls = mutableListOf<String>()
-    override suspend fun createFamilyAsStudent(studentName: String): Result<FamilyInfo> { calls += "create:$studentName"; return createResult }
+    override suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int): Result<FamilyInfo> { calls += "create:$studentName:$gradeYear"; return createResult }
     override suspend fun joinFamily(role: Role, name: String, code: String, title: String): Result<FamilyInfo> { calls += "join:$role:$name:$code:$title"; return joinResult }
     override suspend fun resumeSync() { calls += "resume" }
     override suspend fun signOut() { calls += "signOut" }

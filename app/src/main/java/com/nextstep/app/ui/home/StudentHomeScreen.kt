@@ -238,7 +238,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
     }
 
     if (showPlanner) {
-        PlannerDialog(onDismiss = { showPlanner = false }) { onEvent(HomeEvent.GeneratePlan(it)) }
+        PlannerDialog(defaults = state.planDefaults, onDismiss = { showPlanner = false }) { onEvent(HomeEvent.GeneratePlan(it)) }
     }
     state.lastPlan?.let { plan ->
         AlertDialog(

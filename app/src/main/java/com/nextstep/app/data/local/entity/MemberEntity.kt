@@ -23,6 +23,8 @@ data class MemberEntity(
      * 멘토는 항상 true, 학부모는 설정에서 켜서 "학부모 겸 멘토"가 될 수 있습니다.
      */
     val mentorEnabled: Boolean = false,
+    /** 학생 본인의 학년(1=초1 … 12=고3). 학생 행에만 의미 있고 0 이면 미입력. 성장 단계를 정합니다. */
+    val gradeYear: Int = 0,
     val joinedAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,

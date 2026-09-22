@@ -19,6 +19,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.domain.growth.GrowthGuide
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.time.DateUtils
 
 class MentorDashboardViewModel(
     private val streams: FamilyDataStreams,
@@ -36,6 +39,8 @@ class MentorDashboardViewModel(
             allSubjects = subjects,
             subjects = mine,
             otherMentors = members.filter { it.role == "MENTOR" && it.id != me?.id },
+            stage = GrowthStage.of(members),
+            mentorTip = GrowthStage.of(members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).mentorTips, DateUtils.today()) },
         )
     }
 

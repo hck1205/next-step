@@ -30,10 +30,10 @@ class RoomOnboardingRepository(
     override val syncStatus: StateFlow<SyncStatus> get() = sync.status
     override val syncAvailable: Boolean get() = sync.isAvailable
 
-    override suspend fun createFamilyAsStudent(studentName: String): Result<FamilyInfo> {
+    override suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int): Result<FamilyInfo> {
         val info = FamilyInfo(familyId = newId(), pairingCode = generatePairingCode(), studentName = studentName)
         sync.createFamily(info).onFailure { return Result.failure(it) }
-        val member = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = studentName)
+        val member = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = studentName, gradeYear = gradeYear)
         memberDao.upsert(member)
         prefs.completeOnboarding(Role.STUDENT, studentName, info.familyId, info.pairingCode, studentName, member.id)
         seedDefaultSubjects(info.familyId)

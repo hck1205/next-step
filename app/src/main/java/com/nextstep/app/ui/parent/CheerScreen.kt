@@ -84,7 +84,7 @@ internal fun CheerContent(state: CheerUiState, onEvent: (CheerEvent) -> Unit) {
                 SectionTitle("오늘 기록에 맞춘 칭찬 (눌러서 보내기)")
                 AppCard {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("결과보다 과정을, 막연한 칭찬보다 구체적인 칭찬을 권해요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(state.praiseStyle?.let { "이 시기의 칭찬은 $it" } ?: "결과보다 과정을, 막연한 칭찬보다 구체적인 칭찬을 권해요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         state.cheerSuggestions.forEach { s ->
                             AssistChip(onClick = { onEvent(CheerEvent.Send(s)) }, label = { Text(s) }, leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.error) })
                         }

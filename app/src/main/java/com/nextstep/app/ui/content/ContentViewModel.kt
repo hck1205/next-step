@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.domain.growth.GrowthStage
 
 class ContentViewModel(
     private val streams: FamilyDataStreams,
@@ -23,11 +24,12 @@ class ContentViewModel(
     private val filter = MutableStateFlow(ContentFilter())
     private val add = MutableStateFlow(AddContentState())
 
-    private val base = combine(streams.subjects, streams.contents, streams.topics, streams.grades, streams.events) { subjects, contents, topics, grades, events ->
+    private val base = combine(streams.subjects, streams.contents, streams.topics, streams.grades, combine(streams.events, streams.members) { e, m -> e to m }) { subjects, contents, topics, grades, (events, members) ->
         val progress = StudyStats.subjectProgress(topics, subjects)
+        val level = GrowthStage.of(members)?.gradeLevel ?: GradeLevel.ALL
         ContentUiState(
             subjects = subjects, all = contents,
-            recommendations = ContentRecommender.recommend(contents, subjects, progress, StudyStats.subjectScores(grades, subjects), StudyStats.upcomingExams(events, emptyList()), limit = 5),
+            recommendations = ContentRecommender.recommend(contents, subjects, progress, StudyStats.subjectScores(grades, subjects), StudyStats.upcomingExams(events, emptyList()), gradeLevel = level, limit = 5),
         )
     }
 

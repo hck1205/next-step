@@ -53,8 +53,8 @@ object Fixtures {
     fun note(text: String, role: Role = Role.PARENT, author: String = "엄마", id: String = "n-$text") =
         NoteEntity(id = id, familyId = FAMILY, authorRole = role.name, authorName = author, text = text)
 
-    fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR) =
-        MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled)
+    fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR, gradeYear: Int = 0) =
+        MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled, gradeYear = gradeYear)
 
     fun roadmap(title: String, subjectId: String? = null, status: RoadmapStatus = RoadmapStatus.PLANNED, target: LocalDate? = null, id: String = "r-$title", contentId: String? = null) =
         RoadmapItemEntity(id = id, familyId = FAMILY, subjectId = subjectId, title = title, status = status, targetDate = target?.toEpochDay(), contentId = contentId)

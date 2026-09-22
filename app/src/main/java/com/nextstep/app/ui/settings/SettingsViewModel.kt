@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.data.model.Role
 
 class SettingsViewModel(
     private val streams: FamilyDataStreams,
@@ -25,6 +26,7 @@ class SettingsViewModel(
     fun removeMember(id: String) = viewModelScope.launch { members.remove(id) }
     fun setMySubjects(ids: List<String>) = viewModelScope.launch { state.value.me?.let { members.setSubjects(it.id, ids) } }
     fun setMentorEnabled(enabled: Boolean) = viewModelScope.launch { state.value.me?.let { members.setMentorEnabled(it.id, enabled) } }
+    fun setGradeYear(gradeYear: Int) = viewModelScope.launch { state.value.members.firstOrNull { it.role == Role.STUDENT.name }?.let { members.setGradeYear(it.id, gradeYear) } }
     fun updateMyProfile(name: String, title: String) = viewModelScope.launch { state.value.me?.let { members.updateProfile(it.id, name, title) } }
 
     /** 화면 이벤트 단일 진입점. */
@@ -36,6 +38,7 @@ class SettingsViewModel(
             is SettingsEvent.SetMySubjects -> setMySubjects(event.ids)
             is SettingsEvent.SetMentorEnabled -> setMentorEnabled(event.enabled)
             is SettingsEvent.UpdateMyProfile -> updateMyProfile(event.name, event.title)
+            is SettingsEvent.SetGradeYear -> setGradeYear(event.gradeYear)
         }
     }
 

@@ -34,6 +34,8 @@ data class MentorDashboardUiState(
     val roadmapInProgress: Int = 0,
     val roadmapDone: Int = 0,
     val roadmapOverdue: Int = 0,
+    val stage: com.nextstep.app.domain.growth.GrowthStage? = null,
+    val mentorTip: String? = null,
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 }

@@ -9,6 +9,7 @@ sealed interface OnboardingEvent {
     data class SetName(val v: String) : OnboardingEvent
     data class SetCode(val v: String) : OnboardingEvent
     data class SetTitle(val v: String) : OnboardingEvent
+    data class SetGrade(val gradeYear: Int) : OnboardingEvent
     data object Back : OnboardingEvent
     data object Submit : OnboardingEvent
 }

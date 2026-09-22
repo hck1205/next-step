@@ -11,6 +11,7 @@ import com.nextstep.app.domain.planner.StudyPlan
 import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.UpcomingExam
+import com.nextstep.app.domain.planner.PlanOptions
 
 data class HomeUiState(
     val displayName: String = "",
@@ -28,6 +29,9 @@ data class HomeUiState(
     val events: List<com.nextstep.app.data.local.entity.EventEntity> = emptyList(),
     val lastPlan: StudyPlan? = null,
     val recommendations: List<ContentRecommendation> = emptyList(),
+    val stage: com.nextstep.app.domain.growth.GrowthStage? = null,
+    /** 성장 단계에 맞춘 학습 계획 기본값. */
+    val planDefaults: PlanOptions = PlanOptions(),
 ) {
     /** 진행 중이거나 목표일이 가까운 로드맵 항목. */
     val roadmapFocus: List<RoadmapItemEntity> get() = roadmap.filter { it.status != RoadmapStatus.DONE }

@@ -58,6 +58,7 @@ import java.time.LocalDate
 import java.util.Locale
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.components.StageCard
 
 @Composable
 fun MentorDashboardScreen(actions: MentorDashboardActions, viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -91,6 +92,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            item { StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null) }
             item {
                 AppCard(onClick = actions.onOpenRoadmap) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

@@ -10,4 +10,5 @@ sealed interface SettingsEvent {
     data class SetMySubjects(val ids: List<String>) : SettingsEvent
     data class SetMentorEnabled(val enabled: Boolean) : SettingsEvent
     data class UpdateMyProfile(val name: String, val title: String) : SettingsEvent
+    data class SetGradeYear(val gradeYear: Int) : SettingsEvent
 }

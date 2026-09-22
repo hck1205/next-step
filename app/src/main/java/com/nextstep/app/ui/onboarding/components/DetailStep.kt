@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.GradePicker
 import com.nextstep.app.ui.onboarding.OnboardingEvent
 import com.nextstep.app.ui.onboarding.OnboardingUiState
 
@@ -35,6 +36,12 @@ internal fun DetailStep(state: OnboardingUiState, onEvent: (OnboardingEvent) -> 
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )
+    if (isStudent) {
+        Spacer(Modifier.height(12.dp))
+        GradePicker(gradeYear = state.gradeYear, onSelect = { onEvent(OnboardingEvent.SetGrade(it)) })
+        Spacer(Modifier.height(4.dp))
+        Text("학년에 따라 추천 영상, 학습 계획 길이, 부모님·멘토 가이드가 달라져요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
     if (isMentor) {
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(

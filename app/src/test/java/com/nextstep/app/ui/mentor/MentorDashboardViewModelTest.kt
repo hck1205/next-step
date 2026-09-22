@@ -13,6 +13,7 @@ import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalTime
@@ -30,6 +31,7 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         val me = Fixtures.member(Role.MENTOR, "쌤", id = "me", subjectIds = "math")
         streams.myMember.value = me
         streams.members.value = listOf(me, Fixtures.member(Role.MENTOR, "다른쌤"), Fixtures.member(Role.PARENT, "엄마"))
+        // 학생 구성원이 없으면 단계도 없다
         streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 30), Fixtures.session("eng", today, LocalTime.of(10, 0), 30))
         streams.grades.value = listOf(Fixtures.grade("math", 80.0, 1), Fixtures.grade("eng", 50.0, 1))
         streams.tasks.value = listOf(Fixtures.task("내 과제", today, "math", by = "MENTOR"), Fixtures.task("영어 과제", today, "eng", by = "MENTOR"), Fixtures.task("학생 것", today, "math"))
@@ -38,6 +40,7 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         val s = settle(vm.state)
         assertEquals(listOf("수학"), s.subjects.map { it.name }); assertFalse(s.needsSubjectSetup)
         assertEquals(listOf("다른쌤"), s.otherMentors.map { it.name })
+        assertNull(s.stage)
         assertEquals(30, s.weekMinutes); assertEquals(1, s.scores.size)
         assertEquals(listOf("내 과제"), s.myTasks.map { it.title })
         assertEquals(1, s.roadmapInProgress); assertEquals(1, s.roadmapDone); assertEquals(1, s.roadmapOverdue); assertEquals(2, s.roadmapTotal)

@@ -47,6 +47,7 @@ import com.nextstep.app.ui.components.SyncStatusBadge
 import com.nextstep.app.ui.settings.components.InfoRow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.components.GradePicker
 
 @Composable
 fun SettingsScreen(actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -102,6 +103,15 @@ internal fun SettingsContent(state: SettingsUiState, actions: SettingsActions, o
                     val mine = state.me?.subjectIdList ?: emptyList()
                     if (mine.isEmpty()) Text("전 과목 담당", style = MaterialTheme.typography.bodyMedium)
                     else Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { state.subjects.filter { it.id in mine }.forEach { SubjectTag(it) } }
+                }
+            }
+
+            SectionTitle("학생 학년 · 성장 단계")
+            AppCard {
+                val studentGrade = state.members.firstOrNull { it.role == Role.STUDENT.name }?.gradeYear ?: 0
+                Column {
+                    GradePicker(gradeYear = studentGrade, onSelect = { onEvent(SettingsEvent.SetGradeYear(it)) })
+                    Text("학년은 추천 영상의 학년대, 학습 계획 길이, 학부모·멘토 가이드를 정합니다. 학생이나 학부모가 바꿀 수 있어요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
