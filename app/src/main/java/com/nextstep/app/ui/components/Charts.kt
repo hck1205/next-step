@@ -131,16 +131,16 @@ fun LineChart(series: List<LineSeries>, xLabels: List<String>, modifier: Modifie
  * 레이더(방사형) 차트. values 는 0~1 로 정규화된 값.
  */
 @Composable
-fun RadarChart(axes: List<String>, values: List<Float>, color: Color, modifier: Modifier = Modifier, size: Int = 220, secondary: List<Float>? = null, secondaryColor: Color = Color.Gray) {
+fun RadarChart(axes: List<String>, values: List<Float>, color: Color, modifier: Modifier = Modifier, chartSize: Int = 220, secondary: List<Float>? = null, secondaryColor: Color = Color.Gray) {
     val measurer = rememberTextMeasurer()
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val gridColor = MaterialTheme.colorScheme.outlineVariant
     val labelStyle = TextStyle(fontSize = 11.sp, color = labelColor)
-    Canvas(modifier.size(size.dp)) {
+    Canvas(modifier.size(chartSize.dp)) {
         val n = axes.size
         if (n < 3) return@Canvas
-        val center = Offset(this.size.width / 2, this.size.height / 2)
-        val radius = this.size.minDimension / 2 - 28.dp.toPx()
+        val center = Offset(size.width / 2, size.height / 2)
+        val radius = size.minDimension / 2 - 28.dp.toPx()
         fun point(i: Int, r: Float): Offset {
             val angle = -Math.PI / 2 + 2 * Math.PI * i / n
             return Offset(center.x + (r * cos(angle)).toFloat(), center.y + (r * sin(angle)).toFloat())
@@ -175,15 +175,15 @@ data class Slice(val label: String, val value: Float, val color: Color)
 
 /** 도넛 차트 + 범례. */
 @Composable
-fun DonutChart(slices: List<Slice>, modifier: Modifier = Modifier, centerText: String? = null, size: Int = 140) {
+fun DonutChart(slices: List<Slice>, modifier: Modifier = Modifier, centerText: String? = null, chartSize: Int = 140) {
     val measurer = rememberTextMeasurer()
     val textColor = MaterialTheme.colorScheme.onSurface
     val emptyColor = MaterialTheme.colorScheme.surfaceVariant
     val total = slices.sumOf { it.value.toDouble() }.toFloat()
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Canvas(Modifier.size(size.dp)) {
+        Canvas(Modifier.size(chartSize.dp)) {
             val stroke = 18.dp.toPx()
-            val rect = Size(this.size.width - stroke, this.size.height - stroke)
+            val rect = Size(size.width - stroke, size.height - stroke)
             val topLeft = Offset(stroke / 2, stroke / 2)
             if (total <= 0f) {
                 drawArc(emptyColor, 0f, 360f, false, topLeft, rect, style = Stroke(stroke))
@@ -197,7 +197,7 @@ fun DonutChart(slices: List<Slice>, modifier: Modifier = Modifier, centerText: S
             }
             centerText?.let {
                 val t = measurer.measure(it, TextStyle(fontSize = 14.sp, color = textColor))
-                drawText(t, topLeft = Offset(this.size.width / 2 - t.size.width / 2, this.size.height / 2 - t.size.height / 2))
+                drawText(t, topLeft = Offset(size.width / 2 - t.size.width / 2, size.height / 2 - t.size.height / 2))
             }
         }
         Spacer(Modifier.width(16.dp))

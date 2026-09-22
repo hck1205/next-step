@@ -98,7 +98,7 @@ fun GradesScreen(role: Role, viewModel: GradesViewModel = viewModel(factory = Ap
                                 axes = state.scores.map { it.subject.name },
                                 values = state.scores.map { (it.average / 100.0).toFloat() },
                                 color = MaterialTheme.colorScheme.primary,
-                                size = 240,
+                                chartSize = 240,
                             )
                         }
                     }

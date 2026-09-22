@@ -49,7 +49,7 @@ data class SubjectDetailUiState(
 }
 
 class SubjectDetailViewModel(savedStateHandle: SavedStateHandle, private val repository: StudyRepository) : ViewModel() {
-    private val subjectId: String = checkNotNull(savedStateHandle["subjectId"])
+    private val subjectId: String = checkNotNull(savedStateHandle.get<String>("subjectId"))
 
     val state: StateFlow<SubjectDetailUiState> = combine(repository.observeSubject(subjectId), repository.observeTopics(subjectId), repository.subjects) { s, t, all ->
         SubjectDetailUiState(s, t, all)

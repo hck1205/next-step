@@ -71,10 +71,12 @@ private fun topLevelDestinations(role: Role): List<TopLevelDestination> = listOf
 @Composable
 fun NextStepRoot(rootViewModel: RootViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val profile by rootViewModel.profile.collectAsStateWithLifecycle()
+    val current = profile
+    val role = current?.role
     when {
-        profile == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        !profile!!.onboarded || profile!!.role == null -> OnboardingScreen()
-        else -> MainScaffold(role = profile!!.role!!)
+        current == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+        !current.onboarded || role == null -> OnboardingScreen()
+        else -> MainScaffold(role = role)
     }
 }
 

@@ -85,7 +85,7 @@ fun InsightsScreen(role: Role, viewModel: InsightsViewModel = viewModel(factory 
                                 color = MaterialTheme.colorScheme.primary,
                                 secondary = state.progress.filter { p -> state.scores.any { it.subject.id == p.subject.id } }.map { it.myRatio },
                                 secondaryColor = MaterialTheme.colorScheme.secondary,
-                                size = 240,
+                                chartSize = 240,
                             )
                             Text("보라: 평균 점수 · 초록: 복습 완료율", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
