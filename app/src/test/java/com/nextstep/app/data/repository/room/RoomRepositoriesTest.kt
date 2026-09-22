@@ -15,6 +15,7 @@ import com.nextstep.app.fake.dao.FakeRoadmapDao
 import com.nextstep.app.fake.dao.FakeSubjectDao
 import com.nextstep.app.fake.dao.FakeTaskDao
 import com.nextstep.app.fake.dao.FakeTopicDao
+import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.testing.FakeFamilyScope
 import com.nextstep.app.testing.FakeTimeSource
 import com.nextstep.app.testing.Fixtures
@@ -160,7 +161,7 @@ class RoomRepositoriesTest {
         repo.updateProfile("m-쌤", "김쌤", "수학 과외")
         assertEquals("수학 과외", dao.getById("m-쌤")!!.title)
         repo.setGradeYear("m-쌤", 99)
-        assertEquals(12, dao.getById("m-쌤")!!.gradeYear)
+        assertEquals(GrowthStage.MAX_GRADE, dao.getById("m-쌤")!!.gradeYear)
         repo.setGradeYear("m-쌤", -3)
         assertEquals(0, dao.getById("m-쌤")!!.gradeYear)
         repo.remove("m-엄마")
