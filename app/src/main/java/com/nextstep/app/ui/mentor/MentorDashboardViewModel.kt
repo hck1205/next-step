@@ -29,7 +29,7 @@ class MentorDashboardViewModel(
 
     private val core = combine(streams.profile, streams.myMember, streams.members, streams.subjects, streams.syncStatus) { profile, me, members, subjects, sync ->
         val mine = if (me == null || me.subjectIdList.isEmpty()) subjects else subjects.filter { it.id in me.subjectIdList }
-        MentorUiState(
+        MentorDashboardUiState(
             me = me,
             studentName = profile.studentName,
             syncStatus = sync,
@@ -41,7 +41,7 @@ class MentorDashboardViewModel(
 
     private val data = combine(streams.topics, streams.grades, streams.sessions, streams.tasks, streams.events) { t, g, s, ta, e -> Data(t, g, s, ta, e) }
 
-    val state: StateFlow<MentorUiState> = combine(core, data, streams.notes, streams.roadmap) { s, d, notes, roadmap ->
+    val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.notes, streams.roadmap) { s, d, notes, roadmap ->
         val today = com.nextstep.app.domain.time.DateUtils.today().toEpochDay()
         val subjectIds = s.subjects.map { it.id }.toSet()
         val grades = d.grades.filter { it.subjectId in subjectIds }
@@ -62,7 +62,7 @@ class MentorDashboardViewModel(
             roadmapDone = roadmap.count { it.status == com.nextstep.app.data.model.RoadmapStatus.DONE },
             roadmapOverdue = roadmap.count { it.status != com.nextstep.app.data.model.RoadmapStatus.DONE && (it.targetDate ?: Long.MAX_VALUE) < today },
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MentorUiState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MentorDashboardUiState())
 
     fun setSubjects(ids: List<String>) = viewModelScope.launch {
         val me = state.value.me ?: return@launch

@@ -28,7 +28,7 @@ class ParentDashboardViewModel(
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
-        ParentUiState(
+        ParentDashboardUiState(
             parentName = profile.displayName,
             studentName = profile.studentName,
             subjects = subjects,
@@ -49,7 +49,7 @@ class ParentDashboardViewModel(
 
     private val extra = combine(streams.events, streams.syncStatus, streams.roadmap, streams.members) { e, s, r, m -> Side(e, s, r, m) }
 
-    val state: StateFlow<ParentUiState> = combine(core, data, extra) { s, d, x ->
+    val state: StateFlow<ParentDashboardUiState> = combine(core, data, extra) { s, d, x ->
         val events = x.events
         s.copy(
             syncStatus = x.sync,
@@ -65,7 +65,7 @@ class ParentDashboardViewModel(
             notes = d.notes.take(10),
             insights = InsightEngine.analyze(s.subjects, d.topics, d.grades, d.sessions, d.tasks, events).take(3),
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ParentUiState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ParentDashboardUiState())
 
     fun addNote(text: String) = viewModelScope.launch { if (text.isNotBlank()) notes.add(text) }
     fun deleteNote(id: String) = viewModelScope.launch { notes.delete(id) }

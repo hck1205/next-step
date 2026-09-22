@@ -14,7 +14,7 @@ import com.nextstep.app.domain.stats.SubjectScore
 /**
  * 멘토 대시보드 상태. 멘토가 담당 과목을 지정했으면 모든 지표를 그 과목으로 좁혀 보여줍니다.
  */
-data class MentorUiState(
+data class MentorDashboardUiState(
     val me: MemberEntity? = null,
     val studentName: String = "",
     val syncStatus: SyncStatus = SyncStatus.LOCAL_ONLY,

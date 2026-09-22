@@ -13,7 +13,7 @@ import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.domain.stats.UpcomingExam
 
-data class ParentUiState(
+data class ParentDashboardUiState(
     val parentName: String = "",
     val studentName: String = "",
     val syncStatus: SyncStatus = SyncStatus.LOCAL_ONLY,

@@ -8,7 +8,6 @@ import java.time.LocalDate
 
 /** Roadmap 화면의 사용자 의도. Content 는 이 이벤트만 내보내고 ViewModel 이 처리합니다. */
 sealed interface RoadmapEvent {
-    data class ContentOf(val item: RoadmapItemEntity) : RoadmapEvent
     data class Save(val existing: RoadmapItemEntity?, val subjectId: String?, val title: String, val description: String, val resource: String, val targetDate: LocalDate?, val contentId: String?) : RoadmapEvent
     data class SetStatus(val id: String, val status: RoadmapStatus) : RoadmapEvent
     data class Delete(val id: String) : RoadmapEvent

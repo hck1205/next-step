@@ -37,7 +37,6 @@ class RoadmapViewModel(
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: RoadmapEvent) {
         when (event) {
-            is RoadmapEvent.ContentOf -> contentOf(event.item)
             is RoadmapEvent.Save -> save(event.existing, event.subjectId, event.title, event.description, event.resource, event.targetDate, event.contentId)
             is RoadmapEvent.SetStatus -> setStatus(event.id, event.status)
             is RoadmapEvent.Delete -> delete(event.id)
