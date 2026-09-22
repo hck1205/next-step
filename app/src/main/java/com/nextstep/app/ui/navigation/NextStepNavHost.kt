@@ -7,8 +7,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -33,6 +35,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.calendar.CalendarScreen
 import com.nextstep.app.ui.grades.GradesScreen
@@ -40,9 +43,11 @@ import com.nextstep.app.ui.home.StudentHomeScreen
 import com.nextstep.app.ui.insights.InsightsScreen
 import com.nextstep.app.ui.mentor.MentorDashboardScreen
 import com.nextstep.app.ui.onboarding.OnboardingScreen
+import com.nextstep.app.ui.parent.CheerScreen
 import com.nextstep.app.ui.parent.ParentDashboardScreen
 import com.nextstep.app.ui.progress.ProgressScreen
 import com.nextstep.app.ui.progress.SubjectDetailScreen
+import com.nextstep.app.ui.roadmap.RoadmapScreen
 import com.nextstep.app.ui.settings.SettingsScreen
 import com.nextstep.app.ui.timer.TimerScreen
 
@@ -52,6 +57,9 @@ object Routes {
     const val CALENDAR = "calendar"
     const val GRADES = "grades"
     const val INSIGHTS = "insights"
+    const val CHEER = "cheer"
+    const val ROADMAP = "roadmap"
+    const val MENTOR_HOME = "mentor"
     const val TIMER = "timer"
     const val SETTINGS = "settings"
     const val SUBJECT = "subject/{subjectId}"
@@ -60,31 +68,52 @@ object Routes {
 
 data class TopLevelDestination(val route: String, val label: String, val icon: ImageVector)
 
-private fun topLevelDestinations(role: Role): List<TopLevelDestination> = listOf(
-    if (role == Role.STUDENT) TopLevelDestination(Routes.HOME, "홈", Icons.Default.Home)
-    else TopLevelDestination(Routes.HOME, "대시보드", Icons.Default.Dashboard),
-    TopLevelDestination(Routes.PROGRESS, "진도", Icons.Default.MenuBook),
-    TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
-    TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
-    TopLevelDestination(Routes.INSIGHTS, "분석", Icons.Default.Insights),
-)
+/**
+ * 역할별 하단 탭. 각 역할의 핵심 흐름만 탭으로 두고, 나머지는 화면 안의 진입점으로 연결합니다.
+ * - 학생: 학습 내용·커리큘럼·스케줄링 중심
+ * - 학부모: 모니터링·격려·분석(재능 발견) 중심
+ * - 멘토: 로드맵 큐레이팅·진도 지도 중심
+ */
+private fun topLevelDestinations(role: Role): List<TopLevelDestination> = when (role) {
+    Role.STUDENT -> listOf(
+        TopLevelDestination(Routes.HOME, "홈", Icons.Default.Home),
+        TopLevelDestination(Routes.PROGRESS, "커리큘럼", Icons.Default.MenuBook),
+        TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
+        TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
+        TopLevelDestination(Routes.INSIGHTS, "분석", Icons.Default.Insights),
+    )
+    Role.PARENT -> listOf(
+        TopLevelDestination(Routes.HOME, "대시보드", Icons.Default.Dashboard),
+        TopLevelDestination(Routes.CHEER, "격려", Icons.Default.Favorite),
+        TopLevelDestination(Routes.INSIGHTS, "분석", Icons.Default.Insights),
+        TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
+        TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
+    )
+    Role.MENTOR -> listOf(
+        TopLevelDestination(Routes.HOME, "지도", Icons.Default.Dashboard),
+        TopLevelDestination(Routes.ROADMAP, "로드맵", Icons.Default.Map),
+        TopLevelDestination(Routes.PROGRESS, "진도", Icons.Default.MenuBook),
+        TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
+        TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
+    )
+}
 
 @Composable
 fun NextStepRoot(rootViewModel: RootViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
-    val profile by rootViewModel.profile.collectAsStateWithLifecycle()
-    val current = profile
-    val role = current?.role
+    val state by rootViewModel.state.collectAsStateWithLifecycle()
+    val current = state
+    val caps = current?.capabilities
     when {
         current == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        !current.onboarded || role == null -> OnboardingScreen()
-        else -> MainScaffold(role = role)
+        !current.profile.onboarded || caps == null -> OnboardingScreen()
+        else -> MainScaffold(caps = caps)
     }
 }
 
 @Composable
-private fun MainScaffold(role: Role) {
+private fun MainScaffold(caps: Capabilities) {
     val navController = rememberNavController()
-    val destinations = topLevelDestinations(role)
+    val destinations = topLevelDestinations(caps.role)
     val backStack by navController.currentBackStackEntryAsState()
     val currentDestination = backStack?.destination
     val showBottomBar = destinations.any { d -> currentDestination?.hierarchy?.any { it.route == d.route } == true }
@@ -112,43 +141,62 @@ private fun MainScaffold(role: Role) {
             }
         },
     ) { padding ->
-        NextStepNavHost(navController = navController, role = role, modifier = Modifier.padding(padding))
+        NextStepNavHost(navController = navController, caps = caps, modifier = Modifier.padding(padding))
     }
 }
 
 @Composable
-private fun NextStepNavHost(navController: NavHostController, role: Role, modifier: Modifier = Modifier) {
+private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, modifier: Modifier = Modifier) {
+    val isTab: (String) -> Boolean = { route -> topLevelDestinations(caps.role).any { it.route == route } }
     NavHost(navController = navController, startDestination = Routes.HOME, modifier = modifier) {
         composable(Routes.HOME) {
-            when (role) {
+            when (caps.role) {
                 Role.PARENT -> ParentDashboardScreen(
+                    caps = caps,
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                     onOpenSubject = { navController.navigate(Routes.subject(it)) },
                     onOpenInsights = { navController.navigate(Routes.INSIGHTS) },
+                    onOpenMentor = { navController.navigate(Routes.MENTOR_HOME) },
+                    onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
                 )
                 Role.MENTOR -> MentorDashboardScreen(
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                     onOpenSubject = { navController.navigate(Routes.subject(it)) },
+                    onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
+                    onBack = null,
                 )
                 Role.STUDENT -> StudentHomeScreen(
                     onOpenTimer = { navController.navigate(Routes.TIMER) },
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                     onOpenSubject = { navController.navigate(Routes.subject(it)) },
+                    onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
                 )
             }
         }
+        composable(Routes.MENTOR_HOME) {
+            MentorDashboardScreen(
+                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                onOpenSubject = { navController.navigate(Routes.subject(it)) },
+                onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
+                onBack = { navController.popBackStack() },
+            )
+        }
         composable(Routes.PROGRESS) {
-            ProgressScreen(role = role, onOpenSubject = { navController.navigate(Routes.subject(it)) })
+            ProgressScreen(caps = caps, onOpenSubject = { navController.navigate(Routes.subject(it)) }, onOpenRoadmap = { navController.navigate(Routes.ROADMAP) })
         }
         composable(
             Routes.SUBJECT,
             arguments = listOf(navArgument("subjectId") { type = NavType.StringType }),
         ) {
-            SubjectDetailScreen(role = role, onBack = { navController.popBackStack() })
+            SubjectDetailScreen(caps = caps, onBack = { navController.popBackStack() })
         }
-        composable(Routes.CALENDAR) { CalendarScreen(role = role) }
-        composable(Routes.GRADES) { GradesScreen(role = role) }
-        composable(Routes.INSIGHTS) { InsightsScreen(role = role) }
+        composable(Routes.ROADMAP) {
+            RoadmapScreen(caps = caps, onBack = if (isTab(Routes.ROADMAP)) null else { { navController.popBackStack() } })
+        }
+        composable(Routes.CHEER) { CheerScreen() }
+        composable(Routes.CALENDAR) { CalendarScreen(caps = caps) }
+        composable(Routes.GRADES) { GradesScreen(caps = caps) }
+        composable(Routes.INSIGHTS) { InsightsScreen(caps = caps, onBack = if (isTab(Routes.INSIGHTS)) null else { { navController.popBackStack() } }) }
         composable(Routes.TIMER) { TimerScreen(onBack = { navController.popBackStack() }) }
         composable(Routes.SETTINGS) { SettingsScreen(onBack = { navController.popBackStack() }) }
     }

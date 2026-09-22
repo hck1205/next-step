@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -64,6 +65,8 @@ import java.util.Locale
 fun MentorDashboardScreen(
     onOpenSettings: () -> Unit,
     onOpenSubject: (String) -> Unit,
+    onOpenRoadmap: () -> Unit,
+    onBack: (() -> Unit)?,
     viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -80,6 +83,7 @@ fun MentorDashboardScreen(
                         SyncStatusBadge(state.syncStatus)
                     }
                 },
+                navigationIcon = { if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
                 actions = { IconButton(onClick = onOpenSettings) { Icon(Icons.Default.Settings, contentDescription = "설정") } },
             )
         },
@@ -89,6 +93,21 @@ fun MentorDashboardScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            item {
+                AppCard(onClick = onOpenRoadmap) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("학습 로드맵 큐레이팅", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                if (state.roadmapTotal == 0) "무엇을 어떤 순서로, 어떤 자료로, 언제까지 공부할지 제안해 보세요"
+                                else "진행 중 ${state.roadmapInProgress} · 완료 ${state.roadmapDone}/${state.roadmapTotal}" + (if (state.roadmapOverdue > 0) " · 기한 지남 ${state.roadmapOverdue}" else ""),
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        TextButton(onClick = onOpenRoadmap) { Text("열기") }
+                    }
+                }
+            }
             item {
                 AppCard(onClick = { showSubjects = true }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

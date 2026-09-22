@@ -145,6 +145,7 @@ class FirestoreSyncManager(
         listen(SESSIONS, Mappers::sessionFromMap, db.studySessionDao()::getById, db.studySessionDao()::upsert)
         listen(NOTES, Mappers::noteFromMap, db.noteDao()::getById, db.noteDao()::upsert)
         listen(MEMBERS, Mappers::memberFromMap, db.memberDao()::getById, db.memberDao()::upsert)
+        listen(ROADMAP, Mappers::roadmapFromMap, db.roadmapDao()::getById, db.roadmapDao()::upsert)
     }
 
     private suspend fun pushDirty(familyId: String) {
@@ -174,6 +175,7 @@ class FirestoreSyncManager(
             push(SESSIONS, db.studySessionDao().getDirty(familyId), Mappers::sessionToMap, db.studySessionDao()::markClean)
             push(NOTES, db.noteDao().getDirty(familyId), Mappers::noteToMap, db.noteDao()::markClean)
             push(MEMBERS, db.memberDao().getDirty(familyId), Mappers::memberToMap, db.memberDao()::markClean)
+            push(ROADMAP, db.roadmapDao().getDirty(familyId), Mappers::roadmapToMap, db.roadmapDao()::markClean)
             if (status.value != SyncStatus.SYNCED) status.value = SyncStatus.SYNCED
         } catch (e: Exception) {
             Log.w(TAG, "push failed", e)
@@ -192,5 +194,6 @@ class FirestoreSyncManager(
         const val SESSIONS = "sessions"
         const val NOTES = "notes"
         const val MEMBERS = "members"
+        const val ROADMAP = "roadmap"
     }
 }

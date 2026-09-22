@@ -37,6 +37,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.Capabilities
+import com.nextstep.app.ui.insights.TalentCard
 import com.nextstep.app.domain.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
@@ -58,9 +60,12 @@ import java.time.LocalDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParentDashboardScreen(
+    caps: Capabilities,
     onOpenSettings: () -> Unit,
     onOpenSubject: (String) -> Unit,
     onOpenInsights: () -> Unit,
+    onOpenMentor: () -> Unit,
+    onOpenRoadmap: () -> Unit,
     viewModel: ParentDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -85,19 +90,44 @@ fun ParentDashboardScreen(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            if (caps.actsAsMentor) {
+                item {
+                    AppCard(onClick = onOpenMentor) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("멘토 모드", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.tertiary)
+                                Text("로드맵 큐레이팅, 과제 배정, 학급 진도 관리는 여기서 해요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            TextButton(onClick = onOpenRoadmap) { Text("로드맵") }
+                            TextButton(onClick = onOpenMentor) { Text("열기") }
+                        }
+                    }
+                }
+            }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    StatTile("연속 학습", "${state.streak}일", Modifier.weight(1f), tint = MaterialTheme.colorScheme.error)
                     StatTile("오늘 학습", DateUtils.formatMinutes(state.todayMinutes), Modifier.weight(1f))
                     StatTile(
                         "이번 주", DateUtils.formatMinutes(state.weekMinutes), Modifier.weight(1f), tint = MaterialTheme.colorScheme.secondary,
                         sub = if (state.weekGoalMinutes > 0) "목표 대비 ${(state.weekMinutes * 100 / state.weekGoalMinutes)}%" else null,
                     )
+                }
+            }
+            item {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     StatTile(
-                        "미완료", "${state.pendingTasks.size}개", Modifier.weight(1f),
+                        "미완료 할 일", "${state.pendingTasks.size}개", Modifier.weight(1f),
                         tint = if (state.overdueCount > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary,
                         sub = if (state.overdueCount > 0) "기한 지남 ${state.overdueCount}" else null,
                     )
+                    StatTile("로드맵", if (state.roadmapTotal == 0) "-" else "${state.roadmapDone}/${state.roadmapTotal}", Modifier.weight(1f), tint = MaterialTheme.colorScheme.primary, sub = "완료 항목")
+                    StatTile("연결", "멘토 ${state.mentorCount}", Modifier.weight(1f), tint = MaterialTheme.colorScheme.onSurfaceVariant, sub = "학부모 ${state.parentCount}")
                 }
+            }
+            if (state.talents.isNotEmpty()) {
+                item { SectionTitle("재능 발견", action = { TextButton(onClick = onOpenInsights) { Text("더 보기") } }) }
+                items(state.talents) { TalentCard(it, state.subjects) }
             }
 
             item {
@@ -191,7 +221,12 @@ fun ParentDashboardScreen(
                 }
             }
 
-            item { SectionTitle("자녀에게 할 일 배정", action = { TextButton(onClick = { showAssign = true }) { Text("추가") } }) }
+            item {
+                SectionTitle(
+                    if (caps.canCreateTasks) "자녀 할 일 · 과제 배정" else "자녀 할 일",
+                    action = if (caps.canCreateTasks) { { TextButton(onClick = { showAssign = true }) { Text("배정") } } } else null,
+                )
+            }
             if (state.pendingTasks.isEmpty()) item { AppCard { EmptyState("미완료 할 일이 없어요") } }
             else items(state.pendingTasks.take(5), key = { "t" + it.id }) { t ->
                 val subject = state.subjects.firstOrNull { it.id == t.subjectId }
@@ -210,7 +245,7 @@ fun ParentDashboardScreen(
                 }
             }
 
-            item { SectionTitle("메모 · 응원", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
+            item { SectionTitle("최근 메모 · 응원", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
             if (state.notes.isEmpty()) item { AppCard { EmptyState("자녀에게 응원 메모를 남겨 보세요") } }
             else items(state.notes, key = { "n" + it.id }) { n ->
                 AppCard {
@@ -240,7 +275,7 @@ fun ParentDashboardScreen(
     }
     if (showAssign) {
         AssignTaskDialog(state.subjects, onDismiss = { showAssign = false }) { title, subjectId, type, due ->
-            viewModel.assignTask(title, subjectId, type, due)
+            viewModel.assignTask(title, subjectId, type, due, caps.actingRoleName)
         }
     }
 }

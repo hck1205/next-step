@@ -43,7 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.GradeEntity
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.model.ExamType
-import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.Capabilities
 import com.nextstep.app.domain.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
@@ -63,15 +63,15 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GradesScreen(role: Role, viewModel: GradesViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun GradesScreen(caps: Capabilities, viewModel: GradesViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showEdit by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<GradeEntity?>(null) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(if (role == Role.PARENT) "자녀 성적" else "내 성적") }) },
+        topBar = { TopAppBar(title = { Text(if (caps.isStudent) "내 성적" else "성적") }) },
         floatingActionButton = {
-            if (state.subjects.isNotEmpty()) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "성적 추가") }
+            if (state.subjects.isNotEmpty() && caps.canEditGrades) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "성적 추가") }
         },
     ) { padding ->
         LazyColumn(
@@ -123,7 +123,7 @@ fun GradesScreen(role: Role, viewModel: GradesViewModel = viewModel(factory = Ap
             }
             if (state.filtered.isEmpty()) item { AppCard { EmptyState(if (state.subjects.isEmpty()) "진도 탭에서 과목을 먼저 추가하세요" else "성적을 추가하면 추이와 강점 분석이 표시돼요") } }
             items(state.filtered, key = { it.id }) { g ->
-                GradeRow(g, state.subjects, onClick = { editing = g; showEdit = true })
+                GradeRow(g, state.subjects, onClick = { if (caps.canEditGrades) { editing = g; showEdit = true } })
             }
         }
     }

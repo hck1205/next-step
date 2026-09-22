@@ -16,6 +16,8 @@ import com.nextstep.app.domain.StudyStats
 import com.nextstep.app.domain.SubjectMinutes
 import com.nextstep.app.domain.SubjectProgress
 import com.nextstep.app.domain.SubjectScore
+import com.nextstep.app.domain.Talent
+import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.domain.UpcomingExam
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +44,12 @@ data class ParentUiState(
     val progress: List<SubjectProgress> = emptyList(),
     val notes: List<NoteEntity> = emptyList(),
     val insights: List<Insight> = emptyList(),
+    val talents: List<Talent> = emptyList(),
+    val streak: Int = 0,
+    val roadmapDone: Int = 0,
+    val roadmapTotal: Int = 0,
+    val mentorCount: Int = 0,
+    val parentCount: Int = 0,
 )
 
 class ParentDashboardViewModel(private val repository: StudyRepository) : ViewModel() {
@@ -66,9 +74,18 @@ class ParentDashboardViewModel(private val repository: StudyRepository) : ViewMo
         Extra(grades, topics, notes, sessions, tasks)
     }
 
-    val state: StateFlow<ParentUiState> = combine(core, data, repository.events, repository.sync.status) { s, d, events, sync ->
+    private val extra = combine(repository.events, repository.sync.status, repository.roadmap, repository.members) { e, s, r, m -> Side(e, s, r, m) }
+
+    val state: StateFlow<ParentUiState> = combine(core, data, extra) { s, d, x ->
+        val events = x.events
         s.copy(
-            syncStatus = sync,
+            syncStatus = x.sync,
+            talents = InsightEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(3),
+            streak = StudyStats.studyStreak(d.sessions),
+            roadmapDone = x.roadmap.count { it.status == RoadmapStatus.DONE },
+            roadmapTotal = x.roadmap.size,
+            mentorCount = x.members.count { it.role == "MENTOR" || it.mentorEnabled && it.role != "STUDENT" },
+            parentCount = x.members.count { it.role == "PARENT" },
             recentGrades = d.grades.take(5),
             scores = StudyStats.subjectScores(d.grades, s.subjects),
             progress = StudyStats.subjectProgress(d.topics, s.subjects),
@@ -81,9 +98,16 @@ class ParentDashboardViewModel(private val repository: StudyRepository) : ViewMo
     fun deleteNote(id: String) = viewModelScope.launch { repository.deleteNote(id) }
 
     /** 학부모가 자녀에게 할 일을 배정합니다. */
-    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) = viewModelScope.launch {
-        repository.saveTask(TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = "PARENT"))
+    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) = viewModelScope.launch {
+        repository.saveTask(TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = createdByRole))
     }
+
+    private data class Side(
+        val events: List<com.nextstep.app.data.local.EventEntity>,
+        val sync: SyncStatus,
+        val roadmap: List<com.nextstep.app.data.local.RoadmapItemEntity>,
+        val members: List<com.nextstep.app.data.local.MemberEntity>,
+    )
 
     private data class Extra(
         val grades: List<GradeEntity>,

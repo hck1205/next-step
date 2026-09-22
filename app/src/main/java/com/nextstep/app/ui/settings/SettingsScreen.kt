@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -74,7 +75,21 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
                 }
             }
 
-            if (role == Role.MENTOR) {
+            if (role == Role.PARENT) {
+                SectionTitle("학부모 겸 멘토")
+                AppCard {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("멘토 역할 겸하기", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                Text("직접 자녀를 가르친다면 켜세요. 로드맵 큐레이팅, 과제 배정, 단원·학급 진도 관리가 열립니다.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Switch(checked = state.me?.mentorEnabled == true, onCheckedChange = { viewModel.setMentorEnabled(it) }, enabled = state.me != null)
+                        }
+                    }
+                }
+            }
+            if (role == Role.MENTOR || state.me?.mentorEnabled == true) {
                 SectionTitle("담당 과목", action = { TextButton(onClick = { showSubjects = true }) { Text("변경") } })
                 AppCard {
                     val mine = state.me?.subjectIdList ?: emptyList()
@@ -94,7 +109,8 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
                                 val detail = buildList {
                                     add(Role.labelOf(m.role))
                                     if (m.title.isNotBlank()) add(m.title)
-                                    if (m.role == Role.MENTOR.name) add(if (m.subjectIdList.isEmpty()) "전 과목" else state.subjects.filter { it.id in m.subjectIdList }.joinToString { it.name })
+                                    if (m.role == Role.PARENT.name && m.mentorEnabled) add("멘토 겸")
+                                    if (m.role == Role.MENTOR.name || m.mentorEnabled) add(if (m.subjectIdList.isEmpty()) "전 과목" else state.subjects.filter { it.id in m.subjectIdList }.joinToString { it.name })
                                 }
                                 Text(detail.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
@@ -103,7 +119,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
                         }
                     }
                     Text(
-                        "멘토(선생님·과외·튜터)는 여러 명이 같은 코드로 연결할 수 있어요.",
+                        "학부모(엄마, 아빠 등)와 멘토(선생님·과외·튜터)는 여러 명이 같은 코드로 연결할 수 있어요.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }

@@ -13,7 +13,9 @@ import com.nextstep.app.ui.insights.InsightsViewModel
 import com.nextstep.app.ui.mentor.MentorDashboardViewModel
 import com.nextstep.app.ui.navigation.RootViewModel
 import com.nextstep.app.ui.onboarding.OnboardingViewModel
+import com.nextstep.app.ui.parent.CheerViewModel
 import com.nextstep.app.ui.parent.ParentDashboardViewModel
+import com.nextstep.app.ui.roadmap.RoadmapViewModel
 import com.nextstep.app.ui.progress.ProgressViewModel
 import com.nextstep.app.ui.progress.SubjectDetailViewModel
 import com.nextstep.app.ui.settings.SettingsViewModel
@@ -27,6 +29,8 @@ object AppViewModelProvider {
         initializer { HomeViewModel(app().container.repository) }
         initializer { ParentDashboardViewModel(app().container.repository) }
         initializer { MentorDashboardViewModel(app().container.repository) }
+        initializer { CheerViewModel(app().container.repository) }
+        initializer { RoadmapViewModel(app().container.repository) }
         initializer { ProgressViewModel(app().container.repository) }
         initializer { SubjectDetailViewModel(createSavedStateHandle(), app().container.repository) }
         initializer { CalendarViewModel(app().container.repository) }

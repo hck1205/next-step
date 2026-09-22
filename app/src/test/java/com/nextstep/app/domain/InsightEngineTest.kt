@@ -68,3 +68,49 @@ class InsightEngineTest {
         assertEquals(90, byHour.sum())
     }
 }
+
+class StudyPlannerTest {
+    private val family = "fam"
+    private val math = SubjectEntity(id = "math", familyId = family, name = "수학", color = 0xFF3B82F6)
+
+    @Test
+    fun plannerSkipsSlotsThatOverlapExistingEvents() {
+        val topics = listOf(
+            TopicEntity(familyId = family, subjectId = "math", title = "A", orderIndex = 0, classCovered = true, status = TopicStatus.IN_CLASS),
+            TopicEntity(familyId = family, subjectId = "math", title = "B", orderIndex = 1, classCovered = true, status = TopicStatus.IN_CLASS),
+            TopicEntity(familyId = family, subjectId = "math", title = "C", orderIndex = 2),
+        )
+        val progress = StudyStats.subjectProgress(topics, listOf(math))
+        val queue = StudyPlanner.buildQueue(progress, emptyList(), listOf(math))
+        assertEquals(listOf("복습: 수학 A", "복습: 수학 B", "예습: 수학 C"), queue.map { it.title })
+
+        val from = java.time.LocalDate.of(2026, 9, 23)
+        val busy = com.nextstep.app.data.local.EventEntity(
+            familyId = family, title = "학원", startAt = DateUtils.toMillis(from, java.time.LocalTime.of(19, 0)), endAt = DateUtils.toMillis(from, java.time.LocalTime.of(20, 30)),
+        )
+        val options = PlanOptions(days = 2, startTime = java.time.LocalTime.of(19, 0), sessionMinutes = 50, breakMinutes = 10, sessionsPerDay = 2)
+        val plan = StudyPlanner.generate(queue, listOf(busy), options, from)
+        // 첫날 두 슬롯(19:00, 20:00)은 학원과 겹쳐 건너뛰고, 둘째 날 두 슬롯만 배치됩니다.
+        assertEquals(2, plan.events.size)
+        assertEquals(2, plan.tasks.size)
+        assertTrue(plan.events.all { DateUtils.toLocalDate(it.startAt) == from.plusDays(1) })
+        assertEquals("복습: 수학 A", plan.events.first().title)
+        assertEquals("수학 A", plan.tasks.first().title)
+    }
+
+    @Test
+    fun talentsFlagEfficientSubject() {
+        val eng = SubjectEntity(id = "eng", familyId = family, name = "영어", color = 0xFF10B981)
+        val base = DateUtils.toMillis(java.time.LocalDate.of(2026, 9, 1), java.time.LocalTime.of(20, 0))
+        val sessions = listOf(
+            StudySessionEntity(familyId = family, subjectId = "math", startAt = base, endAt = base + 1, durationMinutes = 300),
+            StudySessionEntity(familyId = family, subjectId = "eng", startAt = base, endAt = base + 1, durationMinutes = 30),
+        )
+        val grades = listOf(
+            GradeEntity(familyId = family, subjectId = "math", title = "t", score = 70.0, date = 1),
+            GradeEntity(familyId = family, subjectId = "eng", title = "t", score = 95.0, date = 1),
+        )
+        val talents = InsightEngine.talents(listOf(math, eng), emptyList(), grades, sessions)
+        assertTrue(talents.any { it.subjectId == "eng" && it.title.contains("효율형") })
+    }
+}

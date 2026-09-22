@@ -5,10 +5,12 @@ import com.nextstep.app.data.local.EventEntity
 import com.nextstep.app.data.local.GradeEntity
 import com.nextstep.app.data.local.MemberEntity
 import com.nextstep.app.data.local.NoteEntity
+import com.nextstep.app.data.local.RoadmapItemEntity
 import com.nextstep.app.data.local.StudySessionEntity
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.local.TaskEntity
 import com.nextstep.app.data.local.TopicEntity
+import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.prefs.RunningTimer
@@ -51,6 +53,7 @@ class StudyRepository(
     val sessions: Flow<List<StudySessionEntity>> = withFamily { db.studySessionDao().observeAll(it) }
     val notes: Flow<List<NoteEntity>> = withFamily { db.noteDao().observeAll(it) }
     val members: Flow<List<MemberEntity>> = withFamily { db.memberDao().observeAll(it) }
+    val roadmap: Flow<List<RoadmapItemEntity>> = withFamily { db.roadmapDao().observeAll(it) }
 
     /** 이 기기 사용자의 구성원 정보(멘토라면 담당 과목 포함). */
     val myMember: Flow<MemberEntity?> = profile.map { it.memberId }.distinctUntilChanged()
@@ -96,7 +99,7 @@ class StudyRepository(
         val found = sync.findFamilyByCode(normalized)
         val info = found.getOrElse { return Result.failure(it) }
             ?: return Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
-        val member = MemberEntity(familyId = info.familyId, role = role.name, name = name, title = title)
+        val member = MemberEntity(familyId = info.familyId, role = role.name, name = name, title = title, mentorEnabled = role == Role.MENTOR)
         db.memberDao().upsert(member)
         prefs.completeOnboarding(role, name, info.familyId, info.pairingCode, info.studentName, member.id)
         sync.start(info.familyId)
@@ -115,6 +118,42 @@ class StudyRepository(
     suspend fun updateMemberProfile(memberId: String, name: String, title: String) {
         val m = db.memberDao().getById(memberId) ?: return
         db.memberDao().upsert(m.copy(name = name, title = title, updatedAt = now(), dirty = true))
+        sync.requestPush()
+    }
+
+    /** 학부모가 멘토 역할을 겸할지 설정합니다. 멘토 본인은 항상 켜져 있습니다. */
+    suspend fun setMentorEnabled(memberId: String, enabled: Boolean) {
+        val m = db.memberDao().getById(memberId) ?: return
+        val value = if (m.role == Role.MENTOR.name) true else enabled
+        db.memberDao().upsert(m.copy(mentorEnabled = value, updatedAt = now(), dirty = true))
+        sync.requestPush()
+    }
+
+    // ---------------------------------------------------------------- roadmap
+
+    suspend fun saveRoadmapItem(item: RoadmapItemEntity) {
+        val p = profile.first()
+        val withAuthor = if (item.createdByName.isBlank()) item.copy(createdByName = p.displayName, createdByRole = p.role?.name ?: "") else item
+        db.roadmapDao().upsert(withAuthor.copy(familyId = withAuthor.familyId.ifEmpty { requireFamilyId() }, updatedAt = now(), dirty = true))
+        sync.requestPush()
+    }
+
+    suspend fun setRoadmapStatus(id: String, status: RoadmapStatus) {
+        val r = db.roadmapDao().getById(id) ?: return
+        saveRoadmapItem(r.copy(status = status))
+    }
+
+    suspend fun deleteRoadmapItem(id: String) {
+        val r = db.roadmapDao().getById(id) ?: return
+        saveRoadmapItem(r.copy(deleted = true))
+    }
+
+    /** 학습 계획 생성기가 만든 일정과 할 일을 한 번에 저장합니다. */
+    suspend fun applyStudyPlan(events: List<EventEntity>, tasks: List<TaskEntity>) {
+        val familyId = requireFamilyId()
+        val ts = now()
+        db.eventDao().upsertAll(events.map { it.copy(familyId = familyId, updatedAt = ts, dirty = true) })
+        db.taskDao().upsertAll(tasks.map { it.copy(familyId = familyId, updatedAt = ts, dirty = true) })
         sync.requestPush()
     }
 

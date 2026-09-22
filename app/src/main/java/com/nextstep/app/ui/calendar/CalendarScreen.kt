@@ -50,7 +50,7 @@ import com.nextstep.app.data.local.EventEntity
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.local.TaskEntity
 import com.nextstep.app.data.model.EventType
-import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.Capabilities
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.DateUtils
 import com.nextstep.app.domain.EventOccurrence
@@ -72,7 +72,7 @@ import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarScreen(role: Role, viewModel: CalendarViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun CalendarScreen(caps: Capabilities, viewModel: CalendarViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var fabMenu by remember { mutableStateOf(false) }
     var editEvent by remember { mutableStateOf<EventEntity?>(null) }
@@ -92,7 +92,7 @@ fun CalendarScreen(role: Role, viewModel: CalendarViewModel = viewModel(factory 
                 FloatingActionButton(onClick = { fabMenu = true }) { Icon(Icons.Default.Add, contentDescription = "추가") }
                 DropdownMenu(expanded = fabMenu, onDismissRequest = { fabMenu = false }) {
                     DropdownMenuItem(text = { Text("일정 추가") }, onClick = { editEvent = null; showEvent = true; fabMenu = false })
-                    DropdownMenuItem(text = { Text("할 일 추가") }, onClick = { editTask = null; showTask = true; fabMenu = false })
+                    if (caps.canCreateTasks) DropdownMenuItem(text = { Text(if (caps.isStudent) "할 일 추가" else "과제 배정") }, onClick = { editTask = null; showTask = true; fabMenu = false })
                 }
             }
         },
@@ -114,8 +114,8 @@ fun CalendarScreen(role: Role, viewModel: CalendarViewModel = viewModel(factory 
             if (state.dayTasks.isNotEmpty()) {
                 item { SectionTitle("할 일") }
                 items(state.dayTasks, key = { "t" + it.id }) { t ->
-                    Box(Modifier.clickable { editTask = t; showTask = true }) {
-                        TaskRow(t, state.subjects, onToggle = { viewModel.toggleTask(t) }, onDelete = { viewModel.deleteTask(t.id) })
+                    Box(Modifier.clickable(enabled = caps.canCreateTasks) { editTask = t; showTask = true }) {
+                        TaskRow(t, state.subjects, onToggle = { if (caps.canCompleteTasks) viewModel.toggleTask(t) }, onDelete = if (caps.canCreateTasks) { { viewModel.deleteTask(t.id) } } else null)
                     }
                 }
             }
@@ -137,7 +137,7 @@ fun CalendarScreen(role: Role, viewModel: CalendarViewModel = viewModel(factory 
     }
     if (showTask) {
         TaskEditDialog(existing = editTask, subjects = state.subjects, defaultDate = state.selected, onDismiss = { showTask = false }) { title, subjectId, type, due ->
-            viewModel.saveTask(editTask, title, subjectId, type, due, role.name)
+            viewModel.saveTask(editTask, title, subjectId, type, due, caps.actingRoleName)
         }
     }
 }

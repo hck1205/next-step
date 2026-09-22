@@ -3,6 +3,7 @@ package com.nextstep.app.data.local
 import androidx.room.TypeConverter
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
+import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 
@@ -15,6 +16,9 @@ class Converters {
 
     @TypeConverter fun eventTypeToString(v: EventType): String = v.name
     @TypeConverter fun stringToEventType(v: String): EventType = EventType.from(v)
+
+    @TypeConverter fun roadmapStatusToString(v: RoadmapStatus): String = v.name
+    @TypeConverter fun stringToRoadmapStatus(v: String): RoadmapStatus = RoadmapStatus.from(v)
 
     @TypeConverter fun examTypeToString(v: ExamType): String = v.name
     @TypeConverter fun stringToExamType(v: String): ExamType = ExamType.from(v)

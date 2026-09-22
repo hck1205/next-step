@@ -154,6 +154,16 @@ object StudyStats {
     fun pendingTasks(tasks: List<TaskEntity>, onOrBefore: LocalDate = DateUtils.today()): List<TaskEntity> =
         tasks.filter { !it.done && it.dueDate <= onOrBefore.toEpochDay() }.sortedBy { it.dueDate }
 
+    /** 오늘(또는 어제)까지 연속으로 학습한 일수. */
+    fun studyStreak(sessions: List<StudySessionEntity>): Int {
+        val days = sessions.map { DateUtils.toLocalDate(it.startAt) }.toSet()
+        var day = DateUtils.today()
+        if (day !in days) day = day.minusDays(1)
+        var streak = 0
+        while (day in days) { streak++; day = day.minusDays(1) }
+        return streak
+    }
+
     fun overdueTasks(tasks: List<TaskEntity>): List<TaskEntity> =
         tasks.filter { !it.done && it.dueDate < DateUtils.today().toEpochDay() }
 }

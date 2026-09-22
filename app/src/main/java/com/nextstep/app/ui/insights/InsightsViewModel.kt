@@ -15,6 +15,7 @@ import com.nextstep.app.domain.StudyStats
 import com.nextstep.app.domain.SubjectMinutes
 import com.nextstep.app.domain.SubjectProgress
 import com.nextstep.app.domain.SubjectScore
+import com.nextstep.app.domain.Talent
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -31,6 +32,7 @@ data class InsightsUiState(
     val byHour: IntArray = IntArray(24),
     val notes: List<NoteEntity> = emptyList(),
     val totalMinutes: Int = 0,
+    val talents: List<Talent> = emptyList(),
 )
 
 class InsightsViewModel(private val repository: StudyRepository) : ViewModel() {
@@ -49,15 +51,16 @@ class InsightsViewModel(private val repository: StudyRepository) : ViewModel() {
             byHour = StudyStats.minutesByHour(sessions),
             notes = notes,
             totalMinutes = sessions.sumOf { it.durationMinutes },
+            talents = InsightEngine.talents(subjects, topics, grades, sessions),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InsightsUiState())
 
-    fun applyAction(action: InsightAction) = viewModelScope.launch {
+    fun applyAction(action: InsightAction, createdByRole: String) = viewModelScope.launch {
         when (action) {
             is InsightAction.CreateTask -> repository.saveTask(
                 TaskEntity(
                     familyId = "", subjectId = action.subjectId, topicId = action.topicId, title = action.title, type = action.type,
-                    dueDate = DateUtils.today().plusDays(1).toEpochDay(), createdByRole = "STUDENT",
+                    dueDate = DateUtils.today().plusDays(1).toEpochDay(), createdByRole = createdByRole,
                 ),
             )
         }

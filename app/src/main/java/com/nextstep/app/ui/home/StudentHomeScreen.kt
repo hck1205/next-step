@@ -26,6 +26,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import com.nextstep.app.ui.components.TimeField
+import java.time.LocalTime
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,7 +49,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.local.TaskEntity
 import com.nextstep.app.data.local.TopicEntity
+import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.PlanOptions
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.DateUtils
 import com.nextstep.app.domain.EventOccurrence
@@ -58,9 +70,11 @@ fun StudentHomeScreen(
     onOpenTimer: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenSubject: (String) -> Unit,
+    onOpenRoadmap: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showPlanner by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -106,6 +120,63 @@ fun StudentHomeScreen(
                                 Text(DateUtils.formatFullDate(exam.date), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Text(DateUtils.dDay(exam.date), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
+            if (state.activeSubjects.isNotEmpty()) {
+                item { SectionTitle("지금 배우는 과목") }
+                item {
+                    AppCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            state.activeSubjects.forEach { p ->
+                                val current = p.reviewQueue.firstOrNull() ?: p.previewQueue.firstOrNull()
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    SubjectTag(p.subject)
+                                    Spacer(Modifier.width(8.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        Text(current?.title ?: "다음 단원 없음", style = MaterialTheme.typography.bodyMedium)
+                                        Text("학급 ${p.classCovered}/${p.total} 단원 · 복습 ${p.reviewed}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    TextButton(onClick = { onOpenSubject(p.subject.id) }) { Text("열기") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                AppCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("학습 계획 만들기", style = MaterialTheme.typography.titleMedium)
+                            Text("밀린 복습, 멘토 로드맵, 다음 예습을 빈 시간에 자동으로 배치해요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Button(onClick = { showPlanner = true }) { Text("계획") }
+                    }
+                }
+            }
+
+            if (state.roadmapFocus.isNotEmpty()) {
+                item { SectionTitle("멘토 로드맵", action = { TextButton(onClick = onOpenRoadmap) { Text("전체 보기") } }) }
+                items(state.roadmapFocus, key = { "rm" + it.id }) { r ->
+                    val subject = state.subjects.firstOrNull { it.id == r.subjectId }
+                    AppCard(onClick = onOpenRoadmap) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(r.title, style = MaterialTheme.typography.bodyLarge)
+                                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        if (subject != null) SubjectTag(subject)
+                                        Text(r.status.label + (r.targetDate?.let { " · ${DateUtils.dDay(DateUtils.fromEpochDay(it))}" } ?: ""), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                        if (r.createdByName.isNotBlank()) Text("${r.createdByName} 제안", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                                if (r.status == RoadmapStatus.PLANNED) TextButton(onClick = { viewModel.setRoadmapStatus(r.id, RoadmapStatus.IN_PROGRESS) }) { Text("시작") }
+                                else TextButton(onClick = { viewModel.setRoadmapStatus(r.id, RoadmapStatus.DONE) }) { Text("완료") }
+                            }
                         }
                     }
                 }
@@ -158,6 +229,60 @@ fun StudentHomeScreen(
             item { Spacer(Modifier.height(24.dp)) }
         }
     }
+
+    if (showPlanner) {
+        PlannerDialog(onDismiss = { showPlanner = false }) { viewModel.generatePlan(it) }
+    }
+    state.lastPlan?.let { plan ->
+        AlertDialog(
+            onDismissRequest = viewModel::dismissPlanResult,
+            title = { Text(if (plan.isEmpty) "배치할 항목이 없어요" else "학습 계획 완성") },
+            text = {
+                Text(
+                    if (plan.isEmpty) "복습·예습할 단원이나 로드맵 항목이 없거나, 빈 시간이 없어요. 커리큘럼에서 단원과 학급 진도를 등록해 보세요."
+                    else "${plan.events.size}개의 자습 일정과 할 일을 캘린더에 넣었어요. 첫 일정: ${DateUtils.formatDate(DateUtils.toLocalDate(plan.events.first().startAt))} ${DateUtils.formatTime(plan.events.first().startAt)} ${plan.events.first().title}",
+                )
+            },
+            confirmButton = { TextButton(onClick = viewModel::dismissPlanResult) { Text("확인") } },
+        )
+    }
+}
+
+@Composable
+private fun PlannerDialog(onDismiss: () -> Unit, onGenerate: (PlanOptions) -> Unit) {
+    var days by remember { mutableStateOf("7") }
+    var start by remember { mutableStateOf(LocalTime.of(19, 0)) }
+    var minutes by remember { mutableStateOf("50") }
+    var perDay by remember { mutableStateOf("2") }
+    var weekend by remember { mutableStateOf(true) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("학습 계획 만들기") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("우선순위: 밀린 복습 → 멘토 로드맵 → 다음 예습. 이미 있는 일정과 겹치는 시간은 건너뛰어요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(value = days, onValueChange = { days = it.filter { c -> c.isDigit() }.take(2) }, label = { Text("며칠") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
+                    OutlinedTextField(value = perDay, onValueChange = { perDay = it.filter { c -> c.isDigit() }.take(1) }, label = { Text("하루 회수") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    TimeField("시작", start, onChange = { start = it }, modifier = Modifier.weight(1f))
+                    OutlinedTextField(value = minutes, onValueChange = { minutes = it.filter { c -> c.isDigit() }.take(3) }, label = { Text("1회(분)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("주말 포함", modifier = Modifier.weight(1f))
+                    Switch(checked = weekend, onCheckedChange = { weekend = it })
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onGenerate(PlanOptions(days = (days.toIntOrNull() ?: 7).coerceIn(1, 30), startTime = start, sessionMinutes = (minutes.toIntOrNull() ?: 50).coerceIn(10, 180), sessionsPerDay = (perDay.toIntOrNull() ?: 2).coerceIn(1, 5), includeWeekend = weekend))
+                onDismiss()
+            }) { Text("만들기") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+    )
 }
 
 @Composable

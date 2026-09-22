@@ -68,12 +68,12 @@ class SubjectDetailViewModel(savedStateHandle: SavedStateHandle, private val rep
     /** 학급 진도를 이 단원까지로 설정. */
     fun setClassProgress(upToOrderIndex: Int) = viewModelScope.launch { repository.setClassProgress(subjectId, upToOrderIndex) }
 
-    fun addTask(topic: TopicEntity, type: TaskType) = viewModelScope.launch {
+    fun addTask(topic: TopicEntity, type: TaskType, createdByRole: String) = viewModelScope.launch {
         val subject = state.value.subject ?: return@launch
         repository.saveTask(
             TaskEntity(
                 familyId = "", subjectId = subject.id, topicId = topic.id, title = "${subject.name} ${topic.title} ${type.label}",
-                type = type, dueDate = DateUtils.today().toEpochDay(), createdByRole = "STUDENT",
+                type = type, dueDate = DateUtils.today().plusDays(if (createdByRole == "STUDENT") 0 else 1).toEpochDay(), createdByRole = createdByRole,
             ),
         )
     }

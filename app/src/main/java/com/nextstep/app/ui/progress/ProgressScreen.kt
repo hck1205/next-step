@@ -30,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.SubjectEntity
-import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.Capabilities
 import com.nextstep.app.domain.DateUtils
 import com.nextstep.app.domain.SubjectProgress
 import com.nextstep.app.ui.AppViewModelProvider
@@ -57,14 +58,19 @@ import com.nextstep.app.ui.theme.SubjectPalette
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProgressScreen(role: Role, onOpenSubject: (String) -> Unit, viewModel: ProgressViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun ProgressScreen(caps: Capabilities, onOpenSubject: (String) -> Unit, onOpenRoadmap: () -> Unit, viewModel: ProgressViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showAdd by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(if (role == Role.PARENT) "자녀 과목별 진도" else "과목별 진도") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(if (caps.isStudent) "내 커리큘럼" else "과목별 진도") },
+                actions = { TextButton(onClick = onOpenRoadmap) { Text("로드맵") } },
+            )
+        },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "과목 추가") }
+            if (caps.canEditSubjects) FloatingActionButton(onClick = { showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "과목 추가") }
         },
     ) { padding ->
         LazyColumn(
@@ -72,7 +78,15 @@ fun ProgressScreen(role: Role, onOpenSubject: (String) -> Unit, viewModel: Progr
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            if (state.progress.isEmpty()) item { AppCard { EmptyState("과목을 추가하고 단원을 등록해 보세요") } }
+            if (caps.isStudent) item {
+                AppCard {
+                    Text(
+                        "지금 배우는 과목의 단원을 등록하고, 수업이 어디까지 나갔는지 표시하면 예습·복습할 내용이 자동으로 정해져요. 홈의 '학습 계획 만들기'로 캘린더에 배치할 수 있어요.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (state.progress.isEmpty()) item { AppCard { EmptyState(if (caps.canEditSubjects) "과목을 추가하고 단원을 등록해 보세요" else "아직 등록된 과목이 없어요") } }
             items(state.progress, key = { it.subject.id }) { p -> SubjectProgressCard(p, onClick = { onOpenSubject(p.subject.id) }) }
         }
     }

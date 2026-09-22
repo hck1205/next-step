@@ -191,3 +191,24 @@ interface MemberDao {
     @Query("UPDATE members SET dirty = 0 WHERE id IN (:ids)")
     suspend fun markClean(ids: List<String>)
 }
+
+@Dao
+interface RoadmapDao {
+    @Query("SELECT * FROM roadmap_items WHERE familyId = :familyId AND deleted = 0 ORDER BY status, targetDate, orderIndex")
+    fun observeAll(familyId: String): Flow<List<RoadmapItemEntity>>
+
+    @Query("SELECT * FROM roadmap_items WHERE id = :id")
+    suspend fun getById(id: String): RoadmapItemEntity?
+
+    @Query("SELECT COUNT(*) FROM roadmap_items WHERE familyId = :familyId AND deleted = 0")
+    suspend fun count(familyId: String): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(item: RoadmapItemEntity)
+
+    @Query("SELECT * FROM roadmap_items WHERE familyId = :familyId AND dirty = 1")
+    suspend fun getDirty(familyId: String): List<RoadmapItemEntity>
+
+    @Query("UPDATE roadmap_items SET dirty = 0 WHERE id IN (:ids)")
+    suspend fun markClean(ids: List<String>)
+}

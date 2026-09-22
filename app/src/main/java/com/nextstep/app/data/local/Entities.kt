@@ -5,6 +5,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
+import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import java.util.UUID
@@ -147,6 +148,11 @@ data class MemberEntity(
     val title: String = "",
     /** 담당 과목 ID 목록. 쉼표로 구분. 비어 있으면 전 과목. */
     val subjectIds: String = "",
+    /**
+     * 멘토 기능(로드맵 큐레이팅, 과제 배정, 학급 진도 관리) 사용 여부.
+     * 멘토는 항상 true, 학부모는 설정에서 켜서 "학부모 겸 멘토"가 될 수 있습니다.
+     */
+    val mentorEnabled: Boolean = false,
     val joinedAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,
@@ -155,6 +161,30 @@ data class MemberEntity(
     val subjectIdList: List<String> get() = subjectIds.split(",").map { it.trim() }.filter { it.isNotEmpty() }
     fun covers(subjectId: String?): Boolean = subjectIdList.isEmpty() || (subjectId != null && subjectId in subjectIdList)
 }
+
+/**
+ * 멘토(또는 학부모 겸 멘토)가 큐레이팅한 학습 로드맵 항목.
+ * "이 순서로, 이 자료로, 이 날짜까지" 를 제안하고 학생이 진행 상태를 갱신합니다.
+ */
+@Entity(tableName = "roadmap_items", indices = [Index("familyId"), Index("subjectId")])
+data class RoadmapItemEntity(
+    @PrimaryKey override val id: String = newId(),
+    override val familyId: String,
+    val subjectId: String? = null,
+    val title: String,
+    val description: String = "",
+    /** 참고 자료 링크나 교재명. */
+    val resource: String = "",
+    /** 목표일 (epoch day). null 이면 기한 없음. */
+    val targetDate: Long? = null,
+    val orderIndex: Int = 0,
+    val status: RoadmapStatus = RoadmapStatus.PLANNED,
+    val createdByName: String = "",
+    val createdByRole: String = "",
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+    override val dirty: Boolean = true,
+) : Syncable
 
 /** 구성원(학부모/멘토/학생)이 서로에게 남기는 짧은 메모(격려, 요청, 피드백 등). */
 @Entity(tableName = "notes", indices = [Index("familyId"), Index("createdAt")])

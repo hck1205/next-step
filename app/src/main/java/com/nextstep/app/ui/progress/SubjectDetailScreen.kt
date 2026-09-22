@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.TopicEntity
-import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.Capabilities
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.ui.AppViewModelProvider
@@ -61,7 +61,7 @@ import com.nextstep.app.ui.components.subjectColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubjectDetailScreen(role: Role, onBack: () -> Unit, viewModel: SubjectDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun SubjectDetailScreen(caps: Capabilities, onBack: () -> Unit, viewModel: SubjectDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val subject = state.subject
     var showAddTopics by remember { mutableStateOf(false) }
@@ -78,10 +78,10 @@ fun SubjectDetailScreen(role: Role, onBack: () -> Unit, viewModel: SubjectDetail
                     }
                 },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
-                actions = { IconButton(onClick = { showEdit = true }) { Icon(Icons.Default.Edit, contentDescription = "과목 편집") } },
+                actions = { if (caps.canEditSubjects) IconButton(onClick = { showEdit = true }) { Icon(Icons.Default.Edit, contentDescription = "과목 편집") } },
             )
         },
-        floatingActionButton = { FloatingActionButton(onClick = { showAddTopics = true }) { Icon(Icons.Default.Add, contentDescription = "단원 추가") } },
+        floatingActionButton = { if (caps.canEditTopics) FloatingActionButton(onClick = { showAddTopics = true }) { Icon(Icons.Default.Add, contentDescription = "단원 추가") } },
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
@@ -97,11 +97,15 @@ fun SubjectDetailScreen(role: Role, onBack: () -> Unit, viewModel: SubjectDetail
                         LabeledProgress("학급 진도", if (total == 0) 0f else covered.toFloat() / total, color.copy(alpha = 0.5f), trailing = "$covered/$total")
                         LabeledProgress("내 복습", if (total == 0) 0f else reviewed.toFloat() / total, color, trailing = "$reviewed/$total")
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            AssistChip(onClick = { showProgressPicker = true }, label = { Text("학급 진도 설정") })
+                            if (caps.canEditTopics) AssistChip(onClick = { showProgressPicker = true }, label = { Text("학급 진도 설정") })
                             if (subject?.teacher?.isNotBlank() == true) Text("담당: ${subject.teacher}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))
                         }
                         Text(
-                            "체크 = 수업에서 배운 단원(학급 진도). 각 단원의 상태를 눌러 예습·복습 기록을 남기세요.",
+                            when {
+                                caps.isStudent -> "체크 = 수업에서 배운 단원(학급 진도). 단원을 눌러 예습·복습 상태와 이해도를 기록하세요."
+                                caps.canEditTopics -> "체크 = 수업에서 배운 단원. 단원을 등록하고 학급 진도를 갱신하면 학생에게 복습·예습 항목이 자동으로 뜹니다."
+                                else -> "체크 = 수업에서 배운 단원. 상태와 이해도는 학생이 직접 기록한 값이에요."
+                            },
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -124,12 +128,13 @@ fun SubjectDetailScreen(role: Role, onBack: () -> Unit, viewModel: SubjectDetail
             items(state.topics, key = { it.id }) { topic ->
                 TopicRow(
                     topic = topic,
+                    caps = caps,
                     onToggleCovered = { viewModel.setClassProgress(if (topic.classCovered) topic.orderIndex - 1 else topic.orderIndex) },
                     onStatus = { viewModel.setStatus(topic, it) },
                     onConfidence = { viewModel.setConfidence(topic, it) },
                     onRename = { viewModel.rename(topic, it) },
                     onDelete = { viewModel.delete(topic) },
-                    onAddTask = { viewModel.addTask(topic, it) },
+                    onAddTask = { viewModel.addTask(topic, it, caps.actingRoleName) },
                 )
             }
         }
@@ -180,6 +185,7 @@ fun SubjectDetailScreen(role: Role, onBack: () -> Unit, viewModel: SubjectDetail
 @Composable
 private fun TopicRow(
     topic: TopicEntity,
+    caps: Capabilities,
     onToggleCovered: () -> Unit,
     onStatus: (TopicStatus) -> Unit,
     onConfidence: (Int) -> Unit,
@@ -194,7 +200,7 @@ private fun TopicRow(
     AppCard(onClick = { expanded = !expanded }) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = topic.classCovered, onCheckedChange = { onToggleCovered() })
+                Checkbox(checked = topic.classCovered, onCheckedChange = { onToggleCovered() }, enabled = caps.canEditTopics)
                 Column(Modifier.weight(1f)) {
                     Text(topic.title, style = MaterialTheme.typography.bodyLarge)
                     Text(
@@ -207,15 +213,19 @@ private fun TopicRow(
                         },
                     )
                 }
-                IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, contentDescription = "메뉴") }
+                if (caps.canCreateTasks || caps.canEditTopics) IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, contentDescription = "메뉴") }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    DropdownMenuItem(text = { Text("예습 할 일 추가") }, onClick = { onAddTask(TaskType.PREVIEW); menu = false })
-                    DropdownMenuItem(text = { Text("복습 할 일 추가") }, onClick = { onAddTask(TaskType.REVIEW); menu = false })
-                    DropdownMenuItem(text = { Text("이름 변경") }, onClick = { rename = true; menu = false })
-                    DropdownMenuItem(text = { Text("삭제") }, leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) }, onClick = { confirmDelete = true; menu = false })
+                    if (caps.canCreateTasks) {
+                        DropdownMenuItem(text = { Text(if (caps.isStudent) "예습 할 일 추가" else "예습 과제 배정") }, onClick = { onAddTask(TaskType.PREVIEW); menu = false })
+                        DropdownMenuItem(text = { Text(if (caps.isStudent) "복습 할 일 추가" else "복습 과제 배정") }, onClick = { onAddTask(TaskType.REVIEW); menu = false })
+                    }
+                    if (caps.canEditTopics) {
+                        DropdownMenuItem(text = { Text("이름 변경") }, onClick = { rename = true; menu = false })
+                        DropdownMenuItem(text = { Text("삭제") }, leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) }, onClick = { confirmDelete = true; menu = false })
+                    }
                 }
             }
-            if (expanded) {
+            if (expanded && caps.canMarkTopicStatus) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
                     TopicStatus.entries.forEach { s ->
                         FilterChip(selected = topic.status == s, onClick = { onStatus(s) }, label = { Text(s.label, style = MaterialTheme.typography.labelSmall) })

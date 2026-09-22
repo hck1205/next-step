@@ -32,5 +32,6 @@ class SettingsViewModel(private val repository: StudyRepository) : ViewModel() {
     fun requestSync() = repository.sync.requestPush()
     fun removeMember(id: String) = viewModelScope.launch { repository.removeMember(id) }
     fun setMySubjects(ids: List<String>) = viewModelScope.launch { state.value.me?.let { repository.setMemberSubjects(it.id, ids) } }
+    fun setMentorEnabled(enabled: Boolean) = viewModelScope.launch { state.value.me?.let { repository.setMentorEnabled(it.id, enabled) } }
     fun updateMyProfile(name: String, title: String) = viewModelScope.launch { state.value.me?.let { repository.updateMemberProfile(it.id, name, title) } }
 }

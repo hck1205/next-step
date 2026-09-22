@@ -44,6 +44,10 @@ data class MentorUiState(
     val myTasks: List<TaskEntity> = emptyList(),
     val insights: List<Insight> = emptyList(),
     val notes: List<NoteEntity> = emptyList(),
+    val roadmapTotal: Int = 0,
+    val roadmapInProgress: Int = 0,
+    val roadmapDone: Int = 0,
+    val roadmapOverdue: Int = 0,
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 }
@@ -64,7 +68,8 @@ class MentorDashboardViewModel(private val repository: StudyRepository) : ViewMo
 
     private val data = combine(repository.topics, repository.grades, repository.sessions, repository.tasks, repository.events) { t, g, s, ta, e -> Data(t, g, s, ta, e) }
 
-    val state: StateFlow<MentorUiState> = combine(core, data, repository.notes) { s, d, notes ->
+    val state: StateFlow<MentorUiState> = combine(core, data, repository.notes, repository.roadmap) { s, d, notes, roadmap ->
+        val today = com.nextstep.app.domain.DateUtils.today().toEpochDay()
         val subjectIds = s.subjects.map { it.id }.toSet()
         val grades = d.grades.filter { it.subjectId in subjectIds }
         val sessions = d.sessions.filter { it.subjectId in subjectIds }
@@ -79,6 +84,10 @@ class MentorDashboardViewModel(private val repository: StudyRepository) : ViewMo
             myTasks = d.tasks.filter { !it.done && it.createdByRole == "MENTOR" && (it.subjectId == null || it.subjectId in subjectIds) },
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, d.tasks.filter { it.subjectId == null || it.subjectId in subjectIds }, d.events).take(4),
             notes = notes.filter { it.authorRole != "MENTOR" || myId == null || it.authorName == s.me?.name }.take(10),
+            roadmapTotal = roadmap.size,
+            roadmapInProgress = roadmap.count { it.status == com.nextstep.app.data.model.RoadmapStatus.IN_PROGRESS },
+            roadmapDone = roadmap.count { it.status == com.nextstep.app.data.model.RoadmapStatus.DONE },
+            roadmapOverdue = roadmap.count { it.status != com.nextstep.app.data.model.RoadmapStatus.DONE && (it.targetDate ?: Long.MAX_VALUE) < today },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MentorUiState())
 

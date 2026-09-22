@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.TrendingDown
@@ -22,6 +24,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -40,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.Capabilities
+import com.nextstep.app.domain.Talent
 import com.nextstep.app.domain.DateUtils
 import com.nextstep.app.domain.Insight
 import com.nextstep.app.domain.InsightAction
@@ -59,19 +64,37 @@ import com.nextstep.app.ui.components.subjectColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InsightsScreen(role: Role, viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showNote by remember { mutableStateOf(false) }
+    val role = caps.role
 
-    Scaffold(topBar = { TopAppBar(title = { Text(if (role == Role.PARENT) "자녀 학습 분석" else "학습 분석") }) }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(if (caps.isStudent) "학습 분석" else "학습 분석 · 재능 발견") },
+                navigationIcon = { if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+            )
+        },
+    ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { SectionTitle("강점 · 보완점 · 제안") }
+            if (caps.isParent) {
+                item { SectionTitle("재능 발견 · 강점 신호") }
+                if (state.talents.isEmpty()) item {
+                    AppCard {
+                        Text("성적, 학습 시간, 단원 이해도가 쌓이면 효율·성장세·꾸준함·몰입·자기주도성 같은 강점 신호가 여기 표시돼요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                items(state.talents) { TalentCard(it, state.subjects) }
+            }
+
+            item { SectionTitle(if (caps.isParent) "학습 상태 · 제안" else "강점 · 보완점 · 제안") }
             items(state.insights) { insight ->
-                InsightCard(insight, state.subjects, onAction = if (role == Role.STUDENT) { a -> viewModel.applyAction(a) } else null)
+                InsightCard(insight, state.subjects, onAction = if (caps.canApplyInsightActions) { a -> viewModel.applyAction(a, caps.actingRoleName) } else null)
             }
 
             if (state.scores.size >= 3) {
@@ -184,6 +207,28 @@ fun InsightCard(insight: Insight, subjects: List<SubjectEntity>, onAction: ((Ins
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun TalentCard(talent: Talent, subjects: List<SubjectEntity>) {
+    val subject = subjects.firstOrNull { it.id == talent.subjectId }
+    val color = MaterialTheme.colorScheme.tertiary
+    AppCard {
+        Row(verticalAlignment = Alignment.Top) {
+            Box(Modifier.background(color.copy(alpha = 0.12f), MaterialTheme.shapes.small).padding(8.dp)) {
+                Icon(Icons.Default.AutoAwesome, contentDescription = "재능", tint = color)
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("강점 신호 ${"★".repeat((talent.strength * 3).toInt().coerceIn(1, 3))}", style = MaterialTheme.typography.labelSmall, color = color)
+                    if (subject != null) SubjectTag(subject)
+                }
+                Text(talent.title, style = MaterialTheme.typography.titleSmall)
+                Text(talent.body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
