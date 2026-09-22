@@ -164,7 +164,7 @@ class RoomRepositoriesTest {
         repo.setGradeYear("m-쌤", -3)
         assertEquals(0, dao.getById("m-쌤")!!.gradeYear)
         repo.remove("m-엄마")
-        assertEquals(listOf("쌤"), repo.members.first().map { it.name })
+        assertEquals(listOf("김쌤"), repo.members.first().map { it.name })
         assertNull(dao.getById("nope").also { repo.remove("nope") })
     }
 

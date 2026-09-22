@@ -13,6 +13,7 @@ import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.FamilyScope
 import com.nextstep.app.data.repository.GradeRepository
+import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
@@ -29,6 +30,7 @@ import com.nextstep.app.data.repository.room.PrefsFamilyScope
 import com.nextstep.app.data.repository.room.RoomContentRepository
 import com.nextstep.app.data.repository.room.RoomEventRepository
 import com.nextstep.app.data.repository.room.RoomGradeRepository
+import com.nextstep.app.data.repository.room.RoomJourneyRepository
 import com.nextstep.app.data.repository.room.RoomMemberRepository
 import com.nextstep.app.data.repository.room.RoomNoteRepository
 import com.nextstep.app.data.repository.room.RoomOnboardingRepository
@@ -66,8 +68,9 @@ class AppContainer(context: Context) {
     val notes: NoteRepository = RoomNoteRepository(database.noteDao(), scope, syncManager, time)
     val roadmap: RoadmapRepository = RoomRoadmapRepository(database.roadmapDao(), scope, syncManager, time)
     val contents: ContentRepository = RoomContentRepository(database.contentDao(), database.subjectDao(), YouTubeMetadataFetcher(), scope, syncManager, time)
+    val journey: JourneyRepository = RoomJourneyRepository(database.journeyDao(), scope, syncManager, time)
     val plans: StudyPlanRepository = RoomStudyPlanRepository(database.eventDao(), database.taskDao(), scope, syncManager, time)
-    val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, notes, members, roadmap, contents)
+    val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, notes, members, roadmap, contents, journey)
 
     private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
         if (FirebaseApp.getApps(context).isEmpty()) {

@@ -10,6 +10,9 @@ sealed interface OnboardingEvent {
     data class SetCode(val v: String) : OnboardingEvent
     data class SetTitle(val v: String) : OnboardingEvent
     data class SetGrade(val gradeYear: Int) : OnboardingEvent
+    data class SetBirthDate(val date: java.time.LocalDate?) : OnboardingEvent
+    data class SetCreateAsParent(val create: Boolean) : OnboardingEvent
+    data class SetChildName(val v: String) : OnboardingEvent
     data object Back : OnboardingEvent
     data object Submit : OnboardingEvent
 }

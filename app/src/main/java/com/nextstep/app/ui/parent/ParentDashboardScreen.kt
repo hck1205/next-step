@@ -52,6 +52,7 @@ import com.nextstep.app.ui.parent.components.AssignTaskDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.nextstep.app.ui.components.StageCard
+import com.nextstep.app.ui.components.JourneyNowCard
 
 @Composable
 fun ParentDashboardScreen(caps: Capabilities, actions: ParentDashboardActions, viewModel: ParentDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -104,6 +105,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
                     onSetGrade = actions.onOpenSettings,
                 )
             }
+            item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     StatTile("연속 학습", "${state.streak}일", Modifier.weight(1f), tint = MaterialTheme.colorScheme.error)
@@ -209,7 +211,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             }
 
             if (state.scores.isNotEmpty()) {
-                item { SectionTitle("과목별 성적 평균") }
+                item { SectionTitle("과목별 성적 평균", action = { TextButton(onClick = actions.onOpenGrades) { Text("전체 보기") } }) }
                 item {
                     AppCard {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

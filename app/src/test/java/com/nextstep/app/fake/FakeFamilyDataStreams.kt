@@ -3,6 +3,7 @@ package com.nextstep.app.fake
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
@@ -36,4 +37,5 @@ class FakeFamilyDataStreams(
     override val roadmap = MutableStateFlow<List<RoadmapItemEntity>>(emptyList())
     override val contents = MutableStateFlow<List<ContentEntity>>(emptyList())
     override val runningTimer = MutableStateFlow<RunningTimer?>(null)
+    override val journeyItems = MutableStateFlow<List<JourneyItemEntity>>(emptyList())
 }

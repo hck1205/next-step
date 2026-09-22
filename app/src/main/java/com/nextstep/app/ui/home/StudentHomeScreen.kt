@@ -40,6 +40,7 @@ import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.JourneyNowCard
 import com.nextstep.app.ui.components.EmptyState
 import com.nextstep.app.ui.components.EventRow
 import com.nextstep.app.ui.components.LabeledProgress
@@ -99,6 +100,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                 }
             }
             item { TimerCard(state, actions.onOpenTimer) }
+            if (state.hasBirthDate || state.journeyNow.isNotEmpty()) item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
 
             state.nextExam?.let { exam ->
                 item {

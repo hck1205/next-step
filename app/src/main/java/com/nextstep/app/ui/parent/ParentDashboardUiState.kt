@@ -42,4 +42,8 @@ data class ParentDashboardUiState(
     /** 오늘의 부모 팁과 경험 제안. 단계가 없으면 null. */
     val stageTip: String? = null,
     val stageExperience: String? = null,
+    /** 여정에서 지금 준비하거나 놓친 항목 (최대 3개). */
+    val journeyNow: List<com.nextstep.app.domain.journey.JourneyItem> = emptyList(),
+    val hasBirthDate: Boolean = false,
+    val today: java.time.LocalDate = java.time.LocalDate.now(),
 )

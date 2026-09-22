@@ -48,6 +48,7 @@ import com.nextstep.app.ui.settings.components.InfoRow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.nextstep.app.ui.components.GradePicker
+import com.nextstep.app.ui.components.DateField
 
 @Composable
 fun SettingsScreen(actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -106,11 +107,15 @@ internal fun SettingsContent(state: SettingsUiState, actions: SettingsActions, o
                 }
             }
 
-            SectionTitle("학생 학년 · 성장 단계")
+            SectionTitle("자녀 생년월일 · 학년 · 성장 단계")
             AppCard {
-                val studentGrade = state.members.firstOrNull { it.role == Role.STUDENT.name }?.gradeYear ?: 0
+                val student = state.members.firstOrNull { it.role == Role.STUDENT.name }
+                val birth = student?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
                 Column {
-                    GradePicker(gradeYear = studentGrade, onSelect = { onEvent(SettingsEvent.SetGradeYear(it)) })
+                    DateField(label = "생년월일", date = birth ?: java.time.LocalDate.now().minusYears(3), onChange = { onEvent(SettingsEvent.SetBirthDate(it)) })
+                    if (birth == null) Text("생년월일을 넣으면 여정 타임라인(어린이집 대기, 검진, 입학, 입시 일정)이 자동으로 채워져요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    else Text("${com.nextstep.app.domain.growth.GrowthStage.ageLabel(birth, java.time.LocalDate.now())} · 학년은 생년월일로 자동 계산되며 아래에서 직접 바꿀 수 있어요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    GradePicker(gradeYear = student?.gradeYear ?: 0, onSelect = { onEvent(SettingsEvent.SetGradeYear(it)) })
                     Text("학년은 추천 영상의 학년대, 학습 계획 길이, 학부모·멘토 가이드를 정합니다. 학생이나 학부모가 바꿀 수 있어요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }

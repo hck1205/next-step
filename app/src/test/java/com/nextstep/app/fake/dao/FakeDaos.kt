@@ -3,6 +3,7 @@ package com.nextstep.app.fake.dao
 import com.nextstep.app.data.local.dao.ContentDao
 import com.nextstep.app.data.local.dao.EventDao
 import com.nextstep.app.data.local.dao.GradeDao
+import com.nextstep.app.data.local.dao.JourneyDao
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.dao.NoteDao
 import com.nextstep.app.data.local.dao.RoadmapDao
@@ -13,6 +14,7 @@ import com.nextstep.app.data.local.dao.TopicDao
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
@@ -42,6 +44,10 @@ class FakeNoteDao : InMemoryTable<NoteEntity>(), NoteDao
 
 class FakeStudySessionDao : InMemoryTable<StudySessionEntity>(), StudySessionDao {
     override fun observeSince(familyId: String, fromMillis: Long): Flow<List<StudySessionEntity>> = observeAll(familyId).map { l -> l.filter { it.startAt >= fromMillis } }
+}
+
+class FakeJourneyDao : InMemoryTable<JourneyItemEntity>(), JourneyDao {
+    override suspend fun getByTemplate(familyId: String, templateId: String) = all.firstOrNull { it.familyId == familyId && it.templateId == templateId && !it.deleted }
 }
 
 class FakeMemberDao : InMemoryTable<MemberEntity>(), MemberDao {

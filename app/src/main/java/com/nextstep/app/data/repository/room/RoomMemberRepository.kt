@@ -40,6 +40,9 @@ class RoomMemberRepository(
     override suspend fun setGradeYear(memberId: String, gradeYear: Int) =
         modify(memberId) { it.copy(gradeYear = gradeYear.coerceIn(0, com.nextstep.app.domain.growth.GrowthStage.MAX_GRADE)) }
 
+    override suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?) =
+        modify(memberId) { it.copy(birthDate = birthDate?.toEpochDay()) }
+
     override suspend fun remove(memberId: String) = modify(memberId) { it.copy(deleted = true) }
 
     private suspend fun modify(id: String, change: (MemberEntity) -> MemberEntity) {

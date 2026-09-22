@@ -7,4 +7,5 @@ data class MentorDashboardActions(
     val onOpenRoadmap: () -> Unit = {},
     val onOpenContent: () -> Unit = {},
     val onBack: (() -> Unit)? = null,
+    val onOpenJourney: () -> Unit = {},
 )

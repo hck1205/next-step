@@ -2,11 +2,13 @@ package com.nextstep.app.fake
 
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.SyncStatus
@@ -16,6 +18,7 @@ import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.ContentDraft
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
+import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
@@ -27,6 +30,7 @@ import com.nextstep.app.data.sync.FamilyInfo
 import com.nextstep.app.domain.content.ContentClassification
 import com.nextstep.app.domain.planner.StudyPlan
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
@@ -51,9 +55,10 @@ class FakeEventRepository : EventRepository {
     override suspend fun delete(id: String) { deleted += id }
 }
 
-class FakeStudySessionRepository : StudySessionRepository {
-    override val sessions = MutableStateFlow<List<StudySessionEntity>>(emptyList())
-    override val runningTimer = MutableStateFlow<RunningTimer?>(null)
+/** [streams] 를 주면 타이머 상태를 그 파사드와 공유해, 실제 앱처럼 저장소 쓰기가 스트림 읽기에 반영됩니다. */
+class FakeStudySessionRepository(streams: FakeFamilyDataStreams? = null) : StudySessionRepository {
+    override val sessions = streams?.sessions ?: MutableStateFlow(emptyList())
+    override val runningTimer: MutableStateFlow<RunningTimer?> = streams?.runningTimer ?: MutableStateFlow(null)
     val saved = mutableListOf<StudySessionEntity>()
     val deleted = mutableListOf<String>()
     var stopResult: StudySessionEntity? = null
@@ -117,6 +122,7 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun updateProfile(memberId: String, name: String, title: String) { calls += "profile:$memberId:$name:$title" }
     override suspend fun setMentorEnabled(memberId: String, enabled: Boolean) { calls += "mentor:$memberId:$enabled" }
     override suspend fun setGradeYear(memberId: String, gradeYear: Int) { calls += "grade:$memberId:$gradeYear" }
+    override suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?) { calls += "birth:$memberId:$birthDate" }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 
@@ -126,9 +132,24 @@ class FakeOnboardingRepository(override val syncAvailable: Boolean = true) : Onb
     var createResult: Result<FamilyInfo> = Result.success(FamilyInfo("fam", "ABC123", "학생"))
     var joinResult: Result<FamilyInfo> = Result.success(FamilyInfo("fam", "ABC123", "학생"))
     val calls = mutableListOf<String>()
-    override suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int): Result<FamilyInfo> { calls += "create:$studentName:$gradeYear"; return createResult }
+    override suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int, birthDate: java.time.LocalDate?): Result<FamilyInfo> { calls += "create:$studentName:$gradeYear" + (birthDate?.let { ":$it" } ?: ""); return createResult }
+    override suspend fun createFamilyAsParent(parentName: String, childName: String, birthDate: java.time.LocalDate?): Result<FamilyInfo> { calls += "createAsParent:$parentName:$childName:$birthDate"; return createResult }
     override suspend fun joinFamily(role: Role, name: String, code: String, title: String): Result<FamilyInfo> { calls += "join:$role:$name:$code:$title"; return joinResult }
     override suspend fun resumeSync() { calls += "resume" }
     override suspend fun signOut() { calls += "signOut" }
     override fun requestSync() { calls += "requestSync" }
+}
+
+class FakeJourneyRepository : JourneyRepository {
+    override val items = MutableStateFlow<List<JourneyItemEntity>>(emptyList())
+    val calls = mutableListOf<String>()
+    override suspend fun setTemplateStatus(templateId: String, status: MilestoneStatus, dueDate: LocalDate) { calls += "tStatus:$templateId:$status:$dueDate" }
+    override suspend fun setTemplateNote(templateId: String, note: String, dueDate: LocalDate) { calls += "tNote:$templateId:$note" }
+    override suspend fun setTemplateDueDate(templateId: String, dueDate: LocalDate) { calls += "tDue:$templateId:$dueDate" }
+    override suspend fun addCustom(title: String, description: String, category: String, dueDate: LocalDate, leadMonths: Int, priority: Int) { calls += "add:$title:$category:$dueDate:$leadMonths" }
+    override suspend fun update(item: JourneyItemEntity) { calls += "update:${item.id}" }
+    override suspend fun setStatus(id: String, status: MilestoneStatus) { calls += "status:$id:$status" }
+    override suspend fun setNote(id: String, note: String) { calls += "note:$id:$note" }
+    override suspend fun setDueDate(id: String, dueDate: LocalDate) { calls += "due:$id:$dueDate" }
+    override suspend fun delete(id: String) { calls += "delete:$id" }
 }

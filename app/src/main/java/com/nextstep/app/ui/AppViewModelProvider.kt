@@ -12,6 +12,7 @@ import com.nextstep.app.ui.content.ContentViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
 import com.nextstep.app.ui.home.HomeViewModel
 import com.nextstep.app.ui.insights.InsightsViewModel
+import com.nextstep.app.ui.journey.JourneyViewModel
 import com.nextstep.app.ui.mentor.MentorDashboardViewModel
 import com.nextstep.app.ui.navigation.RootViewModel
 import com.nextstep.app.ui.onboarding.OnboardingViewModel
@@ -41,6 +42,7 @@ object AppViewModelProvider {
         initializer { with(container()) { CheerViewModel(streams, notes) } }
         initializer { with(container()) { RoadmapViewModel(streams, roadmap) } }
         initializer { with(container()) { ContentViewModel(streams, contents) } }
+        initializer { with(container()) { JourneyViewModel(streams, journey, members) } }
     }
 }
 

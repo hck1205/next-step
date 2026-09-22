@@ -32,6 +32,10 @@ data class HomeUiState(
     val stage: com.nextstep.app.domain.growth.GrowthStage? = null,
     /** 성장 단계에 맞춘 학습 계획 기본값. */
     val planDefaults: PlanOptions = PlanOptions(),
+    /** 여정에서 지금 준비하거나 놓친 항목 (최대 3개). 대학·대학원생 등 본인이 관리하는 경우를 위해 학생 홈에도 보여 줍니다. */
+    val journeyNow: List<com.nextstep.app.domain.journey.JourneyItem> = emptyList(),
+    val hasBirthDate: Boolean = false,
+    val today: java.time.LocalDate = java.time.LocalDate.now(),
 ) {
     /** 진행 중이거나 목표일이 가까운 로드맵 항목. */
     val roadmapFocus: List<RoadmapItemEntity> get() = roadmap.filter { it.status != RoadmapStatus.DONE }

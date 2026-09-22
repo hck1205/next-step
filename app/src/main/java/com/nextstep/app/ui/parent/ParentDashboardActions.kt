@@ -8,4 +8,6 @@ data class ParentDashboardActions(
     val onOpenMentor: () -> Unit = {},
     val onOpenRoadmap: () -> Unit = {},
     val onOpenContent: () -> Unit = {},
+    val onOpenJourney: () -> Unit = {},
+    val onOpenGrades: () -> Unit = {},
 )

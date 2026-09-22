@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.data.model.GradeLevel
 
 class HomeViewModel(
@@ -59,10 +60,15 @@ class HomeViewModel(
         s.copy(progress = StudyStats.subjectProgress(topics, s.subjects), runningTimer = timer, roadmap = roadmap, lastPlan = plan)
     }
 
-    val state: StateFlow<HomeUiState> = combine(withProgress, streams.contents, streams.grades, streams.members) { s, contents, grades, members ->
+    val state: StateFlow<HomeUiState> = combine(withProgress, streams.contents, streams.grades, streams.members, streams.journeyItems) { s, contents, grades, members, journey ->
         val exams = StudyStats.upcomingExams(s.events, emptyList())
-        val stage = GrowthStage.of(members)
+        val today = DateUtils.today()
+        val stage = GrowthStage.of(members, today)
+        val birthDate = members.firstOrNull { it.role == "STUDENT" }?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
         s.copy(
+            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(birthDate, journey, today), today),
+            hasBirthDate = birthDate != null,
+            today = today,
             stage = stage,
             planDefaults = GrowthGuide.defaultPlanOptions(stage),
             recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, gradeLevel = stage?.gradeLevel ?: GradeLevel.ALL, limit = 3),

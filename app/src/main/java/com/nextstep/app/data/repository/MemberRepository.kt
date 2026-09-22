@@ -14,7 +14,9 @@ interface MemberRepository {
     suspend fun updateProfile(memberId: String, name: String, title: String)
     /** 학부모가 멘토 역할을 겸할지. 멘토 본인은 항상 켜져 있습니다. */
     suspend fun setMentorEnabled(memberId: String, enabled: Boolean)
-    /** 학생 학년(1~12). 성장 단계의 근거. */
+    /** 학생 학년(1~18). 생년월일이 없을 때 성장 단계의 근거. */
     suspend fun setGradeYear(memberId: String, gradeYear: Int)
+    /** 학생 생년월일. null 이면 지웁니다. 여정 타임라인의 기준. */
+    suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?)
     suspend fun remove(memberId: String)
 }

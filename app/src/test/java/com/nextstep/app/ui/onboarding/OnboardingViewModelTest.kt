@@ -67,4 +67,29 @@ class OnboardingViewModelTest : ViewModelTestBase() {
         assertEquals("서버 오류", vm.state.value.error); assertFalse(vm.state.value.loading)
         assertNotNull(vm.state.value.role)
     }
+
+    @Test
+    fun studentBirthDateIsPassedThrough() = runTest {
+        val vm = vm()
+        vm.onEvent(OnboardingEvent.SelectRole(Role.STUDENT)); vm.onEvent(OnboardingEvent.SetName("민수"))
+        vm.onEvent(OnboardingEvent.SetBirthDate(java.time.LocalDate.of(2012, 4, 3))); vm.onEvent(OnboardingEvent.Submit)
+        advanceUntilIdle()
+        assertEquals(listOf("create:민수:0:2012-04-03"), repo.calls)
+    }
+
+    @Test
+    fun parentCanStartFamilyForChildWithoutCode() = runTest {
+        val vm = vm()
+        vm.onEvent(OnboardingEvent.SelectRole(Role.PARENT)); vm.onEvent(OnboardingEvent.SetName("엄마"))
+        vm.onEvent(OnboardingEvent.SetCreateAsParent(true))
+        vm.onEvent(OnboardingEvent.Submit)
+        assertEquals("자녀 이름을 입력해 주세요", vm.state.value.error); assertTrue(repo.calls.isEmpty())
+        vm.onEvent(OnboardingEvent.SetChildName(" 아기 ")); vm.onEvent(OnboardingEvent.SetBirthDate(java.time.LocalDate.of(2026, 7, 1)))
+        vm.onEvent(OnboardingEvent.Submit)
+        advanceUntilIdle()
+        assertEquals(listOf("createAsParent:엄마:아기:2026-07-01"), repo.calls)
+        // 토글을 끄면 다시 코드가 필요
+        vm.onEvent(OnboardingEvent.SetCreateAsParent(false)); vm.onEvent(OnboardingEvent.Submit)
+        assertTrue(vm.state.value.error!!.contains("6자리"))
+    }
 }

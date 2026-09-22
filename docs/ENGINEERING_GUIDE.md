@@ -33,7 +33,9 @@ com.nextstep.app
 │   ├── stats/              StudyStats + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine + 모델
 │   ├── planner/            StudyPlanner + 모델
-│   └── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
+│   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
+│   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide
+│   └── journey/            MilestoneCatalog, DueRule, JourneyPlanner + 모델 (나이대별 타임라인)
 └── ui/
     ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나
     ├── theme/

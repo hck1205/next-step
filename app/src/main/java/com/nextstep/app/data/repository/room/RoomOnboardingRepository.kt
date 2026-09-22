@@ -15,6 +15,7 @@ import com.nextstep.app.data.sync.SyncManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import java.time.LocalDate
 import java.util.Locale
 import kotlin.random.Random
 
@@ -30,13 +31,25 @@ class RoomOnboardingRepository(
     override val syncStatus: StateFlow<SyncStatus> get() = sync.status
     override val syncAvailable: Boolean get() = sync.isAvailable
 
-    override suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int): Result<FamilyInfo> {
+    override suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int, birthDate: LocalDate?): Result<FamilyInfo> {
         val info = FamilyInfo(familyId = newId(), pairingCode = generatePairingCode(), studentName = studentName)
         sync.createFamily(info).onFailure { return Result.failure(it) }
-        val member = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = studentName, gradeYear = gradeYear)
+        val member = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = studentName, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())
         memberDao.upsert(member)
         prefs.completeOnboarding(Role.STUDENT, studentName, info.familyId, info.pairingCode, studentName, member.id)
         seedDefaultSubjects(info.familyId)
+        sync.start(info.familyId)
+        return Result.success(info)
+    }
+
+    override suspend fun createFamilyAsParent(parentName: String, childName: String, birthDate: LocalDate?): Result<FamilyInfo> {
+        val info = FamilyInfo(familyId = newId(), pairingCode = generatePairingCode(), studentName = childName)
+        sync.createFamily(info).onFailure { return Result.failure(it) }
+        val child = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = childName, birthDate = birthDate?.toEpochDay())
+        val parent = MemberEntity(familyId = info.familyId, role = Role.PARENT.name, name = parentName)
+        memberDao.upsert(child)
+        memberDao.upsert(parent)
+        prefs.completeOnboarding(Role.PARENT, parentName, info.familyId, info.pairingCode, childName, parent.id)
         sync.start(info.familyId)
         return Result.success(info)
     }

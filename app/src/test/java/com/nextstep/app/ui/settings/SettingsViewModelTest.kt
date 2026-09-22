@@ -62,8 +62,9 @@ class SettingsViewModelTest : ViewModelTestBase() {
         streams.members.value = listOf(Fixtures.member(Role.PARENT, "엄마", id = "me"), Fixtures.member(Role.STUDENT, "나", id = "kid"))
         val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
         vm.onEvent(SettingsEvent.SetGradeYear(5))
+        vm.onEvent(SettingsEvent.SetBirthDate(java.time.LocalDate.of(2015, 2, 1)))
         settle(vm.state)
-        assertEquals(listOf("grade:kid:5"), members.calls)
+        assertEquals(listOf("grade:kid:5", "birth:kid:2015-02-01"), members.calls)
         job.cancel()
     }
 }

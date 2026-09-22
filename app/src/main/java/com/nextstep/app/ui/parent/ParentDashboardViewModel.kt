@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.time.DateUtils
 
 class ParentDashboardViewModel(
@@ -50,11 +51,16 @@ class ParentDashboardViewModel(
         Extra(grades, topics, notes, sessions, tasks)
     }
 
-    private val extra = combine(streams.events, streams.syncStatus, streams.roadmap, streams.members) { e, s, r, m -> Side(e, s, r, m) }
+    private val extra = combine(streams.events, streams.syncStatus, streams.roadmap, streams.members, streams.journeyItems) { e, s, r, m, j -> Side(e, s, r, m, j) }
 
     val state: StateFlow<ParentDashboardUiState> = combine(core, data, extra) { s, d, x ->
         val events = x.events
+        val today = DateUtils.today()
+        val birthDate = x.members.firstOrNull { it.role == "STUDENT" }?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
         s.copy(
+            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(birthDate, x.journey, today), today),
+            hasBirthDate = birthDate != null,
+            today = today,
             syncStatus = x.sync,
             talents = TalentEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(3),
             streak = StudyStats.studyStreak(d.sessions),
@@ -62,7 +68,7 @@ class ParentDashboardViewModel(
             roadmapTotal = x.roadmap.size,
             mentorCount = x.members.count { it.role == "MENTOR" || it.mentorEnabled && it.role != "STUDENT" },
             parentCount = x.members.count { it.role == "PARENT" },
-            stage = GrowthStage.of(x.members),
+            stage = GrowthStage.of(x.members, today),
             gradeLabel = x.members.firstOrNull { it.role == "STUDENT" }?.gradeYear?.let { y -> GrowthStage.fromGradeYear(y)?.gradeLabel(y) },
             stageTip = GrowthStage.of(x.members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).parentTips, DateUtils.today()) },
             stageExperience = GrowthStage.of(x.members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).experiences, DateUtils.weekStart()) },
@@ -87,6 +93,7 @@ class ParentDashboardViewModel(
         val sync: SyncStatus,
         val roadmap: List<com.nextstep.app.data.local.entity.RoadmapItemEntity>,
         val members: List<com.nextstep.app.data.local.entity.MemberEntity>,
+        val journey: List<com.nextstep.app.data.local.entity.JourneyItemEntity>,
     )
 
     private data class Extra(

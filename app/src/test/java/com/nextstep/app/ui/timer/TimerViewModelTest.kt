@@ -16,7 +16,7 @@ import java.time.LocalTime
 
 class TimerViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams()
-    private val sessions = FakeStudySessionRepository()
+    private val sessions = FakeStudySessionRepository(streams)
 
     private fun vm() = TimerViewModel(streams, sessions, tickMillis = 60_000L)
 

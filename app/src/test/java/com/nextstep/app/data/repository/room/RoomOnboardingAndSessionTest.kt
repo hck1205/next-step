@@ -16,6 +16,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.LocalDate
 import kotlin.random.Random
 
 class RoomOnboardingAndSessionTest {
@@ -38,6 +39,20 @@ class RoomOnboardingAndSessionTest {
         assertEquals("STUDENT", member.role); assertEquals(member.id, profile.memberId)
         assertEquals(5, subjects.count(info.familyId))
         assertEquals(info.familyId, sync.startedWith)
+    }
+
+    @Test
+    fun parentOnboardingCreatesChildAndParentRowsAndCompletesAsParent() = runTest {
+        val info = onboarding().createFamilyAsParent("엄마", "아기", LocalDate.of(2026, 7, 1)).getOrThrow()
+        assertEquals("아기", info.studentName)
+        val child = members.all.single { it.role == "STUDENT" }; val parent = members.all.single { it.role == "PARENT" }
+        assertEquals(LocalDate.of(2026, 7, 1).toEpochDay(), child.birthDate); assertNull(parent.birthDate)
+        val profile = prefs.profile.value
+        assertEquals(Role.PARENT, profile.role); assertEquals(parent.id, profile.memberId); assertEquals("아기", profile.studentName); assertTrue(profile.onboarded)
+        assertEquals(0, subjects.count(info.familyId))
+        assertEquals(info.familyId, sync.startedWith)
+        val student = onboarding().createFamilyAsStudent("민수", 3, LocalDate.of(2017, 1, 1)).getOrThrow()
+        assertEquals(LocalDate.of(2017, 1, 1).toEpochDay(), members.all.single { it.familyId == student.familyId }.birthDate)
     }
 
     @Test

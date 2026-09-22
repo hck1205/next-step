@@ -92,7 +92,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item { StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null) }
+            item { StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null, onSetGrade = actions.onOpenJourney) }
             item {
                 AppCard(onClick = actions.onOpenRoadmap) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

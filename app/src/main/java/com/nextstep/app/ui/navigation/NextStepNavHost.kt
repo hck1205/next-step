@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -42,6 +43,8 @@ import com.nextstep.app.ui.content.ContentLibraryScreen
 import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.home.StudentHomeScreen
 import com.nextstep.app.ui.insights.InsightsScreen
+import com.nextstep.app.ui.journey.JourneyActions
+import com.nextstep.app.ui.journey.JourneyScreen
 import com.nextstep.app.ui.mentor.MentorDashboardScreen
 import com.nextstep.app.ui.onboarding.OnboardingScreen
 import com.nextstep.app.ui.parent.CheerScreen
@@ -75,6 +78,7 @@ object Routes {
     const val CONTENT = "content"
     const val TIMER = "timer"
     const val SETTINGS = "settings"
+    const val JOURNEY = "journey"
     const val SUBJECT = "subject/{subjectId}"
     fun subject(id: String) = "subject/$id"
 }
@@ -84,7 +88,7 @@ data class TopLevelDestination(val route: String, val label: String, val icon: I
 /**
  * 역할별 하단 탭. 각 역할의 핵심 흐름만 탭으로 두고, 나머지는 화면 안의 진입점으로 연결합니다.
  * - 학생: 학습 내용·커리큘럼·스케줄링 중심
- * - 학부모: 모니터링·격려·분석(재능 발견) 중심
+ * - 학부모: 여정(나이대별 준비)·모니터링·격려·분석(재능 발견) 중심. 성적은 대시보드에서 진입
  * - 멘토: 로드맵 큐레이팅·진도 지도 중심
  */
 private fun topLevelDestinations(role: Role): List<TopLevelDestination> = when (role) {
@@ -97,10 +101,10 @@ private fun topLevelDestinations(role: Role): List<TopLevelDestination> = when (
     )
     Role.PARENT -> listOf(
         TopLevelDestination(Routes.HOME, "대시보드", Icons.Default.Dashboard),
+        TopLevelDestination(Routes.JOURNEY, "여정", Icons.Default.Timeline),
         TopLevelDestination(Routes.CHEER, "격려", Icons.Default.Favorite),
         TopLevelDestination(Routes.INSIGHTS, "분석", Icons.Default.Insights),
         TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
-        TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
     )
     Role.MENTOR -> listOf(
         TopLevelDestination(Routes.HOME, "지도", Icons.Default.Dashboard),
@@ -174,18 +178,19 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                     actions = ParentDashboardActions(
                         onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject, onOpenInsights = { go(Routes.INSIGHTS) },
                         onOpenMentor = { go(Routes.MENTOR_HOME) }, onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
+                        onOpenJourney = { go(Routes.JOURNEY) }, onOpenGrades = { go(Routes.GRADES) },
                     ),
                 )
                 Role.MENTOR -> MentorDashboardScreen(
                     actions = MentorDashboardActions(
                         onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) },
-                        onOpenContent = { go(Routes.CONTENT) }, onBack = null,
+                        onOpenContent = { go(Routes.CONTENT) }, onBack = null, onOpenJourney = { go(Routes.JOURNEY) },
                     ),
                 )
                 Role.STUDENT -> StudentHomeScreen(
                     actions = HomeActions(
                         onOpenTimer = { go(Routes.TIMER) }, onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject,
-                        onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
+                        onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) }, onOpenJourney = { go(Routes.JOURNEY) },
                     ),
                 )
             }
@@ -194,7 +199,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             MentorDashboardScreen(
                 actions = MentorDashboardActions(
                     onOpenSettings = { go(Routes.SETTINGS) }, onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) },
-                    onOpenContent = { go(Routes.CONTENT) }, onBack = back,
+                    onOpenContent = { go(Routes.CONTENT) }, onBack = back, onOpenJourney = { go(Routes.JOURNEY) },
                 ),
             )
         }
@@ -209,6 +214,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             RoadmapScreen(caps = caps, actions = RoadmapActions(onBack = backUnlessTab(Routes.ROADMAP), onOpenContent = { go(Routes.CONTENT) }))
         }
         composable(Routes.CHEER) { CheerScreen() }
+        composable(Routes.JOURNEY) { JourneyScreen(actions = JourneyActions(onBack = backUnlessTab(Routes.JOURNEY), onOpenSettings = { go(Routes.SETTINGS) })) }
         composable(Routes.CALENDAR) { CalendarScreen(caps = caps) }
         composable(Routes.GRADES) { GradesScreen(caps = caps) }
         composable(Routes.INSIGHTS) { InsightsScreen(caps = caps, actions = InsightsActions(onBack = backUnlessTab(Routes.INSIGHTS))) }

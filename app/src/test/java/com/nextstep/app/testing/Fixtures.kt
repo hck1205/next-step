@@ -3,6 +3,7 @@ package com.nextstep.app.testing
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
@@ -13,6 +14,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
@@ -53,8 +55,11 @@ object Fixtures {
     fun note(text: String, role: Role = Role.PARENT, author: String = "엄마", id: String = "n-$text") =
         NoteEntity(id = id, familyId = FAMILY, authorRole = role.name, authorName = author, text = text)
 
-    fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR, gradeYear: Int = 0) =
-        MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled, gradeYear = gradeYear)
+    fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR, gradeYear: Int = 0, birthDate: LocalDate? = null) =
+        MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())
+
+    fun journeyItem(templateId: String?, status: MilestoneStatus = MilestoneStatus.UPCOMING, due: LocalDate = LocalDate.of(2027, 1, 1), title: String = "", id: String = "j-${templateId ?: title}", leadMonths: Int = 1, note: String = "", category: String = "ADMIN") =
+        JourneyItemEntity(id = id, familyId = FAMILY, templateId = templateId, title = title, category = category, dueDate = due.toEpochDay(), leadMonths = leadMonths, status = status, note = note)
 
     fun roadmap(title: String, subjectId: String? = null, status: RoadmapStatus = RoadmapStatus.PLANNED, target: LocalDate? = null, id: String = "r-$title", contentId: String? = null) =
         RoadmapItemEntity(id = id, familyId = FAMILY, subjectId = subjectId, title = title, status = status, targetDate = target?.toEpochDay(), contentId = contentId)

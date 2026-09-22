@@ -7,4 +7,5 @@ data class HomeActions(
     val onOpenSubject: (String) -> Unit = { _ -> },
     val onOpenRoadmap: () -> Unit = {},
     val onOpenContent: () -> Unit = {},
+    val onOpenJourney: () -> Unit = {},
 )

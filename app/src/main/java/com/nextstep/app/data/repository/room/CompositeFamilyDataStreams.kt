@@ -4,6 +4,7 @@ import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GradeRepository
+import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
@@ -26,6 +27,7 @@ class CompositeFamilyDataStreams(
     members: MemberRepository,
     roadmap: RoadmapRepository,
     contents: ContentRepository,
+    journey: JourneyRepository,
 ) : FamilyDataStreams {
     override val profile = onboarding.profile
     override val syncStatus = onboarding.syncStatus
@@ -41,4 +43,5 @@ class CompositeFamilyDataStreams(
     override val roadmap = roadmap.roadmap
     override val contents = contents.contents
     override val runningTimer = sessions.runningTimer
+    override val journeyItems = journey.items
 }

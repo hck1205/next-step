@@ -9,8 +9,13 @@ data class OnboardingUiState(
     val code: String = "",
     /** 멘토 구분 (예: 수학 과외). */
     val title: String = "",
-    /** 학생 학년(1~12). 0 이면 미선택. */
+    /** 학생 학년(1~18). 0 이면 미선택. */
     val gradeYear: Int = 0,
+    /** 학생(자녀) 생년월일. 여정 타임라인의 기준. */
+    val birthDate: java.time.LocalDate? = null,
+    /** 학부모가 자녀 기기 없이 직접 가족을 만드는 경우 (영유아 등). */
+    val createAsParent: Boolean = false,
+    val childName: String = "",
     val loading: Boolean = false,
     val error: String? = null,
     val syncAvailable: Boolean = false,
