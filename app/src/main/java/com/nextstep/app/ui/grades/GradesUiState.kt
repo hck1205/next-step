@@ -3,7 +3,6 @@ package com.nextstep.app.ui.grades
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.domain.stats.SubjectScore
-import com.nextstep.app.ui.grades.components.Double
 
 data class GradesUiState(
     val subjects: List<SubjectEntity> = emptyList(),

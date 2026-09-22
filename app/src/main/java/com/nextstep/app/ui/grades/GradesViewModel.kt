@@ -7,7 +7,6 @@ import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.domain.stats.StudyStats
-import com.nextstep.app.ui.grades.components.Double
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

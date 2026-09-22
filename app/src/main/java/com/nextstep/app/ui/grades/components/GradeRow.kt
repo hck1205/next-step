@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.grades.components
 
+import com.nextstep.app.ui.components.trim
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

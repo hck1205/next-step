@@ -1,4 +1,4 @@
-package com.nextstep.app.ui.grades.components
+package com.nextstep.app.ui.components
 
 import java.util.Locale
 
