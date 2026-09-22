@@ -9,6 +9,7 @@ import com.nextstep.app.NextStepApp
 import com.nextstep.app.di.AppContainer
 import com.nextstep.app.ui.calendar.CalendarViewModel
 import com.nextstep.app.ui.content.ContentViewModel
+import com.nextstep.app.ui.goals.GoalsViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
 import com.nextstep.app.ui.home.HomeViewModel
 import com.nextstep.app.ui.insights.InsightsViewModel
@@ -42,7 +43,8 @@ object AppViewModelProvider {
         initializer { with(container()) { CheerViewModel(streams, notes) } }
         initializer { with(container()) { RoadmapViewModel(streams, roadmap) } }
         initializer { with(container()) { ContentViewModel(streams, contents) } }
-        initializer { with(container()) { JourneyViewModel(streams, journey, members) } }
+        initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
+        initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }
     }
 }
 

@@ -6,6 +6,7 @@ import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.Role
@@ -40,6 +41,10 @@ class MapperRoundTripTest {
     @Test fun member() = roundTrip(MemberMapper, Fixtures.member(Role.PARENT, "엄마", subjectIds = "a,b", mentorEnabled = true, gradeYear = 9, birthDate = LocalDate.of(2015, 3, 2)).copy(title = "t")) { it.copy(dirty = false) }.let {}
     @Test fun memberWithoutBirthDate() = roundTrip(MemberMapper, Fixtures.member(Role.STUDENT, "나")) { it.copy(dirty = false) }.let { assertNull(it.birthDate) }
     @Test fun journeyTemplate() = roundTrip(JourneyItemMapper, Fixtures.journeyItem("daycare-waitlist", MilestoneStatus.DONE, note = "완료").copy(doneAt = 5L, deleted = true)) { it.copy(dirty = false) }.let {}
+    @Test fun goal() = roundTrip(GoalMapper, Fixtures.goal("영어", trackId = "english-early", status = GoalStatus.DONE).copy(description = "d", createdByRole = "PARENT", createdAt = 3L, deleted = true)) { it.copy(dirty = false) }.let {}
+    @Test fun goalCustom() = roundTrip(GoalMapper, Fixtures.goal("피아노")) { it.copy(dirty = false) }.let { assertNull(it.trackId) }
+    @Test fun goalStep() = roundTrip(GoalStepMapper, Fixtures.step("g1", "g3s1", "나눗셈", order = 4, status = MilestoneStatus.DONE, taskId = "t1").copy(detail = "x", doneAt = 9L)) { it.copy(dirty = false) }.let {}
+    @Test fun goalStepWithoutTask() = roundTrip(GoalStepMapper, Fixtures.step("g1", "age-12", "첫 단어")) { it.copy(dirty = false) }.let { assertNull(it.taskId); assertNull(it.doneAt) }
     @Test fun journeyCustom() = roundTrip(JourneyItemMapper, Fixtures.journeyItem(null, title = "영어유치원 설명회", leadMonths = 2, category = "LANGUAGE").copy(description = "d", priority = 1)) { it.copy(dirty = false) }.let { assertNull(it.templateId) }
     @Test fun roadmap() = roundTrip(RoadmapItemMapper, Fixtures.roadmap("개념", "s", RoadmapStatus.IN_PROGRESS, LocalDate.of(2026, 10, 1), contentId = "c").copy(description = "d", resource = "r", orderIndex = 4, createdByName = "쌤", createdByRole = "MENTOR")) { it.copy(dirty = false) }.let {}
 

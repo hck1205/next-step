@@ -7,8 +7,10 @@ import com.nextstep.app.domain.journey.JourneyPhase
 import com.nextstep.app.domain.journey.MilestoneCatalog
 import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.fake.FakeFamilyDataStreams
+import com.nextstep.app.fake.FakeGoalRepository
 import com.nextstep.app.fake.FakeJourneyRepository
 import com.nextstep.app.fake.FakeMemberRepository
+import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
@@ -23,9 +25,11 @@ class JourneyViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)
     private val journey = FakeJourneyRepository()
     private val members = FakeMemberRepository()
+    private val goals = FakeGoalRepository()
+    private val tasks = FakeTaskRepository()
     private val today = LocalDate.of(2026, 9, 22)
 
-    private fun vm() = JourneyViewModel(streams, journey, members, today = { today })
+    private fun vm() = JourneyViewModel(streams, journey, members, goals, tasks, today = { today })
 
     @Test
     fun withoutBirthDateStateAsksForItAndSetBirthDateTargetsStudent() = runTest {
@@ -47,12 +51,49 @@ class JourneyViewModelTest : ViewModelTestBase() {
         var s = settle(vm.state)
         assertTrue(s.hasBirthDate); assertEquals(GrowthStage.NEWBORN, s.stage); assertEquals("만 0세 2개월", s.ageLabel)
         assertEquals(MilestoneCatalog.templates.size, s.items.size)
-        assertEquals(listOf(JourneyPhase.OVERDUE, JourneyPhase.NOW, JourneyPhase.UPCOMING), s.sections.map { it.first })
+        assertEquals("age-0", s.currentPeriodKey); assertEquals(0, s.pastSectionCount)
+        val sections = s.periodSections
+        assertTrue(sections.first().isCurrent); assertTrue(sections.none { it.isPast })
+        assertTrue(sections.first().milestones.any { it.templateId == "vaccine-2m" })
+        assertTrue(sections.none { sec -> sec.milestones.any { it.templateId == "daycare-waitlist" } })
+        assertEquals(sections.map { it.period.start }, sections.map { it.period.start }.sorted())
         assertTrue(s.overdueCount >= 1); assertTrue(s.nowCount >= 1); assertTrue(s.completion > 0f)
         vm.onEvent(JourneyEvent.ShowCompleted(true)); s = settle(vm.state)
-        assertTrue(s.sections.any { it.first == JourneyPhase.DONE })
+        assertTrue(s.periodSections.first().milestones.any { it.templateId == "daycare-waitlist" })
+        assertEquals(listOf(JourneyPhase.OVERDUE, JourneyPhase.NOW, JourneyPhase.UPCOMING, JourneyPhase.DONE), s.phaseSections.map { it.first })
         vm.onEvent(JourneyEvent.SetFilter(MilestoneCategory.HEALTH)); s = settle(vm.state)
         assertTrue(s.filtered.isNotEmpty()); assertTrue(s.filtered.all { it.category == MilestoneCategory.HEALTH })
+        job.cancel()
+    }
+
+    @Test
+    fun goalStepsAppearInTheirPeriodAndPastSectionsToggle() = runTest {
+        val born = LocalDate.of(2020, 5, 15) // 2026-09-22 → 만 6세 전반(age-72) … 실제 구간은 달력이 정함
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "아이", id = "kid", birthDate = born))
+        streams.goals.value = listOf(Fixtures.goal("영어", id = "g"))
+        val current = com.nextstep.app.domain.journey.PeriodCalendar.current(born, today)!!
+        val past = com.nextstep.app.domain.journey.PeriodCalendar.periods(born).first()
+        streams.goalSteps.value = listOf(
+            Fixtures.step("g", current.key, "지금 단계", id = "now"),
+            Fixtures.step("g", past.key, "지난 단계", id = "old"),
+            Fixtures.step("g", current.key, "끝난 단계", id = "done", status = MilestoneStatus.DONE),
+            Fixtures.step("zzz", current.key, "삭제된 목표의 단계", id = "orphan"),
+        )
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertEquals(current.key, s.currentPeriodKey); assertTrue(s.pastSectionCount > 0)
+        val cur = s.periodSections.first { it.isCurrent }
+        assertEquals(listOf("지금 단계"), cur.steps.map { it.step.title }); assertEquals("영어", cur.steps.single().goalTitle)
+        assertTrue(s.periodSections.none { it.isPast })
+        vm.onEvent(JourneyEvent.ShowPast(true)); vm.onEvent(JourneyEvent.ShowCompleted(true)); s = settle(vm.state)
+        assertEquals(listOf("지난 단계"), s.periodSections.first { it.period.key == past.key }.steps.map { it.step.title })
+        assertEquals(setOf("지금 단계", "끝난 단계"), s.periodSections.first { it.isCurrent }.steps.map { it.step.title }.toSet())
+        vm.onEvent(JourneyEvent.SetStepStatus(streams.goalSteps.value[0], MilestoneStatus.DONE))
+        vm.onEvent(JourneyEvent.SendStepToTasks(streams.goalSteps.value[0], "PARENT"))
+        vm.onEvent(JourneyEvent.SendStepToTasks(streams.goalSteps.value[0].copy(taskId = "t"), "PARENT"))
+        settle(vm.state)
+        assertEquals(listOf("stepStatus:now:DONE", "stepTask:now:set"), goals.calls)
+        assertEquals(current.end.toEpochDay(), tasks.saved.single().dueDate); assertEquals("영어", tasks.saved.single().note)
         job.cancel()
     }
 

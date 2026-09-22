@@ -35,7 +35,7 @@ com.nextstep.app
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide
-│   └── journey/            MilestoneCatalog, DueRule, JourneyPlanner + 모델 (나이대별 타임라인)
+│   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계)
 └── ui/
     ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나
     ├── theme/

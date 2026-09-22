@@ -43,6 +43,8 @@ import com.nextstep.app.ui.content.ContentLibraryScreen
 import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.home.StudentHomeScreen
 import com.nextstep.app.ui.insights.InsightsScreen
+import com.nextstep.app.ui.goals.GoalsActions
+import com.nextstep.app.ui.goals.GoalsScreen
 import com.nextstep.app.ui.journey.JourneyActions
 import com.nextstep.app.ui.journey.JourneyScreen
 import com.nextstep.app.ui.mentor.MentorDashboardScreen
@@ -79,6 +81,7 @@ object Routes {
     const val TIMER = "timer"
     const val SETTINGS = "settings"
     const val JOURNEY = "journey"
+    const val GOALS = "goals"
     const val SUBJECT = "subject/{subjectId}"
     fun subject(id: String) = "subject/$id"
 }
@@ -214,7 +217,8 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             RoadmapScreen(caps = caps, actions = RoadmapActions(onBack = backUnlessTab(Routes.ROADMAP), onOpenContent = { go(Routes.CONTENT) }))
         }
         composable(Routes.CHEER) { CheerScreen() }
-        composable(Routes.JOURNEY) { JourneyScreen(actions = JourneyActions(onBack = backUnlessTab(Routes.JOURNEY), onOpenSettings = { go(Routes.SETTINGS) })) }
+        composable(Routes.JOURNEY) { JourneyScreen(caps = caps, actions = JourneyActions(onBack = backUnlessTab(Routes.JOURNEY), onOpenSettings = { go(Routes.SETTINGS) }, onOpenGoals = { go(Routes.GOALS) })) }
+        composable(Routes.GOALS) { GoalsScreen(caps = caps, actions = GoalsActions(onBack = back, onOpenJourney = { go(Routes.JOURNEY) })) }
         composable(Routes.CALENDAR) { CalendarScreen(caps = caps) }
         composable(Routes.GRADES) { GradesScreen(caps = caps) }
         composable(Routes.INSIGHTS) { InsightsScreen(caps = caps, actions = InsightsActions(onBack = backUnlessTab(Routes.INSIGHTS))) }

@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.journey
 
+import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.MilestoneCategory
@@ -14,5 +15,9 @@ sealed interface JourneyEvent {
     data class DeleteCustom(val item: JourneyItem) : JourneyEvent
     data class SetFilter(val category: MilestoneCategory?) : JourneyEvent
     data class ShowCompleted(val show: Boolean) : JourneyEvent
+    data class ShowPast(val show: Boolean) : JourneyEvent
     data class SetBirthDate(val date: LocalDate) : JourneyEvent
+    data class SetStepStatus(val step: GoalStepEntity, val status: MilestoneStatus) : JourneyEvent
+    /** 단계를 이번 구간의 할 일로 보냅니다. 마감은 구간 끝. */
+    data class SendStepToTasks(val step: GoalStepEntity, val createdByRole: String) : JourneyEvent
 }

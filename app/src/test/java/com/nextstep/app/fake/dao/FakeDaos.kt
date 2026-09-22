@@ -3,6 +3,8 @@ package com.nextstep.app.fake.dao
 import com.nextstep.app.data.local.dao.ContentDao
 import com.nextstep.app.data.local.dao.EventDao
 import com.nextstep.app.data.local.dao.GradeDao
+import com.nextstep.app.data.local.dao.GoalDao
+import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.dao.JourneyDao
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.dao.NoteDao
@@ -14,6 +16,8 @@ import com.nextstep.app.data.local.dao.TopicDao
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
@@ -44,6 +48,12 @@ class FakeNoteDao : InMemoryTable<NoteEntity>(), NoteDao
 
 class FakeStudySessionDao : InMemoryTable<StudySessionEntity>(), StudySessionDao {
     override fun observeSince(familyId: String, fromMillis: Long): Flow<List<StudySessionEntity>> = observeAll(familyId).map { l -> l.filter { it.startAt >= fromMillis } }
+}
+
+class FakeGoalDao : InMemoryTable<GoalEntity>(), GoalDao
+
+class FakeGoalStepDao : InMemoryTable<GoalStepEntity>(), GoalStepDao {
+    override suspend fun getByGoal(goalId: String) = all.filter { it.goalId == goalId && !it.deleted }
 }
 
 class FakeJourneyDao : InMemoryTable<JourneyItemEntity>(), JourneyDao {

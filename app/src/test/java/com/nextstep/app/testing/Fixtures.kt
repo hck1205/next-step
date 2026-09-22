@@ -3,6 +3,8 @@ package com.nextstep.app.testing
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
@@ -14,6 +16,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
@@ -57,6 +60,12 @@ object Fixtures {
 
     fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR, gradeYear: Int = 0, birthDate: LocalDate? = null) =
         MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())
+
+    fun goal(title: String, trackId: String? = null, id: String = "g-${trackId ?: title}", status: GoalStatus = GoalStatus.ACTIVE, area: String = "MATH") =
+        GoalEntity(id = id, familyId = FAMILY, trackId = trackId, title = title, area = area, status = status)
+
+    fun step(goalId: String, periodKey: String, title: String, id: String = "st-$goalId-$periodKey", order: Int = 0, status: MilestoneStatus = MilestoneStatus.UPCOMING, taskId: String? = null) =
+        GoalStepEntity(id = id, familyId = FAMILY, goalId = goalId, periodKey = periodKey, orderIndex = order, title = title, status = status, taskId = taskId)
 
     fun journeyItem(templateId: String?, status: MilestoneStatus = MilestoneStatus.UPCOMING, due: LocalDate = LocalDate.of(2027, 1, 1), title: String = "", id: String = "j-${templateId ?: title}", leadMonths: Int = 1, note: String = "", category: String = "ADMIN") =
         JourneyItemEntity(id = id, familyId = FAMILY, templateId = templateId, title = title, category = category, dueDate = due.toEpochDay(), leadMonths = leadMonths, status = status, note = note)

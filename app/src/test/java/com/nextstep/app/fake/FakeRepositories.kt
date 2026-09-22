@@ -2,12 +2,15 @@ package com.nextstep.app.fake
 
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.RoadmapStatus
@@ -18,6 +21,7 @@ import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.ContentDraft
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
+import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
@@ -152,4 +156,18 @@ class FakeJourneyRepository : JourneyRepository {
     override suspend fun setNote(id: String, note: String) { calls += "note:$id:$note" }
     override suspend fun setDueDate(id: String, dueDate: LocalDate) { calls += "due:$id:$dueDate" }
     override suspend fun delete(id: String) { calls += "delete:$id" }
+}
+
+class FakeGoalRepository : GoalRepository {
+    override val goals = MutableStateFlow<List<GoalEntity>>(emptyList())
+    override val steps = MutableStateFlow<List<GoalStepEntity>>(emptyList())
+    val calls = mutableListOf<String>()
+    val addedGoals = mutableListOf<GoalEntity>()
+    val addedSteps = mutableListOf<GoalStepEntity>()
+    override suspend fun add(goal: GoalEntity, steps: List<GoalStepEntity>) { calls += "add:${goal.trackId ?: goal.title}:${steps.size}"; addedGoals += goal; addedSteps += steps }
+    override suspend fun addStep(step: GoalStepEntity) { calls += "addStep:${step.goalId}:${step.periodKey}:${step.title}"; addedSteps += step }
+    override suspend fun setStepStatus(stepId: String, status: MilestoneStatus) { calls += "stepStatus:$stepId:$status" }
+    override suspend fun setStepTask(stepId: String, taskId: String?) { calls += "stepTask:$stepId:${if (taskId == null) "null" else "set"}" }
+    override suspend fun setGoalStatus(goalId: String, status: GoalStatus) { calls += "goalStatus:$goalId:$status" }
+    override suspend fun delete(goalId: String) { calls += "delete:$goalId" }
 }

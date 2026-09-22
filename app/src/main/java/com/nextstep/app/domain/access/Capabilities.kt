@@ -34,6 +34,8 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canGeneratePlan: Boolean get() = isStudent
     /** 성장 여정(이정표 완료·메모·직접 추가). 학부모가 주도하지만 학생·멘토도 함께 관리합니다. */
     val canEditJourney: Boolean get() = true
+    /** 장기 목표·단계 관리와 단계를 할 일로 보내기. 어린 자녀는 부모가, 이후엔 학생·멘토가 함께 관리합니다. */
+    val canManageGoals: Boolean get() = true
     /** 인사이트의 "할 일로 추가" 실행. */
     val canApplyInsightActions: Boolean get() = isStudent || actsAsMentor
 

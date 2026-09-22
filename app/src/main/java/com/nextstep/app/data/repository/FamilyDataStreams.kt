@@ -2,6 +2,8 @@ package com.nextstep.app.data.repository
 
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -37,4 +39,6 @@ interface FamilyDataStreams {
     val contents: Flow<List<ContentEntity>>
     val runningTimer: Flow<RunningTimer?>
     val journeyItems: Flow<List<JourneyItemEntity>>
+    val goals: Flow<List<GoalEntity>>
+    val goalSteps: Flow<List<GoalStepEntity>>
 }

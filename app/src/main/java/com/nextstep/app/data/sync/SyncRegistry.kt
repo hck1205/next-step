@@ -3,6 +3,8 @@ package com.nextstep.app.data.sync
 import com.nextstep.app.data.local.AppDatabase
 import com.nextstep.app.data.sync.mapper.ContentMapper
 import com.nextstep.app.data.sync.mapper.EventMapper
+import com.nextstep.app.data.sync.mapper.GoalMapper
+import com.nextstep.app.data.sync.mapper.GoalStepMapper
 import com.nextstep.app.data.sync.mapper.GradeMapper
 import com.nextstep.app.data.sync.mapper.JourneyItemMapper
 import com.nextstep.app.data.sync.mapper.MemberMapper
@@ -29,6 +31,8 @@ object SyncRegistry {
         SyncedCollection(RoadmapItemMapper, db.roadmapDao()::getById, db.roadmapDao()::upsert, db.roadmapDao()::getDirty, db.roadmapDao()::markClean),
         SyncedCollection(ContentMapper.Family, db.contentDao()::getById, db.contentDao()::upsert, db.contentDao()::getDirty, db.contentDao()::markClean),
         SyncedCollection(JourneyItemMapper, db.journeyDao()::getById, db.journeyDao()::upsert, db.journeyDao()::getDirty, db.journeyDao()::markClean),
+        SyncedCollection(GoalMapper, db.goalDao()::getById, db.goalDao()::upsert, db.goalDao()::getDirty, db.goalDao()::markClean),
+        SyncedCollection(GoalStepMapper, db.goalStepDao()::getById, db.goalStepDao()::upsert, db.goalStepDao()::getDirty, db.goalStepDao()::markClean),
     )
 
     /** 운영자가 큐레이팅하는 공용 콘텐츠 저장소. 읽기 전용이며 기기 로컬의 시청 표시는 보존합니다. */

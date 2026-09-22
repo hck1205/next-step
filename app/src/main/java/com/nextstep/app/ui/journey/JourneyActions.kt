@@ -4,4 +4,5 @@ package com.nextstep.app.ui.journey
 data class JourneyActions(
     val onBack: (() -> Unit)? = null,
     val onOpenSettings: () -> Unit = {},
+    val onOpenGoals: () -> Unit = {},
 )
