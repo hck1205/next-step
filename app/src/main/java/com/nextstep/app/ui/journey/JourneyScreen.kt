@@ -88,9 +88,9 @@ internal fun JourneyContent(state: JourneyUiState, actions: JourneyActions, onEv
             if (state.loaded && state.items.isEmpty()) {
                 item { AppCard { EmptyState(if (state.hasBirthDate) "표시할 이정표가 없어요" else "생년월일을 입력하면 나이대별 준비 항목이 자동으로 채워져요") } }
             }
-            state.sections.forEach { (phase, items) ->
-                item { SectionTitle("${phase.label} · ${items.size}") }
-                items(items, key = { it.templateId ?: it.entityId ?: it.title }) { item ->
+            state.sections.forEach { (phase, group) ->
+                item { SectionTitle("${phase.label} · ${group.size}") }
+                items(group, key = { it.templateId ?: it.entityId ?: it.title }) { item ->
                     val key = item.templateId ?: item.entityId ?: item.title
                     MilestoneRow(
                         item = item, today = state.today, expanded = expandedKey == key,
