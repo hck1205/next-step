@@ -22,6 +22,8 @@ data class UserProfile(
     val pairingCode: String?,
     val studentName: String,
     val onboarded: Boolean,
+    /** 이 기기 사용자의 구성원(MemberEntity) ID. */
+    val memberId: String?,
 )
 
 /** 진행 중인 학습 타이머. 앱이 종료돼도 복원되도록 DataStore 에 저장합니다. */
@@ -35,6 +37,7 @@ class UserPreferences(private val context: Context) {
         val PAIRING_CODE = stringPreferencesKey("pairing_code")
         val STUDENT_NAME = stringPreferencesKey("student_name")
         val ONBOARDED = booleanPreferencesKey("onboarded")
+        val MEMBER_ID = stringPreferencesKey("member_id")
         val TIMER_SUBJECT = stringPreferencesKey("timer_subject")
         val TIMER_STARTED_AT = longPreferencesKey("timer_started_at")
     }
@@ -47,6 +50,7 @@ class UserPreferences(private val context: Context) {
             pairingCode = p[Keys.PAIRING_CODE],
             studentName = p[Keys.STUDENT_NAME] ?: "",
             onboarded = p[Keys.ONBOARDED] ?: false,
+            memberId = p[Keys.MEMBER_ID],
         )
     }
 
@@ -61,8 +65,10 @@ class UserPreferences(private val context: Context) {
         familyId: String,
         pairingCode: String,
         studentName: String,
+        memberId: String,
     ) {
         context.dataStore.edit { p ->
+            p[Keys.MEMBER_ID] = memberId
             p[Keys.ROLE] = role.name
             p[Keys.DISPLAY_NAME] = displayName
             p[Keys.FAMILY_ID] = familyId

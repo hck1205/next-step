@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FamilyRestroom
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -62,17 +63,24 @@ private fun RoleStep(onSelect: (Role) -> Unit) {
     Text("어떤 역할로 사용하시나요?", style = MaterialTheme.typography.titleLarge)
     Spacer(Modifier.height(16.dp))
     RoleCard(
-        title = "학생",
-        desc = "내 시간표, 진도, 성적을 기록하고 예습·복습 제안을 받아요",
+        title = Role.STUDENT.label,
+        desc = Role.STUDENT.description,
         icon = { Icon(Icons.Default.School, contentDescription = null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary) },
         onClick = { onSelect(Role.STUDENT) },
     )
     Spacer(Modifier.height(12.dp))
     RoleCard(
-        title = "학부모",
-        desc = "자녀의 학습 현황을 실시간으로 확인하고 일정·메모를 남겨요",
+        title = Role.PARENT.label,
+        desc = Role.PARENT.description,
         icon = { Icon(Icons.Default.FamilyRestroom, contentDescription = null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.secondary) },
         onClick = { onSelect(Role.PARENT) },
+    )
+    Spacer(Modifier.height(12.dp))
+    RoleCard(
+        title = "${Role.MENTOR.label} (선생님·과외·튜터)",
+        desc = Role.MENTOR.description + " 한 학생에 여러 멘토가 연결될 수 있어요.",
+        icon = { Icon(Icons.Default.Psychology, contentDescription = null, modifier = Modifier.size(36.dp), tint = MaterialTheme.colorScheme.tertiary) },
+        onClick = { onSelect(Role.MENTOR) },
     )
 }
 
@@ -96,29 +104,42 @@ private fun RoleCard(title: String, desc: String, icon: @Composable () -> Unit, 
 
 @Composable
 private fun DetailStep(state: OnboardingUiState, viewModel: OnboardingViewModel) {
-    val isStudent = state.role == Role.STUDENT
-    Text(if (isStudent) "학생 정보" else "학부모 정보", style = MaterialTheme.typography.titleLarge)
+    val role = state.role ?: Role.STUDENT
+    val isStudent = role == Role.STUDENT
+    val isMentor = role == Role.MENTOR
+    Text("${role.label} 정보", style = MaterialTheme.typography.titleLarge)
     Spacer(Modifier.height(16.dp))
     OutlinedTextField(
         value = state.name,
         onValueChange = viewModel::setName,
-        label = { Text(if (isStudent) "학생 이름" else "이름 (예: 엄마, 아빠)") },
+        label = { Text(when (role) { Role.STUDENT -> "학생 이름"; Role.PARENT -> "이름 (예: 엄마, 아빠)"; Role.MENTOR -> "이름 (예: 김선생)" }) },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )
+    if (isMentor) {
+        Spacer(Modifier.height(12.dp))
+        OutlinedTextField(
+            value = state.title,
+            onValueChange = viewModel::setTitle,
+            label = { Text("구분 (예: 수학 과외, 담임 선생님, 영어 튜터)") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
     if (!isStudent) {
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
             value = state.code,
             onValueChange = viewModel::setCode,
-            label = { Text("자녀 연결 코드 (6자리)") },
+            label = { Text("학생 연결 코드 (6자리)") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters, keyboardType = KeyboardType.Ascii),
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "자녀의 앱 → 설정 화면에 표시된 연결 코드를 입력하세요.",
+            if (isMentor) "학생(또는 학부모) 앱의 설정 화면에 표시된 연결 코드를 입력하세요. 연결 후 담당 과목을 고를 수 있어요."
+            else "자녀의 앱 → 설정 화면에 표시된 연결 코드를 입력하세요.",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     } else if (!state.syncAvailable) {
@@ -137,7 +158,7 @@ private fun DetailStep(state: OnboardingUiState, viewModel: OnboardingViewModel)
     Spacer(Modifier.height(24.dp))
     Button(onClick = viewModel::submit, enabled = !state.loading, modifier = Modifier.fillMaxWidth()) {
         if (state.loading) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
-        else Text(if (isStudent) "시작하기" else "자녀와 연결하기")
+        else Text(when (role) { Role.STUDENT -> "시작하기"; Role.PARENT -> "자녀와 연결하기"; Role.MENTOR -> "학생과 연결하기" })
     }
     TextButton(onClick = viewModel::back, modifier = Modifier.fillMaxWidth()) { Text("역할 다시 선택") }
 }

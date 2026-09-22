@@ -10,6 +10,7 @@ import com.nextstep.app.ui.calendar.CalendarViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
 import com.nextstep.app.ui.home.HomeViewModel
 import com.nextstep.app.ui.insights.InsightsViewModel
+import com.nextstep.app.ui.mentor.MentorDashboardViewModel
 import com.nextstep.app.ui.navigation.RootViewModel
 import com.nextstep.app.ui.onboarding.OnboardingViewModel
 import com.nextstep.app.ui.parent.ParentDashboardViewModel
@@ -25,6 +26,7 @@ object AppViewModelProvider {
         initializer { OnboardingViewModel(app().container.repository) }
         initializer { HomeViewModel(app().container.repository) }
         initializer { ParentDashboardViewModel(app().container.repository) }
+        initializer { MentorDashboardViewModel(app().container.repository) }
         initializer { ProgressViewModel(app().container.repository) }
         initializer { SubjectDetailViewModel(createSavedStateHandle(), app().container.repository) }
         initializer { CalendarViewModel(app().container.repository) }

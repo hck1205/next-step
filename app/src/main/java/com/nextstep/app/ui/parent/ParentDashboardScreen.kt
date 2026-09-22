@@ -203,7 +203,7 @@ fun ParentDashboardScreen(
                                 Text(t.type.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                 if (subject != null) SubjectTag(subject)
                                 Text(DateUtils.formatDate(DateUtils.fromEpochDay(t.dueDate)), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                if (t.createdByRole == "PARENT") Text("학부모 배정", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                                if (t.createdByRole != "STUDENT") Text("${com.nextstep.app.data.model.Role.labelOf(t.createdByRole)} 배정", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
                             }
                         }
                     }
@@ -219,6 +219,7 @@ fun ParentDashboardScreen(
                             Text(n.text, style = MaterialTheme.typography.bodyLarge)
                             Text("${n.authorName} · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))} ${DateUtils.formatTime(n.createdAt)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                        Text(com.nextstep.app.data.model.Role.labelOf(n.authorRole), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         if (n.authorRole == "PARENT") TextButton(onClick = { viewModel.deleteNote(n.id) }) { Text("삭제") }
                     }
                 }

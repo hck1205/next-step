@@ -15,8 +15,9 @@ import androidx.room.TypeConverters
         GradeEntity::class,
         StudySessionEntity::class,
         NoteEntity::class,
+        MemberEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -28,6 +29,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun gradeDao(): GradeDao
     abstract fun studySessionDao(): StudySessionDao
     abstract fun noteDao(): NoteDao
+    abstract fun memberDao(): MemberDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

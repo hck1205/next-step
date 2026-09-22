@@ -133,7 +133,30 @@ data class StudySessionEntity(
     override val dirty: Boolean = true,
 ) : Syncable
 
-/** 학부모/학생이 서로에게 남기는 짧은 메모(격려, 요청 등). */
+/**
+ * 가족(학생 1명 단위)에 연결된 구성원. 학생 본인, 학부모, 멘토 모두 한 행씩 가집니다.
+ * 멘토는 여러 명이 연결될 수 있고, 각자 담당 과목을 지정합니다.
+ */
+@Entity(tableName = "members", indices = [Index("familyId")])
+data class MemberEntity(
+    @PrimaryKey override val id: String = newId(),
+    override val familyId: String,
+    val role: String,
+    val name: String,
+    /** 멘토의 구분 (예: 수학 과외, 담임 선생님). */
+    val title: String = "",
+    /** 담당 과목 ID 목록. 쉼표로 구분. 비어 있으면 전 과목. */
+    val subjectIds: String = "",
+    val joinedAt: Long = System.currentTimeMillis(),
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+    override val dirty: Boolean = true,
+) : Syncable {
+    val subjectIdList: List<String> get() = subjectIds.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    fun covers(subjectId: String?): Boolean = subjectIdList.isEmpty() || (subjectId != null && subjectId in subjectIdList)
+}
+
+/** 구성원(학부모/멘토/학생)이 서로에게 남기는 짧은 메모(격려, 요청, 피드백 등). */
 @Entity(tableName = "notes", indices = [Index("familyId"), Index("createdAt")])
 data class NoteEntity(
     @PrimaryKey override val id: String = newId(),

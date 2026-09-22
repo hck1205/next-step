@@ -38,6 +38,7 @@ import com.nextstep.app.ui.calendar.CalendarScreen
 import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.home.StudentHomeScreen
 import com.nextstep.app.ui.insights.InsightsScreen
+import com.nextstep.app.ui.mentor.MentorDashboardScreen
 import com.nextstep.app.ui.onboarding.OnboardingScreen
 import com.nextstep.app.ui.parent.ParentDashboardScreen
 import com.nextstep.app.ui.progress.ProgressScreen
@@ -60,8 +61,8 @@ object Routes {
 data class TopLevelDestination(val route: String, val label: String, val icon: ImageVector)
 
 private fun topLevelDestinations(role: Role): List<TopLevelDestination> = listOf(
-    if (role == Role.PARENT) TopLevelDestination(Routes.HOME, "대시보드", Icons.Default.Dashboard)
-    else TopLevelDestination(Routes.HOME, "홈", Icons.Default.Home),
+    if (role == Role.STUDENT) TopLevelDestination(Routes.HOME, "홈", Icons.Default.Home)
+    else TopLevelDestination(Routes.HOME, "대시보드", Icons.Default.Dashboard),
     TopLevelDestination(Routes.PROGRESS, "진도", Icons.Default.MenuBook),
     TopLevelDestination(Routes.CALENDAR, "캘린더", Icons.Default.CalendarMonth),
     TopLevelDestination(Routes.GRADES, "성적", Icons.Default.BarChart),
@@ -119,14 +120,17 @@ private fun MainScaffold(role: Role) {
 private fun NextStepNavHost(navController: NavHostController, role: Role, modifier: Modifier = Modifier) {
     NavHost(navController = navController, startDestination = Routes.HOME, modifier = modifier) {
         composable(Routes.HOME) {
-            if (role == Role.PARENT) {
-                ParentDashboardScreen(
+            when (role) {
+                Role.PARENT -> ParentDashboardScreen(
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                     onOpenSubject = { navController.navigate(Routes.subject(it)) },
                     onOpenInsights = { navController.navigate(Routes.INSIGHTS) },
                 )
-            } else {
-                StudentHomeScreen(
+                Role.MENTOR -> MentorDashboardScreen(
+                    onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                    onOpenSubject = { navController.navigate(Routes.subject(it)) },
+                )
+                Role.STUDENT -> StudentHomeScreen(
                     onOpenTimer = { navController.navigate(Routes.TIMER) },
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                     onOpenSubject = { navController.navigate(Routes.subject(it)) },

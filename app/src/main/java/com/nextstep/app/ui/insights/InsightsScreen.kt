@@ -125,14 +125,14 @@ fun InsightsScreen(role: Role, viewModel: InsightsViewModel = viewModel(factory 
                 }
             }
 
-            item { SectionTitle(if (role == Role.PARENT) "메모 · 응원" else "학부모 메모", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
+            item { SectionTitle(if (role == Role.STUDENT) "학부모·멘토 메모" else "메모 · 피드백", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
             if (state.notes.isEmpty()) item { AppCard { EmptyState("아직 메모가 없어요") } }
             else items(state.notes, key = { "n" + it.id }) { n ->
                 AppCard {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(n.text, style = MaterialTheme.typography.bodyLarge)
-                            Text("${n.authorName} (${if (n.authorRole == "PARENT") "학부모" else "학생"}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${n.authorName} (${Role.labelOf(n.authorRole)}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         if (n.authorRole == role.name) TextButton(onClick = { viewModel.deleteNote(n.id) }) { Text("삭제") }
                     }

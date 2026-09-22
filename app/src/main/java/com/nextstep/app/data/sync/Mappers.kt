@@ -2,6 +2,7 @@ package com.nextstep.app.data.sync
 
 import com.nextstep.app.data.local.EventEntity
 import com.nextstep.app.data.local.GradeEntity
+import com.nextstep.app.data.local.MemberEntity
 import com.nextstep.app.data.local.NoteEntity
 import com.nextstep.app.data.local.StudySessionEntity
 import com.nextstep.app.data.local.SubjectEntity
@@ -106,6 +107,17 @@ object Mappers {
     fun noteToMap(e: NoteEntity): Map<String, Any?> = mapOf(
         "id" to e.id, "familyId" to e.familyId, "authorRole" to e.authorRole, "authorName" to e.authorName,
         "text" to e.text, "createdAt" to e.createdAt, "updatedAt" to e.updatedAt, "deleted" to e.deleted,
+    )
+
+    fun memberToMap(e: MemberEntity): Map<String, Any?> = mapOf(
+        "id" to e.id, "familyId" to e.familyId, "role" to e.role, "name" to e.name, "title" to e.title,
+        "subjectIds" to e.subjectIds, "joinedAt" to e.joinedAt, "updatedAt" to e.updatedAt, "deleted" to e.deleted,
+    )
+
+    fun memberFromMap(id: String, m: Map<String, Any?>): MemberEntity = MemberEntity(
+        id = id, familyId = m.str("familyId"), role = m.str("role"), name = m.str("name"), title = m.str("title"),
+        subjectIds = m.str("subjectIds"), joinedAt = m.long("joinedAt"), updatedAt = m.long("updatedAt"),
+        deleted = m.bool("deleted"), dirty = false,
     )
 
     fun noteFromMap(id: String, m: Map<String, Any?>): NoteEntity = NoteEntity(

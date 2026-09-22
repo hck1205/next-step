@@ -1,6 +1,7 @@
 # NextStep — 학생·학부모 학업 관리 앱 (Android)
 
-학생과 학부모가 **같은 데이터를 서로 다른 화면으로** 보는 학업 스케줄·진도·성적 관리 앱입니다.
+학생, 학부모, 멘토(선생님·과외·튜터)가 **같은 데이터를 서로 다른 화면으로** 보는 학업 스케줄·진도·성적 관리 앱입니다.
+한 학생에 학부모와 멘토가 여러 명 연결될 수 있습니다.
 Kotlin + Jetpack Compose 로 작성했고, Room(오프라인 우선) + Firebase Firestore(실시간 동기화)를 사용합니다.
 
 ## 주요 기능
@@ -13,7 +14,13 @@ Kotlin + Jetpack Compose 로 작성했고, Room(오프라인 우선) + Firebase 
 | 성적 | 시험 점수 입력(만점·반 평균), 과목별 레이더 차트, 성적 추이 꺾은선, 반 평균 대비 | 동일(열람·입력) |
 | 분석 | 강점/보완점/제안/주의 인사이트, 과목 균형, 2주 학습량, 과목별 시간 배분 도넛, 시간대별 집중 분포, 인사이트 → 할 일 생성 | 동일(열람) + 메모 |
 | 시간 트래킹 | 학습 타이머(앱 종료 후에도 복원), 직접 기록 | 기록 열람 |
-| 동기화 | 6자리 연결 코드 발급 | 코드 입력으로 자녀와 연결, 실시간 동기화 |
+| 동기화 | 6자리 연결 코드 발급, 연결된 구성원 관리 | 코드 입력으로 자녀와 연결, 실시간 동기화, 구성원 관리 |
+
+### 멘토 역할 (선생님·과외·튜터·멘토)
+- 온보딩에서 **멘토** 를 선택하고 이름, 구분(예: 수학 과외), 학생 연결 코드를 입력해 참여합니다. 같은 코드로 여러 멘토가 연결될 수 있습니다.
+- 대시보드에서 **담당 과목** 을 지정하면 학습 시간, 진도, 성적, 분석이 담당 과목 기준으로 좁혀집니다. (미지정 시 전 과목)
+- 담당 과목의 단원·학급 진도를 관리하고, 과제를 내고, 피드백 메모를 남길 수 있습니다. 학생 홈에는 "멘토 배정" 표시가 붙습니다.
+- 학생과 학부모는 설정 화면의 **연결된 구성원** 목록에서 누가 연결돼 있는지 보고 연결을 끊을 수 있습니다.
 
 ### 제안 엔진 규칙 (`domain/InsightEngine.kt`)
 - 과목 평균 ≥ 80 → 강점, < 70 → 보완 필요(복습 할 일 제안)
@@ -31,7 +38,7 @@ Kotlin + Jetpack Compose 로 작성했고, Room(오프라인 우선) + Firebase 
 ```
 app/src/main/java/com/nextstep/app
 ├── data
-│   ├── local        Room 엔티티/DAO/DB (Subject, Topic, Task, Event, Grade, StudySession, Note)
+│   ├── local        Room 엔티티/DAO/DB (Subject, Topic, Task, Event, Grade, StudySession, Note, Member)
 │   ├── prefs        DataStore (역할, 가족 ID, 연결 코드, 실행 중 타이머)
 │   ├── repository   StudyRepository — 단일 데이터 진입점, 쓰기 후 동기화 요청
 │   └── sync         SyncManager 인터페이스, FirestoreSyncManager, NoOpSyncManager, Mappers
@@ -40,7 +47,7 @@ app/src/main/java/com/nextstep/app
 └── ui
     ├── navigation   역할별 하단 탭 + NavHost
     ├── components   공용 카드/피커/다이얼로그, Canvas 차트(막대·꺾은선·레이더·도넛·히트스트립)
-    ├── onboarding / home / parent / progress / calendar / grades / insights / timer / settings
+    ├── onboarding / home / parent / mentor / progress / calendar / grades / insights / timer / settings
     └── theme
 ```
 
@@ -88,7 +95,10 @@ service cloud.firestore {
 ### 연결 절차
 1. 학생 기기: 온보딩에서 **학생** 선택 → 이름 입력 → 시작. 설정 화면에 6자리 연결 코드가 표시됩니다.
 2. 학부모 기기: 온보딩에서 **학부모** 선택 → 이름과 연결 코드 입력 → 연결.
-3. 이후 양쪽에서 입력한 모든 데이터(과목, 단원, 일정, 성적, 학습 기록, 메모)가 실시간으로 동기화됩니다.
+3. 멘토 기기: 온보딩에서 **멘토** 선택 → 이름, 구분, 연결 코드 입력 → 연결 → 대시보드에서 담당 과목 선택. 멘토는 몇 명이든 추가할 수 있습니다.
+4. 이후 모든 기기에서 입력한 데이터(과목, 단원, 일정, 성적, 학습 기록, 메모, 구성원)가 실시간으로 동기화됩니다.
+
+> 참고: 멘토 기기는 현재 한 번에 한 학생에 연결됩니다. 멘토 한 명이 여러 학생을 오가며 보는 기능은 다음 단계입니다.
 
 ## 사용 흐름 (학생)
 1. 진도 탭에서 과목 확인(기본 5과목 생성) → 과목을 눌러 단원을 줄바꿈으로 한 번에 등록.

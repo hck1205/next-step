@@ -170,3 +170,24 @@ interface NoteDao {
     @Query("UPDATE notes SET dirty = 0 WHERE id IN (:ids)")
     suspend fun markClean(ids: List<String>)
 }
+
+@Dao
+interface MemberDao {
+    @Query("SELECT * FROM members WHERE familyId = :familyId AND deleted = 0 ORDER BY joinedAt")
+    fun observeAll(familyId: String): Flow<List<MemberEntity>>
+
+    @Query("SELECT * FROM members WHERE id = :id")
+    suspend fun getById(id: String): MemberEntity?
+
+    @Query("SELECT * FROM members WHERE id = :id")
+    fun observeById(id: String): Flow<MemberEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(item: MemberEntity)
+
+    @Query("SELECT * FROM members WHERE familyId = :familyId AND dirty = 1")
+    suspend fun getDirty(familyId: String): List<MemberEntity>
+
+    @Query("UPDATE members SET dirty = 0 WHERE id IN (:ids)")
+    suspend fun markClean(ids: List<String>)
+}

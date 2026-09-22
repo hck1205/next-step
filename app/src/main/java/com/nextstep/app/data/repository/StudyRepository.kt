@@ -3,6 +3,7 @@ package com.nextstep.app.data.repository
 import com.nextstep.app.data.local.AppDatabase
 import com.nextstep.app.data.local.EventEntity
 import com.nextstep.app.data.local.GradeEntity
+import com.nextstep.app.data.local.MemberEntity
 import com.nextstep.app.data.local.NoteEntity
 import com.nextstep.app.data.local.StudySessionEntity
 import com.nextstep.app.data.local.SubjectEntity
@@ -49,6 +50,11 @@ class StudyRepository(
     val grades: Flow<List<GradeEntity>> = withFamily { db.gradeDao().observeAll(it) }
     val sessions: Flow<List<StudySessionEntity>> = withFamily { db.studySessionDao().observeAll(it) }
     val notes: Flow<List<NoteEntity>> = withFamily { db.noteDao().observeAll(it) }
+    val members: Flow<List<MemberEntity>> = withFamily { db.memberDao().observeAll(it) }
+
+    /** 이 기기 사용자의 구성원 정보(멘토라면 담당 과목 포함). */
+    val myMember: Flow<MemberEntity?> = profile.map { it.memberId }.distinctUntilChanged()
+        .flatMapLatest { id -> if (id == null) flowOf(null) else db.memberDao().observeById(id) }
 
     fun observeSubject(id: String): Flow<SubjectEntity?> = db.subjectDao().observeById(id)
     fun observeTopics(subjectId: String): Flow<List<TopicEntity>> = db.topicDao().observeBySubject(subjectId)
@@ -69,24 +75,54 @@ class StudyRepository(
         )
         val remote = sync.createFamily(info)
         if (remote.isFailure) return Result.failure(remote.exceptionOrNull() ?: IllegalStateException("서버 오류"))
-        prefs.completeOnboarding(Role.STUDENT, studentName, info.familyId, info.pairingCode, studentName)
+        val member = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = studentName)
+        db.memberDao().upsert(member)
+        prefs.completeOnboarding(Role.STUDENT, studentName, info.familyId, info.pairingCode, studentName, member.id)
         seedDefaultSubjects(info.familyId)
         sync.start(info.familyId)
         return Result.success(info)
     }
 
-    /** 학부모: 페어링 코드로 자녀의 가족에 참여합니다. */
-    suspend fun joinFamilyAsParent(parentName: String, code: String): Result<FamilyInfo> {
+    /**
+     * 학부모/멘토: 페어링 코드로 학생의 가족에 참여합니다.
+     * 같은 코드로 여러 명(학부모 여러 명, 멘토 여러 명)이 참여할 수 있으며 각자 구성원 행을 하나씩 가집니다.
+     */
+    suspend fun joinFamily(role: Role, name: String, code: String, title: String = ""): Result<FamilyInfo> {
+        require(role != Role.STUDENT) { "학생은 코드로 참여할 수 없습니다" }
         val normalized = code.trim().uppercase(Locale.ROOT)
         if (!sync.isAvailable) {
-            return Result.failure(IllegalStateException("동기화 서버가 설정되지 않아 자녀 기기와 연결할 수 없습니다. README 의 Firebase 설정을 참고하세요."))
+            return Result.failure(IllegalStateException("동기화 서버가 설정되지 않아 학생 기기와 연결할 수 없습니다. README 의 Firebase 설정을 참고하세요."))
         }
         val found = sync.findFamilyByCode(normalized)
         val info = found.getOrElse { return Result.failure(it) }
             ?: return Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
-        prefs.completeOnboarding(Role.PARENT, parentName, info.familyId, info.pairingCode, info.studentName)
+        val member = MemberEntity(familyId = info.familyId, role = role.name, name = name, title = title)
+        db.memberDao().upsert(member)
+        prefs.completeOnboarding(role, name, info.familyId, info.pairingCode, info.studentName, member.id)
         sync.start(info.familyId)
         return Result.success(info)
+    }
+
+    // ---------------------------------------------------------------- members
+
+    /** 멘토의 담당 과목을 설정합니다. 비우면 전 과목 담당. */
+    suspend fun setMemberSubjects(memberId: String, subjectIds: List<String>) {
+        val m = db.memberDao().getById(memberId) ?: return
+        db.memberDao().upsert(m.copy(subjectIds = subjectIds.joinToString(","), updatedAt = now(), dirty = true))
+        sync.requestPush()
+    }
+
+    suspend fun updateMemberProfile(memberId: String, name: String, title: String) {
+        val m = db.memberDao().getById(memberId) ?: return
+        db.memberDao().upsert(m.copy(name = name, title = title, updatedAt = now(), dirty = true))
+        sync.requestPush()
+    }
+
+    /** 학생/학부모가 연결된 구성원(멘토 등)을 목록에서 제거합니다. */
+    suspend fun removeMember(memberId: String) {
+        val m = db.memberDao().getById(memberId) ?: return
+        db.memberDao().upsert(m.copy(deleted = true, updatedAt = now(), dirty = true))
+        sync.requestPush()
     }
 
     /** 앱 시작 시 저장된 가족이 있으면 동기화를 켭니다. */

@@ -41,7 +41,9 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
 import com.nextstep.app.ui.components.ConfirmDialog
 import com.nextstep.app.ui.components.SectionTitle
+import com.nextstep.app.ui.components.SubjectTag
 import com.nextstep.app.ui.components.SyncStatusBadge
+import com.nextstep.app.ui.mentor.SubjectSelectDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +51,10 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val clipboard = LocalClipboardManager.current
     var confirmSignOut by remember { mutableStateOf(false) }
+    var confirmRemove by remember { mutableStateOf<String?>(null) }
+    var showSubjects by remember { mutableStateOf(false) }
     val profile = state.profile
+    val role = profile?.role
 
     Scaffold(
         topBar = {
@@ -69,11 +74,46 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
                 }
             }
 
-            SectionTitle("가족 연결")
+            if (role == Role.MENTOR) {
+                SectionTitle("담당 과목", action = { TextButton(onClick = { showSubjects = true }) { Text("변경") } })
+                AppCard {
+                    val mine = state.me?.subjectIdList ?: emptyList()
+                    if (mine.isEmpty()) Text("전 과목 담당", style = MaterialTheme.typography.bodyMedium)
+                    else Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { state.subjects.filter { it.id in mine }.forEach { SubjectTag(it) } }
+                }
+            }
+
+            SectionTitle("연결된 구성원")
+            AppCard {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (state.members.isEmpty()) Text("구성원 정보가 아직 동기화되지 않았어요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    state.members.forEach { m ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(m.name + (if (m.id == state.me?.id) " (나)" else ""), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                                val detail = buildList {
+                                    add(Role.labelOf(m.role))
+                                    if (m.title.isNotBlank()) add(m.title)
+                                    if (m.role == Role.MENTOR.name) add(if (m.subjectIdList.isEmpty()) "전 과목" else state.subjects.filter { it.id in m.subjectIdList }.joinToString { it.name })
+                                }
+                                Text(detail.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            val canRemove = m.id != state.me?.id && m.role != Role.STUDENT.name && (role == Role.STUDENT || role == Role.PARENT)
+                            if (canRemove) TextButton(onClick = { confirmRemove = m.id }) { Text("연결 끊기") }
+                        }
+                    }
+                    Text(
+                        "멘토(선생님·과외·튜터)는 여러 명이 같은 코드로 연결할 수 있어요.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            SectionTitle("연결 코드")
             AppCard {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        if (profile?.role == Role.STUDENT) "학부모 앱에서 아래 코드를 입력하면 연결돼요" else "연결된 자녀 코드",
+                        if (role == Role.STUDENT) "학부모·멘토 앱에서 아래 코드를 입력하면 연결돼요" else "연결된 학생 코드 · 다른 학부모나 멘토에게 공유할 수 있어요",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(8.dp))
@@ -113,6 +153,13 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(
 
     if (confirmSignOut) {
         ConfirmDialog("연결 해제", "정말 이 기기에서 연결을 해제할까요?", confirmLabel = "해제", onConfirm = viewModel::signOut, onDismiss = { confirmSignOut = false })
+    }
+    confirmRemove?.let { id ->
+        val name = state.members.firstOrNull { it.id == id }?.name ?: ""
+        ConfirmDialog("연결 끊기", "'$name' 님을 구성원 목록에서 제거할까요? 상대 기기에서는 다시 코드를 입력해야 연결됩니다.", confirmLabel = "제거", onConfirm = { viewModel.removeMember(id) }, onDismiss = { confirmRemove = null })
+    }
+    if (showSubjects) {
+        SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { viewModel.setMySubjects(it) }
     }
 }
 
