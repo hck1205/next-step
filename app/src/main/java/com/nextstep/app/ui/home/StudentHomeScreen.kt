@@ -71,8 +71,10 @@ fun StudentHomeScreen(
     onOpenSettings: () -> Unit,
     onOpenSubject: (String) -> Unit,
     onOpenRoadmap: () -> Unit,
+    onOpenContent: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showPlanner by remember { mutableStateOf(false) }
     Scaffold(
@@ -177,6 +179,23 @@ fun StudentHomeScreen(
                                 if (r.status == RoadmapStatus.PLANNED) TextButton(onClick = { viewModel.setRoadmapStatus(r.id, RoadmapStatus.IN_PROGRESS) }) { Text("시작") }
                                 else TextButton(onClick = { viewModel.setRoadmapStatus(r.id, RoadmapStatus.DONE) }) { Text("완료") }
                             }
+                        }
+                    }
+                }
+            }
+
+            item { SectionTitle("추천 영상", action = { TextButton(onClick = onOpenContent) { Text("저장소") } }) }
+            if (state.recommendations.isEmpty()) item {
+                AppCard(onClick = onOpenContent) { Text("콘텐츠 저장소에 유튜브 링크를 등록하면 지금 배우는 단원에 맞는 영상을 골라 줘요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            }
+            items(state.recommendations, key = { "rec" + it.content.id }) { rec ->
+                AppCard(onClick = { runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(rec.content.url))) } }) {
+                    Column {
+                        Text(rec.reason, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                        Text(rec.content.title, style = MaterialTheme.typography.bodyLarge, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(listOf(rec.content.channel, rec.content.subjectKey, rec.content.contentType.label).filter { it.isNotBlank() }.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                            TextButton(onClick = { viewModel.markContentWatched(rec.content.id) }) { Text("봤어요") }
                         }
                     }
                 }

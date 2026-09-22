@@ -38,6 +38,7 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.calendar.CalendarScreen
+import com.nextstep.app.ui.content.ContentLibraryScreen
 import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.home.StudentHomeScreen
 import com.nextstep.app.ui.insights.InsightsScreen
@@ -60,6 +61,7 @@ object Routes {
     const val CHEER = "cheer"
     const val ROADMAP = "roadmap"
     const val MENTOR_HOME = "mentor"
+    const val CONTENT = "content"
     const val TIMER = "timer"
     const val SETTINGS = "settings"
     const val SUBJECT = "subject/{subjectId}"
@@ -158,11 +160,13 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                     onOpenInsights = { navController.navigate(Routes.INSIGHTS) },
                     onOpenMentor = { navController.navigate(Routes.MENTOR_HOME) },
                     onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
+                    onOpenContent = { navController.navigate(Routes.CONTENT) },
                 )
                 Role.MENTOR -> MentorDashboardScreen(
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                     onOpenSubject = { navController.navigate(Routes.subject(it)) },
                     onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
+                    onOpenContent = { navController.navigate(Routes.CONTENT) },
                     onBack = null,
                 )
                 Role.STUDENT -> StudentHomeScreen(
@@ -170,6 +174,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                     onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                     onOpenSubject = { navController.navigate(Routes.subject(it)) },
                     onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
+                    onOpenContent = { navController.navigate(Routes.CONTENT) },
                 )
             }
         }
@@ -178,9 +183,11 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onOpenSubject = { navController.navigate(Routes.subject(it)) },
                 onOpenRoadmap = { navController.navigate(Routes.ROADMAP) },
+                onOpenContent = { navController.navigate(Routes.CONTENT) },
                 onBack = { navController.popBackStack() },
             )
         }
+        composable(Routes.CONTENT) { ContentLibraryScreen(caps = caps, onBack = { navController.popBackStack() }) }
         composable(Routes.PROGRESS) {
             ProgressScreen(caps = caps, onOpenSubject = { navController.navigate(Routes.subject(it)) }, onOpenRoadmap = { navController.navigate(Routes.ROADMAP) })
         }
@@ -191,7 +198,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             SubjectDetailScreen(caps = caps, onBack = { navController.popBackStack() })
         }
         composable(Routes.ROADMAP) {
-            RoadmapScreen(caps = caps, onBack = if (isTab(Routes.ROADMAP)) null else { { navController.popBackStack() } })
+            RoadmapScreen(caps = caps, onBack = if (isTab(Routes.ROADMAP)) null else { { navController.popBackStack() } }, onOpenContent = { navController.navigate(Routes.CONTENT) })
         }
         composable(Routes.CHEER) { CheerScreen() }
         composable(Routes.CALENDAR) { CalendarScreen(caps = caps) }

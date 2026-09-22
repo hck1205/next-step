@@ -1,7 +1,10 @@
 package com.nextstep.app.data.local
 
 import androidx.room.TypeConverter
+import com.nextstep.app.data.model.ContentScope
+import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
+import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
@@ -19,6 +22,15 @@ class Converters {
 
     @TypeConverter fun roadmapStatusToString(v: RoadmapStatus): String = v.name
     @TypeConverter fun stringToRoadmapStatus(v: String): RoadmapStatus = RoadmapStatus.from(v)
+
+    @TypeConverter fun contentTypeToString(v: ContentType): String = v.name
+    @TypeConverter fun stringToContentType(v: String): ContentType = ContentType.from(v)
+
+    @TypeConverter fun gradeLevelToString(v: GradeLevel): String = v.name
+    @TypeConverter fun stringToGradeLevel(v: String): GradeLevel = GradeLevel.from(v)
+
+    @TypeConverter fun contentScopeToString(v: ContentScope): String = v.name
+    @TypeConverter fun stringToContentScope(v: String): ContentScope = ContentScope.entries.firstOrNull { it.name == v } ?: ContentScope.FAMILY
 
     @TypeConverter fun examTypeToString(v: ExamType): String = v.name
     @TypeConverter fun stringToExamType(v: String): ExamType = ExamType.from(v)

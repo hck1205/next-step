@@ -31,6 +31,17 @@ Kotlin + Jetpack Compose 로 작성했고, Room(오프라인 우선) + Firebase 
 - 학부모가 직접 가르치는 경우 설정에서 **"멘토 역할 겸하기"** 를 켭니다.
 - 켜면 학부모 기능은 그대로 두고 멘토 기능(로드맵 큐레이팅, 과제 배정, 단원·학급 진도 관리, 담당 과목)이 열립니다. 대시보드에 "멘토 모드" 진입 카드가 생기고, 배정한 과제와 로드맵은 멘토 명의로 기록됩니다.
 
+### 콘텐츠 저장소 (유튜브 링크 큐레이팅)
+- 모든 역할이 유튜브 링크를 등록할 수 있습니다. 영상은 저장하지 않고 **링크와 분류만** DB 에 남깁니다.
+- 등록 시 제목·채널을 가져와 `domain/ContentClassifier.kt` 가 과목·학년대·유형·키워드를 자동 분류하고 근거를 보여 줍니다. 사용자가 수정해 저장합니다.
+- `domain/ContentRecommender.kt` 가 복습·예습 단원, 약한 과목, 다가오는 시험에 맞춰 추천합니다. 학생 홈 "추천 영상"과 저장소 상단에 나타납니다.
+- 멘토는 로드맵 항목에 저장소 영상을 연결할 수 있습니다.
+- 운영자가 큐레이팅하는 **공용 저장소**는 Firestore 최상위 `catalog` 컬렉션입니다. 문서 필드는 가족 저장소와 같고(`Mappers.contentToMap` 참고) 읽기 전용입니다.
+
+### 광고
+- 학부모 분석 탭 하단과 콘텐츠 저장소 하단에 배너 1개씩만 있습니다. 학생 화면에는 없습니다.
+- 기본값은 AdMob 테스트 ID 입니다. 실제 ID 는 `gradle.properties` 또는 CI 시크릿에 `ADMOB_APP_ID`, `ADMOB_BANNER_ID` 로 넣습니다.
+
 ### 커리큘럼 스케줄링 (학생)
 홈의 **학습 계획 만들기** 는 `domain/StudyPlanner.kt` 가 담당합니다. 우선순위 *밀린 복습 → 멘토 로드맵(진행 중 우선) → 다음 예습* 으로 큐를 만들고, 지정한 기간·시작 시간·회당 시간·하루 회수에 맞춰 기존 일정과 겹치지 않는 시간에 자습 일정과 할 일을 넣습니다.
 
@@ -53,11 +64,12 @@ Kotlin + Jetpack Compose 로 작성했고, Room(오프라인 우선) + Firebase 
 ```
 app/src/main/java/com/nextstep/app
 ├── data
-│   ├── local        Room 엔티티/DAO/DB (Subject, Topic, Task, Event, Grade, StudySession, Note, Member, RoadmapItem)
+│   ├── local        Room 엔티티/DAO/DB (Subject, Topic, Task, Event, Grade, StudySession, Note, Member, RoadmapItem, Content)
+│   ├── remote       YouTube oEmbed 메타데이터 수집
 │   ├── prefs        DataStore (역할, 가족 ID, 연결 코드, 실행 중 타이머)
 │   ├── repository   StudyRepository — 단일 데이터 진입점, 쓰기 후 동기화 요청
 │   └── sync         SyncManager 인터페이스, FirestoreSyncManager, NoOpSyncManager, Mappers
-├── domain           DateUtils, StudyStats(집계), InsightEngine(제안·재능 발견), StudyPlanner(커리큘럼 스케줄링), Capabilities(역할별 권한)
+├── domain           DateUtils, StudyStats(집계), InsightEngine(제안·재능 발견), StudyPlanner(커리큘럼 스케줄링), Capabilities(역할별 권한), ContentClassifier/ContentRecommender(콘텐츠 분류·추천)
 ├── di               AppContainer (수동 DI)
 └── ui
     ├── navigation   역할별 하단 탭 + NavHost
@@ -98,6 +110,11 @@ service cloud.firestore {
       match /{collection}/{docId} {
         allow read, write: if request.auth != null;
       }
+    }
+    // 운영자가 큐레이팅하는 공용 콘텐츠 저장소. 앱에서는 읽기만.
+    match /catalog/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;
     }
   }
 }

@@ -2,7 +2,10 @@ package com.nextstep.app.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.local.ContentEntity
 import com.nextstep.app.data.local.RoadmapItemEntity
+import com.nextstep.app.domain.ContentRecommendation
+import com.nextstep.app.domain.ContentRecommender
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.local.TaskEntity
@@ -40,6 +43,7 @@ data class HomeUiState(
     val roadmap: List<RoadmapItemEntity> = emptyList(),
     val events: List<com.nextstep.app.data.local.EventEntity> = emptyList(),
     val lastPlan: StudyPlan? = null,
+    val recommendations: List<ContentRecommendation> = emptyList(),
 ) {
     /** 진행 중이거나 목표일이 가까운 로드맵 항목. */
     val roadmapFocus: List<RoadmapItemEntity> get() = roadmap.filter { it.status != RoadmapStatus.DONE }
@@ -69,9 +73,16 @@ class HomeViewModel(private val repository: StudyRepository) : ViewModel() {
 
     private val lastPlan = kotlinx.coroutines.flow.MutableStateFlow<StudyPlan?>(null)
 
-    val state: StateFlow<HomeUiState> = combine(base, repository.topics, repository.runningTimer, repository.roadmap, lastPlan) { s, topics, timer, roadmap, plan ->
+    private val withProgress = combine(base, repository.topics, repository.runningTimer, repository.roadmap, lastPlan) { s, topics, timer, roadmap, plan ->
         s.copy(progress = StudyStats.subjectProgress(topics, s.subjects), runningTimer = timer, roadmap = roadmap, lastPlan = plan)
+    }
+
+    val state: StateFlow<HomeUiState> = combine(withProgress, repository.contents, repository.grades) { s, contents, grades ->
+        val exams = StudyStats.upcomingExams(s.events, emptyList())
+        s.copy(recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, limit = 3))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
+
+    fun markContentWatched(id: String) = viewModelScope.launch { repository.setContentWatched(id, true) }
 
     /** 커리큘럼 스케줄링: 복습·로드맵·예습을 앞으로 며칠간의 자습 일정과 할 일로 배치합니다. */
     fun generatePlan(options: PlanOptions) = viewModelScope.launch {

@@ -73,4 +73,35 @@ enum class RoadmapStatus(val label: String) {
     }
 }
 
+/** 교육 콘텐츠 유형. 등록 시 자동 분류되고 사용자가 수정할 수 있습니다. */
+enum class ContentType(val label: String) {
+    CONCEPT("개념 강의"),
+    PROBLEM("문제 풀이"),
+    SUMMARY("요약·정리"),
+    EXAM_PREP("시험 대비"),
+    STUDY_METHOD("공부법"),
+    MOTIVATION("동기부여"),
+    DOCUMENTARY("교양·다큐"),
+    OTHER("기타");
+
+    companion object {
+        fun from(value: String?): ContentType = entries.firstOrNull { it.name == value } ?: OTHER
+    }
+}
+
+/** 콘텐츠 대상 학년대. */
+enum class GradeLevel(val label: String) {
+    ELEMENTARY("초등"),
+    MIDDLE("중등"),
+    HIGH("고등"),
+    ALL("전체");
+
+    companion object {
+        fun from(value: String?): GradeLevel = entries.firstOrNull { it.name == value } ?: ALL
+    }
+}
+
+/** 콘텐츠 출처 범위. GLOBAL 은 운영자가 큐레이팅한 공용 저장소, FAMILY 는 이 학생의 구성원이 등록한 것. */
+enum class ContentScope { GLOBAL, FAMILY }
+
 enum class SyncStatus { LOCAL_ONLY, CONNECTING, SYNCED, ERROR }

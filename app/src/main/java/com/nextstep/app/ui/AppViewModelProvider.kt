@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nextstep.app.NextStepApp
 import com.nextstep.app.ui.calendar.CalendarViewModel
+import com.nextstep.app.ui.content.ContentViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
 import com.nextstep.app.ui.home.HomeViewModel
 import com.nextstep.app.ui.insights.InsightsViewModel
@@ -31,6 +32,7 @@ object AppViewModelProvider {
         initializer { MentorDashboardViewModel(app().container.repository) }
         initializer { CheerViewModel(app().container.repository) }
         initializer { RoadmapViewModel(app().container.repository) }
+        initializer { ContentViewModel(app().container.repository) }
         initializer { ProgressViewModel(app().container.repository) }
         initializer { SubjectDetailViewModel(createSavedStateHandle(), app().container.repository) }
         initializer { CalendarViewModel(app().container.repository) }

@@ -66,6 +66,7 @@ fun ParentDashboardScreen(
     onOpenInsights: () -> Unit,
     onOpenMentor: () -> Unit,
     onOpenRoadmap: () -> Unit,
+    onOpenContent: () -> Unit,
     viewModel: ParentDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -123,6 +124,17 @@ fun ParentDashboardScreen(
                     )
                     StatTile("로드맵", if (state.roadmapTotal == 0) "-" else "${state.roadmapDone}/${state.roadmapTotal}", Modifier.weight(1f), tint = MaterialTheme.colorScheme.primary, sub = "완료 항목")
                     StatTile("연결", "멘토 ${state.mentorCount}", Modifier.weight(1f), tint = MaterialTheme.colorScheme.onSurfaceVariant, sub = "학부모 ${state.parentCount}")
+                }
+            }
+            item {
+                AppCard(onClick = onOpenContent) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("콘텐츠 저장소", style = MaterialTheme.typography.titleMedium)
+                            Text("좋은 유튜브 강의를 등록해 두면 아이 진도에 맞춰 추천돼요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        TextButton(onClick = onOpenContent) { Text("열기") }
+                    }
                 }
             }
             if (state.talents.isNotEmpty()) {

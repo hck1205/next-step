@@ -146,6 +146,27 @@ class FirestoreSyncManager(
         listen(NOTES, Mappers::noteFromMap, db.noteDao()::getById, db.noteDao()::upsert)
         listen(MEMBERS, Mappers::memberFromMap, db.memberDao()::getById, db.memberDao()::upsert)
         listen(ROADMAP, Mappers::roadmapFromMap, db.roadmapDao()::getById, db.roadmapDao()::upsert)
+        listen(CONTENTS, { id, m -> Mappers.contentFromMap(id, m, com.nextstep.app.data.model.ContentScope.FAMILY) }, db.contentDao()::getById, db.contentDao()::upsert)
+        attachCatalogListener()
+    }
+
+    /**
+     * 운영자가 큐레이팅하는 공용 콘텐츠 저장소(최상위 `catalog` 컬렉션). 읽기 전용이며 모든 가족이 공유합니다.
+     */
+    private fun attachCatalogListener() {
+        val reg = firestore.collection(CATALOG).addSnapshotListener { snapshot, error ->
+            if (error != null) { Log.w(TAG, "catalog listen failed", error); return@addSnapshotListener }
+            if (snapshot == null) return@addSnapshotListener
+            val changes = snapshot.documentChanges.filter { it.type != DocumentChange.Type.REMOVED }
+            scope.launch {
+                for (change in changes) {
+                    val remote = runCatching { Mappers.contentFromMap(change.document.id, change.document.data, com.nextstep.app.data.model.ContentScope.GLOBAL) }.getOrNull() ?: continue
+                    val local = db.contentDao().getById(remote.id)
+                    if (local == null || remote.updatedAt > local.updatedAt) db.contentDao().upsert(remote.copy(watched = local?.watched ?: false))
+                }
+            }
+        }
+        listeners += reg
     }
 
     private suspend fun pushDirty(familyId: String) {
@@ -176,6 +197,7 @@ class FirestoreSyncManager(
             push(NOTES, db.noteDao().getDirty(familyId), Mappers::noteToMap, db.noteDao()::markClean)
             push(MEMBERS, db.memberDao().getDirty(familyId), Mappers::memberToMap, db.memberDao()::markClean)
             push(ROADMAP, db.roadmapDao().getDirty(familyId), Mappers::roadmapToMap, db.roadmapDao()::markClean)
+            push(CONTENTS, db.contentDao().getDirty(familyId), Mappers::contentToMap, db.contentDao()::markClean)
             if (status.value != SyncStatus.SYNCED) status.value = SyncStatus.SYNCED
         } catch (e: Exception) {
             Log.w(TAG, "push failed", e)
@@ -195,5 +217,7 @@ class FirestoreSyncManager(
         const val NOTES = "notes"
         const val MEMBERS = "members"
         const val ROADMAP = "roadmap"
+        const val CONTENTS = "contents"
+        const val CATALOG = "catalog"
     }
 }

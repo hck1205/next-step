@@ -1,5 +1,6 @@
 package com.nextstep.app.data.sync
 
+import com.nextstep.app.data.local.ContentEntity
 import com.nextstep.app.data.local.EventEntity
 import com.nextstep.app.data.local.GradeEntity
 import com.nextstep.app.data.local.MemberEntity
@@ -9,7 +10,10 @@ import com.nextstep.app.data.local.StudySessionEntity
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.local.TaskEntity
 import com.nextstep.app.data.local.TopicEntity
+import com.nextstep.app.data.model.ContentScope
+import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
+import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
@@ -125,17 +129,36 @@ object Mappers {
 
     fun roadmapToMap(e: RoadmapItemEntity): Map<String, Any?> = mapOf(
         "id" to e.id, "familyId" to e.familyId, "subjectId" to e.subjectId, "title" to e.title,
-        "description" to e.description, "resource" to e.resource, "targetDate" to e.targetDate,
+        "description" to e.description, "resource" to e.resource, "contentId" to e.contentId, "targetDate" to e.targetDate,
         "orderIndex" to e.orderIndex, "status" to e.status.name, "createdByName" to e.createdByName,
         "createdByRole" to e.createdByRole, "updatedAt" to e.updatedAt, "deleted" to e.deleted,
     )
 
     fun roadmapFromMap(id: String, m: Map<String, Any?>): RoadmapItemEntity = RoadmapItemEntity(
         id = id, familyId = m.str("familyId"), subjectId = m.strOrNull("subjectId"), title = m.str("title"),
-        description = m.str("description"), resource = m.str("resource"),
+        description = m.str("description"), resource = m.str("resource"), contentId = m.strOrNull("contentId"),
         targetDate = (m["targetDate"] as? Number)?.toLong(), orderIndex = m.int("orderIndex"),
         status = RoadmapStatus.from(m.strOrNull("status")), createdByName = m.str("createdByName"),
         createdByRole = m.str("createdByRole"), updatedAt = m.long("updatedAt"), deleted = m.bool("deleted"), dirty = false,
+    )
+
+    fun contentToMap(e: ContentEntity): Map<String, Any?> = mapOf(
+        "id" to e.id, "familyId" to e.familyId, "scope" to e.scope.name, "url" to e.url, "videoId" to e.videoId,
+        "title" to e.title, "channel" to e.channel, "thumbnailUrl" to e.thumbnailUrl, "subjectKey" to e.subjectKey,
+        "gradeLevel" to e.gradeLevel.name, "contentType" to e.contentType.name, "keywords" to e.keywords,
+        "summary" to e.summary, "durationMinutes" to e.durationMinutes, "ratingSum" to e.ratingSum,
+        "ratingCount" to e.ratingCount, "watched" to e.watched, "createdByName" to e.createdByName,
+        "createdByRole" to e.createdByRole, "createdAt" to e.createdAt, "updatedAt" to e.updatedAt, "deleted" to e.deleted,
+    )
+
+    fun contentFromMap(id: String, m: Map<String, Any?>, scope: ContentScope): ContentEntity = ContentEntity(
+        id = id, familyId = if (scope == ContentScope.GLOBAL) ContentEntity.GLOBAL_FAMILY else m.str("familyId"), scope = scope,
+        url = m.str("url"), videoId = m.str("videoId"), title = m.str("title"), channel = m.str("channel"),
+        thumbnailUrl = m.str("thumbnailUrl"), subjectKey = m.str("subjectKey"), gradeLevel = GradeLevel.from(m.strOrNull("gradeLevel")),
+        contentType = ContentType.from(m.strOrNull("contentType")), keywords = m.str("keywords"), summary = m.str("summary"),
+        durationMinutes = m.int("durationMinutes"), ratingSum = m.int("ratingSum"), ratingCount = m.int("ratingCount"),
+        watched = m.bool("watched"), createdByName = m.str("createdByName"), createdByRole = m.str("createdByRole"),
+        createdAt = m.long("createdAt"), updatedAt = m.long("updatedAt"), deleted = m.bool("deleted"), dirty = false,
     )
 
     fun noteFromMap(id: String, m: Map<String, Any?>): NoteEntity = NoteEntity(

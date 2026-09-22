@@ -22,6 +22,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +48,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nextstep.app.data.local.ContentEntity
 import com.nextstep.app.data.local.RoadmapItemEntity
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.model.RoadmapStatus
@@ -63,7 +69,8 @@ import java.time.LocalDate
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RoadmapScreen(caps: Capabilities, onBack: (() -> Unit)?, viewModel: RoadmapViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun RoadmapScreen(caps: Capabilities, onBack: (() -> Unit)?, onOpenContent: () -> Unit = {}, viewModel: RoadmapViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showEdit by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<RoadmapItemEntity?>(null) }
@@ -74,6 +81,7 @@ fun RoadmapScreen(caps: Capabilities, onBack: (() -> Unit)?, viewModel: RoadmapV
             TopAppBar(
                 title = { Text(if (caps.isStudent) "내 학습 로드맵" else "${state.studentName.ifBlank { "학생" }} 학습 로드맵") },
                 navigationIcon = { if (onBack != null) IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                actions = { TextButton(onClick = onOpenContent) { Text("콘텐츠") } },
             )
         },
         floatingActionButton = {
@@ -120,9 +128,10 @@ fun RoadmapScreen(caps: Capabilities, onBack: (() -> Unit)?, viewModel: RoadmapV
             item { SectionTitle("진행 중 · 예정") }
             if (state.active.isEmpty()) item { AppCard { EmptyState(if (caps.canEditRoadmap) "첫 로드맵 항목을 추가해 보세요" else "아직 제안된 로드맵이 없어요") } }
             items(state.active, key = { it.id }) { item ->
-                RoadmapRow(item, state.subjects, caps,
+                RoadmapRow(item, state.subjects, caps, linked = state.contentOf(item),
                     onStatus = { viewModel.setStatus(item.id, it) },
-                    onEdit = { editing = item; showEdit = true })
+                    onEdit = { editing = item; showEdit = true },
+                    onOpenLinked = { c -> runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(c.url))) } })
             }
 
             if (state.done.isNotEmpty()) {
@@ -133,23 +142,24 @@ fun RoadmapScreen(caps: Capabilities, onBack: (() -> Unit)?, viewModel: RoadmapV
                     }
                 }
                 if (showDone) items(state.done, key = { it.id }) { item ->
-                    RoadmapRow(item, state.subjects, caps,
+                    RoadmapRow(item, state.subjects, caps, linked = state.contentOf(item),
                         onStatus = { viewModel.setStatus(item.id, it) },
-                        onEdit = { editing = item; showEdit = true })
+                        onEdit = { editing = item; showEdit = true },
+                        onOpenLinked = { c -> runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(c.url))) } })
                 }
             }
         }
     }
 
     if (showEdit) {
-        RoadmapEditDialog(editing, state.subjects, onDismiss = { showEdit = false }, onDelete = editing?.let { e -> { viewModel.delete(e.id) } }) { subjectId, title, desc, res, date ->
-            viewModel.save(editing, subjectId, title, desc, res, date)
+        RoadmapEditDialog(editing, state.subjects, state.contents, onDismiss = { showEdit = false }, onDelete = editing?.let { e -> { viewModel.delete(e.id) } }) { subjectId, title, desc, res, date, contentId ->
+            viewModel.save(editing, subjectId, title, desc, res, date, contentId)
         }
     }
 }
 
 @Composable
-private fun RoadmapRow(item: RoadmapItemEntity, subjects: List<SubjectEntity>, caps: Capabilities, onStatus: (RoadmapStatus) -> Unit, onEdit: () -> Unit) {
+private fun RoadmapRow(item: RoadmapItemEntity, subjects: List<SubjectEntity>, caps: Capabilities, linked: ContentEntity?, onStatus: (RoadmapStatus) -> Unit, onEdit: () -> Unit, onOpenLinked: (ContentEntity) -> Unit) {
     val subject = subjects.firstOrNull { it.id == item.subjectId }
     val done = item.status == RoadmapStatus.DONE
     val overdue = !done && item.targetDate != null && item.targetDate < DateUtils.today().toEpochDay()
@@ -175,6 +185,13 @@ private fun RoadmapRow(item: RoadmapItemEntity, subjects: List<SubjectEntity>, c
                 if (item.createdByName.isNotBlank()) Text("${item.createdByName} 제안", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (item.description.isNotBlank()) Text(item.description, style = MaterialTheme.typography.bodySmall)
+            if (linked != null) {
+                TextButton(onClick = { onOpenLinked(linked) }, contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) {
+                    Icon(Icons.Default.Link, contentDescription = null, modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("영상: ${linked.title}", style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
             if (item.resource.isNotBlank()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Link, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
@@ -199,10 +216,13 @@ private fun RoadmapRow(item: RoadmapItemEntity, subjects: List<SubjectEntity>, c
 private fun RoadmapEditDialog(
     existing: RoadmapItemEntity?,
     subjects: List<SubjectEntity>,
+    contents: List<ContentEntity>,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)?,
-    onSave: (String?, String, String, String, LocalDate?) -> Unit,
+    onSave: (String?, String, String, String, LocalDate?, String?) -> Unit,
 ) {
+    var contentId by remember { mutableStateOf(existing?.contentId) }
+    var contentMenu by remember { mutableStateOf(false) }
     var subjectId by remember { mutableStateOf(existing?.subjectId) }
     var title by remember { mutableStateOf(existing?.title ?: "") }
     var desc by remember { mutableStateOf(existing?.description ?: "") }
@@ -218,6 +238,21 @@ private fun RoadmapEditDialog(
                 SubjectPicker(subjects, subjectId, onSelect = { subjectId = it })
                 OutlinedTextField(value = desc, onValueChange = { desc = it }, label = { Text("어떻게 (방법·범위·주의점)") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
                 OutlinedTextField(value = res, onValueChange = { res = it }, label = { Text("자료 (교재명, 강의, 링크)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                if (contents.isNotEmpty()) {
+                    val candidates = contents.filter { c -> subjectId == null || c.subjectKey.isBlank() || subjects.firstOrNull { it.id == subjectId }?.name == c.subjectKey }
+                    val selected = contents.firstOrNull { it.id == contentId }
+                    androidx.compose.foundation.layout.Box {
+                        OutlinedButton(onClick = { contentMenu = true }, modifier = Modifier.fillMaxWidth()) {
+                            Text(selected?.let { "영상: ${it.title}" } ?: "저장소 영상 연결 (선택)", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
+                        DropdownMenu(expanded = contentMenu, onDismissRequest = { contentMenu = false }) {
+                            DropdownMenuItem(text = { Text("연결 안 함") }, onClick = { contentId = null; contentMenu = false })
+                            candidates.take(30).forEach { c ->
+                                DropdownMenuItem(text = { Text("${c.subjectKey.ifBlank { "-" }} · ${c.title}", maxLines = 1, overflow = TextOverflow.Ellipsis) }, onClick = { contentId = c.id; contentMenu = false })
+                            }
+                        }
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("목표일 설정", modifier = Modifier.weight(1f))
                     Switch(checked = hasDate, onCheckedChange = { hasDate = it })
@@ -225,7 +260,7 @@ private fun RoadmapEditDialog(
                 if (hasDate) DateField("목표일", date, onChange = { date = it })
             }
         },
-        confirmButton = { TextButton(enabled = title.isNotBlank(), onClick = { onSave(subjectId, title.trim(), desc.trim(), res.trim(), if (hasDate) date else null); onDismiss() }) { Text("저장") } },
+        confirmButton = { TextButton(enabled = title.isNotBlank(), onClick = { onSave(subjectId, title.trim(), desc.trim(), res.trim(), if (hasDate) date else null, contentId); onDismiss() }) { Text("저장") } },
         dismissButton = {
             Row {
                 if (onDelete != null) TextButton(onClick = { onDelete(); onDismiss() }) { Text("삭제", color = MaterialTheme.colorScheme.error) }

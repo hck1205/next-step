@@ -17,8 +17,9 @@ import androidx.room.TypeConverters
         NoteEntity::class,
         MemberEntity::class,
         RoadmapItemEntity::class,
+        ContentEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -32,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun noteDao(): NoteDao
     abstract fun memberDao(): MemberDao
     abstract fun roadmapDao(): RoadmapDao
+    abstract fun contentDao(): ContentDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

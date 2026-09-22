@@ -2,6 +2,7 @@ package com.nextstep.app.ui.roadmap
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.local.ContentEntity
 import com.nextstep.app.data.local.RoadmapItemEntity
 import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.local.TopicEntity
@@ -22,7 +23,9 @@ data class RoadmapUiState(
     val progress: List<SubjectProgress> = emptyList(),
     val topics: List<TopicEntity> = emptyList(),
     val studentName: String = "",
+    val contents: List<ContentEntity> = emptyList(),
 ) {
+    fun contentOf(item: RoadmapItemEntity): ContentEntity? = item.contentId?.let { id -> contents.firstOrNull { it.id == id } }
     val active: List<RoadmapItemEntity> get() = items.filter { it.status != RoadmapStatus.DONE }
     val done: List<RoadmapItemEntity> get() = items.filter { it.status == RoadmapStatus.DONE }
     val completion: Float get() = if (items.isEmpty()) 0f else done.size.toFloat() / items.size
@@ -34,18 +37,18 @@ data class RoadmapUiState(
 }
 
 class RoadmapViewModel(private val repository: StudyRepository) : ViewModel() {
-    val state: StateFlow<RoadmapUiState> = combine(repository.subjects, repository.roadmap, repository.topics, repository.profile) { subjects, items, topics, profile ->
-        RoadmapUiState(subjects, items, StudyStats.subjectProgress(topics, subjects), topics, profile.studentName)
+    val state: StateFlow<RoadmapUiState> = combine(repository.subjects, repository.roadmap, repository.topics, repository.profile, repository.contents) { subjects, items, topics, profile, contents ->
+        RoadmapUiState(subjects, items, StudyStats.subjectProgress(topics, subjects), topics, profile.studentName, contents)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RoadmapUiState())
 
-    fun save(existing: RoadmapItemEntity?, subjectId: String?, title: String, description: String, resource: String, targetDate: LocalDate?) = viewModelScope.launch {
+    fun save(existing: RoadmapItemEntity?, subjectId: String?, title: String, description: String, resource: String, targetDate: LocalDate?, contentId: String?) = viewModelScope.launch {
         val base = existing ?: RoadmapItemEntity(familyId = "", title = title, orderIndex = state.value.items.size)
-        repository.saveRoadmapItem(base.copy(subjectId = subjectId, title = title, description = description, resource = resource, targetDate = targetDate?.toEpochDay()))
+        repository.saveRoadmapItem(base.copy(subjectId = subjectId, title = title, description = description, resource = resource, targetDate = targetDate?.toEpochDay(), contentId = contentId))
     }
 
     fun setStatus(id: String, status: RoadmapStatus) = viewModelScope.launch { repository.setRoadmapStatus(id, status) }
     fun delete(id: String) = viewModelScope.launch { repository.deleteRoadmapItem(id) }
 
     /** 추천 항목을 로드맵에 바로 추가. */
-    fun addSuggestion(subject: SubjectEntity, title: String) = save(null, subject.id, title, "", "", LocalDate.now().plusDays(7))
+    fun addSuggestion(subject: SubjectEntity, title: String) = save(null, subject.id, title, "", "", LocalDate.now().plusDays(7), null)
 }

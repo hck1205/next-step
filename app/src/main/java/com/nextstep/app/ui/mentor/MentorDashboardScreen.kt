@@ -66,6 +66,7 @@ fun MentorDashboardScreen(
     onOpenSettings: () -> Unit,
     onOpenSubject: (String) -> Unit,
     onOpenRoadmap: () -> Unit,
+    onOpenContent: () -> Unit,
     onBack: (() -> Unit)?,
     viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -105,6 +106,17 @@ fun MentorDashboardScreen(
                             )
                         }
                         TextButton(onClick = onOpenRoadmap) { Text("열기") }
+                    }
+                }
+            }
+            item {
+                AppCard(onClick = onOpenContent) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("콘텐츠 저장소", style = MaterialTheme.typography.titleMedium)
+                            Text("좋은 유튜브 강의를 링크로 등록하면 자동 분류되고 학생 진도에 맞춰 추천돼요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        TextButton(onClick = onOpenContent) { Text("열기") }
                     }
                 }
             }

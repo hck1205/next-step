@@ -1,6 +1,7 @@
 package com.nextstep.app.data.repository
 
 import com.nextstep.app.data.local.AppDatabase
+import com.nextstep.app.data.local.ContentEntity
 import com.nextstep.app.data.local.EventEntity
 import com.nextstep.app.data.local.GradeEntity
 import com.nextstep.app.data.local.MemberEntity
@@ -11,6 +12,10 @@ import com.nextstep.app.data.local.SubjectEntity
 import com.nextstep.app.data.local.TaskEntity
 import com.nextstep.app.data.local.TopicEntity
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.ContentScope
+import com.nextstep.app.data.remote.YouTubeMetadataFetcher
+import com.nextstep.app.domain.ContentClassifier
+import com.nextstep.app.domain.YouTubeLinks
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.prefs.RunningTimer
@@ -37,6 +42,7 @@ class StudyRepository(
     private val db: AppDatabase,
     private val prefs: UserPreferences,
     val sync: SyncManager,
+    private val metadataFetcher: YouTubeMetadataFetcher = YouTubeMetadataFetcher(),
 ) {
     val profile: Flow<UserProfile> = prefs.profile
     val familyId: Flow<String?> = profile.map { it.familyId }.distinctUntilChanged()
@@ -54,6 +60,7 @@ class StudyRepository(
     val notes: Flow<List<NoteEntity>> = withFamily { db.noteDao().observeAll(it) }
     val members: Flow<List<MemberEntity>> = withFamily { db.memberDao().observeAll(it) }
     val roadmap: Flow<List<RoadmapItemEntity>> = withFamily { db.roadmapDao().observeAll(it) }
+    val contents: Flow<List<ContentEntity>> = withFamily { db.contentDao().observeAll(it) }
 
     /** 이 기기 사용자의 구성원 정보(멘토라면 담당 과목 포함). */
     val myMember: Flow<MemberEntity?> = profile.map { it.memberId }.distinctUntilChanged()
@@ -146,6 +153,54 @@ class StudyRepository(
     suspend fun deleteRoadmapItem(id: String) {
         val r = db.roadmapDao().getById(id) ?: return
         saveRoadmapItem(r.copy(deleted = true))
+    }
+
+    // ---------------------------------------------------------------- contents (교육 콘텐츠 저장소)
+
+    /** 링크 등록 준비: 메타데이터를 가져오고 자동 분류합니다. 저장은 하지 않습니다. */
+    suspend fun prepareContent(url: String): Result<ContentDraft> {
+        val videoId = YouTubeLinks.videoId(url) ?: return Result.failure(IllegalArgumentException("유튜브 링크가 아니에요. youtube.com 또는 youtu.be 주소를 넣어 주세요."))
+        val familyId = requireFamilyId()
+        db.contentDao().findByVideoId(familyId, videoId)?.let { return Result.failure(IllegalStateException("이미 등록된 영상이에요: ${it.title}")) }
+        val meta = metadataFetcher.fetch(YouTubeLinks.canonicalUrl(videoId))
+        val subjectNames = db.subjectDao().getAll(familyId).map { it.name }
+        val classification = ContentClassifier.classify(meta?.title ?: "", meta?.channel ?: "", familySubjectNames = subjectNames)
+        return Result.success(
+            ContentDraft(
+                url = YouTubeLinks.canonicalUrl(videoId), videoId = videoId,
+                title = meta?.title ?: "", channel = meta?.channel ?: "",
+                thumbnailUrl = meta?.thumbnailUrl?.ifBlank { null } ?: YouTubeLinks.thumbnailUrl(videoId),
+                classification = classification, metadataFetched = meta != null,
+            ),
+        )
+    }
+
+    suspend fun saveContent(content: ContentEntity) {
+        val p = profile.first()
+        val withAuthor = if (content.createdByName.isBlank()) content.copy(createdByName = p.displayName, createdByRole = p.role?.name ?: "") else content
+        db.contentDao().upsert(withAuthor.copy(familyId = withAuthor.familyId.ifEmpty { requireFamilyId() }, scope = ContentScope.FAMILY, updatedAt = now(), dirty = true))
+        sync.requestPush()
+    }
+
+    suspend fun rateContent(id: String, stars: Int) {
+        val c = db.contentDao().getById(id) ?: return
+        if (c.scope == ContentScope.GLOBAL) return // 공용 저장소 평점은 서버에서만 집계 (추후 Cloud Function)
+        db.contentDao().upsert(c.copy(ratingSum = c.ratingSum + stars.coerceIn(1, 5), ratingCount = c.ratingCount + 1, updatedAt = now(), dirty = true))
+        sync.requestPush()
+    }
+
+    suspend fun setContentWatched(id: String, watched: Boolean) {
+        val c = db.contentDao().getById(id) ?: return
+        // GLOBAL 콘텐츠의 시청 표시는 기기 로컬에만 남깁니다.
+        db.contentDao().upsert(c.copy(watched = watched, updatedAt = now(), dirty = c.scope == ContentScope.FAMILY))
+        if (c.scope == ContentScope.FAMILY) sync.requestPush()
+    }
+
+    suspend fun deleteContent(id: String) {
+        val c = db.contentDao().getById(id) ?: return
+        if (c.scope == ContentScope.GLOBAL) return
+        db.contentDao().upsert(c.copy(deleted = true, updatedAt = now(), dirty = true))
+        sync.requestPush()
     }
 
     /** 학습 계획 생성기가 만든 일정과 할 일을 한 번에 저장합니다. */
@@ -360,3 +415,14 @@ class StudyRepository(
         sync.requestPush()
     }
 }
+
+/** 링크 등록 화면에 채워 넣을 초안. */
+data class ContentDraft(
+    val url: String,
+    val videoId: String,
+    val title: String,
+    val channel: String,
+    val thumbnailUrl: String,
+    val classification: com.nextstep.app.domain.ContentClassification,
+    val metadataFetched: Boolean,
+)

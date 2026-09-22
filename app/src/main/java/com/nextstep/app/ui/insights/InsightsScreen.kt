@@ -50,6 +50,7 @@ import com.nextstep.app.domain.Insight
 import com.nextstep.app.domain.InsightAction
 import com.nextstep.app.domain.InsightKind
 import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.components.AdBanner
 import com.nextstep.app.ui.components.AppCard
 import com.nextstep.app.ui.components.BarChart
 import com.nextstep.app.ui.components.BarItem
@@ -161,6 +162,7 @@ fun InsightsScreen(caps: Capabilities, onBack: (() -> Unit)? = null, viewModel: 
                     }
                 }
             }
+            if (!caps.isStudent) item { AdBanner() }
             item { Spacer(Modifier.height(24.dp)) }
         }
     }
