@@ -1,23 +1,16 @@
 package com.nextstep.app.ui.journey
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,20 +30,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.journey.JourneyItem
-import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.CurriculumCard
-import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.row.GoalStepRow
-import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.dialog.TextInputDialog
 import com.nextstep.app.ui.journey.components.AddMilestoneDialog
-import com.nextstep.app.ui.journey.components.MilestoneRow
+import com.nextstep.app.ui.journey.components.MilestoneCard
+import com.nextstep.app.ui.journey.components.JourneyHeader
+import com.nextstep.app.ui.journey.components.ActivityChips
+import com.nextstep.app.ui.journey.components.CategoryFilter
+import com.nextstep.app.ui.journey.components.DueDateDialog
 import com.nextstep.app.ui.journey.components.PeriodHeader
-import java.time.LocalDate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -155,83 +148,4 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
     dateTarget?.let { target ->
         DueDateDialog(target, onConfirm = { onEvent(JourneyEvent.SetDueDate(target, it)); dateTarget = null }, onDismiss = { dateTarget = null })
     }
-}
-
-@Composable
-private fun MilestoneCard(
-    item: JourneyItem, today: LocalDate, expandedKey: String?, setExpanded: (String?) -> Unit, onEvent: (JourneyEvent) -> Unit,
-    onNote: (JourneyItem) -> Unit, onDate: (JourneyItem) -> Unit,
-) {
-    val key = item.templateId ?: item.entityId ?: item.title
-    MilestoneRow(
-        item = item, today = today, expanded = expandedKey == key,
-        onToggleExpand = { setExpanded(if (expandedKey == key) null else key) },
-        onSetStatus = { onEvent(JourneyEvent.SetStatus(item, it)) },
-        onEditNote = { onNote(item) },
-        onEditDate = { onDate(item) },
-        onDelete = if (item.isCustom) ({ onEvent(JourneyEvent.DeleteCustom(item)) }) else null,
-    )
-}
-
-@Composable
-private fun JourneyHeader(state: JourneyUiState, onEvent: (JourneyEvent) -> Unit) {
-    AppCard {
-        Column {
-            if (!state.hasBirthDate) {
-                Text("생년월일로 여정을 시작해요", style = MaterialTheme.typography.titleMedium)
-                Text("어린이집 대기, 예방접종, 유치원 지원, 언어 민감기, 학기별 목표, 입시 일정까지 나이에 맞춰 미리 알려 드려요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(8.dp))
-                DateField(label = "생년월일", date = state.today.minusYears(3), onChange = { onEvent(JourneyEvent.SetBirthDate(it)) })
-            } else {
-                Text("${state.ageLabel} · ${state.stage?.label ?: ""}", style = MaterialTheme.typography.titleMedium)
-                state.stage?.let { Text(it.focus, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                Spacer(Modifier.height(8.dp))
-                LabeledProgress(label = "지금까지의 여정", ratio = state.completion, color = MaterialTheme.colorScheme.primary, trailing = "${(state.completion * 100).toInt()}%")
-                if (state.overdueCount > 0 || state.nowCount > 0) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        buildString {
-                            if (state.overdueCount > 0) append("지난 항목 ${state.overdueCount}개")
-                            if (state.overdueCount > 0 && state.nowCount > 0) append(" · ")
-                            if (state.nowCount > 0) append("지금 준비할 것 ${state.nowCount}개")
-                        },
-                        style = MaterialTheme.typography.bodySmall, color = if (state.overdueCount > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-        }
-    }
-}
-
-/** 구간에 기록된 활동을 한 줄 칩으로. 눌러 활동 화면으로 갑니다. */
-@Composable
-private fun ActivityChips(activities: List<com.nextstep.app.data.local.entity.ActivityEntity>, onOpen: () -> Unit) {
-    AppCard(onClick = onOpen) {
-        Column {
-            Text("활동 ${activities.size}개", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
-            Text(activities.joinToString(" · ") { "${it.type.label} ${it.title}" }, style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
-
-@Composable
-private fun CategoryFilter(selected: MilestoneCategory?, onSelect: (MilestoneCategory?) -> Unit) {
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        FilterChip(selected = selected == null, onClick = { onSelect(null) }, label = { Text("전체") })
-        MilestoneCategory.entries.forEach { c ->
-            FilterChip(selected = selected == c, onClick = { onSelect(if (selected == c) null else c) }, label = { Text(c.label) })
-        }
-    }
-}
-
-@Composable
-private fun DueDateDialog(item: JourneyItem, onConfirm: (LocalDate) -> Unit, onDismiss: () -> Unit) {
-    var date by remember { mutableStateOf(item.dueDate) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("마감일 변경") },
-        text = { DateField(label = "마감일", date = date, onChange = { date = it }) },
-        confirmButton = { TextButton(onClick = { onConfirm(date) }) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
-    )
 }

@@ -112,8 +112,7 @@ internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilitie
 
     if (showAddTopics) {
         TextInputDialog(
-            title = "단원 추가", label = "예: 1. 문자와 식
-2. 일차방정식", minLines = 3, hint = "여러 단원은 줄바꿈이나 쉼표로 구분하세요.", confirmLabel = "추가",
+            title = "단원 추가", label = "예: 1. 문자와 식\n2. 일차방정식", minLines = 3, hint = "여러 단원은 줄바꿈이나 쉼표로 구분하세요.", confirmLabel = "추가",
             onConfirm = { onEvent(SubjectDetailEvent.AddTopics(it)) }, onDismiss = { showAddTopics = false },
         )
     }

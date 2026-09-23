@@ -11,20 +11,6 @@ import com.nextstep.app.domain.journey.JourneyPhase
 import com.nextstep.app.domain.journey.MilestoneCategory
 import java.time.LocalDate
 
-/** 구간(학기) 하나의 타임라인 칸: 그 구간에 마감이 있는 이정표와 그 구간에 배정된 목표 단계. */
-data class PeriodSection(
-    val period: JourneyPeriod,
-    val isCurrent: Boolean,
-    val isPast: Boolean,
-    val milestones: List<JourneyItem>,
-    val steps: List<StepView>,
-    /** 그 구간에 시작한 활동 기록. */
-    val activities: List<ActivityEntity> = emptyList(),
-)
-
-/** 목표 단계 + 목표 제목. 화면은 이것만 봅니다. */
-data class StepView(val step: GoalStepEntity, val goalTitle: String)
-
 data class JourneyUiState(
     val studentName: String = "",
     /** 생년월일을 저장할 학생 행. */

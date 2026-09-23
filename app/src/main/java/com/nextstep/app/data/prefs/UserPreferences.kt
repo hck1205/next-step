@@ -11,24 +11,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.nextstep.app.data.model.Role
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import com.nextstep.app.data.local.entity.MemberEntity
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "nextstep_prefs")
-
-/** 온보딩 이후 기기에 저장되는 사용자/가족 정보. */
-data class UserProfile(
-    val role: Role?,
-    val displayName: String,
-    val familyId: String?,
-    val pairingCode: String?,
-    val studentName: String,
-    val onboarded: Boolean,
-    /** 이 기기 사용자의 구성원(MemberEntity) ID. */
-    val memberId: String?,
-)
-
-/** 진행 중인 학습 타이머. 앱이 종료돼도 복원되도록 DataStore 에 저장합니다. */
-data class RunningTimer(val subjectId: String?, val startedAt: Long)
 
 class UserPreferences(private val context: Context) : UserPreferencesStore {
     private object Keys {
