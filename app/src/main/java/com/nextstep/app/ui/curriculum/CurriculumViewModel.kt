@@ -103,9 +103,11 @@ class CurriculumViewModel(
         }
     }
 
+    /** 연속으로 눌러도 상태 재계산을 기다리지 않도록 선택 키 자체를 기준으로 움직입니다. */
     private fun move(delta: Int) {
         val s = state.value
-        val index = s.periods.indexOfFirst { it.key == s.selectedPeriodKey }
+        val from = selectedKey.value ?: s.selectedPeriodKey
+        val index = s.periods.indexOfFirst { it.key == from }
         val target = s.periods.getOrNull(index + delta) ?: return
         selectedKey.value = target.key
     }
