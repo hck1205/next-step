@@ -7,6 +7,7 @@ import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.ActivityType
+import com.nextstep.app.data.model.AptitudeDomain
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.RoadmapStatus
@@ -44,6 +45,9 @@ class MapperRoundTripTest {
     @Test fun journeyTemplate() = roundTrip(JourneyItemMapper, Fixtures.journeyItem("daycare-waitlist", MilestoneStatus.DONE, note = "완료").copy(doneAt = 5L, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun activity() = roundTrip(ActivityMapper, Fixtures.activity("과학관", ActivityType.CLUB, LocalDate.of(2029, 3, 2), LocalDate.of(2029, 12, 20), place = "학교", note = "n", rating = 4).copy(createdByRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun activityOneDay() = roundTrip(ActivityMapper, Fixtures.activity("소풍")) { it.copy(dirty = false) }.let { assertNull(it.endDate) }
+    @Test fun growthRecord() = roundTrip(GrowthRecordMapper, Fixtures.growth(LocalDate.of(2029, 3, 2), 131.5, 28.2, 1.0, 0.8, note = "검진").copy(createdByRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}
+    @Test fun growthRecordPartial() = roundTrip(GrowthRecordMapper, Fixtures.growth(LocalDate.of(2029, 3, 2), height = 131.5)) { it.copy(dirty = false) }.let { assertNull(it.weightKg); assertNull(it.visionLeft) }
+    @Test fun observation() = roundTrip(ObservationMapper, Fixtures.observation(AptitudeDomain.MUSIC, "노래를 듣고 바로 따라 부른다", 3).copy(authorRole = "PARENT", authorName = "엄마")) { it.copy(dirty = false) }.let {}
     @Test fun goal() = roundTrip(GoalMapper, Fixtures.goal("영어", trackId = "english-early", status = GoalStatus.DONE).copy(description = "d", createdByRole = "PARENT", createdAt = 3L, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun goalCustom() = roundTrip(GoalMapper, Fixtures.goal("피아노")) { it.copy(dirty = false) }.let { assertNull(it.trackId) }
     @Test fun goalStep() = roundTrip(GoalStepMapper, Fixtures.step("g1", "g3s1", "나눗셈", order = 4, status = MilestoneStatus.DONE, taskId = "t1").copy(detail = "x", doneAt = 9L)) { it.copy(dirty = false) }.let {}

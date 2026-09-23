@@ -5,6 +5,8 @@ import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -18,6 +20,7 @@ import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.ActivityType
+import com.nextstep.app.data.model.AptitudeDomain
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
@@ -65,6 +68,12 @@ object Fixtures {
 
     fun activity(title: String, type: ActivityType = ActivityType.FIELD_TRIP, date: LocalDate = LocalDate.of(2029, 10, 1), end: LocalDate? = null, id: String = "a-$title", place: String = "", note: String = "", rating: Int = 0) =
         ActivityEntity(id = id, familyId = FAMILY, type = type, title = title, date = date.toEpochDay(), endDate = end?.toEpochDay(), place = place, note = note, rating = rating)
+
+    fun growth(date: LocalDate, height: Double? = null, weight: Double? = null, visionL: Double? = null, visionR: Double? = null, id: String = "g-$date", note: String = "") =
+        GrowthRecordEntity(id = id, familyId = FAMILY, date = date.toEpochDay(), heightCm = height, weightKg = weight, visionLeft = visionL, visionRight = visionR, note = note)
+
+    fun observation(domain: AptitudeDomain, text: String, strength: Int = 2, date: LocalDate = LocalDate.of(2029, 10, 1), id: String = "o-$text") =
+        ObservationEntity(id = id, familyId = FAMILY, domain = domain, text = text, strength = strength, date = date.toEpochDay())
 
     fun goal(title: String, trackId: String? = null, id: String = "g-${trackId ?: title}", status: GoalStatus = GoalStatus.ACTIVE, area: String = "MATH") =
         GoalEntity(id = id, familyId = FAMILY, trackId = trackId, title = title, area = area, status = status)

@@ -49,7 +49,7 @@ object AppViewModelProvider {
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
         initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }
         initializer { with(container()) { ActivitiesViewModel(streams, activities) } }
-        initializer { with(container()) { RecordsViewModel(streams) } }
+        initializer { with(container()) { RecordsViewModel(streams, growth) } }
         initializer { with(container()) { QuickAddViewModel(streams, notes, activities, tasks, grades, events) } }
     }
 }

@@ -17,11 +17,23 @@ import com.nextstep.app.ui.components.EmptyState
 import com.nextstep.app.ui.components.LabeledProgress
 import com.nextstep.app.ui.records.RecordsActions
 import com.nextstep.app.ui.records.RecordsUiState
+import com.nextstep.app.ui.records.RecordsEvent
+import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.domain.access.Capabilities
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 /** 균형 세그먼트: 학습·자기주도·경험 게이지와 한 줄 판단. 또래 비교는 없습니다. */
 @Composable
-internal fun BalanceContent(state: RecordsUiState, actions: RecordsActions, modifier: Modifier = Modifier) {
+internal fun BalanceContent(state: RecordsUiState, caps: Capabilities, actions: RecordsActions, onEvent: (RecordsEvent) -> Unit, modifier: Modifier = Modifier) {
     val b = state.balance
+    var editGrowth by remember { mutableStateOf<GrowthRecordEntity?>(null) }
+    var showGrowth by remember { mutableStateOf(false) }
+    var showObserve by remember { mutableStateOf(false) }
+    if (showGrowth) GrowthRecordDialog(existing = editGrowth, today = state.today, onConfirm = { onEvent(RecordsEvent.SaveGrowth(it)); showGrowth = false }, onDismiss = { showGrowth = false })
+    if (showObserve) ObservationDialog(today = state.today, onConfirm = { onEvent(RecordsEvent.AddObservation(it)); showObserve = false }, onDismiss = { showObserve = false })
     LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (b == null) {
             item { AppCard { EmptyState("기록이 쌓이면 균형을 보여 드려요") } }
@@ -63,6 +75,21 @@ internal fun BalanceContent(state: RecordsUiState, actions: RecordsActions, modi
                     Text("현장학습·취미·동아리는 성적만큼 중요한 기록이에요. 눌러서 남겨 보세요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+        }
+        item {
+            GrowthCard(
+                summary = state.growth, records = state.growthRecords,
+                onAdd = if (caps.canRecordGrowth) ({ editGrowth = null; showGrowth = true }) else null,
+                onEdit = { editGrowth = it; showGrowth = true },
+                onDelete = if (caps.canRecordGrowth) ({ onEvent(RecordsEvent.DeleteGrowth(it)) }) else null,
+            )
+        }
+        item {
+            AptitudeCard(
+                signals = state.aptitude, observations = state.observations,
+                onObserve = if (caps.canRecordGrowth) ({ showObserve = true }) else null,
+                onDeleteObservation = if (caps.canRecordGrowth) ({ onEvent(RecordsEvent.DeleteObservation(it)) }) else null,
+            )
         }
         item {
             AppCard(onClick = actions.onOpenJourney) {

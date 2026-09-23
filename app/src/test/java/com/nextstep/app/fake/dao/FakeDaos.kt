@@ -5,6 +5,8 @@ import com.nextstep.app.data.local.dao.EventDao
 import com.nextstep.app.data.local.dao.GradeDao
 import com.nextstep.app.data.local.dao.ActivityDao
 import com.nextstep.app.data.local.dao.GoalDao
+import com.nextstep.app.data.local.dao.GrowthRecordDao
+import com.nextstep.app.data.local.dao.ObservationDao
 import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.dao.JourneyDao
 import com.nextstep.app.data.local.dao.MemberDao
@@ -19,6 +21,8 @@ import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -53,6 +57,10 @@ class FakeStudySessionDao : InMemoryTable<StudySessionEntity>(), StudySessionDao
 }
 
 class FakeActivityDao : InMemoryTable<ActivityEntity>(), ActivityDao
+
+class FakeGrowthRecordDao : InMemoryTable<GrowthRecordEntity>(), GrowthRecordDao
+
+class FakeObservationDao : InMemoryTable<ObservationEntity>(), ObservationDao
 
 class FakeGoalDao : InMemoryTable<GoalEntity>(), GoalDao
 

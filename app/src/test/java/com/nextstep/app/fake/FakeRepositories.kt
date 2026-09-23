@@ -5,6 +5,8 @@ import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
+import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
@@ -24,6 +26,7 @@ import com.nextstep.app.data.repository.ContentDraft
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.GoalRepository
+import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
@@ -180,4 +183,14 @@ class FakeActivityRepository : ActivityRepository {
     val deleted = mutableListOf<String>()
     override suspend fun save(activity: ActivityEntity) { saved += activity }
     override suspend fun delete(id: String) { deleted += id }
+}
+
+class FakeGrowthRepository : GrowthRepository {
+    override val records = MutableStateFlow<List<GrowthRecordEntity>>(emptyList())
+    override val observations = MutableStateFlow<List<ObservationEntity>>(emptyList())
+    val calls = mutableListOf<String>()
+    override suspend fun saveRecord(record: GrowthRecordEntity) { calls += "record:${record.heightCm}:${record.weightKg}:${record.visionLeft}:${record.visionRight}" }
+    override suspend fun deleteRecord(id: String) { calls += "deleteRecord:$id" }
+    override suspend fun addObservation(observation: ObservationEntity) { calls += "observe:${observation.domain}:${observation.strength}:${observation.text}" }
+    override suspend fun deleteObservation(id: String) { calls += "deleteObservation:$id" }
 }

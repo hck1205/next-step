@@ -38,6 +38,8 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canManageGoals: Boolean get() = true
     /** 활동 기록(취미·동아리·현장학습·체험) 추가·수정·삭제. */
     val canRecordActivities: Boolean get() = true
+    /** 성장 기록(키·몸무게·시력)과 소질 관찰 메모. 학생 본인도 기록할 수 있습니다. */
+    val canRecordGrowth: Boolean get() = true
     /** 인사이트의 "할 일로 추가" 실행. */
     val canApplyInsightActions: Boolean get() = isStudent || actsAsMentor
 

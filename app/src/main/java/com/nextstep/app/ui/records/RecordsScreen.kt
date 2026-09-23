@@ -42,12 +42,12 @@ fun RecordsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var segment by rememberSaveable(initialSegment) { mutableStateOf(initialSegment) }
-    RecordsContent(state = state, caps = caps, actions = actions, segment = segment, onSegment = { segment = it })
+    RecordsContent(state = state, caps = caps, actions = actions, segment = segment, onSegment = { segment = it }, onEvent = viewModel::onEvent)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun RecordsContent(state: RecordsUiState, caps: Capabilities, actions: RecordsActions, segment: RecordSegment, onSegment: (RecordSegment) -> Unit) {
+internal fun RecordsContent(state: RecordsUiState, caps: Capabilities, actions: RecordsActions, segment: RecordSegment, onSegment: (RecordSegment) -> Unit, onEvent: (RecordsEvent) -> Unit) {
     Scaffold(
         topBar = { TopAppBar(title = { Text(if (caps.isStudent) "나" else "기록") }) },
     ) { padding ->
@@ -55,7 +55,7 @@ internal fun RecordsContent(state: RecordsUiState, caps: Capabilities, actions: 
             SegmentedRow(options = RecordSegment.entries, selected = segment, label = { it.label }, onSelect = onSegment, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp))
             Box(Modifier.fillMaxSize()) {
                 when (segment) {
-                    RecordSegment.BALANCE -> BalanceContent(state, actions)
+                    RecordSegment.BALANCE -> BalanceContent(state, caps, actions, onEvent)
                     RecordSegment.LEARNING -> InsightsScreen(caps = caps, actions = InsightsActions())
                     RecordSegment.GRADES -> GradesScreen(caps = caps)
                     RecordSegment.PROGRESS -> ProgressScreen(caps = caps, actions = ProgressActions(onOpenSubject = actions.onOpenSubject, onOpenRoadmap = actions.onOpenRoadmap))
