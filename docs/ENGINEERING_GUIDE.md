@@ -30,7 +30,7 @@ com.nextstep.app
 ├── domain/                 순수 Kotlin. Android import 금지
 │   ├── access/             Capabilities
 │   ├── time/               DateUtils
-│   ├── stats/              StudyStats + 결과 모델
+│   ├── stats/              StudyStats, BalanceStats(균형 판단) + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine + 모델
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
@@ -40,6 +40,8 @@ com.nextstep.app
     ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나
     ├── theme/
     ├── navigation/
+    ├── quickadd/           기록하기 시트: 모든 쓰기의 단일 입구
+    ├── records/            기록 탭: 세그먼트(균형·학습·성적·진도·일정)가 기능 화면을 품음
     └── <feature>/          XxxScreen.kt, XxxUiState.kt, XxxViewModel.kt, XxxActions.kt, components/
 ```
 

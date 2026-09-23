@@ -20,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,7 +56,6 @@ internal fun GradesContent(state: GradesUiState, caps: Capabilities, onEvent: (G
     var editing by remember { mutableStateOf<GradeEntity?>(null) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(if (caps.isStudent) "내 성적" else "성적") }) },
         floatingActionButton = {
             if (state.subjects.isNotEmpty() && caps.canEditGrades) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "성적 추가") }
         },

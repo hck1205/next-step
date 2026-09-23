@@ -36,6 +36,8 @@ data class HomeUiState(
     val journeyNow: List<com.nextstep.app.domain.journey.JourneyItem> = emptyList(),
     val hasBirthDate: Boolean = false,
     val today: java.time.LocalDate = java.time.LocalDate.now(),
+    /** 가장 최근 격려·메모. 학생 홈 상단 카드. */
+    val latestNote: com.nextstep.app.data.local.entity.NoteEntity? = null,
 ) {
     /** 진행 중이거나 목표일이 가까운 로드맵 항목. */
     val roadmapFocus: List<RoadmapItemEntity> get() = roadmap.filter { it.status != RoadmapStatus.DONE }

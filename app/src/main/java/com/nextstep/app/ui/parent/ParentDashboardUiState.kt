@@ -46,4 +46,23 @@ data class ParentDashboardUiState(
     val journeyNow: List<com.nextstep.app.domain.journey.JourneyItem> = emptyList(),
     val hasBirthDate: Boolean = false,
     val today: java.time.LocalDate = java.time.LocalDate.now(),
-)
+    /** 오늘 일정(반복 포함). */
+    val todayEvents: List<com.nextstep.app.domain.stats.EventOccurrence> = emptyList(),
+    /** 균형 요약. 상태 문장의 근거. */
+    val balance: com.nextstep.app.domain.stats.BalanceReport? = null,
+    /** 현재 구간 표기 (예: 초3 2학기). */
+    val periodLabel: String? = null,
+) {
+    /** 첫 화면의 상태 문장: 균형 판단 + 챙길 것 수. 숫자 대신 문장으로. */
+    val statusHeadline: String get() {
+        val base = balance?.headline ?: "이번 주 기록이 쌓이면 상태를 알려 드려요"
+        val pending = journeyNow.size + overdueCount
+        return when (pending) {
+            0 -> base
+            1 -> "$base\n챙길 것 하나만 남았어요"
+            else -> "$base\n챙길 것 ${pending}개가 있어요"
+        }
+    }
+    /** 상태 카드의 맥락 줄: 이번 주 · 구간. */
+    val statusContext: String get() = listOfNotNull("이번 주", periodLabel ?: stage?.label).joinToString(" · ")
+}

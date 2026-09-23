@@ -18,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,12 +58,6 @@ internal fun CalendarContent(state: CalendarUiState, caps: Capabilities, onEvent
     var showTask by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("캘린더") },
-                actions = { TextButton(onClick = { onEvent(CalendarEvent.Today) }) { Text("오늘") } },
-            )
-        },
         floatingActionButton = {
             Box {
                 FloatingActionButton(onClick = { fabMenu = true }) { Icon(Icons.Default.Add, contentDescription = "추가") }
@@ -83,7 +76,10 @@ internal fun CalendarContent(state: CalendarUiState, caps: Capabilities, onEvent
             item { MonthGrid(state, onPrev = { onEvent(CalendarEvent.PrevMonth) }, onNext = { onEvent(CalendarEvent.NextMonth) }, onSelect = { onEvent(CalendarEvent.Select(it)) }) }
 
             item {
-                SectionTitle(DateUtils.formatFullDate(state.selected) + if (state.dayMinutes > 0) " · 학습 ${DateUtils.formatMinutes(state.dayMinutes)}" else "")
+                SectionTitle(
+                    DateUtils.formatFullDate(state.selected) + if (state.dayMinutes > 0) " · 학습 ${DateUtils.formatMinutes(state.dayMinutes)}" else "",
+                    action = { TextButton(onClick = { onEvent(CalendarEvent.Today) }) { Text("오늘") } },
+                )
             }
             if (state.dayEvents.isEmpty()) item { AppCard { EmptyState("일정이 없어요") } }
             items(state.dayEvents, key = { "e" + it.event.id + it.startAt }) { occ ->

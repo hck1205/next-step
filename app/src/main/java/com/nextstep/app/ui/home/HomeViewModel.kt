@@ -60,7 +60,7 @@ class HomeViewModel(
         s.copy(progress = StudyStats.subjectProgress(topics, s.subjects), runningTimer = timer, roadmap = roadmap, lastPlan = plan)
     }
 
-    val state: StateFlow<HomeUiState> = combine(withProgress, streams.contents, streams.grades, streams.members, streams.journeyItems) { s, contents, grades, members, journey ->
+    private val enriched = combine(withProgress, streams.contents, streams.grades, streams.members, streams.journeyItems) { s, contents, grades, members, journey ->
         val exams = StudyStats.upcomingExams(s.events, emptyList())
         val today = DateUtils.today()
         val stage = GrowthStage.of(members, today)
@@ -73,7 +73,10 @@ class HomeViewModel(
             planDefaults = GrowthGuide.defaultPlanOptions(stage),
             recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, gradeLevel = stage?.gradeLevel ?: GradeLevel.ALL, limit = 3),
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
+    }
+
+    val state: StateFlow<HomeUiState> = combine(enriched, streams.notes) { s, notes -> s.copy(latestNote = notes.maxByOrNull { it.createdAt }) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     fun markContentWatched(id: String) = viewModelScope.launch { contents.setWatched(id, true) }
 

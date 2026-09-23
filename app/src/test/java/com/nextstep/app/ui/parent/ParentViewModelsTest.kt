@@ -35,6 +35,8 @@ class ParentViewModelsTest : ViewModelTestBase() {
         assertEquals(7, s.daily.size)
         assertEquals(com.nextstep.app.domain.growth.GrowthStage.MIDDLE, s.stage); assertEquals("중2", s.gradeLabel)
         assertTrue(s.stageTip!!.isNotBlank()); assertTrue(s.stageExperience!!.isNotBlank())
+        // 상태 문장: 균형 판단 + 챙길 것(기한 지난 할 일 1개)
+        assertTrue(s.balance != null); assertTrue(s.statusHeadline.contains("챙길 것 하나")); assertTrue(s.statusContext.startsWith("이번 주"))
         job.cancel()
     }
 

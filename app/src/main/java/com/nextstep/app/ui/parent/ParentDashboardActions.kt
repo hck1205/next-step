@@ -4,10 +4,11 @@ package com.nextstep.app.ui.parent
 data class ParentDashboardActions(
     val onOpenSettings: () -> Unit = {},
     val onOpenSubject: (String) -> Unit = { _ -> },
-    val onOpenInsights: () -> Unit = {},
+    /** 기록 탭의 세그먼트로 바로 갑니다. */
+    val onOpenRecords: (com.nextstep.app.ui.records.RecordSegment) -> Unit = { _ -> },
+    val onOpenCheer: () -> Unit = {},
     val onOpenMentor: () -> Unit = {},
     val onOpenRoadmap: () -> Unit = {},
     val onOpenContent: () -> Unit = {},
     val onOpenJourney: () -> Unit = {},
-    val onOpenGrades: () -> Unit = {},
 )

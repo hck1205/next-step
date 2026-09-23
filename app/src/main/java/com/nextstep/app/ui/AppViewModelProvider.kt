@@ -22,6 +22,8 @@ import com.nextstep.app.ui.parent.CheerViewModel
 import com.nextstep.app.ui.parent.ParentDashboardViewModel
 import com.nextstep.app.ui.progress.ProgressViewModel
 import com.nextstep.app.ui.progress.SubjectDetailViewModel
+import com.nextstep.app.ui.quickadd.QuickAddViewModel
+import com.nextstep.app.ui.records.RecordsViewModel
 import com.nextstep.app.ui.roadmap.RoadmapViewModel
 import com.nextstep.app.ui.settings.SettingsViewModel
 import com.nextstep.app.ui.timer.TimerViewModel
@@ -47,6 +49,8 @@ object AppViewModelProvider {
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
         initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }
         initializer { with(container()) { ActivitiesViewModel(streams, activities) } }
+        initializer { with(container()) { RecordsViewModel(streams) } }
+        initializer { with(container()) { QuickAddViewModel(streams, notes, activities, tasks, grades, events) } }
     }
 }
 

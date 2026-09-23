@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +26,7 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
 import com.nextstep.app.ui.components.EmptyState
+import com.nextstep.app.ui.components.SectionTitle
 import com.nextstep.app.ui.components.SubjectEditDialog
 import com.nextstep.app.ui.progress.components.SubjectProgressCard
 import androidx.compose.runtime.getValue
@@ -44,12 +44,6 @@ internal fun ProgressContent(state: ProgressUiState, caps: Capabilities, actions
     var showAdd by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (caps.isStudent) "내 커리큘럼" else "과목별 진도") },
-                actions = { TextButton(onClick = actions.onOpenRoadmap) { Text("로드맵") } },
-            )
-        },
         floatingActionButton = {
             if (caps.canEditSubjects) FloatingActionButton(onClick = { showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "과목 추가") }
         },
@@ -67,6 +61,7 @@ internal fun ProgressContent(state: ProgressUiState, caps: Capabilities, actions
                     )
                 }
             }
+            item { SectionTitle(if (caps.isStudent) "내 커리큘럼" else "과목별 진도", action = { TextButton(onClick = actions.onOpenRoadmap) { Text("로드맵") } }) }
             if (state.progress.isEmpty()) item { AppCard { EmptyState(if (caps.canEditSubjects) "과목을 추가하고 단원을 등록해 보세요" else "아직 등록된 과목이 없어요") } }
             items(state.progress, key = { it.subject.id }) { p -> SubjectProgressCard(p, onClick = { actions.onOpenSubject(p.subject.id) }) }
         }

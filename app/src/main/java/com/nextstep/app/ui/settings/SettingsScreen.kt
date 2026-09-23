@@ -69,12 +69,21 @@ internal fun SettingsContent(state: SettingsUiState, actions: SettingsActions, o
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("설정") },
-                navigationIcon = { IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                title = { Text("가족") },
+                navigationIcon = { actions.onBack?.let { back -> IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } } },
             )
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            AppCard(onClick = actions.onOpenContent) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("콘텐츠 저장소", style = MaterialTheme.typography.titleMedium)
+                        Text("좋은 유튜브 강의를 등록해 두면 아이 진도에 맞춰 추천돼요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    TextButton(onClick = actions.onOpenContent) { Text("열기") }
+                }
+            }
             SectionTitle("내 정보")
             AppCard {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

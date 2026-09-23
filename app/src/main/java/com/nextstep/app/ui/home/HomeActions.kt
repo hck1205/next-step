@@ -8,4 +8,5 @@ data class HomeActions(
     val onOpenRoadmap: () -> Unit = {},
     val onOpenContent: () -> Unit = {},
     val onOpenJourney: () -> Unit = {},
+    val onOpenRecords: (com.nextstep.app.ui.records.RecordSegment) -> Unit = { _ -> },
 )

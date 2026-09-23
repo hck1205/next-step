@@ -23,6 +23,8 @@ import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyPlanner
+import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.time.DateUtils
 
 class ParentDashboardViewModel(
@@ -52,12 +54,18 @@ class ParentDashboardViewModel(
     }
 
     private val extra = combine(streams.events, streams.syncStatus, streams.roadmap, streams.members, streams.journeyItems) { e, s, r, m, j -> Side(e, s, r, m, j) }
+        .let { side -> combine(side, streams.activities) { x, a -> x.copy(activities = a) } }
 
     val state: StateFlow<ParentDashboardUiState> = combine(core, data, extra) { s, d, x ->
         val events = x.events
         val today = DateUtils.today()
         val birthDate = x.members.firstOrNull { it.role == "STUDENT" }?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
+        val stage = GrowthStage.of(x.members, today)
+        val period = birthDate?.let { PeriodCalendar.current(it, today) }
         s.copy(
+            todayEvents = StudyStats.eventsOn(today, events),
+            balance = BalanceStats.report(stage, d.sessions, d.tasks, x.activities, period, today),
+            periodLabel = period?.label,
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(birthDate, x.journey, today), today),
             hasBirthDate = birthDate != null,
             today = today,
@@ -94,6 +102,7 @@ class ParentDashboardViewModel(
         val roadmap: List<com.nextstep.app.data.local.entity.RoadmapItemEntity>,
         val members: List<com.nextstep.app.data.local.entity.MemberEntity>,
         val journey: List<com.nextstep.app.data.local.entity.JourneyItemEntity>,
+        val activities: List<com.nextstep.app.data.local.entity.ActivityEntity> = emptyList(),
     )
 
     private data class Extra(
