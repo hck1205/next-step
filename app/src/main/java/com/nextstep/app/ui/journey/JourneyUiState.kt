@@ -41,6 +41,8 @@ data class JourneyUiState(
     val goals: List<GoalEntity> = emptyList(),
     val steps: List<GoalStepEntity> = emptyList(),
     val activities: List<ActivityEntity> = emptyList(),
+    /** 현재 구간의 교과 커리큘럼(학령기만). */
+    val curriculum: com.nextstep.app.domain.curriculum.TermCurriculum? = null,
     val completion: Float = 0f,
     val filter: MilestoneCategory? = null,
     val showCompleted: Boolean = false,

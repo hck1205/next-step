@@ -7,6 +7,7 @@ import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
+import com.nextstep.app.data.local.entity.PeerTopicEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -74,6 +75,9 @@ object Fixtures {
 
     fun observation(domain: AptitudeDomain, text: String, strength: Int = 2, date: LocalDate = LocalDate.of(2029, 10, 1), id: String = "o-$text") =
         ObservationEntity(id = id, familyId = FAMILY, domain = domain, text = text, strength = strength, date = date.toEpochDay())
+
+    fun peerTopic(periodKey: String, subject: String, title: String, families: Int = 5, id: String = "pt-$periodKey-$title") =
+        PeerTopicEntity(id = id, periodKey = periodKey, subject = subject, title = title, families = families)
 
     fun goal(title: String, trackId: String? = null, id: String = "g-${trackId ?: title}", status: GoalStatus = GoalStatus.ACTIVE, area: String = "MATH") =
         GoalEntity(id = id, familyId = FAMILY, trackId = trackId, title = title, area = area, status = status)

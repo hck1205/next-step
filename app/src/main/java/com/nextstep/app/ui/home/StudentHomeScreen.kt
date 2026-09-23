@@ -34,6 +34,7 @@ import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.CurriculumCard
 import com.nextstep.app.ui.components.JourneyNowCard
 import com.nextstep.app.ui.components.EmptyState
 import com.nextstep.app.ui.components.EventRow
@@ -80,6 +81,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item { TimerCard(state, actions.onOpenTimer) }
+            state.curriculum?.let { c -> item { CurriculumCard(curriculum = c, periodLabel = state.periodLabel ?: "이번 학기", onOpen = actions.onOpenCurriculum) } }
             if (state.hasBirthDate || state.journeyNow.isNotEmpty()) item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
 
             item { SectionTitle("오늘 할 것", action = { TextButton(onClick = { actions.onOpenRecords(com.nextstep.app.ui.records.RecordSegment.CALENDAR) }) { Text("전체") } }) }

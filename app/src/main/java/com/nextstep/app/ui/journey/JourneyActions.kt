@@ -6,4 +6,5 @@ data class JourneyActions(
     val onOpenSettings: () -> Unit = {},
     val onOpenGoals: () -> Unit = {},
     val onOpenActivities: () -> Unit = {},
+    val onOpenCurriculum: () -> Unit = {},
 )

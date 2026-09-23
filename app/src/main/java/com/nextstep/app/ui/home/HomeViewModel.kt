@@ -27,7 +27,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.journey.JourneyPlanner
+import com.nextstep.app.domain.journey.PeriodCalendar
 import com.nextstep.app.data.model.GradeLevel
 
 class HomeViewModel(
@@ -65,7 +67,10 @@ class HomeViewModel(
         val today = DateUtils.today()
         val stage = GrowthStage.of(members, today)
         val birthDate = members.firstOrNull { it.role == "STUDENT" }?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
+        val period = birthDate?.let { PeriodCalendar.current(it, today) }
         s.copy(
+            curriculum = CurriculumCatalog.forPeriod(period?.key),
+            periodLabel = period?.label,
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(birthDate, journey, today), today),
             hasBirthDate = birthDate != null,
             today = today,

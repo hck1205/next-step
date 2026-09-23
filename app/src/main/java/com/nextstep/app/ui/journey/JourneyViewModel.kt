@@ -64,6 +64,7 @@ class JourneyViewModel(
             goals = goals.filter { !it.deleted },
             steps = steps,
             activities = activities.filter { !it.deleted },
+            curriculum = com.nextstep.app.domain.curriculum.CurriculumCatalog.forPeriod(PeriodCalendar.periodOf(periods, day)?.key),
             completion = JourneyPlanner.completion(items, day),
             loaded = true,
         )

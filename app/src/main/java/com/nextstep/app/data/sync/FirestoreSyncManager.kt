@@ -23,14 +23,15 @@ import kotlinx.coroutines.tasks.await
 /**
  * Firestore 기반 동기화. 엔티티를 모르고 [SyncedCollection] 만 다룹니다.
  *
- * 구조: families/{familyId}/{collection}/{id}, 공용 저장소는 최상위 catalog/{id}.
+ * 구조: families/{familyId}/{collection}/{id}, 공용 저장소는 최상위 catalog/{id}, peerTopics/{id}.
  * 정책: 오프라인 우선. Room 이 진실의 원천이고 로컬 변경은 dirty 플래그로 추적해 올립니다.
  * 원격 변경은 updatedAt 이 더 최신일 때만 반영합니다(last-write-wins). 전송 실패는 지수 백오프로 재시도합니다.
  */
 @OptIn(FlowPreview::class)
 class FirestoreSyncManager(
     private val familyCollections: List<SyncedCollection<*>>,
-    private val catalogCollection: SyncedCollection<*>,
+    /** 최상위 공용 컬렉션(읽기 전용): 콘텐츠 카탈로그, 또래 단원 통계 등. */
+    private val globalCollections: List<SyncedCollection<*>>,
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
@@ -67,7 +68,7 @@ class FirestoreSyncManager(
             if (!ensureSignedIn()) return@launch
             val family = firestore.collection(FAMILIES).document(familyId)
             familyCollections.forEach { listen(family.collection(it.name), it) }
-            listen(firestore.collection(catalogCollection.name), catalogCollection)
+            globalCollections.forEach { listen(firestore.collection(it.name), it) }
             pushJob = launch { pushRequests.debounce(PUSH_DEBOUNCE_MS).collect { pushWithRetry(familyId) } }
             pushRequests.tryEmit(Unit)
         }

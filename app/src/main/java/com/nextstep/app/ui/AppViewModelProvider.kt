@@ -10,6 +10,7 @@ import com.nextstep.app.di.AppContainer
 import com.nextstep.app.ui.activities.ActivitiesViewModel
 import com.nextstep.app.ui.calendar.CalendarViewModel
 import com.nextstep.app.ui.content.ContentViewModel
+import com.nextstep.app.ui.curriculum.CurriculumViewModel
 import com.nextstep.app.ui.goals.GoalsViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
 import com.nextstep.app.ui.home.HomeViewModel
@@ -50,6 +51,7 @@ object AppViewModelProvider {
         initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }
         initializer { with(container()) { ActivitiesViewModel(streams, activities) } }
         initializer { with(container()) { RecordsViewModel(streams, growth) } }
+        initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
         initializer { with(container()) { QuickAddViewModel(streams, notes, activities, tasks, grades, events) } }
     }
 }

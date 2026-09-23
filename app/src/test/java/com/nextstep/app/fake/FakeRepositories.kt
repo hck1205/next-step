@@ -7,6 +7,7 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
+import com.nextstep.app.data.local.entity.PeerTopicEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
@@ -31,6 +32,7 @@ import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
+import com.nextstep.app.data.repository.PeerCurriculumRepository
 import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.StudySessionRepository
@@ -193,4 +195,8 @@ class FakeGrowthRepository : GrowthRepository {
     override suspend fun deleteRecord(id: String) { calls += "deleteRecord:$id" }
     override suspend fun addObservation(observation: ObservationEntity) { calls += "observe:${observation.domain}:${observation.strength}:${observation.text}" }
     override suspend fun deleteObservation(id: String) { calls += "deleteObservation:$id" }
+}
+
+class FakePeerCurriculumRepository : PeerCurriculumRepository {
+    override val peerTopics = MutableStateFlow<List<PeerTopicEntity>>(emptyList())
 }

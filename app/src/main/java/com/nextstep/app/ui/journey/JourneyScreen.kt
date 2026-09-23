@@ -40,6 +40,7 @@ import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.CurriculumCard
 import com.nextstep.app.ui.components.DateField
 import com.nextstep.app.ui.components.EmptyState
 import com.nextstep.app.ui.components.GoalStepRow
@@ -108,6 +109,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
                 }
                 state.periodSections.forEach { section ->
                     item(key = "p-${section.period.key}") { PeriodHeader(section.period, section.isCurrent, section.isPast) }
+                    if (section.isCurrent) state.curriculum?.let { c -> item(key = "c-${section.period.key}") { CurriculumCard(curriculum = c, periodLabel = section.period.label, onOpen = actions.onOpenCurriculum) } }
                     if (section.isCurrent && section.milestones.isEmpty() && section.steps.isEmpty()) {
                         item { Text("이번 구간에 잡힌 항목이 없어요. 목표 화면에서 트랙을 시작해 보세요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }

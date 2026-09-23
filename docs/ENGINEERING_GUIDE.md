@@ -33,6 +33,7 @@ com.nextstep.app
 │   ├── stats/              StudyStats, BalanceStats(균형 판단) + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
 │   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
+│   ├── curriculum/         CurriculumCatalog(학기별 과목·단원), CurriculumRecommender(가족 진도·또래·영상 대조)
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide

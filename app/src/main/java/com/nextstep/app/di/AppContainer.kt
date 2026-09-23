@@ -20,6 +20,7 @@ import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
+import com.nextstep.app.data.repository.PeerCurriculumRepository
 import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.StudySessionRepository
@@ -40,6 +41,7 @@ import com.nextstep.app.data.repository.room.RoomJourneyRepository
 import com.nextstep.app.data.repository.room.RoomMemberRepository
 import com.nextstep.app.data.repository.room.RoomNoteRepository
 import com.nextstep.app.data.repository.room.RoomOnboardingRepository
+import com.nextstep.app.data.repository.room.RoomPeerCurriculumRepository
 import com.nextstep.app.data.repository.room.RoomRoadmapRepository
 import com.nextstep.app.data.repository.room.RoomStudyPlanRepository
 import com.nextstep.app.data.repository.room.RoomStudySessionRepository
@@ -78,6 +80,7 @@ class AppContainer(context: Context) {
     val goals: GoalRepository = RoomGoalRepository(database.goalDao(), database.goalStepDao(), scope, syncManager, time)
     val activities: ActivityRepository = RoomActivityRepository(database.activityDao(), scope, syncManager, time)
     val growth: GrowthRepository = RoomGrowthRepository(database.growthRecordDao(), database.observationDao(), scope, syncManager, time)
+    val peerCurriculum: PeerCurriculumRepository = RoomPeerCurriculumRepository(database.peerTopicDao())
     val plans: StudyPlanRepository = RoomStudyPlanRepository(database.eventDao(), database.taskDao(), scope, syncManager, time)
     val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, notes, members, roadmap, contents, journey, goals, activities, growth)
 
@@ -87,7 +90,7 @@ class AppContainer(context: Context) {
             return NoOpSyncManager()
         }
         return try {
-            FirestoreSyncManager(SyncRegistry.familyCollections(db), SyncRegistry.catalogCollection(db), FirebaseFirestore.getInstance(), FirebaseAuth.getInstance())
+            FirestoreSyncManager(SyncRegistry.familyCollections(db), SyncRegistry.globalCollections(db), FirebaseFirestore.getInstance(), FirebaseAuth.getInstance())
         } catch (e: Exception) {
             Log.w(TAG, "Firebase 초기화 실패, 로컬 전용 모드로 동작합니다", e)
             NoOpSyncManager()

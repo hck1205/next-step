@@ -18,6 +18,8 @@ import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.dao.JourneyDao
 import com.nextstep.app.data.local.dao.ActivityDao
 import com.nextstep.app.data.local.dao.GrowthRecordDao
+import com.nextstep.app.data.local.dao.PeerTopicDao
+import com.nextstep.app.data.local.entity.PeerTopicEntity
 import com.nextstep.app.data.local.dao.ObservationDao
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
@@ -56,8 +58,9 @@ import com.nextstep.app.data.local.entity.ContentEntity
         ActivityEntity::class,
         GrowthRecordEntity::class,
         ObservationEntity::class,
+        PeerTopicEntity::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -78,6 +81,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
     abstract fun growthRecordDao(): GrowthRecordDao
     abstract fun observationDao(): ObservationDao
+    abstract fun peerTopicDao(): PeerTopicDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

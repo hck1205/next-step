@@ -42,6 +42,8 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.activities.ActivitiesActions
 import com.nextstep.app.ui.activities.ActivitiesScreen
 import com.nextstep.app.ui.content.ContentActions
+import com.nextstep.app.ui.curriculum.CurriculumActions
+import com.nextstep.app.ui.curriculum.CurriculumScreen
 import com.nextstep.app.ui.content.ContentLibraryScreen
 import com.nextstep.app.ui.goals.GoalsActions
 import com.nextstep.app.ui.goals.GoalsScreen
@@ -79,6 +81,7 @@ object Routes {
     const val MENTOR_HOME = "mentor"
     const val CONTENT = "content"
     const val CHEER = "cheer"
+    const val CURRICULUM = "curriculum"
     const val TIMER = "timer"
     const val SUBJECT = "subject/{subjectId}"
     fun subject(id: String) = "subject/$id"
@@ -184,13 +187,13 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                     actions = HomeActions(
                         onOpenTimer = { go(Routes.TIMER) }, onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject,
                         onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) }, onOpenJourney = { go(Routes.JOURNEY) },
-                        onOpenRecords = openRecords,
+                        onOpenRecords = openRecords, onOpenCurriculum = { go(Routes.CURRICULUM) },
                     ),
                 )
             }
         }
         composable(Routes.JOURNEY) {
-            JourneyScreen(caps = caps, actions = JourneyActions(onBack = null, onOpenSettings = { go(Routes.FAMILY) }, onOpenGoals = { go(Routes.GOALS) }, onOpenActivities = { go(Routes.ACTIVITIES) }))
+            JourneyScreen(caps = caps, actions = JourneyActions(onBack = null, onOpenSettings = { go(Routes.FAMILY) }, onOpenGoals = { go(Routes.GOALS) }, onOpenActivities = { go(Routes.ACTIVITIES) }, onOpenCurriculum = { go(Routes.CURRICULUM) }))
         }
         composable(Routes.RECORDS, arguments = listOf(navArgument("segment") { type = NavType.StringType; defaultValue = RecordSegment.BALANCE.route })) { entry ->
             RecordsScreen(
@@ -214,6 +217,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
         composable(Routes.ROADMAP) { RoadmapScreen(caps = caps, actions = RoadmapActions(onBack = back, onOpenContent = { go(Routes.CONTENT) })) }
         composable(Routes.CONTENT) { ContentLibraryScreen(caps = caps, actions = ContentActions(onBack = back)) }
         composable(Routes.CHEER) { CheerScreen() }
+        composable(Routes.CURRICULUM) { CurriculumScreen(caps = caps, actions = CurriculumActions(onBack = back, onOpenSubject = openSubject, onOpenContent = { go(Routes.CONTENT) })) }
         composable(Routes.SUBJECT, arguments = listOf(navArgument("subjectId") { type = NavType.StringType })) {
             SubjectDetailScreen(caps = caps, actions = SubjectDetailActions(onBack = back))
         }

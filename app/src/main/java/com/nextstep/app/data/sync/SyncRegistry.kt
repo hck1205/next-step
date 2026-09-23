@@ -9,6 +9,7 @@ import com.nextstep.app.data.sync.mapper.GoalStepMapper
 import com.nextstep.app.data.sync.mapper.GradeMapper
 import com.nextstep.app.data.sync.mapper.GrowthRecordMapper
 import com.nextstep.app.data.sync.mapper.ObservationMapper
+import com.nextstep.app.data.sync.mapper.PeerTopicMapper
 import com.nextstep.app.data.sync.mapper.JourneyItemMapper
 import com.nextstep.app.data.sync.mapper.MemberMapper
 import com.nextstep.app.data.sync.mapper.NoteMapper
@@ -39,6 +40,14 @@ object SyncRegistry {
         SyncedCollection(ActivityMapper, db.activityDao()::getById, db.activityDao()::upsert, db.activityDao()::getDirty, db.activityDao()::markClean),
         SyncedCollection(GrowthRecordMapper, db.growthRecordDao()::getById, db.growthRecordDao()::upsert, db.growthRecordDao()::getDirty, db.growthRecordDao()::markClean),
         SyncedCollection(ObservationMapper, db.observationDao()::getById, db.observationDao()::upsert, db.observationDao()::getDirty, db.observationDao()::markClean),
+    )
+
+    /** 최상위 공용 컬렉션(읽기 전용) 전부. 새 공용 데이터는 여기 한 줄. */
+    fun globalCollections(db: AppDatabase): List<SyncedCollection<*>> = listOf(catalogCollection(db), peerTopicsCollection(db))
+
+    /** 서버가 집계한 또래 단원 통계. 읽기만 합니다. */
+    fun peerTopicsCollection(db: AppDatabase): SyncedCollection<*> = SyncedCollection(
+        PeerTopicMapper, db.peerTopicDao()::getById, db.peerTopicDao()::upsert, getDirty = { emptyList() }, markClean = {},
     )
 
     /** 운영자가 큐레이팅하는 공용 콘텐츠 저장소. 읽기 전용이며 기기 로컬의 시청 표시는 보존합니다. */
