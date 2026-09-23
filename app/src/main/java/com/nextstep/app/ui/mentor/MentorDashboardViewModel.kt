@@ -2,27 +2,33 @@ package com.nextstep.app.ui.mentor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.growth.GrowthGuide
+import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.mentor.MentorScope
+import com.nextstep.app.domain.stats.RoadmapStats
+import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.UiDefaults
+import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.domain.growth.GrowthGuide
-import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.data.model.Role
-import com.nextstep.app.ui.common.asUiState
 
+/** 멘토 대시보드. 담당 과목 범위(MentorScope)로 모든 지표를 좁힙니다. */
 class MentorDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val members: MemberRepository,
@@ -31,41 +37,40 @@ class MentorDashboardViewModel(
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.myMember, streams.members, streams.subjects, streams.syncStatus) { profile, me, members, subjects, sync ->
-        val mine = if (me == null || me.subjectIdList.isEmpty()) subjects else subjects.filter { it.id in me.subjectIdList }
+        val today = DateUtils.today()
+        val stage = GrowthStage.of(members, today)
         MentorDashboardUiState(
             me = me,
             studentName = profile.studentName,
             syncStatus = sync,
             allSubjects = subjects,
-            subjects = mine,
+            subjects = MentorScope.of(me, subjects).subjects,
             otherMentors = members.filter { it.isMentor && it.id != me?.id },
-            stage = GrowthStage.of(members),
-            mentorTip = GrowthStage.of(members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).mentorTips, DateUtils.today()) },
+            stage = stage,
+            mentorTip = stage?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).mentorTips, today) },
         )
     }
 
     private val data = combine(streams.topics, streams.grades, streams.sessions, streams.tasks, streams.events) { t, g, s, ta, e -> Data(t, g, s, ta, e) }
 
     val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.notes, streams.roadmap) { s, d, notes, roadmap ->
-        val today = com.nextstep.app.domain.time.DateUtils.today().toEpochDay()
-        val subjectIds = s.subjects.map { it.id }.toSet()
-        val grades = d.grades.filter { it.subjectId in subjectIds }
-        val sessions = d.sessions.filter { it.subjectId in subjectIds }
-        val topics = d.topics.filter { it.subjectId in subjectIds }
-        val myId = s.me?.id
+        val scope = MentorScope(s.subjects)
+        val grades = scope.own(d.grades) { it.subjectId }
+        val sessions = scope.own(d.sessions) { it.subjectId }
+        val topics = scope.own(d.topics) { it.subjectId }
+        val scopedTasks = scope.ownOrGeneral(d.tasks) { it.subjectId }
+        val scores = StudyStats.subjectScores(grades, s.subjects)
         s.copy(
             weekMinutes = StudyStats.weekMinutes(sessions),
             weeklyBySubject = StudyStats.weeklyMinutesBySubject(sessions, s.subjects).filter { it.subject != null },
             progress = StudyStats.subjectProgress(topics, s.subjects),
-            scores = StudyStats.subjectScores(grades, s.subjects),
-            recentGrades = grades.take(5),
-            myTasks = d.tasks.filter { !it.done && it.createdByRole == Role.MENTOR.name && (it.subjectId == null || it.subjectId in subjectIds) },
-            insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, d.tasks.filter { it.subjectId == null || it.subjectId in subjectIds }, d.events).take(4),
-            notes = notes.filter { it.authorRole != Role.MENTOR.name || myId == null || it.authorName == s.me?.name }.take(10),
-            roadmapTotal = roadmap.size,
-            roadmapInProgress = roadmap.count { it.status == com.nextstep.app.data.model.RoadmapStatus.IN_PROGRESS },
-            roadmapDone = roadmap.count { it.status == com.nextstep.app.data.model.RoadmapStatus.DONE },
-            roadmapOverdue = roadmap.count { it.status != com.nextstep.app.data.model.RoadmapStatus.DONE && (it.targetDate ?: Long.MAX_VALUE) < today },
+            scores = scores,
+            averageScore = ScoreStats.overallAverage(scores),
+            recentGrades = grades.take(UiDefaults.MAX_RECENT_RECORDS),
+            myTasks = scopedTasks.filter { !it.done && it.createdByRole == Role.MENTOR.name },
+            insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, scopedTasks, d.events).take(UiDefaults.MAX_INSIGHTS),
+            notes = MentorScope.visibleNotes(notes, s.me).take(UiDefaults.MAX_NOTES),
+            roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
 
@@ -87,7 +92,7 @@ class MentorDashboardViewModel(
         val grades: List<GradeEntity>,
         val sessions: List<StudySessionEntity>,
         val tasks: List<TaskEntity>,
-        val events: List<com.nextstep.app.data.local.entity.EventEntity>,
+        val events: List<EventEntity>,
     )
 
     /** 화면 이벤트 단일 진입점. */
@@ -100,5 +105,4 @@ class MentorDashboardViewModel(
             is MentorDashboardEvent.DeleteNote -> deleteNote(event.id)
         }
     }
-
 }

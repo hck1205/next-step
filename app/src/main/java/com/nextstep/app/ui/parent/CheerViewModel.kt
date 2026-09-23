@@ -4,47 +4,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.NoteRepository
+import com.nextstep.app.domain.cheer.CheerStats
+import com.nextstep.app.domain.cheer.CheerSuggestions
+import com.nextstep.app.domain.growth.GrowthGuide
+import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.domain.growth.GrowthGuide
-import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.ui.common.asUiState
 
+/** 학부모 격려 화면. 오늘 한 일을 CheerStats 로 요약하고 CheerSuggestions 가 문구를 만듭니다. */
 class CheerViewModel(
     private val streams: FamilyDataStreams,
     private val notes: NoteRepository,
 ) : ViewModel() {
 
     val state: StateFlow<CheerUiState> = combine(streams.profile, streams.sessions, streams.tasks, streams.topics, combine(streams.notes, streams.subjects, streams.members) { n, s, m -> Triple(n, s, m) }) { profile, sessions, tasks, topics, (notes, subjects, members) ->
-        val stage = GrowthStage.of(members)
-        val todayStart = com.nextstep.app.domain.time.DateUtils.startOfDayMillis(com.nextstep.app.domain.time.DateUtils.today())
-        val todayMinutes = StudyStats.todayMinutes(sessions)
-        val streak = StudyStats.studyStreak(sessions)
-        val doneToday = tasks.count { it.done && it.updatedAt >= todayStart }
-        val reviewedToday = topics.count { it.updatedAt >= todayStart && it.status.order >= com.nextstep.app.data.model.TopicStatus.REVIEWED.order }
-        val suggestions = buildList {
-            if (todayMinutes >= 60) add("오늘 ${com.nextstep.app.domain.time.DateUtils.formatMinutes(todayMinutes)} 공부한 거 봤어. 정말 대단해!")
-            if (streak >= 3) add("${streak}일 연속으로 공부했네. 꾸준함이 최고야 👏")
-            if (doneToday > 0) add(
-                when (stage) {
-                    GrowthStage.EARLY_ELEMENTARY, GrowthStage.UPPER_ELEMENTARY -> "오늘 할 일 ${doneToday}개 끝까지 해냈네. 스스로 한 게 제일 멋져!"
-                    GrowthStage.HIGH -> "계획한 ${doneToday}개를 네 판단대로 끝냈구나. 믿고 있어."
-                    else -> "오늘 할 일 ${doneToday}개 끝낸 거 멋지다!"
-                },
-            )
-            if (reviewedToday > 0) add("복습까지 챙기다니, 배운 걸 내 것으로 만들고 있구나.")
-            val topSubject = subjects.maxByOrNull { s -> sessions.filter { it.subjectId == s.id && it.startAt >= todayStart }.sumOf { it.durationMinutes } }
-            if (topSubject != null && todayMinutes > 0) add("${topSubject.name} 열심히 하는 모습 보기 좋아.")
-            if (isEmpty()) add("오늘도 수고했어. 네 속도대로 가면 돼 🙂")
-            add("힘들면 언제든 얘기해. 응원하고 있어.")
-        }
+        val today = DateUtils.today()
+        val stage = GrowthStage.of(members, today)
+        val snapshot = CheerStats.snapshot(sessions, tasks, topics, subjects, today)
         CheerUiState(
-            studentName = profile.studentName, myName = profile.displayName, streak = streak,
-            todayMinutes = todayMinutes, todayDoneTasks = doneToday, todayTopicsReviewed = reviewedToday,
+            studentName = profile.studentName, myName = profile.displayName, streak = snapshot.streak,
+            todayMinutes = snapshot.todayMinutes, todayDoneTasks = snapshot.doneToday, todayTopicsReviewed = snapshot.reviewedToday,
             weekMinutes = StudyStats.weekMinutes(sessions), daily = StudyStats.dailyMinutes(sessions, 7),
-            subjects = subjects, notes = notes, cheerSuggestions = suggestions,
+            subjects = subjects, notes = notes, cheerSuggestions = CheerSuggestions.build(snapshot, stage),
             praiseStyle = stage?.let { GrowthGuide.forStage(it).praiseStyle },
         )
     }.asUiState(viewModelScope, CheerUiState())
@@ -59,5 +44,4 @@ class CheerViewModel(
             is CheerEvent.Delete -> delete(event.id)
         }
     }
-
 }

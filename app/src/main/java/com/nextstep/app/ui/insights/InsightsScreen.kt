@@ -3,7 +3,6 @@ package com.nextstep.app.ui.insights
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,10 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,12 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AdBanner
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.dialog.TextInputDialog
+import com.nextstep.app.ui.components.row.NoteRow
 import com.nextstep.app.ui.components.chart.BarChart
 import com.nextstep.app.ui.components.chart.BarItem
 import com.nextstep.app.ui.components.chart.DonutChart
@@ -56,7 +54,6 @@ fun InsightsScreen(caps: Capabilities, actions: InsightsActions, viewModel: Insi
 @Composable
 internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, actions: InsightsActions, onEvent: (InsightsEvent) -> Unit) {
     var showNote by remember { mutableStateOf(false) }
-    val role = caps.role
 
     // 기록 탭의 세그먼트로 들어가므로 상단 바는 기록 화면이 그립니다.
     Scaffold { padding ->
@@ -131,18 +128,10 @@ internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, actions
                 }
             }
 
-            item { SectionTitle(if (role == Role.STUDENT) "학부모·멘토 메모" else "메모 · 피드백", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
+            item { SectionTitle(if (caps.isStudent) "학부모·멘토 메모" else "메모 · 피드백", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
             if (state.notes.isEmpty()) item { AppCard { EmptyState("아직 메모가 없어요") } }
             else items(state.notes, key = { "n" + it.id }) { n ->
-                AppCard {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(n.text, style = MaterialTheme.typography.bodyLarge)
-                            Text("${n.authorName} (${Role.labelOf(n.authorRole)}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        if (n.authorRole == role.name) TextButton(onClick = { onEvent(InsightsEvent.DeleteNote(n.id)) }) { Text("삭제") }
-                    }
-                }
+                NoteRow(n, onDelete = if (n.authorRole == caps.role.name) ({ onEvent(InsightsEvent.DeleteNote(n.id)) }) else null)
             }
             if (!caps.isStudent) item { AdBanner() }
             item { Spacer(Modifier.height(24.dp)) }
@@ -150,13 +139,6 @@ internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, actions
     }
 
     if (showNote) {
-        var text by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { showNote = false },
-            title = { Text("메모 남기기") },
-            text = { OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("내용") }, modifier = Modifier.fillMaxWidth(), minLines = 2) },
-            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { onEvent(InsightsEvent.AddNote(text)); showNote = false }) { Text("저장") } },
-            dismissButton = { TextButton(onClick = { showNote = false }) { Text("취소") } },
-        )
+        TextInputDialog(title = "메모 남기기", label = "내용", minLines = 2, onConfirm = { onEvent(InsightsEvent.AddNote(it)) }, onDismiss = { showNote = false })
     }
 }

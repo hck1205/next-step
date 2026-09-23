@@ -26,7 +26,7 @@ class CalendarViewModel(
     private val tasks: TaskRepository,
 ) : ViewModel() {
     private val month = MutableStateFlow(YearMonth.now())
-    private val selected = MutableStateFlow(LocalDate.now())
+    private val selected = MutableStateFlow(DateUtils.today())
 
     val state: StateFlow<CalendarUiState> = combine(month, selected, streams.subjects, streams.events, combine(streams.tasks, streams.sessions) { t, s -> t to s }) { m, sel, subjects, events, (tasks, sessions) ->
         val markers = buildMap {
@@ -54,7 +54,7 @@ class CalendarViewModel(
     fun prevMonth() { month.value = month.value.minusMonths(1) }
     fun nextMonth() { month.value = month.value.plusMonths(1) }
     fun select(date: LocalDate) { selected.value = date; month.value = YearMonth.from(date) }
-    fun today() = select(LocalDate.now())
+    fun today() = select(DateUtils.today())
 
     fun saveEvent(existing: EventEntity?, title: String, subjectId: String?, type: EventType, date: LocalDate, start: LocalTime, end: LocalTime, repeatWeekly: Boolean, location: String, memo: String) = viewModelScope.launch {
         val startMs = DateUtils.toMillis(date, start)

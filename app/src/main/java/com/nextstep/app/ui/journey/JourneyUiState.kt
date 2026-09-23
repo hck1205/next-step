@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.journey
 
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
@@ -32,7 +33,7 @@ data class JourneyUiState(
     /** "만 3세 4개월" 같은 나이 표기. 생년월일이 없으면 null. */
     val ageLabel: String? = null,
     val hasBirthDate: Boolean = false,
-    val today: LocalDate = LocalDate.now(),
+    val today: LocalDate = DateUtils.today(),
     val items: List<JourneyItem> = emptyList(),
     val periods: List<JourneyPeriod> = emptyList(),
     val currentPeriodKey: String? = null,

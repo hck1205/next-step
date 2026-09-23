@@ -46,7 +46,7 @@ internal fun RoadmapEditDialog(
     var desc by remember { mutableStateOf(existing?.description ?: "") }
     var res by remember { mutableStateOf(existing?.resource ?: "") }
     var hasDate by remember { mutableStateOf(existing?.targetDate != null) }
-    var date by remember { mutableStateOf(existing?.targetDate?.let { DateUtils.fromEpochDay(it) } ?: LocalDate.now().plusDays(7)) }
+    var date by remember { mutableStateOf(existing?.targetDate?.let { DateUtils.fromEpochDay(it) } ?: DateUtils.today().plusDays(7)) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (existing == null) "로드맵 항목 추가" else "로드맵 항목 편집") },

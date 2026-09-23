@@ -1,12 +1,28 @@
 package com.nextstep.app.domain.access
 
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.testing.Fixtures
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CapabilitiesTest {
+    @Test
+    fun factoryTakesMentorFlagFromMemberUnlessRoleIsMentor() {
+        assertFalse(Capabilities.of(Role.PARENT, null).actsAsMentor)
+        assertFalse(Capabilities.of(Role.PARENT, Fixtures.member(Role.PARENT, "엄마")).actsAsMentor)
+        assertTrue(Capabilities.of(Role.PARENT, Fixtures.member(Role.PARENT, "엄마", mentorEnabled = true)).actsAsMentor)
+        assertTrue(Capabilities.of(Role.MENTOR, null).actsAsMentor)
+    }
+
+    @Test
+    fun familyManagementIsForStudentAndParent() {
+        assertTrue(student.canRemoveMembers); assertTrue(parent.canRemoveMembers); assertFalse(mentor.canRemoveMembers)
+        assertTrue(parent.canToggleMentorMode); assertTrue(parentMentor.canToggleMentorMode)
+        assertFalse(student.canToggleMentorMode); assertFalse(mentor.canToggleMentorMode)
+    }
+
     private val student = Capabilities(Role.STUDENT, mentorEnabled = false)
     private val parent = Capabilities(Role.PARENT, mentorEnabled = false)
     private val parentMentor = Capabilities(Role.PARENT, mentorEnabled = true)

@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.mentor
 
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
@@ -30,11 +32,10 @@ data class MentorDashboardUiState(
     val myTasks: List<TaskEntity> = emptyList(),
     val insights: List<Insight> = emptyList(),
     val notes: List<NoteEntity> = emptyList(),
-    val roadmapTotal: Int = 0,
-    val roadmapInProgress: Int = 0,
-    val roadmapDone: Int = 0,
-    val roadmapOverdue: Int = 0,
-    val stage: com.nextstep.app.domain.growth.GrowthStage? = null,
+    /** 담당 과목 평균 점수의 평균. 성적이 없으면 null. */
+    val averageScore: Double? = null,
+    val roadmap: RoadmapSummary = RoadmapSummary(),
+    val stage: GrowthStage? = null,
     val mentorTip: String? = null,
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()

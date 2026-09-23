@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.onboarding.components
 
+import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -127,7 +128,7 @@ internal fun DetailStep(state: OnboardingUiState, onEvent: (OnboardingEvent) -> 
 private fun BirthDateField(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Unit) {
     val birth = state.birthDate
     if (birth == null) {
-        OutlinedButton(onClick = { onEvent(OnboardingEvent.SetBirthDate(LocalDate.now().minusYears(3))) }, modifier = Modifier.fillMaxWidth()) { Text("생년월일 입력 (여정 타임라인에 필요해요)") }
+        OutlinedButton(onClick = { onEvent(OnboardingEvent.SetBirthDate(DateUtils.today().minusYears(3))) }, modifier = Modifier.fillMaxWidth()) { Text("생년월일 입력 (여정 타임라인에 필요해요)") }
     } else {
         DateField(label = "생년월일", date = birth, onChange = { onEvent(OnboardingEvent.SetBirthDate(it)) })
         TextButton(onClick = { onEvent(OnboardingEvent.SetBirthDate(null)) }) { Text("생년월일 지우기") }

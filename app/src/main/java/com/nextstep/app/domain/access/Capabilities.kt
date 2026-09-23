@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.access
 
+import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.Role
 
 /**
@@ -43,6 +44,16 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     /** 인사이트의 "할 일로 추가" 실행. */
     val canApplyInsightActions: Boolean get() = isStudent || actsAsMentor
 
+    /** 가족 탭에서 "멘토 겸하기" 스위치를 보여 줄지. 학부모만. */
+    val canToggleMentorMode: Boolean get() = isParent
+    /** 연결된 학부모·멘토를 목록에서 제거할 수 있는지. 학생 본인과 학부모만. */
+    val canRemoveMembers: Boolean get() = isStudent || isParent
+
     /** 과제/로드맵에 기록될 작성자 역할. 학부모 겸 멘토는 MENTOR 로 남깁니다. */
     val actingRoleName: String get() = if (actsAsMentor && !isStudent) Role.MENTOR.name else role.name
+
+    companion object {
+        /** 프로필 역할과 내 구성원 정보로 권한을 만듭니다. 멘토 역할은 항상 멘토로, 학부모는 스위치를 켠 경우만. */
+        fun of(role: Role, me: MemberEntity?): Capabilities = Capabilities(role, mentorEnabled = role == Role.MENTOR || (me?.mentorEnabled ?: false))
+    }
 }

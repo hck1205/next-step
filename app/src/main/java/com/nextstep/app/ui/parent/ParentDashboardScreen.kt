@@ -6,15 +6,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,7 +21,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,6 +28,11 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.LinkCard
+import com.nextstep.app.ui.components.card.UpcomingExamCard
+import com.nextstep.app.ui.components.dialog.TextInputDialog
+import com.nextstep.app.ui.parent.components.CheerPromptCard
+import com.nextstep.app.ui.parent.components.PendingTaskRow
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.card.InsightCard
@@ -40,7 +41,6 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.StageCard
 import com.nextstep.app.ui.components.card.StatusCard
 import com.nextstep.app.ui.components.card.StatusTile
-import com.nextstep.app.ui.components.card.SubjectTag
 import com.nextstep.app.ui.components.card.SyncStatusBadge
 import com.nextstep.app.ui.components.card.TalentCard
 import com.nextstep.app.ui.records.RecordSegment
@@ -96,17 +96,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
                 )
             }
             if (caps.actsAsMentor) {
-                item {
-                    AppCard(onClick = actions.onOpenMentor) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text("멘토 모드", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.tertiary)
-                                Text("로드맵 큐레이팅, 과제 배정, 학급 진도 관리는 여기서 해요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            TextButton(onClick = actions.onOpenMentor) { Text("열기") }
-                        }
-                    }
-                }
+                item { LinkCard("멘토 모드", "로드맵 큐레이팅, 과제 배정, 학급 진도 관리는 여기서 해요", onClick = actions.onOpenMentor, titleColor = MaterialTheme.colorScheme.tertiary) }
             }
 
             item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
@@ -121,53 +111,14 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
 
             item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("일정 전체") } }) }
             if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") } }
-            items(state.pendingTasks.take(UiDefaults.MAX_ROWS), key = { "t" + it.id }) { t ->
-                val subject = state.subjects.firstOrNull { it.id == t.subjectId }
-                AppCard {
-                    Column {
-                        Text(t.title, style = MaterialTheme.typography.bodyLarge)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(t.type.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                            if (subject != null) SubjectTag(subject)
-                            Text(DateUtils.formatDate(DateUtils.fromEpochDay(t.dueDate)), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            if (!t.isStudentMade) Text("${com.nextstep.app.data.model.Role.labelOf(t.createdByRole)} 배정", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
-                        }
-                    }
-                }
-            }
+            items(state.pendingTasks.take(UiDefaults.MAX_ROWS), key = { "t" + it.id }) { t -> PendingTaskRow(t, state.subjects.firstOrNull { it.id == t.subjectId }) }
             if (state.pendingTasks.size > UiDefaults.MAX_ROWS) item {
                 TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("할 일 ${state.pendingTasks.size - UiDefaults.MAX_ROWS}개 더 보기") }
             }
             items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
-            state.upcomingExams.firstOrNull()?.let { exam ->
-                item {
-                    AppCard {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text("다가오는 시험", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(exam.title, style = MaterialTheme.typography.titleMedium)
-                                Text(DateUtils.formatFullDate(exam.date), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            Text(DateUtils.dDay(exam.date), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
+            state.upcomingExams.firstOrNull()?.let { exam -> item { UpcomingExamCard(exam) } }
 
-            item {
-                AppCard(onClick = actions.onOpenCheer) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text("격려", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(
-                                state.notes.firstOrNull()?.let { "최근: “${it.text}”" } ?: "오늘 한마디를 남기면 내일 기록 일수가 늘어나요",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                        TextButton(onClick = { showNote = true }) { Text("격려하기") }
-                    }
-                }
-            }
+            item { CheerPromptCard(state.notes.firstOrNull()?.text, onOpen = actions.onOpenCheer, onWrite = { showNote = true }) }
 
             state.talents.firstOrNull()?.let { talent ->
                 item { SectionTitle("재능 신호", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.LEARNING) }) { Text("기록에서 더 보기") } }) }
@@ -182,13 +133,6 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
     }
 
     if (showNote) {
-        var text by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { showNote = false },
-            title = { Text("격려 한마디") },
-            text = { OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("내용") }, modifier = Modifier.fillMaxWidth(), minLines = 2) },
-            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { onEvent(ParentDashboardEvent.AddNote(text)); showNote = false }) { Text("저장") } },
-            dismissButton = { TextButton(onClick = { showNote = false }) { Text("취소") } },
-        )
+        TextInputDialog(title = "격려 한마디", label = "내용", minLines = 2, onConfirm = { onEvent(ParentDashboardEvent.AddNote(it)) }, onDismiss = { showNote = false })
     }
 }

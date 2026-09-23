@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.insight
 
+import com.nextstep.app.domain.text.compact
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
@@ -34,7 +35,7 @@ object InsightEngine {
             if (best.average >= 80) {
                 out += Insight(
                     InsightKind.STRENGTH, "${best.subject.name}이(가) 가장 강해요",
-                    "평균 ${best.average.fmt()}점으로 가장 높습니다. 이 과목의 학습 방식을 다른 과목에도 적용해 보세요.",
+                    "평균 ${best.average.compact()}점으로 가장 높습니다. 이 과목의 학습 방식을 다른 과목에도 적용해 보세요.",
                     best.subject.id,
                 )
             }
@@ -43,7 +44,7 @@ object InsightEngine {
             val queue = progress.firstOrNull { it.subject.id == weak.subject.id }?.reviewQueue?.firstOrNull()
             out += Insight(
                 InsightKind.WEAKNESS, "${weak.subject.name} 보완이 필요해요",
-                "평균 ${weak.average.fmt()}점입니다. 최근 배운 단원부터 복습하고 이번 주 학습 시간을 늘려 보세요.",
+                "평균 ${weak.average.compact()}점입니다. 최근 배운 단원부터 복습하고 이번 주 학습 시간을 늘려 보세요.",
                 weak.subject.id,
                 action = InsightAction.CreateTask("${weak.subject.name} ${queue?.title ?: "핵심 단원"} 복습", weak.subject.id, queue?.id, TaskType.REVIEW),
             )
@@ -54,11 +55,11 @@ object InsightEngine {
             val t = s.trend ?: return@forEach
             when {
                 t <= -10 -> out += Insight(
-                    InsightKind.ALERT, "${s.subject.name} 점수가 ${(-t).fmt()}점 떨어졌어요",
+                    InsightKind.ALERT, "${s.subject.name} 점수가 ${(-t).compact()}점 떨어졌어요",
                     "직전 시험 대비 하락했습니다. 틀린 문제 유형을 정리하고 해당 단원을 다시 복습하세요.", s.subject.id,
                 )
                 t >= 10 -> out += Insight(
-                    InsightKind.STRENGTH, "${s.subject.name} 점수가 ${t.fmt()}점 올랐어요",
+                    InsightKind.STRENGTH, "${s.subject.name} 점수가 ${t.compact()}점 올랐어요",
                     "상승세입니다. 지금 방식을 유지하면서 다음 단원 예습으로 이어가 보세요.", s.subject.id,
                 )
             }
@@ -68,7 +69,7 @@ object InsightEngine {
         scores.forEach { s ->
             val d = s.vsClass ?: return@forEach
             if (d <= -10) out += Insight(
-                InsightKind.WEAKNESS, "${s.subject.name} 반 평균보다 ${(-d).fmt()}점 낮아요",
+                InsightKind.WEAKNESS, "${s.subject.name} 반 평균보다 ${(-d).compact()}점 낮아요",
                 "기본 개념 확인이 우선입니다. 교과서 예제 위주로 복습해 보세요.", s.subject.id,
             )
         }
@@ -163,5 +164,4 @@ object InsightEngine {
         return out.sortedBy { order.indexOf(it.kind) }
     }
 
-    private fun Double.fmt(): String = if (this == Math.floor(this)) toInt().toString() else String.format(java.util.Locale.ROOT, "%.1f", this)
 }

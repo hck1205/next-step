@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.health
 
+import com.nextstep.app.domain.text.compact
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -75,5 +76,5 @@ object GrowthStats {
     /** 시력은 소수 첫째 자리 값이라 차이도 첫째 자리로 반올림해 부동소수점 오차(1.2-0.9=0.2999…)를 없앱니다. */
     private fun roundTenth(v: Double): Double = Math.round(v * 10) / 10.0
 
-    private fun fmt(v: Double): String = if (abs(v - v.toLong()) < 0.05) v.toLong().toString() else String.format(java.util.Locale.ROOT, "%.1f", v)
+    private fun fmt(v: Double): String = v.compact()
 }

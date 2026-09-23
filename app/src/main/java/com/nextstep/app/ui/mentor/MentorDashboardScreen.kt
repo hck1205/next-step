@@ -3,62 +3,54 @@ package com.nextstep.app.ui.mentor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.chart.BarChart
-import com.nextstep.app.ui.components.chart.BarItem
-import com.nextstep.app.ui.components.card.ColorDot
-import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.InsightCard
-import com.nextstep.app.ui.components.card.LabeledProgress
-import com.nextstep.app.ui.components.input.OptionPicker
+import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.components.card.StatTile
-import com.nextstep.app.ui.components.input.SubjectPicker
-import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
-import com.nextstep.app.ui.components.card.SubjectTag
+import com.nextstep.app.ui.components.card.StageCard
 import com.nextstep.app.ui.components.card.SyncStatusBadge
 import com.nextstep.app.ui.components.card.subjectColor
-import java.time.LocalDate
-import java.util.Locale
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import com.nextstep.app.ui.components.card.StageCard
+import com.nextstep.app.ui.components.chart.BarChart
+import com.nextstep.app.ui.components.chart.BarItem
+import com.nextstep.app.ui.components.dialog.AssignTaskDialog
+import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
+import com.nextstep.app.ui.components.dialog.TextInputDialog
+import com.nextstep.app.ui.components.row.NoteRow
+import com.nextstep.app.ui.mentor.components.MentorGradeRow
+import com.nextstep.app.ui.mentor.components.MentorProgressCard
+import com.nextstep.app.ui.mentor.components.MentorStatsRow
+import com.nextstep.app.ui.mentor.components.MentorSubjectsCard
+import com.nextstep.app.ui.mentor.components.MentorTaskRow
 
 @Composable
 fun MentorDashboardScreen(actions: MentorDashboardActions, viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -94,49 +86,16 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
         ) {
             item { StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null, onSetGrade = actions.onOpenJourney) }
             item {
-                AppCard(onClick = actions.onOpenRoadmap) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text("학습 로드맵 큐레이팅", style = MaterialTheme.typography.titleMedium)
-                            Text(
-                                if (state.roadmapTotal == 0) "무엇을 어떤 순서로, 어떤 자료로, 언제까지 공부할지 제안해 보세요"
-                                else "진행 중 ${state.roadmapInProgress} · 완료 ${state.roadmapDone}/${state.roadmapTotal}" + (if (state.roadmapOverdue > 0) " · 기한 지남 ${state.roadmapOverdue}" else ""),
-                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        TextButton(onClick = actions.onOpenRoadmap) { Text("열기") }
-                    }
-                }
+                val r = state.roadmap
+                LinkCard(
+                    title = "학습 로드맵 큐레이팅",
+                    description = if (r.isEmpty) "무엇을 어떤 순서로, 어떤 자료로, 언제까지 공부할지 제안해 보세요"
+                    else "진행 중 ${r.inProgress} · 완료 ${r.done}/${r.total}" + (if (r.overdue > 0) " · 기한 지남 ${r.overdue}" else ""),
+                    onClick = actions.onOpenRoadmap,
+                )
             }
-            item {
-                AppCard(onClick = actions.onOpenContent) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text("콘텐츠 저장소", style = MaterialTheme.typography.titleMedium)
-                            Text("좋은 유튜브 강의를 링크로 등록하면 자동 분류되고 학생 진도에 맞춰 추천돼요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        TextButton(onClick = actions.onOpenContent) { Text("열기") }
-                    }
-                }
-            }
-            item {
-                AppCard(onClick = { showSubjects = true }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text("담당 과목", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            if (state.needsSubjectSetup) {
-                                Text("아직 지정하지 않았어요. 눌러서 담당 과목을 고르세요.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
-                            } else {
-                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    state.subjects.take(4).forEach { SubjectTag(it) }
-                                    if (state.subjects.size > 4) Text("+${state.subjects.size - 4}", style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                        }
-                        TextButton(onClick = { showSubjects = true }) { Text("변경") }
-                    }
-                }
-            }
+            item { LinkCard("콘텐츠 저장소", "좋은 유튜브 강의를 링크로 등록하면 자동 분류되고 학생 진도에 맞춰 추천돼요", onClick = actions.onOpenContent) }
+            item { MentorSubjectsCard(state.subjects, state.needsSubjectSetup, onChange = { showSubjects = true }) }
 
             if (state.otherMentors.isNotEmpty()) {
                 item {
@@ -149,17 +108,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
                 }
             }
 
-            item {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatTile("이번 주 학습", DateUtils.formatMinutes(state.weekMinutes), Modifier.weight(1f), sub = "담당 과목 기준")
-                    StatTile("내가 낸 과제", "${state.myTasks.size}개", Modifier.weight(1f), tint = MaterialTheme.colorScheme.tertiary, sub = "미완료")
-                    StatTile(
-                        "평균 점수",
-                        state.scores.takeIf { it.isNotEmpty() }?.let { String.format(Locale.ROOT, "%.1f", it.map { s -> s.average }.average()) } ?: "-",
-                        Modifier.weight(1f), tint = MaterialTheme.colorScheme.secondary,
-                    )
-                }
-            }
+            item { MentorStatsRow(state.weekMinutes, state.myTasks.size, state.averageScore) }
 
             if (state.weeklyBySubject.isNotEmpty()) {
                 item {
@@ -177,20 +126,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
 
             if (state.progress.isNotEmpty()) {
                 item { SectionTitle("진도 · 학급 진도 대비 복습률 (눌러서 단원 관리)") }
-                items(state.progress, key = { it.subject.id }) { p ->
-                    AppCard(onClick = { actions.onOpenSubject(p.subject.id) }) {
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                ColorDot(subjectColor(p.subject.color), 10)
-                                Spacer(Modifier.width(8.dp))
-                                Text(p.subject.name, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-                                Text("학급 ${p.classCovered}/${p.total} · 복습 ${p.reviewed}/${p.total}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                            LabeledProgress("복습률", if (p.classCovered == 0) 0f else p.reviewed.toFloat() / p.classCovered, subjectColor(p.subject.color))
-                            if (p.reviewQueue.isNotEmpty()) Text("복습 필요: ${p.reviewQueue.joinToString { it.title }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
-                        }
-                    }
-                }
+                items(state.progress, key = { it.subject.id }) { p -> MentorProgressCard(p, onOpen = { actions.onOpenSubject(p.subject.id) }) }
             }
 
             item { SectionTitle("분석") }
@@ -198,54 +134,20 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
 
             if (state.recentGrades.isNotEmpty()) {
                 item { SectionTitle("최근 성적") }
-                items(state.recentGrades, key = { "g" + it.id }) { g ->
-                    val subject = state.allSubjects.firstOrNull { it.id == g.subjectId }
-                    AppCard {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(g.title, style = MaterialTheme.typography.bodyLarge)
-                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    SubjectTag(subject)
-                                    Text("${g.examType.label} · ${DateUtils.formatDate(DateUtils.fromEpochDay(g.date))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                            }
-                            Text("${g.percent.toInt()}점", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
+                items(state.recentGrades, key = { "g" + it.id }) { g -> MentorGradeRow(g, state.allSubjects.firstOrNull { it.id == g.subjectId }) }
             }
 
             item { SectionTitle("내가 낸 과제", action = { TextButton(onClick = { showAssign = true }) { Text("과제 내기") } }) }
             if (state.myTasks.isEmpty()) item { AppCard { EmptyState("미완료 과제가 없어요") } }
             else items(state.myTasks, key = { "t" + it.id }) { t ->
-                val subject = state.allSubjects.firstOrNull { it.id == t.subjectId }
-                AppCard {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(t.title, style = MaterialTheme.typography.bodyLarge)
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(t.type.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-                                if (subject != null) SubjectTag(subject)
-                                Text("마감 ${DateUtils.formatDate(DateUtils.fromEpochDay(t.dueDate))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                        TextButton(onClick = { onEvent(MentorDashboardEvent.DeleteTask(t.id)) }) { Text("취소") }
-                    }
-                }
+                MentorTaskRow(t, state.allSubjects.firstOrNull { it.id == t.subjectId }, onCancel = { onEvent(MentorDashboardEvent.DeleteTask(t.id)) })
             }
 
             item { SectionTitle("피드백 · 메모", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
             if (state.notes.isEmpty()) item { AppCard { EmptyState("학생에게 피드백을 남겨 보세요") } }
             else items(state.notes, key = { "n" + it.id }) { n ->
-                AppCard {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(n.text, style = MaterialTheme.typography.bodyLarge)
-                            Text("${n.authorName} (${Role.labelOf(n.authorRole)}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        if (n.authorRole == Role.MENTOR.name && n.authorName == state.me?.name) TextButton(onClick = { onEvent(MentorDashboardEvent.DeleteNote(n.id)) }) { Text("삭제") }
-                    }
-                }
+                val mine = n.authorRole == Role.MENTOR.name && n.authorName == state.me?.name
+                NoteRow(n, onDelete = if (mine) ({ onEvent(MentorDashboardEvent.DeleteNote(n.id)) }) else null)
             }
             item { Spacer(Modifier.height(24.dp)) }
         }
@@ -255,33 +157,13 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
         SubjectSelectDialog(state.allSubjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { onEvent(MentorDashboardEvent.SetSubjects(it)) }
     }
     if (showAssign) {
-        var title by remember { mutableStateOf("") }
-        var subjectId by remember { mutableStateOf(state.subjects.firstOrNull()?.id) }
-        var type by remember { mutableStateOf(TaskType.HOMEWORK) }
-        var due by remember { mutableStateOf(LocalDate.now().plusDays(1)) }
-        AlertDialog(
-            onDismissRequest = { showAssign = false },
-            title = { Text("과제 내기") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("과제 내용") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    SubjectPicker(state.subjects, subjectId, onSelect = { subjectId = it })
-                    OptionPicker(TaskType.entries, type, label = { it.label }, onSelect = { type = it })
-                    DateField("마감", due, onChange = { due = it })
-                }
-            },
-            confirmButton = { TextButton(enabled = title.isNotBlank(), onClick = { onEvent(MentorDashboardEvent.AssignTask(title.trim(), subjectId, type, due)); showAssign = false }) { Text("배정") } },
-            dismissButton = { TextButton(onClick = { showAssign = false }) { Text("취소") } },
-        )
+        AssignTaskDialog(
+            subjects = state.subjects, title = "과제 내기", label = "과제 내용",
+            defaultSubjectId = state.subjects.firstOrNull()?.id, defaultDue = DateUtils.today().plusDays(1),
+            onDismiss = { showAssign = false },
+        ) { title, subjectId, type, due -> onEvent(MentorDashboardEvent.AssignTask(title, subjectId, type, due)) }
     }
     if (showNote) {
-        var text by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { showNote = false },
-            title = { Text("피드백 남기기") },
-            text = { OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("내용") }, modifier = Modifier.fillMaxWidth(), minLines = 2) },
-            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { onEvent(MentorDashboardEvent.AddNote(text)); showNote = false }) { Text("저장") } },
-            dismissButton = { TextButton(onClick = { showNote = false }) { Text("취소") } },
-        )
+        TextInputDialog(title = "피드백 남기기", label = "내용", minLines = 2, onConfirm = { onEvent(MentorDashboardEvent.AddNote(it)) }, onDismiss = { showNote = false })
     }
 }

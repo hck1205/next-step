@@ -1,5 +1,8 @@
 package com.nextstep.app.ui.settings
 
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.time.DateUtils
+import java.time.LocalDate
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
@@ -8,7 +11,6 @@ import com.nextstep.app.data.repository.OnboardingRepository
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.common.asUiState
 
 class SettingsViewModel(
@@ -17,7 +19,9 @@ class SettingsViewModel(
     private val members: MemberRepository,
 ) : ViewModel() {
     val state: StateFlow<SettingsUiState> = combine(streams.profile, streams.syncStatus, streams.members, streams.myMember, streams.subjects) { p, s, members, me, subjects ->
-        SettingsUiState(p, s, onboarding.syncAvailable, members, me, subjects)
+        val student = members.firstOrNull { it.isStudent }
+        val birth = student?.birthDate?.let(LocalDate::ofEpochDay)
+        SettingsUiState(p, s, onboarding.syncAvailable, members, me, subjects, student, birth, birth?.let { GrowthStage.ageLabel(it, DateUtils.today()) })
     }.asUiState(viewModelScope, SettingsUiState())
 
     fun signOut() = viewModelScope.launch { onboarding.signOut() }
@@ -26,7 +30,7 @@ class SettingsViewModel(
     fun setMySubjects(ids: List<String>) = viewModelScope.launch { state.value.me?.let { members.setSubjects(it.id, ids) } }
     fun setMentorEnabled(enabled: Boolean) = viewModelScope.launch { state.value.me?.let { members.setMentorEnabled(it.id, enabled) } }
     fun setGradeYear(gradeYear: Int) = viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setGradeYear(it.id, gradeYear) } }
-    fun setBirthDate(date: java.time.LocalDate?) = viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setBirthDate(it.id, date) } }
+    fun setBirthDate(date: LocalDate?) = viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setBirthDate(it.id, date) } }
     fun updateMyProfile(name: String, title: String) = viewModelScope.launch { state.value.me?.let { members.updateProfile(it.id, name, title) } }
 
     /** 화면 이벤트 단일 진입점. */

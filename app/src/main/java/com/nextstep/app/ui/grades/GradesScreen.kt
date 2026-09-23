@@ -39,7 +39,7 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.StatTile
 import com.nextstep.app.ui.grades.components.GradeRow
 import com.nextstep.app.ui.grades.components.GradeTrendChart
-import java.util.Locale
+import com.nextstep.app.ui.common.oneDecimal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -69,9 +69,9 @@ internal fun GradesContent(state: GradesUiState, caps: Capabilities, onEvent: (G
                 val best = state.scores.maxByOrNull { it.average }
                 val weak = state.scores.minByOrNull { it.average }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatTile("전체 평균", state.overallAverage?.let { String.format(Locale.ROOT, "%.1f", it) } ?: "-", Modifier.weight(1f))
-                    StatTile("최고 과목", best?.subject?.name ?: "-", Modifier.weight(1f), tint = MaterialTheme.colorScheme.secondary, sub = best?.let { String.format(Locale.ROOT, "%.1f점", it.average) })
-                    StatTile("보완 과목", weak?.subject?.name ?: "-", Modifier.weight(1f), tint = MaterialTheme.colorScheme.tertiary, sub = weak?.let { String.format(Locale.ROOT, "%.1f점", it.average) })
+                    StatTile("전체 평균", state.overallAverage?.oneDecimal() ?: "-", Modifier.weight(1f))
+                    StatTile("최고 과목", best?.subject?.name ?: "-", Modifier.weight(1f), tint = MaterialTheme.colorScheme.secondary, sub = best?.let { "${it.average.oneDecimal()}점" })
+                    StatTile("보완 과목", weak?.subject?.name ?: "-", Modifier.weight(1f), tint = MaterialTheme.colorScheme.tertiary, sub = weak?.let { "${it.average.oneDecimal()}점" })
                 }
             }
 

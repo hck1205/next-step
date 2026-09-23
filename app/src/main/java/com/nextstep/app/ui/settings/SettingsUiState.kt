@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import java.time.LocalDate
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.SyncStatus
@@ -13,4 +14,8 @@ data class SettingsUiState(
     val members: List<MemberEntity> = emptyList(),
     val me: MemberEntity? = null,
     val subjects: List<SubjectEntity> = emptyList(),
+    /** 학생 구성원과 생년월일·나이 표기. 생년월일이 없으면 null. */
+    val student: MemberEntity? = null,
+    val birthDate: LocalDate? = null,
+    val ageLabel: String? = null,
 )

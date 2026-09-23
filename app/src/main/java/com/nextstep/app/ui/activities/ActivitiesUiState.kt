@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.activities
 
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.domain.journey.ActivitySummary
@@ -8,7 +9,7 @@ import java.time.LocalDate
 
 data class ActivitiesUiState(
     val studentName: String = "",
-    val today: LocalDate = LocalDate.now(),
+    val today: LocalDate = DateUtils.today(),
     val periods: List<JourneyPeriod> = emptyList(),
     val currentPeriodKey: String? = null,
     val activities: List<ActivityEntity> = emptyList(),

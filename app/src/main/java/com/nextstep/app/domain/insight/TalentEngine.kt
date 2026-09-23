@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.insight
 
+import com.nextstep.app.domain.text.compact
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -32,7 +33,7 @@ object TalentEngine {
                 val minutes = sessions.filter { it.subjectId == s.subject.id }.sumOf { it.durationMinutes }
                 val share = minutes.toFloat() / totalMinutes
                 if (s.average >= 80 && share <= avgShare * 0.8f) {
-                    out += Talent("${s.subject.name}: 효율형 강점", "학습 시간 비중은 ${(share * 100).toInt()}%인데 평균 ${s.average.fmt()}점이에요. 적은 시간으로 성과를 내는 과목입니다. 심화 학습을 붙여 볼 만해요.", s.subject.id, 0.9f)
+                    out += Talent("${s.subject.name}: 효율형 강점", "학습 시간 비중은 ${(share * 100).toInt()}%인데 평균 ${s.average.compact()}점이에요. 적은 시간으로 성과를 내는 과목입니다. 심화 학습을 붙여 볼 만해요.", s.subject.id, 0.9f)
                 }
             }
         }
@@ -43,12 +44,12 @@ object TalentEngine {
             if (list.size >= 3) {
                 val last3 = list.takeLast(3)
                 if (last3[0] < last3[1] && last3[1] < last3[2]) {
-                    out += Talent("${subject.name}: 꾸준한 성장세", "최근 3번의 시험이 ${last3[0].fmt()} → ${last3[1].fmt()} → ${last3[2].fmt()}점으로 계속 올랐어요. 노력이 결과로 이어지는 과목입니다.", subject.id, 0.85f)
+                    out += Talent("${subject.name}: 꾸준한 성장세", "최근 3번의 시험이 ${last3[0].compact()} → ${last3[1].compact()} → ${last3[2].compact()}점으로 계속 올랐어요. 노력이 결과로 이어지는 과목입니다.", subject.id, 0.85f)
                 }
                 val avg = list.average()
                 val sd = Math.sqrt(list.map { (it - avg) * (it - avg) }.average())
                 if (avg >= 75 && sd < 5 && list.size >= 3) {
-                    out += Talent("${subject.name}: 안정적인 실력", "평균 ${avg.fmt()}점을 편차 ${sd.fmt()}점으로 꾸준히 유지해요. 기복이 없다는 건 개념이 탄탄하다는 뜻이에요.", subject.id, 0.7f)
+                    out += Talent("${subject.name}: 안정적인 실력", "평균 ${avg.compact()}점을 편차 ${sd.compact()}점으로 꾸준히 유지해요. 기복이 없다는 건 개념이 탄탄하다는 뜻이에요.", subject.id, 0.7f)
                 }
             }
         }
@@ -96,5 +97,4 @@ object TalentEngine {
         return out.sortedByDescending { it.strength }
     }
 
-    private fun Double.fmt(): String = if (this == Math.floor(this)) toInt().toString() else String.format(java.util.Locale.ROOT, "%.1f", this)
 }

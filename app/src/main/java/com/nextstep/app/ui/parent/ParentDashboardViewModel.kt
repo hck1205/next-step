@@ -2,10 +2,16 @@ package com.nextstep.app.ui.parent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.NoteEntity
+import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
-import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
@@ -22,9 +28,12 @@ import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.stats.BalanceStats
+import com.nextstep.app.domain.stats.RoadmapStats
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.asUiState
 
+/** 학부모 첫 화면. 상태 문장·지금 챙길 것·오늘의 아이·격려·재능/분석 한 줄. */
 class ParentDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val tasks: TaskRepository,
@@ -43,7 +52,7 @@ class ParentDashboardViewModel(
             weeklyBySubject = StudyStats.weeklyMinutesBySubject(sessions, subjects),
             pendingTasks = StudyStats.pendingTasks(tasks),
             overdueCount = StudyStats.overdueTasks(tasks).size,
-            upcomingExams = StudyStats.upcomingExams(events, tasks).take(3),
+            upcomingExams = StudyStats.upcomingExams(events, tasks).take(UiDefaults.MAX_ROWS),
         )
     }
 
@@ -61,6 +70,7 @@ class ParentDashboardViewModel(
         val stage = ctx.stage
         val period = ctx.currentPeriod
         val guide = stage?.let { GrowthGuide.forStage(it) }
+        val roadmap = RoadmapStats.summarize(x.roadmap, today)
         s.copy(
             todayEvents = StudyStats.eventsOn(today, events),
             balance = BalanceStats.report(stage, d.sessions, d.tasks, x.activities, period, today),
@@ -69,21 +79,21 @@ class ParentDashboardViewModel(
             hasBirthDate = ctx.hasBirthDate,
             today = today,
             syncStatus = x.sync,
-            talents = TalentEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(3),
+            talents = TalentEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(UiDefaults.MAX_ROWS),
             streak = StudyStats.studyStreak(d.sessions),
-            roadmapDone = x.roadmap.count { it.status == RoadmapStatus.DONE },
-            roadmapTotal = x.roadmap.size,
+            roadmapDone = roadmap.done,
+            roadmapTotal = roadmap.total,
             mentorCount = x.members.count { it.isMentor || it.mentorEnabled && !it.isStudent },
             parentCount = x.members.count { it.isParent },
             stage = stage,
             gradeLabel = ctx.gradeLabel,
             stageTip = guide?.let { GrowthGuide.pickForDay(it.parentTips, today) },
             stageExperience = guide?.let { GrowthGuide.pickForDay(it.experiences, DateUtils.weekStart(today)) },
-            recentGrades = d.grades.take(5),
+            recentGrades = d.grades.take(UiDefaults.MAX_RECENT_RECORDS),
             scores = StudyStats.subjectScores(d.grades, s.subjects),
             progress = StudyStats.subjectProgress(d.topics, s.subjects),
-            notes = d.notes.take(10),
-            insights = InsightEngine.analyze(s.subjects, d.topics, d.grades, d.sessions, d.tasks, events).take(3),
+            notes = d.notes.take(UiDefaults.MAX_NOTES),
+            insights = InsightEngine.analyze(s.subjects, d.topics, d.grades, d.sessions, d.tasks, events).take(UiDefaults.MAX_ROWS),
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
@@ -96,19 +106,19 @@ class ParentDashboardViewModel(
     }
 
     private data class Side(
-        val events: List<com.nextstep.app.data.local.entity.EventEntity>,
+        val events: List<EventEntity>,
         val sync: SyncStatus,
-        val roadmap: List<com.nextstep.app.data.local.entity.RoadmapItemEntity>,
-        val members: List<com.nextstep.app.data.local.entity.MemberEntity>,
-        val journey: List<com.nextstep.app.data.local.entity.JourneyItemEntity>,
-        val activities: List<com.nextstep.app.data.local.entity.ActivityEntity> = emptyList(),
+        val roadmap: List<RoadmapItemEntity>,
+        val members: List<MemberEntity>,
+        val journey: List<JourneyItemEntity>,
+        val activities: List<ActivityEntity> = emptyList(),
     )
 
     private data class Extra(
         val grades: List<GradeEntity>,
-        val topics: List<com.nextstep.app.data.local.entity.TopicEntity>,
+        val topics: List<TopicEntity>,
         val notes: List<NoteEntity>,
-        val sessions: List<com.nextstep.app.data.local.entity.StudySessionEntity>,
+        val sessions: List<StudySessionEntity>,
         val tasks: List<TaskEntity>,
     )
 

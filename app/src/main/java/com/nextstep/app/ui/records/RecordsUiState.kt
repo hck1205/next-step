@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.records
 
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.domain.growth.GrowthStage
@@ -12,7 +13,7 @@ data class RecordsUiState(
     val studentName: String = "",
     val stage: GrowthStage? = null,
     val currentPeriodLabel: String? = null,
-    val today: LocalDate = LocalDate.now(),
+    val today: LocalDate = DateUtils.today(),
     val balance: BalanceReport? = null,
     /** 성장 기록 요약(키·몸무게·시력·신호). */
     val growth: GrowthSummary? = null,

@@ -202,7 +202,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                 initialSegment = RecordSegment.from(entry.arguments?.getString("segment")),
             )
         }
-        composable(Routes.FAMILY) { SettingsScreen(actions = SettingsActions(onBack = null, onOpenContent = { go(Routes.CONTENT) })) }
+        composable(Routes.FAMILY) { SettingsScreen(caps = caps, actions = SettingsActions(onBack = null, onOpenContent = { go(Routes.CONTENT) })) }
 
         composable(Routes.MENTOR_HOME) {
             MentorDashboardScreen(

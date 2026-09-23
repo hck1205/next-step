@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.components.dialog
 
+import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +27,7 @@ import com.nextstep.app.ui.components.input.SubjectPicker
 @Composable
 fun ManualSessionDialog(subjects: List<SubjectEntity>, onDismiss: () -> Unit, onSave: (String?, LocalDate, LocalTime, Int, String) -> Unit) {
     var subjectId by remember { mutableStateOf(subjects.firstOrNull()?.id) }
-    var date by remember { mutableStateOf(LocalDate.now()) }
+    var date by remember { mutableStateOf(DateUtils.today()) }
     var start by remember { mutableStateOf(LocalTime.now().withSecond(0).withNano(0).minusHours(1)) }
     var minutes by remember { mutableStateOf("60") }
     var note by remember { mutableStateOf("") }

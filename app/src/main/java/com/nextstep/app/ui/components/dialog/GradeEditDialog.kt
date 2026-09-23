@@ -42,7 +42,7 @@ fun GradeEditDialog(
     var score by remember { mutableStateOf(existing?.score?.oneDecimal() ?: "") }
     var max by remember { mutableStateOf(existing?.maxScore?.oneDecimal() ?: "100") }
     var classAvg by remember { mutableStateOf(existing?.classAverage?.oneDecimal() ?: "") }
-    var date by remember { mutableStateOf(existing?.let { DateUtils.fromEpochDay(it.date) } ?: LocalDate.now()) }
+    var date by remember { mutableStateOf(existing?.let { DateUtils.fromEpochDay(it.date) } ?: DateUtils.today()) }
     var memo by remember { mutableStateOf(existing?.memo ?: "") }
     val valid = subjectId.isNotBlank() && title.isNotBlank() && score.toDoubleOrNull() != null && (max.toDoubleOrNull() ?: 0.0) > 0
     AlertDialog(

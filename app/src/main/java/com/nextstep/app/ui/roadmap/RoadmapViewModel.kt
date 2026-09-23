@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.roadmap
 
+import com.nextstep.app.domain.time.DateUtils
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
@@ -31,7 +32,7 @@ class RoadmapViewModel(
     fun delete(id: String) = viewModelScope.launch { roadmap.delete(id) }
 
     /** 추천 항목을 로드맵에 바로 추가. */
-    fun addSuggestion(subject: SubjectEntity, title: String) = save(null, subject.id, title, "", "", LocalDate.now().plusDays(7), null)
+    fun addSuggestion(subject: SubjectEntity, title: String) = save(null, subject.id, title, "", "", DateUtils.today().plusDays(7), null)
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: RoadmapEvent) {

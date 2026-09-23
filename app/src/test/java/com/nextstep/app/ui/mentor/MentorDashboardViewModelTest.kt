@@ -43,7 +43,8 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         assertNull(s.stage)
         assertEquals(30, s.weekMinutes); assertEquals(1, s.scores.size)
         assertEquals(listOf("내 과제"), s.myTasks.map { it.title })
-        assertEquals(1, s.roadmapInProgress); assertEquals(1, s.roadmapDone); assertEquals(1, s.roadmapOverdue); assertEquals(2, s.roadmapTotal)
+        assertEquals(1, s.roadmap.inProgress); assertEquals(1, s.roadmap.done); assertEquals(1, s.roadmap.overdue); assertEquals(2, s.roadmap.total)
+        assertEquals(80.0, s.averageScore!!, 0.001)
 
         streams.myMember.value = me.copy(subjectIds = "")
         val all = settle(vm.state)

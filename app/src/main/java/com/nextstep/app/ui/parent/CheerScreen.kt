@@ -23,12 +23,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,6 +35,7 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.row.NoteRow
 import com.nextstep.app.ui.components.chart.BarChart
 import com.nextstep.app.ui.components.chart.BarItem
 import com.nextstep.app.ui.components.card.EmptyState
@@ -108,15 +107,8 @@ internal fun CheerContent(state: CheerUiState, onEvent: (CheerEvent) -> Unit) {
             item { SectionTitle("주고받은 메시지") }
             if (state.notes.isEmpty()) item { AppCard { EmptyState("첫 응원 메시지를 보내 보세요") } }
             else items(state.notes, key = { it.id }) { n ->
-                AppCard {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f)) {
-                            Text(n.text, style = MaterialTheme.typography.bodyLarge)
-                            Text("${n.authorName} (${Role.labelOf(n.authorRole)}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))} ${DateUtils.formatTime(n.createdAt)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        if (n.authorName == state.myName && n.authorRole == Role.PARENT.name) TextButton(onClick = { onEvent(CheerEvent.Delete(n.id)) }) { Text("삭제") }
-                    }
-                }
+                val mine = n.authorName == state.myName && n.authorRole == Role.PARENT.name
+                NoteRow(n, onDelete = if (mine) ({ onEvent(CheerEvent.Delete(n.id)) }) else null, showTime = true)
             }
             item { Spacer(Modifier.height(24.dp)) }
         }

@@ -1,5 +1,11 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.journey.JourneyItem
+import com.nextstep.app.domain.stats.BalanceReport
+import com.nextstep.app.domain.stats.EventOccurrence
+import com.nextstep.app.domain.time.DateUtils
+import java.time.LocalDate
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -37,19 +43,19 @@ data class ParentDashboardUiState(
     val roadmapTotal: Int = 0,
     val mentorCount: Int = 0,
     val parentCount: Int = 0,
-    val stage: com.nextstep.app.domain.growth.GrowthStage? = null,
+    val stage: GrowthStage? = null,
     val gradeLabel: String? = null,
     /** 오늘의 부모 팁과 경험 제안. 단계가 없으면 null. */
     val stageTip: String? = null,
     val stageExperience: String? = null,
     /** 여정에서 지금 준비하거나 놓친 항목 (최대 3개). */
-    val journeyNow: List<com.nextstep.app.domain.journey.JourneyItem> = emptyList(),
+    val journeyNow: List<JourneyItem> = emptyList(),
     val hasBirthDate: Boolean = false,
-    val today: java.time.LocalDate = java.time.LocalDate.now(),
+    val today: LocalDate = DateUtils.today(),
     /** 오늘 일정(반복 포함). */
-    val todayEvents: List<com.nextstep.app.domain.stats.EventOccurrence> = emptyList(),
+    val todayEvents: List<EventOccurrence> = emptyList(),
     /** 균형 요약. 상태 문장의 근거. */
-    val balance: com.nextstep.app.domain.stats.BalanceReport? = null,
+    val balance: BalanceReport? = null,
     /** 현재 구간 표기 (예: 초3 2학기). */
     val periodLabel: String? = null,
 ) {

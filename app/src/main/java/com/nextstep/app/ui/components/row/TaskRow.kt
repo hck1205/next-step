@@ -34,7 +34,7 @@ fun TaskRow(task: TaskEntity, subjects: List<SubjectEntity>, onToggle: () -> Uni
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(task.type.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     if (subject != null) SubjectTag(subject)
-                    if (!task.isStudentMade) Text("${com.nextstep.app.data.model.Role.labelOf(task.createdByRole)} 배정", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                    AssignedByLabel(task)
                     Text(
                         (if (overdue) "기한 지남 · " else "") + DateUtils.formatDate(DateUtils.fromEpochDay(task.dueDate)),
                         style = MaterialTheme.typography.labelSmall,
