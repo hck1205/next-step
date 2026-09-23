@@ -1,5 +1,6 @@
 package com.nextstep.app.fake
 
+import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -18,6 +19,7 @@ import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.data.prefs.UserProfile
+import com.nextstep.app.data.repository.ActivityRepository
 import com.nextstep.app.data.repository.ContentDraft
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
@@ -170,4 +172,12 @@ class FakeGoalRepository : GoalRepository {
     override suspend fun setStepTask(stepId: String, taskId: String?) { calls += "stepTask:$stepId:${if (taskId == null) "null" else "set"}" }
     override suspend fun setGoalStatus(goalId: String, status: GoalStatus) { calls += "goalStatus:$goalId:$status" }
     override suspend fun delete(goalId: String) { calls += "delete:$goalId" }
+}
+
+class FakeActivityRepository : ActivityRepository {
+    override val activities = MutableStateFlow<List<ActivityEntity>>(emptyList())
+    val saved = mutableListOf<ActivityEntity>()
+    val deleted = mutableListOf<String>()
+    override suspend fun save(activity: ActivityEntity) { saved += activity }
+    override suspend fun delete(id: String) { deleted += id }
 }

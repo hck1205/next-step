@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nextstep.app.NextStepApp
 import com.nextstep.app.di.AppContainer
+import com.nextstep.app.ui.activities.ActivitiesViewModel
 import com.nextstep.app.ui.calendar.CalendarViewModel
 import com.nextstep.app.ui.content.ContentViewModel
 import com.nextstep.app.ui.goals.GoalsViewModel
@@ -45,6 +46,7 @@ object AppViewModelProvider {
         initializer { with(container()) { ContentViewModel(streams, contents) } }
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
         initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }
+        initializer { with(container()) { ActivitiesViewModel(streams, activities) } }
     }
 }
 

@@ -5,4 +5,5 @@ data class JourneyActions(
     val onBack: (() -> Unit)? = null,
     val onOpenSettings: () -> Unit = {},
     val onOpenGoals: () -> Unit = {},
+    val onOpenActivities: () -> Unit = {},
 )

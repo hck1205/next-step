@@ -1,9 +1,11 @@
 package com.nextstep.app.ui.journey
 
+import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.JourneyPhase
@@ -17,6 +19,8 @@ data class PeriodSection(
     val isPast: Boolean,
     val milestones: List<JourneyItem>,
     val steps: List<StepView>,
+    /** 그 구간에 시작한 활동 기록. */
+    val activities: List<ActivityEntity> = emptyList(),
 )
 
 /** 목표 단계 + 목표 제목. 화면은 이것만 봅니다. */
@@ -36,6 +40,7 @@ data class JourneyUiState(
     val currentPeriodKey: String? = null,
     val goals: List<GoalEntity> = emptyList(),
     val steps: List<GoalStepEntity> = emptyList(),
+    val activities: List<ActivityEntity> = emptyList(),
     val completion: Float = 0f,
     val filter: MilestoneCategory? = null,
     val showCompleted: Boolean = false,
@@ -58,6 +63,7 @@ data class JourneyUiState(
         val stepsByPeriod = steps.filter { !it.deleted && (showCompleted || (it.status != MilestoneStatus.DONE && it.status != MilestoneStatus.SKIPPED)) }
             .filter { it.goalId in goalTitles }.groupBy { it.periodKey }
         val itemsByPeriod = visibleItems.groupBy { item -> periodIndexOf(item.dueDate) }
+        val activitiesByPeriod = ActivitySummary.byPeriod(activities, periods)
         return periods.mapIndexed { index, period ->
             PeriodSection(
                 period = period,
@@ -65,8 +71,9 @@ data class JourneyUiState(
                 isPast = currentIndex >= 0 && index < currentIndex,
                 milestones = itemsByPeriod[index].orEmpty().sortedBy { it.dueDate },
                 steps = stepsByPeriod[period.key].orEmpty().sortedBy { it.orderIndex }.map { StepView(it, goalTitles.getValue(it.goalId)) },
+                activities = activitiesByPeriod[period.key].orEmpty(),
             )
-        }.filter { (showPast || !it.isPast) && (it.milestones.isNotEmpty() || it.steps.isNotEmpty() || it.isCurrent) }
+        }.filter { (showPast || !it.isPast) && (it.milestones.isNotEmpty() || it.steps.isNotEmpty() || it.activities.isNotEmpty() || it.isCurrent) }
     }
 
     /** 생년월일이 없을 때: 단계 없이 상태별로만 묶습니다. */

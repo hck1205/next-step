@@ -16,6 +16,8 @@ import com.nextstep.app.data.local.dao.SubjectDao
 import com.nextstep.app.data.local.dao.ContentDao
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.dao.JourneyDao
+import com.nextstep.app.data.local.dao.ActivityDao
+import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.dao.GoalDao
 import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -47,8 +49,9 @@ import com.nextstep.app.data.local.entity.ContentEntity
         JourneyItemEntity::class,
         GoalEntity::class,
         GoalStepEntity::class,
+        ActivityEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -66,6 +69,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun journeyDao(): JourneyDao
     abstract fun goalDao(): GoalDao
     abstract fun goalStepDao(): GoalStepDao
+    abstract fun activityDao(): ActivityDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

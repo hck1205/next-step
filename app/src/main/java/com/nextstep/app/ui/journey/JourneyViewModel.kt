@@ -42,6 +42,10 @@ class JourneyViewModel(
     private val showPast = MutableStateFlow(false)
 
     private val base = combine(streams.profile, streams.members, streams.journeyItems, streams.goals, streams.goalSteps) { profile, members, stored, goals, steps ->
+        Base(profile, members, stored, goals, steps)
+    }
+
+    private val built = combine(base, streams.activities) { (profile, members, stored, goals, steps), activities ->
         val day = today()
         val student = members.firstOrNull { it.role == Role.STUDENT.name }
         val birthDate = student?.birthDate?.let { LocalDate.ofEpochDay(it) }
@@ -59,12 +63,13 @@ class JourneyViewModel(
             currentPeriodKey = PeriodCalendar.periodOf(periods, day)?.key,
             goals = goals.filter { !it.deleted },
             steps = steps,
+            activities = activities.filter { !it.deleted },
             completion = JourneyPlanner.completion(items, day),
             loaded = true,
         )
     }
 
-    val state: StateFlow<JourneyUiState> = combine(base, filter, showCompleted, showPast) { s, f, c, p ->
+    val state: StateFlow<JourneyUiState> = combine(built, filter, showCompleted, showPast) { s, f, c, p ->
         s.copy(filter = f, showCompleted = c, showPast = p)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), JourneyUiState())
 
@@ -108,6 +113,14 @@ class JourneyViewModel(
         tasks.save(task)
         goals.setStepTask(step.id, task.id)
     }
+
+    private data class Base(
+        val profile: com.nextstep.app.data.prefs.UserProfile,
+        val members: List<com.nextstep.app.data.local.entity.MemberEntity>,
+        val stored: List<com.nextstep.app.data.local.entity.JourneyItemEntity>,
+        val goals: List<com.nextstep.app.data.local.entity.GoalEntity>,
+        val steps: List<GoalStepEntity>,
+    )
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: JourneyEvent) {

@@ -1,5 +1,6 @@
 package com.nextstep.app.fake
 
+import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -42,4 +43,5 @@ class FakeFamilyDataStreams(
     override val journeyItems = MutableStateFlow<List<JourneyItemEntity>>(emptyList())
     override val goals = MutableStateFlow<List<GoalEntity>>(emptyList())
     override val goalSteps = MutableStateFlow<List<GoalStepEntity>>(emptyList())
+    override val activities = MutableStateFlow<List<ActivityEntity>>(emptyList())
 }

@@ -24,6 +24,8 @@ enum class GoalArea(val label: String) {
     KOREAN("국어·읽기"),
     HABIT("습관·자기주도"),
     EXPERIENCE("경험·예체능"),
+    HOBBY("취미"),
+    CLUB("동아리·활동"),
     CAREER("진로·학업"),
     CUSTOM("직접 만든 목표");
 

@@ -3,6 +3,7 @@ package com.nextstep.app.fake.dao
 import com.nextstep.app.data.local.dao.ContentDao
 import com.nextstep.app.data.local.dao.EventDao
 import com.nextstep.app.data.local.dao.GradeDao
+import com.nextstep.app.data.local.dao.ActivityDao
 import com.nextstep.app.data.local.dao.GoalDao
 import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.dao.JourneyDao
@@ -16,6 +17,7 @@ import com.nextstep.app.data.local.dao.TopicDao
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
@@ -49,6 +51,8 @@ class FakeNoteDao : InMemoryTable<NoteEntity>(), NoteDao
 class FakeStudySessionDao : InMemoryTable<StudySessionEntity>(), StudySessionDao {
     override fun observeSince(familyId: String, fromMillis: Long): Flow<List<StudySessionEntity>> = observeAll(familyId).map { l -> l.filter { it.startAt >= fromMillis } }
 }
+
+class FakeActivityDao : InMemoryTable<ActivityEntity>(), ActivityDao
 
 class FakeGoalDao : InMemoryTable<GoalEntity>(), GoalDao
 

@@ -78,6 +78,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
                 navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
                 actions = {
                     TextButton(onClick = actions.onOpenGoals) { Text("목표") }
+                    TextButton(onClick = actions.onOpenActivities) { Text("활동") }
                     TextButton(onClick = actions.onOpenSettings) { Text("설정") }
                 },
             )
@@ -122,6 +123,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
                     items(section.milestones, key = { "m-${it.templateId ?: it.entityId ?: it.title}" }) { item ->
                         MilestoneCard(item, state.today, expandedKey, { expandedKey = it }, onEvent, { noteTarget = it }, { dateTarget = it })
                     }
+                    if (section.activities.isNotEmpty()) item(key = "a-${section.period.key}") { ActivityChips(section.activities, actions.onOpenActivities) }
                 }
             } else {
                 state.phaseSections.forEach { (phase, group) ->
@@ -195,6 +197,17 @@ private fun JourneyHeader(state: JourneyUiState, onEvent: (JourneyEvent) -> Unit
                     )
                 }
             }
+        }
+    }
+}
+
+/** 구간에 기록된 활동을 한 줄 칩으로. 눌러 활동 화면으로 갑니다. */
+@Composable
+private fun ActivityChips(activities: List<com.nextstep.app.data.local.entity.ActivityEntity>, onOpen: () -> Unit) {
+    AppCard(onClick = onOpen) {
+        Column {
+            Text("활동 ${activities.size}개", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
+            Text(activities.joinToString(" · ") { "${it.type.label} ${it.title}" }, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

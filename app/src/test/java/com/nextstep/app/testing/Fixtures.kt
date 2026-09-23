@@ -3,6 +3,7 @@ package com.nextstep.app.testing
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
@@ -16,6 +17,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
@@ -60,6 +62,9 @@ object Fixtures {
 
     fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR, gradeYear: Int = 0, birthDate: LocalDate? = null) =
         MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())
+
+    fun activity(title: String, type: ActivityType = ActivityType.FIELD_TRIP, date: LocalDate = LocalDate.of(2029, 10, 1), end: LocalDate? = null, id: String = "a-$title", place: String = "", note: String = "", rating: Int = 0) =
+        ActivityEntity(id = id, familyId = FAMILY, type = type, title = title, date = date.toEpochDay(), endDate = end?.toEpochDay(), place = place, note = note, rating = rating)
 
     fun goal(title: String, trackId: String? = null, id: String = "g-${trackId ?: title}", status: GoalStatus = GoalStatus.ACTIVE, area: String = "MATH") =
         GoalEntity(id = id, familyId = FAMILY, trackId = trackId, title = title, area = area, status = status)

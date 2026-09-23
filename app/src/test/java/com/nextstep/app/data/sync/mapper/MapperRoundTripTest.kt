@@ -6,6 +6,7 @@ import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.RoadmapStatus
@@ -41,6 +42,8 @@ class MapperRoundTripTest {
     @Test fun member() = roundTrip(MemberMapper, Fixtures.member(Role.PARENT, "엄마", subjectIds = "a,b", mentorEnabled = true, gradeYear = 9, birthDate = LocalDate.of(2015, 3, 2)).copy(title = "t")) { it.copy(dirty = false) }.let {}
     @Test fun memberWithoutBirthDate() = roundTrip(MemberMapper, Fixtures.member(Role.STUDENT, "나")) { it.copy(dirty = false) }.let { assertNull(it.birthDate) }
     @Test fun journeyTemplate() = roundTrip(JourneyItemMapper, Fixtures.journeyItem("daycare-waitlist", MilestoneStatus.DONE, note = "완료").copy(doneAt = 5L, deleted = true)) { it.copy(dirty = false) }.let {}
+    @Test fun activity() = roundTrip(ActivityMapper, Fixtures.activity("과학관", ActivityType.CLUB, LocalDate.of(2029, 3, 2), LocalDate.of(2029, 12, 20), place = "학교", note = "n", rating = 4).copy(createdByRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}
+    @Test fun activityOneDay() = roundTrip(ActivityMapper, Fixtures.activity("소풍")) { it.copy(dirty = false) }.let { assertNull(it.endDate) }
     @Test fun goal() = roundTrip(GoalMapper, Fixtures.goal("영어", trackId = "english-early", status = GoalStatus.DONE).copy(description = "d", createdByRole = "PARENT", createdAt = 3L, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun goalCustom() = roundTrip(GoalMapper, Fixtures.goal("피아노")) { it.copy(dirty = false) }.let { assertNull(it.trackId) }
     @Test fun goalStep() = roundTrip(GoalStepMapper, Fixtures.step("g1", "g3s1", "나눗셈", order = 4, status = MilestoneStatus.DONE, taskId = "t1").copy(detail = "x", doneAt = 9L)) { it.copy(dirty = false) }.let {}

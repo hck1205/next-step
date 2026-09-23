@@ -80,14 +80,21 @@ class JourneyViewModelTest : ViewModelTestBase() {
             Fixtures.step("g", current.key, "끝난 단계", id = "done", status = MilestoneStatus.DONE),
             Fixtures.step("zzz", current.key, "삭제된 목표의 단계", id = "orphan"),
         )
+        streams.activities.value = listOf(
+            Fixtures.activity("과학관", date = current.start.plusDays(3)),
+            Fixtures.activity("옛날 소풍", date = past.start),
+            Fixtures.activity("지워짐", date = current.start).copy(deleted = true),
+        )
         val vm = vm(); val job = subscribe(vm.state)
         var s = settle(vm.state)
         assertEquals(current.key, s.currentPeriodKey); assertTrue(s.pastSectionCount > 0)
+        assertEquals(listOf("과학관"), s.periodSections.first { it.isCurrent }.activities.map { it.title })
         val cur = s.periodSections.first { it.isCurrent }
         assertEquals(listOf("지금 단계"), cur.steps.map { it.step.title }); assertEquals("영어", cur.steps.single().goalTitle)
         assertTrue(s.periodSections.none { it.isPast })
         vm.onEvent(JourneyEvent.ShowPast(true)); vm.onEvent(JourneyEvent.ShowCompleted(true)); s = settle(vm.state)
         assertEquals(listOf("지난 단계"), s.periodSections.first { it.period.key == past.key }.steps.map { it.step.title })
+        assertEquals(listOf("옛날 소풍"), s.periodSections.first { it.period.key == past.key }.activities.map { it.title })
         assertEquals(setOf("지금 단계", "끝난 단계"), s.periodSections.first { it.isCurrent }.steps.map { it.step.title }.toSet())
         vm.onEvent(JourneyEvent.SetStepStatus(streams.goalSteps.value[0], MilestoneStatus.DONE))
         vm.onEvent(JourneyEvent.SendStepToTasks(streams.goalSteps.value[0], "PARENT"))
