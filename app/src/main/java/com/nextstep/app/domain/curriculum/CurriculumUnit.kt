@@ -11,7 +11,13 @@ data class CurriculumUnit(
     val essential: Boolean = false,
 ) {
     /** 매칭에 쓸 토큰: 제목 토큰 + 키워드. 한 글자("식", "원")는 "방정식"처럼 엉뚱한 단원에 걸리므로 뺍니다. */
-    val matchTokens: List<String> get() = (title.split(Regex("[\\s·,/()]+")) + keywords).filter { it.length >= 2 }.distinct()
+    val matchTokens: List<String> = (title.split(TOKEN_SPLIT) + keywords).filter { it.length >= 2 }.distinct()
+    /** 소문자 토큰. 비교 대상만 소문자로 바꾸면 되도록. */
+    val lowerTokens: List<String> = matchTokens.map { it.lowercase() }
+
+    private companion object {
+        val TOKEN_SPLIT = Regex("[\\s·,/()]+")
+    }
 }
 
 /** 한 학기의 커리큘럼: 단원 목록, 길러야 할 역량, 이 시기에 시작·결정할 것. */

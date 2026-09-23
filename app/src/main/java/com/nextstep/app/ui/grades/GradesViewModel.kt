@@ -9,11 +9,10 @@ import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.ui.common.asUiState
 
 class GradesViewModel(
     private val streams: FamilyDataStreams,
@@ -23,7 +22,7 @@ class GradesViewModel(
 
     val state: StateFlow<GradesUiState> = combine(streams.subjects, streams.grades, filter) { subjects, grades, f ->
         GradesUiState(subjects, grades, StudyStats.subjectScores(grades, subjects), f)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GradesUiState())
+    }.asUiState(viewModelScope, GradesUiState())
 
     fun setFilter(subjectId: String?) { filter.value = subjectId }
 

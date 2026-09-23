@@ -34,10 +34,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.activities.components.ActivityEditDialog
-import com.nextstep.app.ui.components.EventEditDialog
-import com.nextstep.app.ui.components.GradeEditDialog
-import com.nextstep.app.ui.components.TaskEditDialog
-import com.nextstep.app.ui.components.TextInputDialog
+import com.nextstep.app.ui.components.dialog.EventEditDialog
+import com.nextstep.app.ui.components.dialog.GradeEditDialog
+import com.nextstep.app.ui.components.dialog.TaskEditDialog
+import com.nextstep.app.ui.components.dialog.TextInputDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

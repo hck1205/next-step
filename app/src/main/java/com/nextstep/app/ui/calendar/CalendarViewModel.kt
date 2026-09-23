@@ -15,11 +15,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.ui.common.asUiState
 
 class CalendarViewModel(
     private val streams: FamilyDataStreams,
@@ -50,7 +49,7 @@ class CalendarViewModel(
             daySessions = sessions.filter { it.startAt in dayStart until dayEnd },
             dayMinutes = StudyStats.minutesBetween(sessions, sel, sel.plusDays(1)),
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CalendarUiState())
+    }.asUiState(viewModelScope, CalendarUiState())
 
     fun prevMonth() { month.value = month.value.minusMonths(1) }
     fun nextMonth() { month.value = month.value.plusMonths(1) }

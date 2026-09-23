@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.SubjectTag
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 internal fun TopicSuggestionRow(subject: SubjectEntity, topic: TopicEntity, actionLabel: String, onAction: () -> Unit, onAddTask: () -> Unit, onOpen: () -> Unit) {

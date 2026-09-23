@@ -19,7 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.calendar.CalendarScreen
-import com.nextstep.app.ui.components.SegmentedRow
+import com.nextstep.app.ui.components.input.SegmentedRow
 import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.insights.InsightsActions
 import com.nextstep.app.ui.insights.InsightsScreen

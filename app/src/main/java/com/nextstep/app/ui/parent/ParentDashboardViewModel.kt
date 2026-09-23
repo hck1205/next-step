@@ -15,17 +15,15 @@ import com.nextstep.app.domain.insight.InsightEngine
 import com.nextstep.app.domain.insight.TalentEngine
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
-import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyPlanner
-import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
 
 class ParentDashboardViewModel(
     private val streams: FamilyDataStreams,
@@ -59,34 +57,35 @@ class ParentDashboardViewModel(
     val state: StateFlow<ParentDashboardUiState> = combine(core, data, extra) { s, d, x ->
         val events = x.events
         val today = DateUtils.today()
-        val birthDate = x.members.firstOrNull { it.role == "STUDENT" }?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
-        val stage = GrowthStage.of(x.members, today)
-        val period = birthDate?.let { PeriodCalendar.current(it, today) }
+        val ctx = StudentContext.of(x.members, today)
+        val stage = ctx.stage
+        val period = ctx.currentPeriod
+        val guide = stage?.let { GrowthGuide.forStage(it) }
         s.copy(
             todayEvents = StudyStats.eventsOn(today, events),
             balance = BalanceStats.report(stage, d.sessions, d.tasks, x.activities, period, today),
             periodLabel = period?.label,
-            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(birthDate, x.journey, today), today),
-            hasBirthDate = birthDate != null,
+            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
+            hasBirthDate = ctx.hasBirthDate,
             today = today,
             syncStatus = x.sync,
             talents = TalentEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(3),
             streak = StudyStats.studyStreak(d.sessions),
             roadmapDone = x.roadmap.count { it.status == RoadmapStatus.DONE },
             roadmapTotal = x.roadmap.size,
-            mentorCount = x.members.count { it.role == "MENTOR" || it.mentorEnabled && it.role != "STUDENT" },
-            parentCount = x.members.count { it.role == "PARENT" },
-            stage = GrowthStage.of(x.members, today),
-            gradeLabel = x.members.firstOrNull { it.role == "STUDENT" }?.gradeYear?.let { y -> GrowthStage.fromGradeYear(y)?.gradeLabel(y) },
-            stageTip = GrowthStage.of(x.members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).parentTips, DateUtils.today()) },
-            stageExperience = GrowthStage.of(x.members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).experiences, DateUtils.weekStart()) },
+            mentorCount = x.members.count { it.isMentor || it.mentorEnabled && !it.isStudent },
+            parentCount = x.members.count { it.isParent },
+            stage = stage,
+            gradeLabel = ctx.gradeLabel,
+            stageTip = guide?.let { GrowthGuide.pickForDay(it.parentTips, today) },
+            stageExperience = guide?.let { GrowthGuide.pickForDay(it.experiences, DateUtils.weekStart(today)) },
             recentGrades = d.grades.take(5),
             scores = StudyStats.subjectScores(d.grades, s.subjects),
             progress = StudyStats.subjectProgress(d.topics, s.subjects),
             notes = d.notes.take(10),
             insights = InsightEngine.analyze(s.subjects, d.topics, d.grades, d.sessions, d.tasks, events).take(3),
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ParentDashboardUiState())
+    }.asUiState(viewModelScope, ParentDashboardUiState())
 
     fun addNote(text: String) = viewModelScope.launch { if (text.isNotBlank()) notes.add(text) }
     fun deleteNote(id: String) = viewModelScope.launch { notes.delete(id) }

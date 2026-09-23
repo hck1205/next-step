@@ -35,13 +35,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.ManualSessionDialog
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.SessionRow
-import com.nextstep.app.ui.components.SubjectPicker
-import com.nextstep.app.ui.components.SubjectTag
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.dialog.ManualSessionDialog
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.row.SessionRow
+import com.nextstep.app.ui.components.input.SubjectPicker
+import com.nextstep.app.ui.components.card.SubjectTag
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

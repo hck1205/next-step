@@ -17,10 +17,10 @@ import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.journey.GoalArea
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.GoalStepRow
-import com.nextstep.app.ui.components.LabeledProgress
-import com.nextstep.app.ui.components.TextInputDialog
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.row.GoalStepRow
+import com.nextstep.app.ui.components.card.LabeledProgress
+import com.nextstep.app.ui.components.dialog.TextInputDialog
 import com.nextstep.app.ui.goals.GoalView
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

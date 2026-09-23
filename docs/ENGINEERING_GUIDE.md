@@ -29,6 +29,7 @@ com.nextstep.app
 │   └── sync/               SyncManager, SyncedCollection(제네릭), mapper/ (EntityMapper<T> 구현)
 ├── domain/                 순수 Kotlin. Android import 금지
 │   ├── access/             Capabilities
+│   ├── family/             StudentContext(구성원 → 학생·생년월일·단계·구간 달력·현재 구간을 한 번에)
 │   ├── time/               DateUtils
 │   ├── stats/              StudyStats, BalanceStats(균형 판단) + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
@@ -39,7 +40,13 @@ com.nextstep.app
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계), ActivitySummary(활동 기록 요약)
 └── ui/
-    ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나
+    ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), Formatters, ExternalLinks
+    ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나. 관심사별 하위 패키지:
+    │   ├── card/           AppCard, StatusCard, StatTile, StageCard, JourneyNowCard, InsightCard, TalentCard, SectionTitle, EmptyState …
+    │   ├── chart/          BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip, Legend
+    │   ├── dialog/         *EditDialog, ConfirmDialog, TextInputDialog
+    │   ├── input/          DateField, TimeField, OptionPicker, SubjectPicker, GradePicker, SegmentedRow
+    │   └── row/            EventRow, TaskRow, SessionRow, GoalStepRow
     ├── theme/
     ├── navigation/
     ├── quickadd/           기록하기 시트: 모든 쓰기의 단일 입구
@@ -131,3 +138,12 @@ CI 명령: `./gradlew :app:assembleDebug :app:testDebugUnitTest`. 빨간 상태�
 - [ ] 화면은 `Screen/Content/Actions` 분리, 역할 분기는 `caps`
 - [ ] domain 변경에 테스트 추가
 - [ ] CI 그린
+
+## 6. 상수·공통·성능 규칙
+
+- **리터럴은 관심사별 object 로.** 화면 상수는 `ui/common/UiDefaults`, 동기화 상수는 `FirestoreSyncManager.companion`, 도메인 임계값은 그 도메인 object(`BalanceStats`, `GrowthStats`, `AptitudeEngine`)의 `private const val`. 코드 본문에 `5_000`, `3`, `"STUDENT"` 같은 숫자·문자열을 직접 쓰지 않는다. 역할 문자열은 `Role.X.name`, 엔티티 판정은 `member.isStudent`, `task.isStudentMade` 같은 프로퍼티로.
+- **공통은 한 곳에.** 외부 링크는 `ExternalLinks.open`, 숫자 표기는 `Double.oneDecimal()`·`Float.asPercent()`, 학생의 시간 맥락은 `StudentContext.of(members, today)`. 같은 계산이 두 ViewModel 에 나타나면 domain 으로 올린다.
+- **상태 흐름은 `asUiState`.** `combine(...).asUiState(viewModelScope, XxxUiState())`. 계산은 Default 디스패처에서, 같은 값은 재발행하지 않고, 구독이 끊겨도 5초 유지한다.
+- **파생 값은 ViewModel 에서 한 번.** UiState 의 `get()` 프로퍼티는 O(1) 수준만 허용한다(필터·정렬·그룹은 금지). 묶음·정렬은 `JourneySections.apply` 처럼 상태를 만들 때 계산해 필드로 넣는다.
+- **카탈로그는 미리 계산.** 키워드 소문자화, 토큰 분해, 생년월일별 구간 달력(`PeriodCalendar` 캐시)처럼 호출마다 같은 결과가 나오는 것은 초기화 시점이나 캐시로 옮긴다.
+- **LazyColumn 은 항상 key.** 항목마다 안정적인 key 를 주고, 목록은 첫 화면에서 `UiDefaults.MAX_ROWS` 까지만 그린다.

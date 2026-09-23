@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.JourneyRepository
@@ -15,15 +14,15 @@ import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.journey.MilestoneCategory
-import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.nextstep.app.ui.common.asUiState
 
 /**
  * 구간(학기)별 여정 타임라인. 생년월일 + 카탈로그 + 저장된 이정표 상태 + 목표 단계를 합쳐 보여 주고,
@@ -47,32 +46,30 @@ class JourneyViewModel(
 
     private val built = combine(base, streams.activities) { (profile, members, stored, goals, steps), activities ->
         val day = today()
-        val student = members.firstOrNull { it.role == Role.STUDENT.name }
-        val birthDate = student?.birthDate?.let { LocalDate.ofEpochDay(it) }
-        val items = JourneyPlanner.build(birthDate, stored, day)
-        val periods = birthDate?.let { PeriodCalendar.periods(it) }.orEmpty()
+        val ctx = StudentContext.of(members, day)
+        val items = JourneyPlanner.build(ctx.birthDate, stored, day)
         JourneyUiState(
             studentName = profile.studentName,
-            studentMemberId = student?.id,
-            stage = GrowthStage.of(members, day),
-            ageLabel = birthDate?.let { GrowthStage.ageLabel(it, day) },
-            hasBirthDate = birthDate != null,
+            studentMemberId = ctx.student?.id,
+            stage = ctx.stage,
+            ageLabel = ctx.birthDate?.let { GrowthStage.ageLabel(it, day) },
+            hasBirthDate = ctx.hasBirthDate,
             today = day,
             items = items,
-            periods = periods,
-            currentPeriodKey = PeriodCalendar.periodOf(periods, day)?.key,
+            periods = ctx.periods,
+            currentPeriodKey = ctx.currentPeriodKey,
             goals = goals.filter { !it.deleted },
             steps = steps,
             activities = activities.filter { !it.deleted },
-            curriculum = com.nextstep.app.domain.curriculum.CurriculumCatalog.forPeriod(PeriodCalendar.periodOf(periods, day)?.key),
+            curriculum = CurriculumCatalog.forPeriod(ctx.currentPeriodKey),
             completion = JourneyPlanner.completion(items, day),
             loaded = true,
         )
     }
 
     val state: StateFlow<JourneyUiState> = combine(built, filter, showCompleted, showPast) { s, f, c, p ->
-        s.copy(filter = f, showCompleted = c, showPast = p)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), JourneyUiState())
+        JourneySections.apply(s.copy(filter = f, showCompleted = c, showPast = p))
+    }.asUiState(viewModelScope, JourneyUiState())
 
     fun setStatus(item: JourneyItem, status: MilestoneStatus) = viewModelScope.launch {
         val templateId = item.templateId

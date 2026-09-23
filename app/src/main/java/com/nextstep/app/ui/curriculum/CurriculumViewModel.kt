@@ -18,17 +18,17 @@ import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.curriculum.CurriculumRecommender
 import com.nextstep.app.domain.curriculum.CurriculumUnit
 import com.nextstep.app.domain.curriculum.UnitStatus
+import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.PeriodCalendar
 import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.nextstep.app.ui.common.asUiState
 
 /**
  * 학기별 교과 커리큘럼: 카탈로그를 가족 과목·단원·진도, 또래 통계, 콘텐츠 저장소와 대조해 보여 주고,
@@ -48,15 +48,15 @@ class CurriculumViewModel(
 
     private val base = combine(streams.profile, streams.members, selectedKey) { profile, members, selected ->
         val day = today()
-        val student = members.firstOrNull { it.role == Role.STUDENT.name }
-        val birthDate = student?.birthDate?.let { LocalDate.ofEpochDay(it) }
-        val periods = periodsFor(birthDate, student?.gradeYear ?: 0, day)
-        val currentKey = birthDate?.let { PeriodCalendar.periodOf(periods, day)?.key } ?: student?.gradeYear?.takeIf { it > 0 }?.let { JourneyPeriod.termKey(it, semesterOf(day)) }
+        val ctx = StudentContext.of(members, day)
+        val student = ctx.student
+        val periods = periodsFor(ctx.birthDate, student?.gradeYear ?: 0, day)
+        val currentKey = ctx.currentPeriodKey ?: student?.gradeYear?.takeIf { it > 0 }?.let { JourneyPeriod.termKey(it, semesterOf(day)) }
         val key = selected?.takeIf { k -> periods.any { it.key == k } } ?: currentKey ?: periods.firstOrNull()?.key
         CurriculumUiState(
-            studentName = profile.studentName, hasBirthDate = birthDate != null, periods = periods, currentPeriodKey = currentKey, selectedPeriodKey = key,
+            studentName = profile.studentName, hasBirthDate = ctx.hasBirthDate, periods = periods, currentPeriodKey = currentKey, selectedPeriodKey = key,
             loaded = true,
-        ) to (GrowthStage.of(members, day)?.gradeLevel ?: GradeLevel.ALL)
+        ) to (ctx.stage?.gradeLevel ?: GradeLevel.ALL)
     }
 
     val state: StateFlow<CurriculumUiState> = combine(base, streams.subjects, streams.topics, peers.peerTopics, streams.contents) { (s, level), subjects, topics, peers, contents ->
@@ -64,7 +64,7 @@ class CurriculumViewModel(
         val plan = curriculum?.let { CurriculumRecommender.plan(it, subjects, topics, peers, contents, level, s.selected?.label ?: "") }
         val nextKey = s.periods.getOrNull(s.periods.indexOfFirst { it.key == s.selectedPeriodKey } + 1)?.key
         s.copy(plan = plan, nextPreview = CurriculumCatalog.forPeriod(nextKey)?.units?.filter { it.essential }?.map { "${it.subject} · ${it.title}" }.orEmpty())
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CurriculumUiState())
+    }.asUiState(viewModelScope, CurriculumUiState())
 
     fun prev() = move(-1)
     fun next() = move(1)

@@ -22,9 +22,9 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.DateField
-import com.nextstep.app.ui.components.GradePicker
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.input.DateField
+import com.nextstep.app.ui.components.input.GradePicker
 import com.nextstep.app.ui.onboarding.OnboardingEvent
 import com.nextstep.app.ui.onboarding.OnboardingUiState
 import java.time.LocalDate

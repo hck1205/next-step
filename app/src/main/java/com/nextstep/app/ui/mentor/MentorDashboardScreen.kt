@@ -38,27 +38,27 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.BarChart
-import com.nextstep.app.ui.components.BarItem
-import com.nextstep.app.ui.components.ColorDot
-import com.nextstep.app.ui.components.DateField
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.InsightCard
-import com.nextstep.app.ui.components.LabeledProgress
-import com.nextstep.app.ui.components.OptionPicker
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.StatTile
-import com.nextstep.app.ui.components.SubjectPicker
-import com.nextstep.app.ui.components.SubjectSelectDialog
-import com.nextstep.app.ui.components.SubjectTag
-import com.nextstep.app.ui.components.SyncStatusBadge
-import com.nextstep.app.ui.components.subjectColor
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.chart.BarChart
+import com.nextstep.app.ui.components.chart.BarItem
+import com.nextstep.app.ui.components.card.ColorDot
+import com.nextstep.app.ui.components.input.DateField
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.InsightCard
+import com.nextstep.app.ui.components.card.LabeledProgress
+import com.nextstep.app.ui.components.input.OptionPicker
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.card.StatTile
+import com.nextstep.app.ui.components.input.SubjectPicker
+import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
+import com.nextstep.app.ui.components.card.SubjectTag
+import com.nextstep.app.ui.components.card.SyncStatusBadge
+import com.nextstep.app.ui.components.card.subjectColor
 import java.time.LocalDate
 import java.util.Locale
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import com.nextstep.app.ui.components.StageCard
+import com.nextstep.app.ui.components.card.StageCard
 
 @Composable
 fun MentorDashboardScreen(actions: MentorDashboardActions, viewModel: MentorDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -243,7 +243,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
                             Text(n.text, style = MaterialTheme.typography.bodyLarge)
                             Text("${n.authorName} (${Role.labelOf(n.authorRole)}) · ${DateUtils.formatDate(DateUtils.toLocalDate(n.createdAt))}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if (n.authorRole == "MENTOR" && n.authorName == state.me?.name) TextButton(onClick = { onEvent(MentorDashboardEvent.DeleteNote(n.id)) }) { Text("삭제") }
+                        if (n.authorRole == Role.MENTOR.name && n.authorName == state.me?.name) TextButton(onClick = { onEvent(MentorDashboardEvent.DeleteNote(n.id)) }) { Text("삭제") }
                     }
                 }
             }

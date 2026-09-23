@@ -28,9 +28,9 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.access.Capabilities
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.ConfirmDialog
-import com.nextstep.app.ui.components.TextInputDialog
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.dialog.ConfirmDialog
+import com.nextstep.app.ui.components.dialog.TextInputDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

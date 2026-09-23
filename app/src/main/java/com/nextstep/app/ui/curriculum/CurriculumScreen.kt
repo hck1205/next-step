@@ -27,12 +27,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.LabeledProgress
-import com.nextstep.app.ui.components.SectionTitle
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.LabeledProgress
+import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.curriculum.components.UnitRow
 import androidx.compose.runtime.getValue
+import com.nextstep.app.ui.common.ExternalLinks
 
 /**
  * 학기별 교과 커리큘럼. "이 시기 학교에서 이걸 배운다"를 기준선으로 가족의 진도와 대조하고,
@@ -48,7 +49,7 @@ fun CurriculumScreen(caps: Capabilities, actions: CurriculumActions, viewModel: 
 @Composable
 internal fun CurriculumContent(state: CurriculumUiState, caps: Capabilities, actions: CurriculumActions, onEvent: (CurriculumEvent) -> Unit) {
     val context = LocalContext.current
-    val openUrl: (String) -> Unit = { url -> runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))) } }
+    val openUrl: (String) -> Unit = { url -> ExternalLinks.open(context, url) }
     Scaffold(
         topBar = {
             TopAppBar(

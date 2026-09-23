@@ -31,21 +31,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.EventRow
-import com.nextstep.app.ui.components.InsightCard
-import com.nextstep.app.ui.components.JourneyNowCard
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.StageCard
-import com.nextstep.app.ui.components.StatusCard
-import com.nextstep.app.ui.components.StatusTile
-import com.nextstep.app.ui.components.SubjectTag
-import com.nextstep.app.ui.components.SyncStatusBadge
-import com.nextstep.app.ui.components.TalentCard
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.row.EventRow
+import com.nextstep.app.ui.components.card.InsightCard
+import com.nextstep.app.ui.components.card.JourneyNowCard
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.card.StageCard
+import com.nextstep.app.ui.components.card.StatusCard
+import com.nextstep.app.ui.components.card.StatusTile
+import com.nextstep.app.ui.components.card.SubjectTag
+import com.nextstep.app.ui.components.card.SyncStatusBadge
+import com.nextstep.app.ui.components.card.TalentCard
 import com.nextstep.app.ui.records.RecordSegment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.common.UiDefaults
 
 /**
  * 학부모의 "오늘": 지금 뭐 하면 되지? 에만 답합니다.
@@ -56,8 +57,6 @@ fun ParentDashboardScreen(caps: Capabilities, actions: ParentDashboardActions, v
     val state by viewModel.state.collectAsStateWithLifecycle()
     ParentDashboardContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
 }
-
-private const val MAX_ROWS = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,7 +121,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
 
             item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("일정 전체") } }) }
             if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") } }
-            items(state.pendingTasks.take(MAX_ROWS), key = { "t" + it.id }) { t ->
+            items(state.pendingTasks.take(UiDefaults.MAX_ROWS), key = { "t" + it.id }) { t ->
                 val subject = state.subjects.firstOrNull { it.id == t.subjectId }
                 AppCard {
                     Column {
@@ -131,15 +130,15 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
                             Text(t.type.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                             if (subject != null) SubjectTag(subject)
                             Text(DateUtils.formatDate(DateUtils.fromEpochDay(t.dueDate)), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            if (t.createdByRole != "STUDENT") Text("${com.nextstep.app.data.model.Role.labelOf(t.createdByRole)} 배정", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+                            if (!t.isStudentMade) Text("${com.nextstep.app.data.model.Role.labelOf(t.createdByRole)} 배정", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
                         }
                     }
                 }
             }
-            if (state.pendingTasks.size > MAX_ROWS) item {
-                TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("할 일 ${state.pendingTasks.size - MAX_ROWS}개 더 보기") }
+            if (state.pendingTasks.size > UiDefaults.MAX_ROWS) item {
+                TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("할 일 ${state.pendingTasks.size - UiDefaults.MAX_ROWS}개 더 보기") }
             }
-            items(state.todayEvents.take(MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
+            items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
             state.upcomingExams.firstOrNull()?.let { exam ->
                 item {
                     AppCard {

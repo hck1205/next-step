@@ -18,7 +18,7 @@ import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
-import com.nextstep.app.ui.components.OptionPicker
+import com.nextstep.app.ui.components.input.OptionPicker
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

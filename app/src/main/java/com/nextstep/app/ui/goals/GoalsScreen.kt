@@ -27,9 +27,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.SectionTitle
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.goals.components.AddGoalDialog
 import com.nextstep.app.ui.goals.components.GoalCard
 import com.nextstep.app.ui.goals.components.TrackCard

@@ -22,7 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
-import com.nextstep.app.ui.components.OptionPicker
+import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.content.ContentEvent
 import com.nextstep.app.ui.content.ContentUiState
 import androidx.compose.runtime.getValue

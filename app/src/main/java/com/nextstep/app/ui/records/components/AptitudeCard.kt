@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.domain.insight.AptitudeSignal
-import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.card.AppCard
 
 /** 예체능·비교과 소질 신호 카드: 영역별 근거와 다음 한 걸음, 최근 관찰 메모. */
 @Composable

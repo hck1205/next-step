@@ -3,6 +3,7 @@ package com.nextstep.app.data.local.entity
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nextstep.app.data.model.Role
 
 /**
  * 가족(학생 1명 단위)에 연결된 구성원. 학생 본인, 학부모, 멘토 모두 한 행씩 가집니다.
@@ -32,6 +33,9 @@ data class MemberEntity(
     override val deleted: Boolean = false,
     override val dirty: Boolean = true,
 ) : Syncable {
+    val isStudent: Boolean get() = role == Role.STUDENT.name
+    val isParent: Boolean get() = role == Role.PARENT.name
+    val isMentor: Boolean get() = role == Role.MENTOR.name
     val subjectIdList: List<String> get() = subjectIds.split(",").map { it.trim() }.filter { it.isNotEmpty() }
     fun covers(subjectId: String?): Boolean = subjectIdList.isEmpty() || (subjectId != null && subjectId in subjectIdList)
 }

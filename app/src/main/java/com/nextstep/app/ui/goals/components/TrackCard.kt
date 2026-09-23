@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.nextstep.app.domain.journey.GoalTrack
-import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.card.AppCard
 
 /** 시작할 수 있는 트랙 카드: 제목, 구간 범위, 단계 수. */
 @Composable

@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.journey.JourneyPeriod
-import com.nextstep.app.ui.components.OptionPicker
+import com.nextstep.app.ui.components.input.OptionPicker
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

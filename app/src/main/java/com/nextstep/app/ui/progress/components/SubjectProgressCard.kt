@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.ColorDot
-import com.nextstep.app.ui.components.LabeledProgress
-import com.nextstep.app.ui.components.subjectColor
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.ColorDot
+import com.nextstep.app.ui.components.card.LabeledProgress
+import com.nextstep.app.ui.components.card.subjectColor
 
 @Composable
 internal fun SubjectProgressCard(p: SubjectProgress, onClick: () -> Unit) {

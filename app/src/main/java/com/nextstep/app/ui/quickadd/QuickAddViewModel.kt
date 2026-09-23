@@ -17,13 +17,12 @@ import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
+import com.nextstep.app.ui.common.asUiState
 
 /** 모든 쓰기의 단일 입구. 각 저장소에 한 번 쓰고 한 줄 메시지를 남깁니다. */
 class QuickAddViewModel(
@@ -39,7 +38,7 @@ class QuickAddViewModel(
 
     val state: StateFlow<QuickAddUiState> = combine(streams.subjects, message) { subjects, msg ->
         QuickAddUiState(subjects = subjects, today = today(), savedMessage = msg)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), QuickAddUiState())
+    }.asUiState(viewModelScope, QuickAddUiState())
 
     fun cheer(text: String) = viewModelScope.launch {
         if (text.isBlank()) return@launch

@@ -20,17 +20,16 @@ import com.nextstep.app.domain.planner.StudyPlan
 import com.nextstep.app.domain.planner.StudyPlanner
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
-import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.journey.JourneyPlanner
-import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.ui.common.asUiState
 
 class HomeViewModel(
     private val streams: FamilyDataStreams,
@@ -65,14 +64,13 @@ class HomeViewModel(
     private val enriched = combine(withProgress, streams.contents, streams.grades, streams.members, streams.journeyItems) { s, contents, grades, members, journey ->
         val exams = StudyStats.upcomingExams(s.events, emptyList())
         val today = DateUtils.today()
-        val stage = GrowthStage.of(members, today)
-        val birthDate = members.firstOrNull { it.role == "STUDENT" }?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
-        val period = birthDate?.let { PeriodCalendar.current(it, today) }
+        val ctx = StudentContext.of(members, today)
+        val stage = ctx.stage
         s.copy(
-            curriculum = CurriculumCatalog.forPeriod(period?.key),
-            periodLabel = period?.label,
-            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(birthDate, journey, today), today),
-            hasBirthDate = birthDate != null,
+            curriculum = CurriculumCatalog.forPeriod(ctx.currentPeriodKey),
+            periodLabel = ctx.currentPeriod?.label,
+            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, journey, today), today),
+            hasBirthDate = ctx.hasBirthDate,
             today = today,
             stage = stage,
             planDefaults = GrowthGuide.defaultPlanOptions(stage),
@@ -81,7 +79,7 @@ class HomeViewModel(
     }
 
     val state: StateFlow<HomeUiState> = combine(enriched, streams.notes) { s, notes -> s.copy(latestNote = notes.maxByOrNull { it.createdAt }) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
+        .asUiState(viewModelScope, HomeUiState())
 
     fun markContentWatched(id: String) = viewModelScope.launch { contents.setWatched(id, true) }
 
@@ -107,7 +105,7 @@ class HomeViewModel(
             TaskEntity(
                 familyId = "", subjectId = subject.id, topicId = topic.id,
                 title = "${subject.name} ${topic.title} ${type.label}", type = type,
-                dueDate = DateUtils.today().toEpochDay(), createdByRole = "STUDENT",
+                dueDate = DateUtils.today().toEpochDay(), createdByRole = Role.STUDENT.name,
             ),
         )
     }

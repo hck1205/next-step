@@ -60,6 +60,6 @@ object BalanceStats {
         val from = today.minusDays(SELF_DIRECTED_WINDOW_DAYS).toEpochDay()
         val recent = tasks.filter { !it.deleted && it.dueDate >= from && it.dueDate <= today.plusDays(SELF_DIRECTED_WINDOW_DAYS).toEpochDay() }
         if (recent.isEmpty()) return null
-        return recent.count { it.createdByRole == Role.STUDENT.name }.toFloat() / recent.size
+        return recent.count { it.isStudentMade }.toFloat() / recent.size
     }
 }

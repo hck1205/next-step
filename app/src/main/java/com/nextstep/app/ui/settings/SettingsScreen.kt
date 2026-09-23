@@ -38,17 +38,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.ConfirmDialog
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.SubjectSelectDialog
-import com.nextstep.app.ui.components.SubjectTag
-import com.nextstep.app.ui.components.SyncStatusBadge
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.dialog.ConfirmDialog
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
+import com.nextstep.app.ui.components.card.SubjectTag
+import com.nextstep.app.ui.components.card.SyncStatusBadge
 import com.nextstep.app.ui.settings.components.InfoRow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import com.nextstep.app.ui.components.GradePicker
-import com.nextstep.app.ui.components.DateField
+import com.nextstep.app.ui.components.input.GradePicker
+import com.nextstep.app.ui.components.input.DateField
 
 @Composable
 fun SettingsScreen(actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -118,7 +118,7 @@ internal fun SettingsContent(state: SettingsUiState, actions: SettingsActions, o
 
             SectionTitle("자녀 생년월일 · 학년 · 성장 단계")
             AppCard {
-                val student = state.members.firstOrNull { it.role == Role.STUDENT.name }
+                val student = state.members.firstOrNull { it.isStudent }
                 val birth = student?.birthDate?.let { java.time.LocalDate.ofEpochDay(it) }
                 Column {
                     DateField(label = "생년월일", date = birth ?: java.time.LocalDate.now().minusYears(3), onChange = { onEvent(SettingsEvent.SetBirthDate(it)) })
@@ -140,12 +140,12 @@ internal fun SettingsContent(state: SettingsUiState, actions: SettingsActions, o
                                 val detail = buildList {
                                     add(Role.labelOf(m.role))
                                     if (m.title.isNotBlank()) add(m.title)
-                                    if (m.role == Role.PARENT.name && m.mentorEnabled) add("멘토 겸")
-                                    if (m.role == Role.MENTOR.name || m.mentorEnabled) add(if (m.subjectIdList.isEmpty()) "전 과목" else state.subjects.filter { it.id in m.subjectIdList }.joinToString { it.name })
+                                    if (m.isParent && m.mentorEnabled) add("멘토 겸")
+                                    if (m.isMentor || m.mentorEnabled) add(if (m.subjectIdList.isEmpty()) "전 과목" else state.subjects.filter { it.id in m.subjectIdList }.joinToString { it.name })
                                 }
                                 Text(detail.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
-                            val canRemove = m.id != state.me?.id && m.role != Role.STUDENT.name && (role == Role.STUDENT || role == Role.PARENT)
+                            val canRemove = m.id != state.me?.id && !m.isStudent && (role == Role.STUDENT || role == Role.PARENT)
                             if (canRemove) TextButton(onClick = { confirmRemove = m.id }) { Text("연결 끊기") }
                         }
                     }

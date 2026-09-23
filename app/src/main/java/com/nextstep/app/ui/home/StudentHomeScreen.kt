@@ -33,27 +33,27 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.CurriculumCard
-import com.nextstep.app.ui.components.JourneyNowCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.EventRow
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.SubjectTag
-import com.nextstep.app.ui.components.TaskRow
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.CurriculumCard
+import com.nextstep.app.ui.components.card.JourneyNowCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.row.EventRow
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.card.SubjectTag
+import com.nextstep.app.ui.components.row.TaskRow
 import com.nextstep.app.ui.home.components.PlannerDialog
 import com.nextstep.app.ui.home.components.TimerCard
 import com.nextstep.app.ui.home.components.TopicSuggestionRow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.common.ExternalLinks
+import com.nextstep.app.ui.common.UiDefaults
 
 @Composable
 fun StudentHomeScreen(actions: HomeActions, viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     HomeContent(state = state, actions = actions, onEvent = viewModel::onEvent)
 }
-
-private const val MAX_ROWS = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,14 +86,14 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
 
             item { SectionTitle("오늘 할 것", action = { TextButton(onClick = { actions.onOpenRecords(com.nextstep.app.ui.records.RecordSegment.CALENDAR) }) { Text("전체") } }) }
             if (state.pendingTasks.isEmpty()) item { AppCard { EmptyState("할 일을 모두 끝냈어요") } }
-            else items(state.pendingTasks.take(MAX_ROWS), key = { "task" + it.id }) { task -> TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) }) }
-            if (state.pendingTasks.size > MAX_ROWS) item {
-                TextButton(onClick = { actions.onOpenRecords(com.nextstep.app.ui.records.RecordSegment.CALENDAR) }) { Text("${state.pendingTasks.size - MAX_ROWS}개 더 보기") }
+            else items(state.pendingTasks.take(UiDefaults.MAX_ROWS), key = { "task" + it.id }) { task -> TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) }) }
+            if (state.pendingTasks.size > UiDefaults.MAX_ROWS) item {
+                TextButton(onClick = { actions.onOpenRecords(com.nextstep.app.ui.records.RecordSegment.CALENDAR) }) { Text("${state.pendingTasks.size - UiDefaults.MAX_ROWS}개 더 보기") }
             }
 
             item { SectionTitle("오늘 일정") }
             if (state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 등록된 일정이 없어요") } }
-            else items(state.todayEvents.take(MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
+            else items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
             state.nextExam?.let { exam ->
                 item {
                     AppCard {
@@ -124,7 +124,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             state.recommendations.firstOrNull()?.let { rec ->
                 item { SectionTitle("추천 영상 1개", action = { TextButton(onClick = actions.onOpenContent) { Text("저장소") } }) }
                 item {
-                    AppCard(onClick = { runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(rec.content.url))) } }) {
+                    AppCard(onClick = { ExternalLinks.open(context, rec.content.url) }) {
                         Column {
                             Text(rec.reason, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                             Text(rec.content.title, style = MaterialTheme.typography.bodyLarge, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
@@ -142,7 +142,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                 item {
                     AppCard {
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            state.activeSubjects.take(MAX_ROWS).forEach { p ->
+                            state.activeSubjects.take(UiDefaults.MAX_ROWS).forEach { p ->
                                 val current = p.reviewQueue.firstOrNull() ?: p.previewQueue.firstOrNull()
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     SubjectTag(p.subject)
@@ -161,7 +161,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
 
             if (state.reviewQueue.isNotEmpty()) {
                 item { SectionTitle("복습할 단원") }
-                items(state.reviewQueue.take(MAX_ROWS), key = { "rv" + it.second.id }) { (subject, topic) ->
+                items(state.reviewQueue.take(UiDefaults.MAX_ROWS), key = { "rv" + it.second.id }) { (subject, topic) ->
                     TopicSuggestionRow(subject, topic, actionLabel = "복습 완료",
                         onAction = { onEvent(HomeEvent.MarkTopic(topic, TopicStatus.REVIEWED)) },
                         onAddTask = { onEvent(HomeEvent.AddQuickTask(subject, topic, TaskType.REVIEW)) },
@@ -170,7 +170,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             }
             if (state.previewQueue.isNotEmpty()) {
                 item { SectionTitle("예습할 단원") }
-                items(state.previewQueue.take(MAX_ROWS), key = { "pv" + it.second.id }) { (subject, topic) ->
+                items(state.previewQueue.take(UiDefaults.MAX_ROWS), key = { "pv" + it.second.id }) { (subject, topic) ->
                     TopicSuggestionRow(subject, topic, actionLabel = "예습 완료",
                         onAction = { onEvent(HomeEvent.MarkTopic(topic, TopicStatus.PREVIEWED)) },
                         onAddTask = { onEvent(HomeEvent.AddQuickTask(subject, topic, TaskType.PREVIEW)) },

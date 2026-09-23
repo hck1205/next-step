@@ -54,6 +54,13 @@ class PeriodCalendarTest {
     }
 
     @Test
+    fun periodsAreCachedPerBirthDate() {
+        val a = PeriodCalendar.periods(LocalDate.of(2018, 2, 2)); val b = PeriodCalendar.periods(LocalDate.of(2018, 2, 2))
+        assertTrue(a === b)
+        assertTrue(PeriodCalendar.periods(LocalDate.of(2018, 2, 3)) !== a)
+    }
+
+    @Test
     fun januaryBirthGetsShorterLastPreschoolPeriod() {
         val jan = PeriodCalendar.periods(LocalDate.of(2020, 1, 20))
         val entry = PeriodCalendar.entryDate(LocalDate.of(2020, 1, 20))

@@ -14,8 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.journey.MilestoneCategory
-import com.nextstep.app.ui.components.DateField
-import com.nextstep.app.ui.components.OptionPicker
+import com.nextstep.app.ui.components.input.DateField
+import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

@@ -32,13 +32,13 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.calendar.components.CalendarEventRow
 import com.nextstep.app.ui.calendar.components.MonthGrid
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.EventEditDialog
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.SessionRow
-import com.nextstep.app.ui.components.TaskEditDialog
-import com.nextstep.app.ui.components.TaskRow
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.dialog.EventEditDialog
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.row.SessionRow
+import com.nextstep.app.ui.components.dialog.TaskEditDialog
+import com.nextstep.app.ui.components.row.TaskRow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

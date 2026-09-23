@@ -43,6 +43,12 @@ object ContentClassifier {
     /** 한 글자 힌트는 "공부법" 의 "법" 처럼 오탐이 커서 제외합니다. */
     private const val MIN_HINT_LENGTH = 2
 
+    /** 소문자·길이 필터를 미리 적용한 힌트. classify 는 문자열 포함 검사만 합니다. */
+    private val subjectHintsLower: Map<String, List<String>> = subjectHints.mapValues { (_, h) -> h.filter { it.length >= MIN_HINT_LENGTH }.map { it.lowercase() } }
+    private val gradeHintsLower: List<Pair<GradeLevel, List<String>>> = gradeHints.map { (g, h) -> g to h.map { it.lowercase() } }
+    private val typeHintsLower: List<Pair<ContentType, List<String>>> = typeHints.map { (t, h) -> t to h.map { it.lowercase() } }
+    private val allSubjectHintsLower: List<String> = subjectHints.values.flatten().filter { it.length >= 2 }.map { it.lowercase() }
+
     private val stopWords = setOf("영상", "강의", "공부", "학습", "유튜브", "youtube", "채널", "구독", "좋아요", "shorts", "full", "part", "편", "회", "the", "and", "for", "with")
 
     fun classify(title: String, channel: String = "", description: String = "", familySubjectNames: List<String> = emptyList()): ContentClassification {
@@ -52,12 +58,12 @@ object ContentClassifier {
 
         // 1. 과목: 가족이 등록한 과목명이 제목에 있으면 최우선, 아니면 힌트 사전 점수
         val familyHit = familySubjectNames.firstOrNull { it.isNotBlank() && lower.contains(it.lowercase()) }
-        val subjectScores = subjectHints.mapValues { (_, hints) -> hints.count { it.length >= MIN_HINT_LENGTH && lower.contains(it.lowercase()) } }
+        val subjectScores = subjectHintsLower.mapValues { (_, hints) -> hints.count { lower.contains(it) } }
         val bestSubject = subjectScores.maxByOrNull { it.value }
         val subjectKey = when {
             familyHit != null -> { reasons += "제목에 과목명 '$familyHit'"; familyHit }
             bestSubject != null && bestSubject.value > 0 -> {
-                val matched = subjectHints.getValue(bestSubject.key).filter { it.length >= MIN_HINT_LENGTH && lower.contains(it.lowercase()) }.take(3)
+                val matched = subjectHintsLower.getValue(bestSubject.key).filter { lower.contains(it) }.take(3)
                 reasons += "${bestSubject.key} 힌트: ${matched.joinToString()}"
                 bestSubject.key
             }
@@ -65,17 +71,17 @@ object ContentClassifier {
         }
 
         // 2. 학년
-        val grade = gradeHints.firstOrNull { (_, hints) -> hints.any { lower.contains(it.lowercase()) } }
+        val grade = gradeHintsLower.firstOrNull { (_, hints) -> hints.any { lower.contains(it) } }
         val gradeLevel = grade?.first ?: GradeLevel.ALL
-        grade?.let { (g, hints) -> reasons += "${g.label}: ${hints.first { lower.contains(it.lowercase()) }}" }
+        grade?.let { (g, hints) -> reasons += "${g.label}: ${hints.first { lower.contains(it) }}" }
 
         // 3. 유형: 앞쪽(우선순위 높은) 힌트가 먼저 매칭됨. 아무것도 없고 과목이 있으면 개념 강의로 추정.
-        val type = typeHints.firstOrNull { (_, hints) -> hints.any { lower.contains(it.lowercase()) } }
+        val type = typeHintsLower.firstOrNull { (_, hints) -> hints.any { lower.contains(it) } }
         val contentType = type?.first ?: if (subjectKey.isNotEmpty()) ContentType.CONCEPT else ContentType.OTHER
-        type?.let { (t, hints) -> reasons += "${t.label}: ${hints.first { lower.contains(it.lowercase()) }}" }
+        type?.let { (t, hints) -> reasons += "${t.label}: ${hints.first { lower.contains(it) }}" }
 
         // 4. 키워드: 과목 힌트 중 매칭된 단원성 단어 + 제목의 명사성 토큰
-        val hintKeywords = subjectHints.values.flatten().filter { it.length >= 2 && lower.contains(it.lowercase()) && it != subjectKey }
+        val hintKeywords = allSubjectHintsLower.filter { lower.contains(it) && it != subjectKey.lowercase() }
         val tokens = title.split(Regex("[\\s\\[\\]()|/,.:!?\"'#~\\-_]+"))
             .map { it.trim() }
             .filter { it.length in 2..12 && it.lowercase() !in stopWords && !it.all { c -> c.isDigit() } }

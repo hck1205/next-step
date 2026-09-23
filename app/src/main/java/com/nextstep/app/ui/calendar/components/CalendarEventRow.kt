@@ -20,8 +20,8 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.SubjectTag
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 internal fun CalendarEventRow(occ: EventOccurrence, subjects: List<SubjectEntity>, onClick: () -> Unit) {

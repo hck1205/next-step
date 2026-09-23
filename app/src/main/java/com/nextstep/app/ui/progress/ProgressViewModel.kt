@@ -6,11 +6,10 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.SubjectRepository
 import com.nextstep.app.domain.stats.StudyStats
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.ui.common.asUiState
 
 class ProgressViewModel(
     private val streams: FamilyDataStreams,
@@ -18,7 +17,7 @@ class ProgressViewModel(
 ) : ViewModel() {
     val state: StateFlow<ProgressUiState> = combine(streams.subjects, streams.topics) { subjects, topics ->
         ProgressUiState(subjects, StudyStats.subjectProgress(topics, subjects, queueSize = 2))
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgressUiState())
+    }.asUiState(viewModelScope, ProgressUiState())
 
     fun addSubject(name: String, color: Long, goalMinutes: Int, teacher: String) = viewModelScope.launch {
         subjects.save(

@@ -14,14 +14,14 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.insight.InsightEngine
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.ui.common.asUiState
 
 class MentorDashboardViewModel(
     private val streams: FamilyDataStreams,
@@ -38,7 +38,7 @@ class MentorDashboardViewModel(
             syncStatus = sync,
             allSubjects = subjects,
             subjects = mine,
-            otherMentors = members.filter { it.role == "MENTOR" && it.id != me?.id },
+            otherMentors = members.filter { it.isMentor && it.id != me?.id },
             stage = GrowthStage.of(members),
             mentorTip = GrowthStage.of(members)?.let { GrowthGuide.pickForDay(GrowthGuide.forStage(it).mentorTips, DateUtils.today()) },
         )
@@ -59,15 +59,15 @@ class MentorDashboardViewModel(
             progress = StudyStats.subjectProgress(topics, s.subjects),
             scores = StudyStats.subjectScores(grades, s.subjects),
             recentGrades = grades.take(5),
-            myTasks = d.tasks.filter { !it.done && it.createdByRole == "MENTOR" && (it.subjectId == null || it.subjectId in subjectIds) },
+            myTasks = d.tasks.filter { !it.done && it.createdByRole == Role.MENTOR.name && (it.subjectId == null || it.subjectId in subjectIds) },
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, d.tasks.filter { it.subjectId == null || it.subjectId in subjectIds }, d.events).take(4),
-            notes = notes.filter { it.authorRole != "MENTOR" || myId == null || it.authorName == s.me?.name }.take(10),
+            notes = notes.filter { it.authorRole != Role.MENTOR.name || myId == null || it.authorName == s.me?.name }.take(10),
             roadmapTotal = roadmap.size,
             roadmapInProgress = roadmap.count { it.status == com.nextstep.app.data.model.RoadmapStatus.IN_PROGRESS },
             roadmapDone = roadmap.count { it.status == com.nextstep.app.data.model.RoadmapStatus.DONE },
             roadmapOverdue = roadmap.count { it.status != com.nextstep.app.data.model.RoadmapStatus.DONE && (it.targetDate ?: Long.MAX_VALUE) < today },
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MentorDashboardUiState())
+    }.asUiState(viewModelScope, MentorDashboardUiState())
 
     fun setSubjects(ids: List<String>) = viewModelScope.launch {
         val me = state.value.me ?: return@launch
@@ -75,7 +75,7 @@ class MentorDashboardViewModel(
     }
 
     fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) = viewModelScope.launch {
-        tasks.save(TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = "MENTOR"))
+        tasks.save(TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = Role.MENTOR.name))
     }
 
     fun deleteTask(id: String) = viewModelScope.launch { tasks.delete(id) }

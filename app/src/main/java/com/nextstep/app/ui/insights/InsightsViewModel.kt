@@ -11,11 +11,10 @@ import com.nextstep.app.domain.insight.InsightEngine
 import com.nextstep.app.domain.insight.TalentEngine
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.ui.common.asUiState
 
 class InsightsViewModel(
     private val streams: FamilyDataStreams,
@@ -39,7 +38,7 @@ class InsightsViewModel(
             totalMinutes = sessions.sumOf { it.durationMinutes },
             talents = TalentEngine.talents(subjects, topics, grades, sessions),
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InsightsUiState())
+    }.asUiState(viewModelScope, InsightsUiState())
 
     fun applyAction(action: InsightAction, createdByRole: String) = viewModelScope.launch {
         when (action) {

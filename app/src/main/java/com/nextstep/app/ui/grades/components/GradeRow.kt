@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.grades.components
 
-import com.nextstep.app.ui.components.trim
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,8 +13,9 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.SubjectTag
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.SubjectTag
+import com.nextstep.app.ui.common.oneDecimal
 
 @Composable
 internal fun GradeRow(g: GradeEntity, subjects: List<SubjectEntity>, onClick: () -> Unit) {
@@ -32,7 +32,7 @@ internal fun GradeRow(g: GradeEntity, subjects: List<SubjectEntity>, onClick: ()
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "${g.score.trim()} / ${g.maxScore.trim()}",
+                    "${g.score.oneDecimal()} / ${g.maxScore.oneDecimal()}",
                     style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
                     color = when {
                         g.percent >= 90 -> MaterialTheme.colorScheme.secondary
@@ -43,7 +43,7 @@ internal fun GradeRow(g: GradeEntity, subjects: List<SubjectEntity>, onClick: ()
                 g.classAverage?.let { avg ->
                     val diff = g.score - avg
                     Text(
-                        "반 평균 ${avg.trim()} (${if (diff >= 0) "+" else ""}${diff.trim()})",
+                        "반 평균 ${avg.oneDecimal()} (${if (diff >= 0) "+" else ""}${diff.oneDecimal()})",
                         style = MaterialTheme.typography.labelSmall,
                         color = if (diff >= 0) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error,
                     )

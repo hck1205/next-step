@@ -84,7 +84,7 @@ enum class GrowthStage(
 
         /** 구성원의 학생 행에서 단계를 읽습니다. 생년월일이 있으면 그것을, 없으면 학년을 씁니다. */
         fun of(members: List<MemberEntity>, today: LocalDate = LocalDate.now()): GrowthStage? {
-            val student = members.firstOrNull { it.role == Role.STUDENT.name } ?: return null
+            val student = members.firstOrNull { it.isStudent } ?: return null
             student.birthDate?.let { return fromBirthDate(LocalDate.ofEpochDay(it), today) }
             return fromGradeYear(student.gradeYear.takeIf { it > 0 })
         }

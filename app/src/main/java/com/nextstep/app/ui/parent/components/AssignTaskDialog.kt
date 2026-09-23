@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.TaskType
-import com.nextstep.app.ui.components.DateField
-import com.nextstep.app.ui.components.OptionPicker
-import com.nextstep.app.ui.components.SubjectPicker
+import com.nextstep.app.ui.components.input.DateField
+import com.nextstep.app.ui.components.input.OptionPicker
+import com.nextstep.app.ui.components.input.SubjectPicker
 import java.time.LocalDate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

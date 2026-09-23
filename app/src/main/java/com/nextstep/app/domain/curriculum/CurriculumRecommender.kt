@@ -59,7 +59,7 @@ object CurriculumRecommender {
     /** 단원 제목·키워드 토큰 하나라도 등록 단원 제목에 들어 있으면 같은 단원으로 봅니다. */
     fun matches(unit: CurriculumUnit, title: String): Boolean {
         val hay = title.lowercase()
-        return unit.matchTokens.any { hay.contains(it.lowercase()) }
+        return unit.lowerTokens.any { hay.contains(it) }
     }
 
     fun statusOf(topic: TopicEntity?): UnitStatus = when {

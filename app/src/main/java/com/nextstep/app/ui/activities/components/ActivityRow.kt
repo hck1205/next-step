@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.width
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.card.AppCard
 import java.time.LocalDate
 
 /** 활동 기록 한 줄: 종류·제목·기간·장소·소감. 정책 없이 콜백만 올립니다. */

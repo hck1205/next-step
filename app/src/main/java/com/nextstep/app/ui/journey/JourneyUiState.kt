@@ -3,9 +3,7 @@ package com.nextstep.app.ui.journey
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
-import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.JourneyPhase
@@ -49,48 +47,12 @@ data class JourneyUiState(
     /** 지난 구간까지 펼쳐 보기. 기본은 현재 구간부터. */
     val showPast: Boolean = false,
     val loaded: Boolean = false,
+    /** 아래 세 값은 ViewModel 이 JourneySections 로 한 번 계산합니다(리컴포지션마다 재계산하지 않음). */
+    val periodSections: List<PeriodSection> = emptyList(),
+    val phaseSections: List<Pair<JourneyPhase, List<JourneyItem>>> = emptyList(),
+    val overdueCount: Int = 0,
+    val nowCount: Int = 0,
+    val pastSectionCount: Int = 0,
 ) {
     val filtered: List<JourneyItem> get() = items.filter { filter == null || it.category == filter }
-
-    private val visibleItems: List<JourneyItem> get() = filtered.filter { showCompleted || it.isOpen }
-
-    /**
-     * 구간별 타임라인. 이정표는 마감일이 속한 구간에, 단계는 periodKey 로 배정됩니다.
-     * 구간 밖(달력 이전·이후)의 이정표는 가장 가까운 끝 구간에 붙입니다.
-     */
-    val periodSections: List<PeriodSection> get() {
-        if (periods.isEmpty()) return emptyList()
-        val goalTitles = goals.associate { it.id to it.title }
-        val currentIndex = periods.indexOfFirst { it.key == currentPeriodKey }
-        val stepsByPeriod = steps.filter { !it.deleted && (showCompleted || (it.status != MilestoneStatus.DONE && it.status != MilestoneStatus.SKIPPED)) }
-            .filter { it.goalId in goalTitles }.groupBy { it.periodKey }
-        val itemsByPeriod = visibleItems.groupBy { item -> periodIndexOf(item.dueDate) }
-        val activitiesByPeriod = ActivitySummary.byPeriod(activities, periods)
-        return periods.mapIndexed { index, period ->
-            PeriodSection(
-                period = period,
-                isCurrent = index == currentIndex,
-                isPast = currentIndex >= 0 && index < currentIndex,
-                milestones = itemsByPeriod[index].orEmpty().sortedBy { it.dueDate },
-                steps = stepsByPeriod[period.key].orEmpty().sortedBy { it.orderIndex }.map { StepView(it, goalTitles.getValue(it.goalId)) },
-                activities = activitiesByPeriod[period.key].orEmpty(),
-            )
-        }.filter { (showPast || !it.isPast) && (it.milestones.isNotEmpty() || it.steps.isNotEmpty() || it.activities.isNotEmpty() || it.isCurrent) }
-    }
-
-    /** 생년월일이 없을 때: 단계 없이 상태별로만 묶습니다. */
-    val phaseSections: List<Pair<JourneyPhase, List<JourneyItem>>> get() = JourneyPhase.entries
-        .filter { showCompleted || (it != JourneyPhase.DONE && it != JourneyPhase.SKIPPED) }
-        .map { phase -> phase to filtered.filter { it.phase(today) == phase } }
-        .filter { it.second.isNotEmpty() }
-
-    val overdueCount: Int get() = items.count { it.phase(today) == JourneyPhase.OVERDUE }
-    val nowCount: Int get() = items.count { it.phase(today) == JourneyPhase.NOW }
-    val pastSectionCount: Int get() = periods.indexOfFirst { it.key == currentPeriodKey }.coerceAtLeast(0)
-
-    private fun periodIndexOf(date: LocalDate): Int = when {
-        date.isBefore(periods.first().start) -> 0
-        date.isAfter(periods.last().end) -> periods.lastIndex
-        else -> periods.indexOfFirst { date in it }
-    }
 }

@@ -3,9 +3,9 @@ package com.nextstep.app.ui.grades.components
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.LineChart
-import com.nextstep.app.ui.components.LineSeries
-import com.nextstep.app.ui.components.subjectColor
+import com.nextstep.app.ui.components.chart.LineChart
+import com.nextstep.app.ui.components.chart.LineSeries
+import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.grades.GradesUiState
 
 /** 시험 날짜순으로 정렬해 과목별 계열을 그립니다. x축은 날짜별 고유 인덱스. */

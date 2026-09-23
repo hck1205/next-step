@@ -10,12 +10,11 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.content.ContentRecommender
 import com.nextstep.app.domain.stats.StudyStats
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.ui.common.asUiState
 
 class ContentViewModel(
     private val streams: FamilyDataStreams,
@@ -34,7 +33,7 @@ class ContentViewModel(
     }
 
     val state: StateFlow<ContentUiState> = combine(base, filter, add) { s, f, a -> s.copy(filter = f, add = a) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ContentUiState())
+        .asUiState(viewModelScope, ContentUiState())
 
     fun setQuery(q: String) = filter.value.let { filter.value = it.copy(query = q) }
     fun setSubject(key: String?) = filter.value.let { filter.value = it.copy(subjectKey = key) }

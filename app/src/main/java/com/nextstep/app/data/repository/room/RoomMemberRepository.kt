@@ -35,7 +35,7 @@ class RoomMemberRepository(
         modify(memberId) { it.copy(name = name, title = title) }
 
     override suspend fun setMentorEnabled(memberId: String, enabled: Boolean) =
-        modify(memberId) { it.copy(mentorEnabled = if (it.role == Role.MENTOR.name) true else enabled) }
+        modify(memberId) { it.copy(mentorEnabled = if (it.isMentor) true else enabled) }
 
     override suspend fun setGradeYear(memberId: String, gradeYear: Int) =
         modify(memberId) { it.copy(gradeYear = gradeYear.coerceIn(0, com.nextstep.app.domain.growth.GrowthStage.MAX_GRADE)) }

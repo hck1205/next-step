@@ -21,7 +21,7 @@ import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPhase
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.card.AppCard
 import java.time.LocalDate
 
 /**

@@ -5,13 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.domain.stats.StudyStats
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.ui.common.asUiState
 
 class CheerViewModel(
     private val streams: FamilyDataStreams,
@@ -48,7 +47,7 @@ class CheerViewModel(
             subjects = subjects, notes = notes, cheerSuggestions = suggestions,
             praiseStyle = stage?.let { GrowthGuide.forStage(it).praiseStyle },
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CheerUiState())
+    }.asUiState(viewModelScope, CheerUiState())
 
     fun send(text: String) = viewModelScope.launch { if (text.isNotBlank()) notes.add(text) }
     fun delete(id: String) = viewModelScope.launch { notes.delete(id) }

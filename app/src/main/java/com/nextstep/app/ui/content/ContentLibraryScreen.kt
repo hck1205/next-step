@@ -1,7 +1,5 @@
 package com.nextstep.app.ui.content
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,15 +38,16 @@ import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AdBanner
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.SectionTitle
+import com.nextstep.app.ui.components.card.AdBanner
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.content.components.AddContentDialog
 import com.nextstep.app.ui.content.components.ContentRow
 import com.nextstep.app.ui.content.components.EditContentDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.common.ExternalLinks
 
 /**
  * 교육 콘텐츠 저장소. 유튜브 링크를 등록하면 자동 분류되고, 학생의 진도·약점에 맞춰 추천됩니다.
@@ -65,7 +64,7 @@ internal fun ContentContent(state: ContentUiState, caps: Capabilities, actions: 
     var showAdd by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<ContentEntity?>(null) }
     val context = LocalContext.current
-    val open: (ContentEntity) -> Unit = { c -> runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(c.url))) } }
+    val open: (ContentEntity) -> Unit = { c -> ExternalLinks.open(context, c.url) }
 
     Scaffold(
         topBar = {

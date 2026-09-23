@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.calendar.CalendarUiState
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.ColorDot
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.ColorDot
 import java.time.DayOfWeek
 import java.time.LocalDate
 

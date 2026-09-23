@@ -12,11 +12,10 @@ import java.time.LocalTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.ui.common.asUiState
 
 class TimerViewModel(
     private val streams: FamilyDataStreams,
@@ -42,7 +41,7 @@ class TimerViewModel(
             selectedSubjectId = sel ?: running?.subjectId ?: subjects.firstOrNull()?.id,
         )
     }.combine(lastSaved) { s, saved -> s.copy(lastSaved = saved) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TimerUiState())
+        .asUiState(viewModelScope, TimerUiState())
 
     fun selectSubject(id: String?) { selected.value = id }
 

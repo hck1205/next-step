@@ -36,9 +36,9 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.activities.components.ActivityEditDialog
 import com.nextstep.app.ui.activities.components.ActivityRow
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.SectionTitle
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.SectionTitle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

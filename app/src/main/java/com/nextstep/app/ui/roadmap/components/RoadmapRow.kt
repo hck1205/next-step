@@ -27,8 +27,8 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.SubjectTag
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 internal fun RoadmapRow(item: RoadmapItemEntity, subjects: List<SubjectEntity>, caps: Capabilities, linked: ContentEntity?, onStatus: (RoadmapStatus) -> Unit, onEdit: () -> Unit, onOpenLinked: (ContentEntity) -> Unit) {

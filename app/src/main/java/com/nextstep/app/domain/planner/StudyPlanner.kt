@@ -12,6 +12,7 @@ import java.time.LocalDate
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.data.model.Role
 
 /**
  * 커리큘럼 스케줄링: 밀린 복습 → 멘토 로드맵 진행 항목 → 다음 예습 순서로 큐를 만들고,
@@ -39,7 +40,7 @@ object StudyPlanner {
         existingEvents: List<EventEntity>,
         options: PlanOptions = PlanOptions(),
         from: LocalDate = DateUtils.today().plusDays(1),
-        createdByRole: String = "STUDENT",
+        createdByRole: String = Role.STUDENT.name,
     ): StudyPlan {
         if (queue.isEmpty()) return StudyPlan(emptyList(), emptyList())
         val events = mutableListOf<EventEntity>()

@@ -16,9 +16,9 @@ import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.card.AppCard
 import java.time.LocalDate
-import java.util.Locale
+import com.nextstep.app.ui.common.oneDecimal
 
 /** 성장 기록 카드: 최신 키·몸무게·시력, 지난 기록 대비 변화, 참고 신호, 최근 기록 목록. 정책 없이 콜백만 올립니다. */
 @Composable
@@ -70,4 +70,4 @@ fun GrowthCard(summary: GrowthSummary?, records: List<GrowthRecordEntity>, onAdd
 
 private fun vision(left: Double?, right: Double?): String? = if (left == null && right == null) null else "시력 ${left?.let { num(it) } ?: "-"} / ${right?.let { num(it) } ?: "-"}"
 
-private fun num(v: Double): String = if (v == v.toLong().toDouble()) v.toLong().toString() else String.format(Locale.ROOT, "%.1f", v)
+private fun num(v: Double): String = v.oneDecimal()

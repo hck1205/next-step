@@ -3,6 +3,7 @@ package com.nextstep.app.data.local.entity
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 
 @Entity(tableName = "tasks", indices = [Index("familyId"), Index("dueDate")])
@@ -21,4 +22,7 @@ data class TaskEntity(
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,
     override val dirty: Boolean = true,
-) : Syncable
+) : Syncable {
+    /** 학생이 스스로 만든 할 일인지. 자기주도 비율의 단위. */
+    val isStudentMade: Boolean get() = createdByRole == Role.STUDENT.name
+}

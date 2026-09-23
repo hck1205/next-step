@@ -36,12 +36,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.BarChart
-import com.nextstep.app.ui.components.BarItem
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.StatTile
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.chart.BarChart
+import com.nextstep.app.ui.components.chart.BarItem
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.card.StatTile
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

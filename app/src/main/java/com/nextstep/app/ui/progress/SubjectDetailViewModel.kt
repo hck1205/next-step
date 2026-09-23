@@ -13,11 +13,11 @@ import com.nextstep.app.data.repository.SubjectRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.domain.time.DateUtils
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.ui.common.asUiState
 
 class SubjectDetailViewModel(
     savedStateHandle: SavedStateHandle,
@@ -30,7 +30,7 @@ class SubjectDetailViewModel(
 
     val state: StateFlow<SubjectDetailUiState> = combine(subjects.observe(subjectId), topics.observeBySubject(subjectId), streams.subjects) { s, t, all ->
         SubjectDetailUiState(s, t, all)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SubjectDetailUiState())
+    }.asUiState(viewModelScope, SubjectDetailUiState())
 
     fun addTopics(raw: String) = viewModelScope.launch {
         val titles = raw.split("\n", ",").map { it.trim() }.filter { it.isNotEmpty() }
@@ -50,7 +50,7 @@ class SubjectDetailViewModel(
         tasks.save(
             TaskEntity(
                 familyId = "", subjectId = subject.id, topicId = topic.id, title = "${subject.name} ${topic.title} ${type.label}",
-                type = type, dueDate = DateUtils.today().plusDays(if (createdByRole == "STUDENT") 0 else 1).toEpochDay(), createdByRole = createdByRole,
+                type = type, dueDate = DateUtils.today().plusDays(if (createdByRole == Role.STUDENT.name) 0 else 1).toEpochDay(), createdByRole = createdByRole,
             ),
         )
     }

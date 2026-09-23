@@ -9,11 +9,10 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.nextstep.app.ui.common.asUiState
 
 class RoadmapViewModel(
     private val streams: FamilyDataStreams,
@@ -21,7 +20,7 @@ class RoadmapViewModel(
 ) : ViewModel() {
     val state: StateFlow<RoadmapUiState> = combine(streams.subjects, streams.roadmap, streams.topics, streams.profile, streams.contents) { subjects, items, topics, profile, contents ->
         RoadmapUiState(subjects, items, StudyStats.subjectProgress(topics, subjects), topics, profile.studentName, contents)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RoadmapUiState())
+    }.asUiState(viewModelScope, RoadmapUiState())
 
     fun save(existing: RoadmapItemEntity?, subjectId: String?, title: String, description: String, resource: String, targetDate: LocalDate?, contentId: String?) = viewModelScope.launch {
         val base = existing ?: RoadmapItemEntity(familyId = "", title = title, orderIndex = state.value.items.size)

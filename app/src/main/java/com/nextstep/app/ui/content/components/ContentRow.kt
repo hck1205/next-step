@@ -20,7 +20,7 @@ import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.domain.access.Capabilities
-import com.nextstep.app.ui.components.AppCard
+import com.nextstep.app.ui.components.card.AppCard
 
 @Composable
 internal fun ContentRow(c: ContentEntity, reason: String?, caps: Capabilities, onOpen: () -> Unit, onRate: (Int) -> Unit, onWatched: (Boolean) -> Unit, onEdit: () -> Unit) {

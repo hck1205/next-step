@@ -6,21 +6,19 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.GoalTrackCatalog
-import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.time.DateUtils
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.nextstep.app.ui.common.asUiState
 
 /**
  * 장기 목표를 구간(학기)별 단계로 쪼개 하나씩 진행합니다. 트랙(카탈로그)에서 시작하거나 직접 만들고,
@@ -35,14 +33,14 @@ class GoalsViewModel(
 
     val state: StateFlow<GoalsUiState> = combine(streams.profile, streams.members, streams.goals, streams.goalSteps) { profile, members, goals, steps ->
         val day = today()
-        val birthDate = members.firstOrNull { it.role == Role.STUDENT.name }?.birthDate?.let { LocalDate.ofEpochDay(it) }
-        val periods = birthDate?.let { PeriodCalendar.periods(it) }.orEmpty()
-        val currentKey = PeriodCalendar.periodOf(periods, day)?.key
+        val ctx = StudentContext.of(members, day)
+        val periods = ctx.periods
+        val currentKey = ctx.currentPeriodKey
         val live = goals.filter { !it.deleted }
         val started = live.mapNotNull { it.trackId }.toSet()
         GoalsUiState(
             studentName = profile.studentName,
-            hasBirthDate = birthDate != null,
+            hasBirthDate = ctx.hasBirthDate,
             today = day,
             periods = periods,
             currentPeriodKey = currentKey,
@@ -53,7 +51,7 @@ class GoalsViewModel(
             availableTracks = GoalPlanner.relevantTracks(GoalTrackCatalog.tracks, periods, currentKey).filter { it.id !in started },
             loaded = true,
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GoalsUiState())
+    }.asUiState(viewModelScope, GoalsUiState())
 
     fun startTrack(trackId: String) = viewModelScope.launch {
         val track = GoalTrackCatalog.byId[trackId] ?: return@launch

@@ -37,14 +37,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.LabeledProgress
-import com.nextstep.app.ui.components.SectionTitle
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.LabeledProgress
+import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.roadmap.components.RoadmapEditDialog
 import com.nextstep.app.ui.roadmap.components.RoadmapRow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.common.ExternalLinks
 
 /**
  * 학습 로드맵. 멘토(또는 학부모 겸 멘토)가 큐레이팅하고, 학생이 진행 상태를 갱신하고, 학부모는 진행률을 봅니다.
@@ -118,7 +119,7 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
                 RoadmapRow(item, state.subjects, caps, linked = state.contentOf(item),
                     onStatus = { onEvent(RoadmapEvent.SetStatus(item.id, it)) },
                     onEdit = { editing = item; showEdit = true },
-                    onOpenLinked = { c -> runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(c.url))) } })
+                    onOpenLinked = { c -> ExternalLinks.open(context, c.url) })
             }
 
             if (state.done.isNotEmpty()) {
@@ -132,7 +133,7 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
                     RoadmapRow(item, state.subjects, caps, linked = state.contentOf(item),
                         onStatus = { onEvent(RoadmapEvent.SetStatus(item.id, it)) },
                         onEdit = { editing = item; showEdit = true },
-                        onOpenLinked = { c -> runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(c.url))) } })
+                        onOpenLinked = { c -> ExternalLinks.open(context, c.url) })
                 }
             }
         }

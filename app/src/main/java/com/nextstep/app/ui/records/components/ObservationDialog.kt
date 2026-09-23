@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.model.AptitudeDomain
-import com.nextstep.app.ui.components.OptionPicker
+import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue

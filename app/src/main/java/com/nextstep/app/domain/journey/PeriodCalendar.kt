@@ -11,8 +11,16 @@ object PeriodCalendar {
     private const val NEWBORN_STEP_MONTHS = 3
     private const val PRESCHOOL_STEP_MONTHS = 6
     private const val FIRST_HALF_YEAR_MONTHS = 12
+    private const val CACHE_SIZE = 8
 
-    fun periods(birthDate: LocalDate): List<JourneyPeriod> {
+    /** 생년월일별 달력 캐시. 화면마다 스트림이 바뀔 때마다 다시 만들지 않습니다. */
+    private val cache = object : java.util.LinkedHashMap<LocalDate, List<JourneyPeriod>>(CACHE_SIZE, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<LocalDate, List<JourneyPeriod>>?): Boolean = size > CACHE_SIZE
+    }
+
+    fun periods(birthDate: LocalDate): List<JourneyPeriod> = synchronized(cache) { cache.getOrPut(birthDate) { build(birthDate) } }
+
+    private fun build(birthDate: LocalDate): List<JourneyPeriod> {
         val entry = entryDate(birthDate)
         val result = mutableListOf<JourneyPeriod>()
         var months = 0

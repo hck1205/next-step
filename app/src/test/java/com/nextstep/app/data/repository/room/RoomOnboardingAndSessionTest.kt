@@ -45,7 +45,7 @@ class RoomOnboardingAndSessionTest {
     fun parentOnboardingCreatesChildAndParentRowsAndCompletesAsParent() = runTest {
         val info = onboarding().createFamilyAsParent("엄마", "아기", LocalDate.of(2026, 7, 1)).getOrThrow()
         assertEquals("아기", info.studentName)
-        val child = members.all.single { it.role == "STUDENT" }; val parent = members.all.single { it.role == "PARENT" }
+        val child = members.all.single { it.isStudent }; val parent = members.all.single { it.isParent }
         assertEquals(LocalDate.of(2026, 7, 1).toEpochDay(), child.birthDate); assertNull(parent.birthDate)
         val profile = prefs.profile.value
         assertEquals(Role.PARENT, profile.role); assertEquals(parent.id, profile.memberId); assertEquals("아기", profile.studentName); assertTrue(profile.onboarded)

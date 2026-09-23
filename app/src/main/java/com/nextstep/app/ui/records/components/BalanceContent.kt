@@ -12,9 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.BalanceVerdict
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.LabeledProgress
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.records.RecordsActions
 import com.nextstep.app.ui.records.RecordsUiState
 import com.nextstep.app.ui.records.RecordsEvent

@@ -4,21 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GrowthRepository
-import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.health.GrowthStats
 import com.nextstep.app.domain.insight.AptitudeEngine
-import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.time.DateUtils
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import com.nextstep.app.ui.common.asUiState
+import com.nextstep.app.ui.common.UiDefaults
 
 /**
  * 기록 탭의 균형 세그먼트: 학습 균형, 성장 기록(키·몸무게·시력), 소질 신호를 한 상태로 냅니다.
@@ -31,15 +29,13 @@ class RecordsViewModel(
 ) : ViewModel() {
     private val base = combine(streams.profile, streams.members, streams.sessions, streams.tasks, streams.activities) { profile, members, sessions, tasks, activities ->
         val day = today()
-        val stage = GrowthStage.of(members, day)
-        val birthDate = members.firstOrNull { it.role == Role.STUDENT.name }?.birthDate?.let { LocalDate.ofEpochDay(it) }
-        val period = birthDate?.let { PeriodCalendar.current(it, day) }
+        val ctx = StudentContext.of(members, day)
         RecordsUiState(
             studentName = profile.studentName,
-            stage = stage,
-            currentPeriodLabel = period?.label,
+            stage = ctx.stage,
+            currentPeriodLabel = ctx.currentPeriod?.label,
             today = day,
-            balance = BalanceStats.report(stage, sessions, tasks, activities, period, day),
+            balance = BalanceStats.report(ctx.stage, sessions, tasks, activities, ctx.currentPeriod, day),
             loaded = true,
         ) to activities
     }
@@ -47,11 +43,11 @@ class RecordsViewModel(
     val state: StateFlow<RecordsUiState> = combine(base, streams.growthRecords, streams.observations) { (s, activities), records, observations ->
         s.copy(
             growth = GrowthStats.summarize(records, s.today),
-            growthRecords = records.filter { !it.deleted }.sortedByDescending { it.date }.take(MAX_RECORDS),
+            growthRecords = records.filter { !it.deleted }.sortedByDescending { it.date }.take(UiDefaults.MAX_RECENT_RECORDS),
             aptitude = AptitudeEngine.signals(activities, observations, s.today),
-            observations = observations.filter { !it.deleted }.sortedByDescending { it.date }.take(MAX_RECORDS),
+            observations = observations.filter { !it.deleted }.sortedByDescending { it.date }.take(UiDefaults.MAX_RECENT_RECORDS),
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), RecordsUiState())
+    }.asUiState(viewModelScope, RecordsUiState())
 
     fun saveGrowth(record: GrowthRecordEntity) = viewModelScope.launch { growth.saveRecord(record) }
     fun deleteGrowth(id: String) = viewModelScope.launch { growth.deleteRecord(id) }
@@ -68,7 +64,4 @@ class RecordsViewModel(
         }
     }
 
-    private companion object {
-        const val MAX_RECORDS = 5
-    }
 }
