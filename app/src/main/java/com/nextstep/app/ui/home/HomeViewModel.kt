@@ -1,5 +1,12 @@
 package com.nextstep.app.ui.home
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.domain.stats.StudyQueues
 import com.nextstep.app.domain.mission.MissionPlanner
@@ -41,6 +48,7 @@ class HomeViewModel(
     private val roadmap: RoadmapRepository,
     private val contents: ContentRepository,
     private val plans: StudyPlanRepository,
+    private val members: MemberRepository,
 ) : ViewModel() {
 
     private val base = combine(streams.profile, streams.subjects, streams.events, streams.tasks, streams.sessions) { profile, subjects, events, tasks, sessions ->
@@ -52,13 +60,15 @@ class HomeViewModel(
             todayMinutes = StudyStats.todayMinutes(sessions),
             weekMinutes = StudyStats.weekMinutes(sessions),
             weekGoalMinutes = subjects.sumOf { it.weeklyGoalMinutes },
+            week = StudyStats.dailyMinutes(sessions, DAYS_IN_WEEK),
+            streak = StudyStats.studyStreak(sessions),
             nextExam = StudyStats.upcomingExams(events, tasks).firstOrNull(),
             events = events,
             loaded = true,
         )
     }
 
-    private val lastPlan = kotlinx.coroutines.flow.MutableStateFlow<StudyPlan?>(null)
+    private val lastPlan = MutableStateFlow<StudyPlan?>(null)
 
     private val withProgress = combine(base, streams.topics, streams.runningTimer, streams.roadmap, lastPlan) { s, topics, timer, roadmap, plan ->
         val progress = StudyStats.subjectProgress(topics, s.subjects)
@@ -74,7 +84,14 @@ class HomeViewModel(
         val today = DateUtils.today()
         val ctx = StudentContext.of(members, today)
         val stage = ctx.stage
+        val level = ctx.student?.let { StudentUiLevel.of(it, today) } ?: StudentUiLevel.TREE
+        val seen = StudentUiLevel.fromName(ctx.student?.seenUiLevel)
+        val levelUp = level.takeIf { seen != null && it > seen }
         s.copy(
+            level = level,
+            levelUp = levelUp,
+            newSections = if (levelUp != null && seen != null) level.newSince(seen) else emptyList(),
+            studentId = ctx.student?.id,
             curriculum = CurriculumCatalog.forPeriod(ctx.currentPeriodKey),
             periodLabel = ctx.currentPeriod?.label,
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, journey, today), today),
@@ -90,6 +107,20 @@ class HomeViewModel(
         s.copy(latestNote = notes.maxByOrNull { it.createdAt }, missionFocus = MissionPlanner.focus(goals, steps, s.today))
     }
         .asUiState(viewModelScope, HomeUiState())
+
+    init {
+        // 처음 여는 학생 기기: 지금 단계를 확인한 것으로 조용히 남겨, 다음 학년에 올라갈 때만 "새 화면" 카드가 뜨게 합니다.
+        viewModelScope.launch {
+            streams.members.map { list -> list.firstOrNull { it.isStudent } }
+                .filterNotNull().filter { it.seenUiLevel.isBlank() }.distinctUntilChangedBy { it.id }
+                .collect { members.markUiLevelSeen(it.id, StudentUiLevel.of(it)) }
+        }
+    }
+
+    fun dismissLevelUp() = viewModelScope.launch {
+        val s = state.value
+        s.studentId?.let { members.markUiLevelSeen(it, s.level) }
+    }
 
     fun markContentWatched(id: String) = viewModelScope.launch { contents.setWatched(id, true) }
 
@@ -130,7 +161,11 @@ class HomeViewModel(
             is HomeEvent.ToggleTask -> toggleTask(event.task)
             is HomeEvent.MarkTopic -> markTopic(event.topic, event.status)
             is HomeEvent.AddQuickTask -> addQuickTask(event.subject, event.topic, event.type)
+            HomeEvent.DismissLevelUp -> dismissLevelUp()
         }
     }
 
+    private companion object {
+        const val DAYS_IN_WEEK = 7
+    }
 }

@@ -1,5 +1,9 @@
 package com.nextstep.app.ui.navigation
 
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.CompositionLocalProvider
+import com.nextstep.app.domain.growth.StudentUiLevel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -96,10 +100,10 @@ data class TopLevelDestination(val route: String, val label: String, val icon: I
  * 모든 역할이 같은 뼈대를 씁니다: 오늘 · 여정 · 기록(학생은 "나") · 가족, 가운데 + 는 기록하기 시트.
  * 화면마다 질문 하나("지금 뭐 하지?", "다음은?", "어떻게 하고 있지?", "누구와?")에만 답하고, 새 기능은 탭이 아니라 카드·항목·세그먼트로 들어갑니다.
  */
-private fun topLevelDestinations(role: Role): List<TopLevelDestination> = listOf(
+private fun topLevelDestinations(caps: Capabilities, studentLevel: StudentUiLevel?): List<TopLevelDestination> = listOfNotNull(
     TopLevelDestination(Routes.HOME, "오늘", Icons.Default.WbSunny),
-    TopLevelDestination(Routes.JOURNEY, "여정", Icons.Default.Timeline),
-    TopLevelDestination(Routes.RECORDS, if (role == Role.STUDENT) "나" else "기록", Icons.Default.BarChart),
+    TopLevelDestination(Routes.JOURNEY, "여정", Icons.Default.Timeline).takeIf { studentLevel?.showsJourneyTab ?: true },
+    TopLevelDestination(Routes.RECORDS, if (caps.isStudent) "나" else "기록", Icons.Default.BarChart),
     TopLevelDestination(Routes.FAMILY, "가족", Icons.Default.Group),
 )
 
@@ -111,14 +115,16 @@ fun NextStepRoot(rootViewModel: RootViewModel = viewModel(factory = AppViewModel
     when {
         current == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         !current.profile.onboarded || caps == null -> OnboardingScreen()
-        else -> MainScaffold(caps = caps, onSwitchChild = { rootViewModel.switchChild(it) })
+        else -> StudentTextScale(current.studentLevel) {
+            MainScaffold(caps = caps, studentLevel = current.studentLevel, onSwitchChild = { rootViewModel.switchChild(it) })
+        }
     }
 }
 
 @Composable
-private fun MainScaffold(caps: Capabilities, onSwitchChild: (String) -> Unit) {
+private fun MainScaffold(caps: Capabilities, studentLevel: StudentUiLevel?, onSwitchChild: (String) -> Unit) {
     val navController = rememberNavController()
-    val destinations = topLevelDestinations(caps.role)
+    val destinations = topLevelDestinations(caps, studentLevel)
     val backStack by navController.currentBackStackEntryAsState()
     val currentDestination = backStack?.destination
     val onTopLevel = destinations.any { d -> currentDestination?.hierarchy?.any { it.route == d.route } == true }
@@ -155,7 +161,7 @@ private fun MainScaffold(caps: Capabilities, onSwitchChild: (String) -> Unit) {
     }
 
     if (showQuickAdd) {
-        QuickAddSheet(caps = caps, onDismiss = { showQuickAdd = false }, onOpenTimer = { navController.navigate(Routes.TIMER) })
+        QuickAddSheet(caps = caps, studentLevel = studentLevel, onDismiss = { showQuickAdd = false }, onOpenTimer = { navController.navigate(Routes.TIMER) })
     }
 }
 
@@ -224,4 +230,12 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
         }
         composable(Routes.TIMER) { TimerScreen(actions = TimerActions(onBack = back)) }
     }
+}
+
+/** 학생 화면 단계의 글자 배율을 기기 글꼴 크기 위에 곱합니다. 학부모·멘토는 그대로. */
+@Composable
+private fun StudentTextScale(level: StudentUiLevel?, content: @Composable () -> Unit) {
+    if (level == null || level.textScale == 1f) return content()
+    val density = LocalDensity.current
+    CompositionLocalProvider(LocalDensity provides Density(density.density, density.fontScale * level.textScale), content = content)
 }

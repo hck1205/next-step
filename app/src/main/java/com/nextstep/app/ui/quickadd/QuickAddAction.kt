@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.access.Capabilities
 
 /** 기록하기 시트의 항목. 역할별로 5개 이하만 보입니다. */
@@ -12,15 +13,18 @@ enum class QuickAddAction(val title: String, val subtitle: String) {
     TIMER("타이머", "공부 시작을 기록해요");
 
     companion object {
-        /** 권한에 따라 보이는 항목. 순서가 곧 화면 순서입니다. */
-        fun availableFor(caps: Capabilities): List<QuickAddAction> = buildList {
+        /**
+         * 권한에 따라 보이는 항목. 순서가 곧 화면 순서입니다.
+         * 학생은 화면 단계만큼만(새싹: 타이머·활동, 떡잎: + 할 일) 보여 줍니다.
+         */
+        fun availableFor(caps: Capabilities, level: StudentUiLevel? = null): List<QuickAddAction> = buildList {
             if (caps.canUseTimer) add(TIMER)
             if (!caps.isStudent) add(CHEER)
             if (caps.canRecordActivities) add(ACTIVITY)
             if (caps.canCreateTasks) add(TASK)
             if (caps.canEditGrades) add(GRADE)
             if (caps.canEditEvents) add(EVENT)
-        }.take(MAX_ITEMS)
+        }.take(minOf(MAX_ITEMS, level?.recordChoices ?: MAX_ITEMS))
 
         const val MAX_ITEMS = 5
     }

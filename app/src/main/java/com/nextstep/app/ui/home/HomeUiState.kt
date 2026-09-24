@@ -1,5 +1,8 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.domain.stats.DayMinutes
+import com.nextstep.app.domain.growth.StudentHomeSection
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.NoteEntity
@@ -55,4 +58,13 @@ data class HomeUiState(
     val activeSubjects: List<SubjectProgress> = emptyList(),
     val previewQueue: List<Pair<SubjectEntity, TopicEntity>> = emptyList(),
     val reviewQueue: List<Pair<SubjectEntity, TopicEntity>> = emptyList(),
+    /** 학년에 맞춘 화면 단계. 어떤 카드를 몇 줄, 어떤 말로 보여 줄지 정합니다. 학생 정보가 없으면 전체 화면. */
+    val level: StudentUiLevel = StudentUiLevel.TREE,
+    /** 지난번 확인한 단계보다 올라갔으면 새 단계와 새로 생긴 카드. 카드를 닫으면 사라집니다. */
+    val levelUp: StudentUiLevel? = null,
+    val newSections: List<StudentHomeSection> = emptyList(),
+    val studentId: String? = null,
+    /** 최근 7일 학습 시간(별 스티커·요일 점)과 연속 학습 일수. */
+    val week: List<DayMinutes> = emptyList(),
+    val streak: Int = 0,
 )

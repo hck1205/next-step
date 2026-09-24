@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,7 +47,7 @@ import androidx.compose.runtime.setValue
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuickAddSheet(caps: Capabilities, onDismiss: () -> Unit, onOpenTimer: () -> Unit, viewModel: QuickAddViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun QuickAddSheet(caps: Capabilities, studentLevel: StudentUiLevel?, onDismiss: () -> Unit, onOpenTimer: () -> Unit, viewModel: QuickAddViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var picked by remember { mutableStateOf<QuickAddAction?>(null) }
     val context = LocalContext.current
@@ -63,7 +64,7 @@ fun QuickAddSheet(caps: Capabilities, onDismiss: () -> Unit, onOpenTimer: () -> 
         ModalBottomSheet(onDismissRequest = onDismiss) {
             Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 24.dp)) {
                 Text("무엇을 남길까요?", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
-                QuickAddAction.availableFor(caps).forEach { action ->
+                QuickAddAction.availableFor(caps, studentLevel).forEach { action ->
                     QuickAddItem(action) { if (action == QuickAddAction.TIMER) { onDismiss(); onOpenTimer() } else picked = action }
                 }
             }

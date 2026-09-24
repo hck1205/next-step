@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.prefs.LinkedChild
 import java.time.LocalDate
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -21,6 +22,9 @@ data class SettingsUiState(
     val ageLabel: String? = null,
     /** 연결 실패 같은 자녀 관련 안내. */
     val childError: String? = null,
+    /** 학생 화면 단계: 학년으로 정한 자동 값과 학부모가 고른 값(없으면 자동). */
+    val autoStudentLevel: StudentUiLevel? = null,
+    val chosenStudentLevel: StudentUiLevel? = null,
 ) {
     val children: List<LinkedChild> get() = profile?.children.orEmpty()
     val activeFamilyId: String? get() = profile?.familyId

@@ -1,5 +1,6 @@
 package com.nextstep.app.data.repository.room
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -42,6 +43,14 @@ class RoomMemberRepository(
 
     override suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?) =
         modify(memberId) { it.copy(birthDate = birthDate?.toEpochDay()) }
+
+    override suspend fun setUiLevel(memberId: String, level: StudentUiLevel?) =
+        modify(memberId) { it.copy(uiLevel = level?.name.orEmpty()) }
+
+    override suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel) {
+        if (dao.getById(memberId)?.seenUiLevel == level.name) return
+        modify(memberId) { it.copy(seenUiLevel = level.name) }
+    }
 
     override suspend fun remove(memberId: String) = modify(memberId) { it.copy(deleted = true) }
 

@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeMemberRepository
@@ -81,6 +82,16 @@ class SettingsViewModelTest : ViewModelTestBase() {
         vm.onEvent(SettingsEvent.SetBirthDate(java.time.LocalDate.of(2015, 2, 1)))
         settle(vm.state)
         assertEquals(listOf("grade:kid:5", "birth:kid:2015-02-01"), members.calls)
+        job.cancel()
+    }
+
+    @Test
+    fun studentScreenShowsAutoAndChosenLevelAndTargetsStudent() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.PARENT, "엄마", id = "me"), Fixtures.member(Role.STUDENT, "나", id = "kid", gradeYear = 4).copy(uiLevel = "SPROUT"))
+        val vm = vm(); val job = subscribe(vm.state); val s = settle(vm.state)
+        assertEquals(StudentUiLevel.SEEDLING, s.autoStudentLevel); assertEquals(StudentUiLevel.SPROUT, s.chosenStudentLevel)
+        vm.onEvent(SettingsEvent.SetStudentLevel(null)); vm.onEvent(SettingsEvent.SetStudentLevel(StudentUiLevel.STEM)); settle(vm.state)
+        assertEquals(listOf("uiLevel:kid:null", "uiLevel:kid:STEM"), members.calls)
         job.cancel()
     }
 }

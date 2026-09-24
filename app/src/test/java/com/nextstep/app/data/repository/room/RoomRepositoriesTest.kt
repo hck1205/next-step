@@ -1,5 +1,6 @@
 package com.nextstep.app.data.repository.room
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.RoadmapStatus
@@ -167,6 +168,21 @@ class RoomRepositoriesTest {
         repo.remove("m-엄마")
         assertEquals(listOf("김쌤"), repo.members.first().map { it.name })
         assertNull(dao.getById("nope").also { repo.remove("nope") })
+    }
+
+    @Test
+    fun studentScreenLevelIsChosenAndSeenOnTheMemberRow() = runTest {
+        val dao = FakeMemberDao().apply { seed(Fixtures.member(Role.STUDENT, "나", id = "kid")) }
+        val repo = RoomMemberRepository(dao, scope, sync, time)
+        repo.setUiLevel("kid", StudentUiLevel.SPROUT)
+        assertEquals("SPROUT", dao.getById("kid")!!.uiLevel); assertTrue(dao.getById("kid")!!.dirty)
+        repo.setUiLevel("kid", null)
+        assertEquals("", dao.getById("kid")!!.uiLevel)
+        repo.markUiLevelSeen("kid", StudentUiLevel.STEM)
+        val stamped = dao.getById("kid")!!.updatedAt
+        time.current += 1_000
+        repo.markUiLevelSeen("kid", StudentUiLevel.STEM) // 같은 값이면 다시 쓰지 않음
+        assertEquals("STEM", dao.getById("kid")!!.seenUiLevel); assertEquals(stamped, dao.getById("kid")!!.updatedAt)
     }
 
     @Test

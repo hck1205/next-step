@@ -1,5 +1,9 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.fake.FakeMemberRepository
+import com.nextstep.app.domain.growth.StudentHomeSection
+import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
@@ -25,9 +29,45 @@ class HomeViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams()
     private val tasks = FakeTaskRepository(); private val topics = FakeTopicRepository()
     private val roadmap = FakeRoadmapRepository(); private val contents = FakeContentRepository(); private val plans = FakeStudyPlanRepository()
+    private val members = FakeMemberRepository()
     private val today = DateUtils.today()
 
-    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans)
+    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members)
+
+    @Test
+    fun youngStudentGetsSproutScreenWeekStarsAndSeenLevelIsRecorded() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "하은", id = "kid", gradeYear = 1))
+        streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(0, 0), 20))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(StudentUiLevel.SPROUT, s.level); assertNull(s.levelUp); assertEquals("kid", s.studentId)
+        assertEquals(7, s.week.size); assertEquals(20, s.week.last().minutes); assertEquals(1, s.streak)
+        assertEquals(listOf("seen:kid:SPROUT"), members.calls)
+        job.cancel()
+    }
+
+    @Test
+    fun levelUpCardListsNewCardsUntilDismissedAndNeverShowsWhenLowered() = runTest {
+        val kid = Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 3)
+        streams.members.value = listOf(kid.copy(seenUiLevel = "SPROUT"))
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertEquals(StudentUiLevel.SEEDLING, s.levelUp)
+        assertEquals(listOf(StudentHomeSection.EVENTS, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION), s.newSections)
+        vm.onEvent(HomeEvent.DismissLevelUp); settle(vm.state)
+        assertEquals(listOf("seen:kid:SEEDLING"), members.calls)
+        streams.members.value = listOf(kid.copy(uiLevel = "SPROUT", seenUiLevel = "SEEDLING"))
+        s = settle(vm.state)
+        assertEquals(StudentUiLevel.SPROUT, s.level); assertNull(s.levelUp); assertTrue(s.newSections.isEmpty())
+        job.cancel()
+    }
+
+    @Test
+    fun withoutStudentInfoTheFullScreenIsUsed() = runTest {
+        val vm = vm(); val job = subscribe(vm.state)
+        assertEquals(StudentUiLevel.TREE, settle(vm.state).level); assertTrue(members.calls.isEmpty())
+        job.cancel()
+    }
 
     @Test
     fun missionFocusShowsNextStepOfDatedGoals() = runTest {

@@ -50,6 +50,8 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canAddChildren: Boolean get() = isParent
     /** 다른 자녀·학생을 연결 코드로 붙일 수 있는지(학부모·멘토). 학생은 자기 공간 하나. */
     val canLinkChildren: Boolean get() = !isStudent
+    /** 학생 화면 단계(새싹~나무)를 직접 고를 수 있는지. 아이의 속도를 가장 잘 아는 학부모만. */
+    val canChooseStudentScreen: Boolean get() = isParent
     /** 연결된 학부모·멘토를 목록에서 제거할 수 있는지. 학생 본인과 학부모만. */
     val canRemoveMembers: Boolean get() = isStudent || isParent
 

@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import androidx.lifecycle.ViewModel
 
 /** Settings 화면의 사용자 의도. Content 는 이 이벤트만 내보내고 ViewModel 이 처리합니다. */
@@ -12,6 +13,8 @@ sealed interface SettingsEvent {
     data class UpdateMyProfile(val name: String, val title: String) : SettingsEvent
     data class SetGradeYear(val gradeYear: Int) : SettingsEvent
     data class SetBirthDate(val date: java.time.LocalDate?) : SettingsEvent
+    /** 학생 화면 단계를 직접 고릅니다. null 이면 학년에 맞춰 자동. */
+    data class SetStudentLevel(val level: StudentUiLevel?) : SettingsEvent
     /** 다자녀 */
     data class SwitchChild(val familyId: String) : SettingsEvent
     data class AddChild(val name: String, val birthDate: java.time.LocalDate?) : SettingsEvent

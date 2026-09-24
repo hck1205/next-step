@@ -60,7 +60,7 @@ import com.nextstep.app.data.local.entity.ContentEntity
         ObservationEntity::class,
         PeerTopicEntity::class,
     ],
-    version = 11,
+    version = 12,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

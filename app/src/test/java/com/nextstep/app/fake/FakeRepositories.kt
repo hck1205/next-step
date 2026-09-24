@@ -1,5 +1,6 @@
 package com.nextstep.app.fake
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
@@ -134,6 +135,8 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun setMentorEnabled(memberId: String, enabled: Boolean) { calls += "mentor:$memberId:$enabled" }
     override suspend fun setGradeYear(memberId: String, gradeYear: Int) { calls += "grade:$memberId:$gradeYear" }
     override suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?) { calls += "birth:$memberId:$birthDate" }
+    override suspend fun setUiLevel(memberId: String, level: StudentUiLevel?) { calls += "uiLevel:$memberId:${level?.name}" }
+    override suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel) { calls += "seen:$memberId:${level.name}" }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 

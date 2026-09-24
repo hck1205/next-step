@@ -28,6 +28,10 @@ data class MemberEntity(
     val gradeYear: Int = 0,
     /** 학생(자녀) 생년월일 (epoch day). 있으면 학년보다 우선해 성장 단계와 여정 타임라인을 정합니다. */
     val birthDate: Long? = null,
+    /** 학생 화면 단계(StudentUiLevel 이름)를 학부모가 직접 고른 값. 비어 있으면 학년에 맞춰 자동. */
+    val uiLevel: String = "",
+    /** 학생이 마지막으로 확인한 화면 단계. 이보다 높은 단계가 되면 "새 화면" 카드를 한 번 보여 줍니다. */
+    val seenUiLevel: String = "",
     val joinedAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,

@@ -34,7 +34,7 @@ object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { with(container()) { RootViewModel(onboarding, members) } }
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
-        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans) } }
+        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members) } }
         initializer { with(container()) { ParentDashboardViewModel(streams, tasks, notes) } }
         initializer { with(container()) { MentorDashboardViewModel(streams, members, tasks, notes) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }

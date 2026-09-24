@@ -27,6 +27,7 @@ class CapabilitiesTest {
         assertTrue(student.canRemoveMembers); assertTrue(parent.canRemoveMembers); assertFalse(mentor.canRemoveMembers)
         assertTrue(parent.canToggleMentorMode); assertTrue(parentMentor.canToggleMentorMode)
         assertFalse(student.canToggleMentorMode); assertFalse(mentor.canToggleMentorMode)
+        assertTrue(parent.canChooseStudentScreen); assertFalse(student.canChooseStudentScreen); assertFalse(mentor.canChooseStudentScreen)
     }
 
     private val student = Capabilities(Role.STUDENT, mentorEnabled = false)

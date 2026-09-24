@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.Role
@@ -35,6 +36,11 @@ class QuickAddViewModelTest : ViewModelTestBase() {
         assertEquals(listOf(QuickAddAction.CHEER, QuickAddAction.ACTIVITY, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.PARENT, false)))
         assertEquals(listOf(QuickAddAction.CHEER, QuickAddAction.ACTIVITY, QuickAddAction.TASK, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.PARENT, true)))
         assertTrue(Role.entries.all { QuickAddAction.availableFor(Capabilities(it, true)).size <= QuickAddAction.MAX_ITEMS })
+        // 학생은 화면 단계만큼: 새싹 = 타이머·활동, 떡잎 = + 할 일, 줄기부터 전부
+        val student = Capabilities(Role.STUDENT, false)
+        assertEquals(listOf(QuickAddAction.TIMER, QuickAddAction.ACTIVITY), QuickAddAction.availableFor(student, StudentUiLevel.SPROUT))
+        assertEquals(listOf(QuickAddAction.TIMER, QuickAddAction.ACTIVITY, QuickAddAction.TASK), QuickAddAction.availableFor(student, StudentUiLevel.SEEDLING))
+        assertEquals(QuickAddAction.availableFor(student), QuickAddAction.availableFor(student, StudentUiLevel.STEM))
     }
 
     @Test

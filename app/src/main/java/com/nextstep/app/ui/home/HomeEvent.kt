@@ -18,4 +18,6 @@ sealed interface HomeEvent {
     data class ToggleTask(val task: TaskEntity) : HomeEvent
     data class MarkTopic(val topic: TopicEntity, val status: TopicStatus) : HomeEvent
     data class AddQuickTask(val subject: SubjectEntity, val topic: TopicEntity, val type: TaskType) : HomeEvent
+    /** "새 화면" 카드 닫기: 지금 단계를 확인한 것으로 남깁니다. */
+    data object DismissLevelUp : HomeEvent
 }

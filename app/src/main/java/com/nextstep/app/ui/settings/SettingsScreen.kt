@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import com.nextstep.app.ui.settings.components.StudentScreenCard
 import com.nextstep.app.ui.settings.components.RelationPicker
 import com.nextstep.app.ui.settings.components.ChildrenCard
 import com.nextstep.app.ui.settings.components.AddChildDialog
@@ -115,6 +116,10 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
                 birthDate = state.birthDate, ageLabel = state.ageLabel, gradeYear = state.student?.gradeYear ?: 0,
                 onBirthDate = { onEvent(SettingsEvent.SetBirthDate(it)) }, onGradeYear = { onEvent(SettingsEvent.SetGradeYear(it)) },
             )
+            if (caps.canChooseStudentScreen) state.autoStudentLevel?.let { auto ->
+                SectionTitle("아이 화면")
+                StudentScreenCard(auto = auto, chosen = state.chosenStudentLevel, onChoose = { onEvent(SettingsEvent.SetStudentLevel(it)) })
+            }
 
             SectionTitle("연결된 구성원")
             MembersCard(state.members, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { confirmRemove = it })

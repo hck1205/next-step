@@ -1,5 +1,6 @@
 package com.nextstep.app.data.repository
 
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.local.entity.MemberEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -18,5 +19,9 @@ interface MemberRepository {
     suspend fun setGradeYear(memberId: String, gradeYear: Int)
     /** 학생 생년월일. null 이면 지웁니다. 여정 타임라인의 기준. */
     suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?)
+    /** 학생 화면 단계를 직접 고릅니다. null 이면 학년에 맞춰 자동. */
+    suspend fun setUiLevel(memberId: String, level: StudentUiLevel?)
+    /** 학생이 이 화면 단계를 확인했다고 남깁니다("새 화면" 카드를 닫음). */
+    suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel)
     suspend fun remove(memberId: String)
 }
