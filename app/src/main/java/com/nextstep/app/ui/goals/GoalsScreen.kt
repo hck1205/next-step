@@ -51,6 +51,18 @@ fun GoalsScreen(caps: Capabilities, actions: GoalsActions, viewModel: GoalsViewM
 internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: GoalsActions, onEvent: (GoalsEvent) -> Unit) {
     var showAdd by remember { mutableStateOf(false) }
     var expandedGoalId by remember { mutableStateOf<String?>(null) }
+    val goalCard: @Composable (GoalView) -> Unit = { view ->
+        GoalCard(
+            view = view, periodLabel = state::periodLabel, currentPeriodKey = state.currentPeriodKey,
+            expanded = expandedGoalId == view.goal.id, onToggle = { expandedGoalId = if (expandedGoalId == view.goal.id) null else view.goal.id },
+            canManage = caps.canManageGoals,
+            onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
+            onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
+            onAddStep = { periodKey, title -> onEvent(GoalsEvent.AddStep(view.goal.id, periodKey, title)) },
+            onSetGoalStatus = { onEvent(GoalsEvent.SetGoalStatus(view.goal.id, it)) },
+            onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -82,18 +94,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
                 }
             }
             if (state.active.isNotEmpty()) item { SectionTitle("진행 중인 목표 · ${state.active.size}") }
-            items(state.active, key = { it.goal.id }) { view ->
-                GoalCard(
-                    view = view, periodLabel = state::periodLabel, currentPeriodKey = state.currentPeriodKey,
-                    expanded = expandedGoalId == view.goal.id, onToggle = { expandedGoalId = if (expandedGoalId == view.goal.id) null else view.goal.id },
-                    canManage = caps.canManageGoals,
-                    onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
-                    onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
-                    onAddStep = { periodKey, title -> onEvent(GoalsEvent.AddStep(view.goal.id, periodKey, title)) },
-                    onSetGoalStatus = { onEvent(GoalsEvent.SetGoalStatus(view.goal.id, it)) },
-                    onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
-                )
-            }
+            items(state.active, key = { it.goal.id }) { goalCard(it) }
             if (state.availableTracks.isNotEmpty()) {
                 item { SectionTitle("시작할 수 있는 트랙 · ${state.availableTracks.size}") }
                 items(state.availableTracks, key = { "t-${it.id}" }) { track ->
@@ -102,18 +103,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
             }
             if (state.finished.isNotEmpty()) {
                 item { SectionTitle("달성·보관 · ${state.finished.size}") }
-                items(state.finished, key = { it.goal.id }) { view ->
-                    GoalCard(
-                        view = view, periodLabel = state::periodLabel, currentPeriodKey = state.currentPeriodKey,
-                        expanded = expandedGoalId == view.goal.id, onToggle = { expandedGoalId = if (expandedGoalId == view.goal.id) null else view.goal.id },
-                        canManage = caps.canManageGoals,
-                        onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
-                        onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
-                        onAddStep = { periodKey, title -> onEvent(GoalsEvent.AddStep(view.goal.id, periodKey, title)) },
-                        onSetGoalStatus = { onEvent(GoalsEvent.SetGoalStatus(view.goal.id, it)) },
-                        onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
-                    )
-                }
+                items(state.finished, key = { it.goal.id }) { goalCard(it) }
             }
         }
     }

@@ -1,9 +1,7 @@
 package com.nextstep.app.ui.curriculum
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -29,9 +26,11 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
-import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.curriculum.components.UnitRow
+import com.nextstep.app.ui.curriculum.components.BulletCard
+import com.nextstep.app.ui.curriculum.components.PeriodNavRow
+import com.nextstep.app.ui.curriculum.components.SubjectPlanCard
+import com.nextstep.app.ui.curriculum.components.TermOverviewCard
 import androidx.compose.runtime.getValue
 import com.nextstep.app.ui.common.ExternalLinks
 
@@ -65,11 +64,10 @@ internal fun CurriculumContent(state: CurriculumUiState, caps: Capabilities, act
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { onEvent(CurriculumEvent.PrevPeriod) }, enabled = state.hasPrev) { Text("◀ 지난 학기") }
-                    TextButton(onClick = { onEvent(CurriculumEvent.ThisPeriod) }, enabled = !state.isCurrent && state.currentPeriodKey != null, modifier = Modifier.weight(1f)) { Text(if (state.isCurrent) "지금 학기" else "지금 학기로") }
-                    TextButton(onClick = { onEvent(CurriculumEvent.NextPeriod) }, enabled = state.hasNext) { Text("다음 학기 ▶") }
-                }
+                PeriodNavRow(
+                    hasPrev = state.hasPrev, hasNext = state.hasNext, isCurrent = state.isCurrent, canJumpToCurrent = state.currentPeriodKey != null,
+                    onPrev = { onEvent(CurriculumEvent.PrevPeriod) }, onCurrent = { onEvent(CurriculumEvent.ThisPeriod) }, onNext = { onEvent(CurriculumEvent.NextPeriod) },
+                )
             }
             val plan = state.plan
             if (state.loaded && plan == null) {
@@ -77,55 +75,22 @@ internal fun CurriculumContent(state: CurriculumUiState, caps: Capabilities, act
                 return@LazyColumn
             }
             if (plan == null) return@LazyColumn
-            item {
-                AppCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("이 학기에 길러야 할 것", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        plan.curriculum.competencies.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) }
-                        plan.curriculum.startNow.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
-                        LabeledProgress(label = "내 과목에 등록된 단원", ratio = plan.registeredRatio, color = MaterialTheme.colorScheme.primary)
-                        if (plan.essentialTodo.isNotEmpty()) Text("아직 등록 안 된 뼈대 단원 ${plan.essentialTodo.size}개 · 과목 카드의 '가져오기'로 한 번에", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
-                    }
-                }
-            }
+            item { TermOverviewCard(plan) }
             items(plan.subjects, key = { it.subject }) { sp ->
-                AppCard(onClick = sp.familySubject?.let { fs -> { actions.onOpenSubject(fs.id) } }) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text(sp.subject, style = MaterialTheme.typography.titleMedium)
-                                Text(
-                                    if (sp.familySubject == null) "내 과목에 없음 · 단원 ${sp.units.size}개" else "내 과목 '${sp.familySubject.name}' · 미등록 ${sp.notRegistered.size}개",
-                                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            if (caps.canEditTopics && sp.notRegistered.isNotEmpty()) TextButton(onClick = { onEvent(CurriculumEvent.ImportSubject(sp.subject)) }) { Text("가져오기") }
-                        }
-                        sp.units.forEach { up ->
-                            UnitRow(
-                                plan = up,
-                                onAddTask = if (caps.canCreateTasks) ({ onEvent(CurriculumEvent.AddTask(up.unit, caps.actingRoleName)) }) else null,
-                                onOpenUrl = openUrl,
-                                onWatched = { onEvent(CurriculumEvent.MarkWatched(it)) },
-                            )
-                        }
-                    }
-                }
+                SubjectPlanCard(
+                    sp, caps, onOpenSubject = actions.onOpenSubject,
+                    onImport = { onEvent(CurriculumEvent.ImportSubject(sp.subject)) },
+                    onAddTask = { onEvent(CurriculumEvent.AddTask(it, caps.actingRoleName)) },
+                    onOpenUrl = openUrl, onWatched = { onEvent(CurriculumEvent.MarkWatched(it)) },
+                )
             }
             if (plan.peerExtras.isNotEmpty()) {
                 item { SectionTitle("다른 가족들이 이 시기에 더 배운 것") }
-                item {
-                    AppCard {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            plan.peerExtras.forEach { Text("${it.subject} · ${it.title} · ${it.families}가족", style = MaterialTheme.typography.bodyMedium) }
-                            Text("참고용이에요. 우리 아이 진도가 기준입니다.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                }
+                item { BulletCard(plan.peerExtras.map { "${it.subject} · ${it.title} · ${it.families}가족" }, footnote = "참고용이에요. 우리 아이 진도가 기준입니다.", bullet = "") }
             }
             if (state.nextPreview.isNotEmpty()) {
                 item { SectionTitle("다음 학기 미리 보기 · 뼈대 단원") }
-                item { AppCard { Column(verticalArrangement = Arrangement.spacedBy(4.dp)) { state.nextPreview.forEach { Text("• $it", style = MaterialTheme.typography.bodyMedium) } } } }
+                item { BulletCard(state.nextPreview) }
             }
             item {
                 Text("교육과정(2022 개정) 기준이며 교과서에 따라 순서가 조금 다를 수 있어요. 선행이 아니라 학교 진도가 기준입니다.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

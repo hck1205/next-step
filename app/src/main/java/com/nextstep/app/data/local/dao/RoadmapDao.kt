@@ -8,22 +8,22 @@ import kotlinx.coroutines.flow.Flow
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 
 @Dao
-interface RoadmapDao {
+interface RoadmapDao : SyncDao<RoadmapItemEntity> {
     @Query("SELECT * FROM roadmap_items WHERE familyId = :familyId AND deleted = 0 ORDER BY status, targetDate, orderIndex")
     fun observeAll(familyId: String): Flow<List<RoadmapItemEntity>>
 
     @Query("SELECT * FROM roadmap_items WHERE id = :id")
-    suspend fun getById(id: String): RoadmapItemEntity?
+    override suspend fun getById(id: String): RoadmapItemEntity?
 
     @Query("SELECT COUNT(*) FROM roadmap_items WHERE familyId = :familyId AND deleted = 0")
     suspend fun count(familyId: String): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(item: RoadmapItemEntity)
+    override suspend fun upsert(item: RoadmapItemEntity)
 
     @Query("SELECT * FROM roadmap_items WHERE familyId = :familyId AND dirty = 1")
-    suspend fun getDirty(familyId: String): List<RoadmapItemEntity>
+    override suspend fun getDirty(familyId: String): List<RoadmapItemEntity>
 
     @Query("UPDATE roadmap_items SET dirty = 0 WHERE id IN (:ids)")
-    suspend fun markClean(ids: List<String>)
+    override suspend fun markClean(ids: List<String>)
 }

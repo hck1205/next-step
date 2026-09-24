@@ -2,6 +2,7 @@ package com.nextstep.app.data.sync
 
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.sync.mapper.NoteMapper
+import com.nextstep.app.fake.dao.FakeNoteDao
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -65,5 +66,22 @@ class SyncedCollectionTest {
         assertEquals(5, cleaned.size)
         assertTrue(store.values.filter { it.familyId == "fam" }.none { it.dirty })
         assertTrue(store.getValue("other").dirty)
+    }
+
+    @Test
+    fun factoryBindsDaoContractAndReadOnlyNeverPushes() = runTest {
+        val dao = FakeNoteDao()
+        val viaDao = SyncedCollection.of(NoteMapper, dao)
+        assertTrue(viaDao.mergeRemote("n1", NoteMapper.toMap(note("n1", updatedAt = 10))))
+        assertEquals("t", dao.getById("n1")!!.text)
+        var pushed = 0
+        viaDao.pushDirty("fam") { pushed += it.size }
+        assertEquals(1, pushed)
+
+        val readOnly = SyncedCollection.readOnly(NoteMapper, dao::getById, dao::upsert)
+        var pushedRo = 0
+        readOnly.pushDirty("fam") { pushedRo += it.size }
+        assertEquals(0, pushedRo)
+        assertEquals(NoteMapper.collection, readOnly.name)
     }
 }

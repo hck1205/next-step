@@ -8,11 +8,11 @@ import com.nextstep.app.data.sync.mapper.GoalMapper
 import com.nextstep.app.data.sync.mapper.GoalStepMapper
 import com.nextstep.app.data.sync.mapper.GradeMapper
 import com.nextstep.app.data.sync.mapper.GrowthRecordMapper
-import com.nextstep.app.data.sync.mapper.ObservationMapper
-import com.nextstep.app.data.sync.mapper.PeerTopicMapper
 import com.nextstep.app.data.sync.mapper.JourneyItemMapper
 import com.nextstep.app.data.sync.mapper.MemberMapper
 import com.nextstep.app.data.sync.mapper.NoteMapper
+import com.nextstep.app.data.sync.mapper.ObservationMapper
+import com.nextstep.app.data.sync.mapper.PeerTopicMapper
 import com.nextstep.app.data.sync.mapper.RoadmapItemMapper
 import com.nextstep.app.data.sync.mapper.StudySessionMapper
 import com.nextstep.app.data.sync.mapper.SubjectMapper
@@ -21,39 +21,38 @@ import com.nextstep.app.data.sync.mapper.TopicMapper
 
 /**
  * 가족 단위로 동기화하는 컬렉션 목록. 새 엔티티는 여기 한 줄만 추가하면 수신·전송 모두 붙습니다.
+ * DAO 가 SyncDao 를 구현하므로 매퍼와 DAO 만 짝지으면 됩니다.
  */
 object SyncRegistry {
     fun familyCollections(db: AppDatabase): List<SyncedCollection<*>> = listOf(
-        SyncedCollection(SubjectMapper, db.subjectDao()::getById, db.subjectDao()::upsert, db.subjectDao()::getDirty, db.subjectDao()::markClean),
-        SyncedCollection(TopicMapper, db.topicDao()::getById, db.topicDao()::upsert, db.topicDao()::getDirty, db.topicDao()::markClean),
-        SyncedCollection(TaskMapper, db.taskDao()::getById, db.taskDao()::upsert, db.taskDao()::getDirty, db.taskDao()::markClean),
-        SyncedCollection(EventMapper, db.eventDao()::getById, db.eventDao()::upsert, db.eventDao()::getDirty, db.eventDao()::markClean),
-        SyncedCollection(GradeMapper, db.gradeDao()::getById, db.gradeDao()::upsert, db.gradeDao()::getDirty, db.gradeDao()::markClean),
-        SyncedCollection(StudySessionMapper, db.studySessionDao()::getById, db.studySessionDao()::upsert, db.studySessionDao()::getDirty, db.studySessionDao()::markClean),
-        SyncedCollection(NoteMapper, db.noteDao()::getById, db.noteDao()::upsert, db.noteDao()::getDirty, db.noteDao()::markClean),
-        SyncedCollection(MemberMapper, db.memberDao()::getById, db.memberDao()::upsert, db.memberDao()::getDirty, db.memberDao()::markClean),
-        SyncedCollection(RoadmapItemMapper, db.roadmapDao()::getById, db.roadmapDao()::upsert, db.roadmapDao()::getDirty, db.roadmapDao()::markClean),
-        SyncedCollection(ContentMapper.Family, db.contentDao()::getById, db.contentDao()::upsert, db.contentDao()::getDirty, db.contentDao()::markClean),
-        SyncedCollection(JourneyItemMapper, db.journeyDao()::getById, db.journeyDao()::upsert, db.journeyDao()::getDirty, db.journeyDao()::markClean),
-        SyncedCollection(GoalMapper, db.goalDao()::getById, db.goalDao()::upsert, db.goalDao()::getDirty, db.goalDao()::markClean),
-        SyncedCollection(GoalStepMapper, db.goalStepDao()::getById, db.goalStepDao()::upsert, db.goalStepDao()::getDirty, db.goalStepDao()::markClean),
-        SyncedCollection(ActivityMapper, db.activityDao()::getById, db.activityDao()::upsert, db.activityDao()::getDirty, db.activityDao()::markClean),
-        SyncedCollection(GrowthRecordMapper, db.growthRecordDao()::getById, db.growthRecordDao()::upsert, db.growthRecordDao()::getDirty, db.growthRecordDao()::markClean),
-        SyncedCollection(ObservationMapper, db.observationDao()::getById, db.observationDao()::upsert, db.observationDao()::getDirty, db.observationDao()::markClean),
+        SyncedCollection.of(SubjectMapper, db.subjectDao()),
+        SyncedCollection.of(TopicMapper, db.topicDao()),
+        SyncedCollection.of(TaskMapper, db.taskDao()),
+        SyncedCollection.of(EventMapper, db.eventDao()),
+        SyncedCollection.of(GradeMapper, db.gradeDao()),
+        SyncedCollection.of(StudySessionMapper, db.studySessionDao()),
+        SyncedCollection.of(NoteMapper, db.noteDao()),
+        SyncedCollection.of(MemberMapper, db.memberDao()),
+        SyncedCollection.of(RoadmapItemMapper, db.roadmapDao()),
+        SyncedCollection.of(ContentMapper.Family, db.contentDao()),
+        SyncedCollection.of(JourneyItemMapper, db.journeyDao()),
+        SyncedCollection.of(GoalMapper, db.goalDao()),
+        SyncedCollection.of(GoalStepMapper, db.goalStepDao()),
+        SyncedCollection.of(ActivityMapper, db.activityDao()),
+        SyncedCollection.of(GrowthRecordMapper, db.growthRecordDao()),
+        SyncedCollection.of(ObservationMapper, db.observationDao()),
     )
 
     /** 최상위 공용 컬렉션(읽기 전용) 전부. 새 공용 데이터는 여기 한 줄. */
     fun globalCollections(db: AppDatabase): List<SyncedCollection<*>> = listOf(catalogCollection(db), peerTopicsCollection(db))
 
     /** 서버가 집계한 또래 단원 통계. 읽기만 합니다. */
-    fun peerTopicsCollection(db: AppDatabase): SyncedCollection<*> = SyncedCollection(
-        PeerTopicMapper, db.peerTopicDao()::getById, db.peerTopicDao()::upsert, getDirty = { emptyList() }, markClean = {},
-    )
+    fun peerTopicsCollection(db: AppDatabase): SyncedCollection<*> =
+        SyncedCollection.readOnly(PeerTopicMapper, db.peerTopicDao()::getById, db.peerTopicDao()::upsert)
 
     /** 운영자가 큐레이팅하는 공용 콘텐츠 저장소. 읽기 전용이며 기기 로컬의 시청 표시는 보존합니다. */
-    fun catalogCollection(db: AppDatabase): SyncedCollection<*> = SyncedCollection(
+    fun catalogCollection(db: AppDatabase): SyncedCollection<*> = SyncedCollection.readOnly(
         ContentMapper.Catalog, db.contentDao()::getById, db.contentDao()::upsert,
-        getDirty = { emptyList() }, markClean = {},
         reconcile = { remote, local -> remote.copy(watched = local?.watched ?: false) },
     )
 }

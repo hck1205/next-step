@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import com.nextstep.app.data.local.entity.TopicEntity
 
 @Dao
-interface TopicDao {
+interface TopicDao : SyncDao<TopicEntity> {
     @Query("SELECT * FROM topics WHERE familyId = :familyId AND deleted = 0 ORDER BY subjectId, orderIndex")
     fun observeAll(familyId: String): Flow<List<TopicEntity>>
 
@@ -19,17 +19,17 @@ interface TopicDao {
     suspend fun getBySubject(subjectId: String): List<TopicEntity>
 
     @Query("SELECT * FROM topics WHERE id = :id")
-    suspend fun getById(id: String): TopicEntity?
+    override suspend fun getById(id: String): TopicEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(item: TopicEntity)
+    override suspend fun upsert(item: TopicEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(items: List<TopicEntity>)
 
     @Query("SELECT * FROM topics WHERE familyId = :familyId AND dirty = 1")
-    suspend fun getDirty(familyId: String): List<TopicEntity>
+    override suspend fun getDirty(familyId: String): List<TopicEntity>
 
     @Query("UPDATE topics SET dirty = 0 WHERE id IN (:ids)")
-    suspend fun markClean(ids: List<String>)
+    override suspend fun markClean(ids: List<String>)
 }

@@ -12,4 +12,6 @@ object UiDefaults {
     const val MAX_NOTES = 10
     /** 멘토 대시보드의 분석 카드 개수. 학부모 첫 화면은 MAX_ROWS. */
     const val MAX_INSIGHTS = 4
+    /** 로드맵 화면의 진도 기반 추천 칩 개수. */
+    const val MAX_SUGGESTIONS = 6
 }

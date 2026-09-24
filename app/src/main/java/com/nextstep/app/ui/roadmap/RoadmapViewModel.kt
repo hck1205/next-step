@@ -20,7 +20,7 @@ class RoadmapViewModel(
     private val roadmap: RoadmapRepository,
 ) : ViewModel() {
     val state: StateFlow<RoadmapUiState> = combine(streams.subjects, streams.roadmap, streams.topics, streams.profile, streams.contents) { subjects, items, topics, profile, contents ->
-        RoadmapUiState(subjects, items, StudyStats.subjectProgress(topics, subjects), topics, profile.studentName, contents)
+        RoadmapUiState.derive(subjects, items, StudyStats.subjectProgress(topics, subjects), topics, profile.studentName, contents)
     }.asUiState(viewModelScope, RoadmapUiState())
 
     fun save(existing: RoadmapItemEntity?, subjectId: String?, title: String, description: String, resource: String, targetDate: LocalDate?, contentId: String?) = viewModelScope.launch {

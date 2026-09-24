@@ -1,5 +1,6 @@
 package com.nextstep.app.data.sync
 
+import com.nextstep.app.data.local.dao.SyncDao
 import com.nextstep.app.data.local.entity.Syncable
 
 /**
@@ -39,5 +40,13 @@ class SyncedCollection<T : Syncable>(
     companion object {
         /** Firestore 배치 쓰기 한도(500) 아래로. */
         const val DEFAULT_BATCH = 400
+
+        /** 가족 컬렉션: DAO 의 고정 계약(SyncDao)을 그대로 씁니다. */
+        fun <T : Syncable> of(mapper: EntityMapper<T>, dao: SyncDao<T>, reconcile: (remote: T, local: T?) -> T = { remote, _ -> remote }): SyncedCollection<T> =
+            SyncedCollection(mapper, dao::getById, dao::upsert, dao::getDirty, dao::markClean, reconcile)
+
+        /** 공용 컬렉션: 받기만 하고 올리지 않습니다. */
+        fun <T : Syncable> readOnly(mapper: EntityMapper<T>, getLocal: suspend (id: String) -> T?, upsert: suspend (T) -> Unit, reconcile: (remote: T, local: T?) -> T = { remote, _ -> remote }): SyncedCollection<T> =
+            SyncedCollection(mapper, getLocal, upsert, getDirty = { emptyList() }, markClean = {}, reconcile = reconcile)
     }
 }

@@ -8,22 +8,22 @@ import kotlinx.coroutines.flow.Flow
 import com.nextstep.app.data.local.entity.NoteEntity
 
 @Dao
-interface NoteDao {
+interface NoteDao : SyncDao<NoteEntity> {
     @Query("SELECT * FROM notes WHERE familyId = :familyId AND deleted = 0 ORDER BY createdAt DESC")
     fun observeAll(familyId: String): Flow<List<NoteEntity>>
 
     @Query("SELECT * FROM notes WHERE id = :id")
-    suspend fun getById(id: String): NoteEntity?
+    override suspend fun getById(id: String): NoteEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(item: NoteEntity)
+    override suspend fun upsert(item: NoteEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(items: List<NoteEntity>)
 
     @Query("SELECT * FROM notes WHERE familyId = :familyId AND dirty = 1")
-    suspend fun getDirty(familyId: String): List<NoteEntity>
+    override suspend fun getDirty(familyId: String): List<NoteEntity>
 
     @Query("UPDATE notes SET dirty = 0 WHERE id IN (:ids)")
-    suspend fun markClean(ids: List<String>)
+    override suspend fun markClean(ids: List<String>)
 }
