@@ -74,9 +74,11 @@ class SyncedCollectionTest {
         val viaDao = SyncedCollection.of(NoteMapper, dao)
         assertTrue(viaDao.mergeRemote("n1", NoteMapper.toMap(note("n1", updatedAt = 10))))
         assertEquals("t", dao.getById("n1")!!.text)
-        var pushed = 0
-        viaDao.pushDirty("fam") { pushed += it.size }
-        assertEquals(1, pushed)
+        assertFalse(dao.getById("n1")!!.dirty)
+        dao.upsert(note("n2", updatedAt = 20))
+        val pushed = mutableListOf<String>()
+        viaDao.pushDirty("fam") { docs -> pushed += docs.map { it.first } }
+        assertEquals(listOf("n2"), pushed)
 
         val readOnly = SyncedCollection.readOnly(NoteMapper, dao::getById, dao::upsert)
         var pushedRo = 0
