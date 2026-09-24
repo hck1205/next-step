@@ -42,6 +42,8 @@ class MentorDashboardViewModel(
         MentorDashboardUiState(
             me = me,
             studentName = profile.studentName,
+            students = profile.children,
+            activeFamilyId = profile.familyId,
             syncStatus = sync,
             allSubjects = subjects,
             subjects = MentorScope.of(me, subjects).subjects,

@@ -27,6 +27,13 @@ class RootViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun switchChildGoesThroughOnboarding() = runTest {
+        val vm = RootViewModel(onboarding, members)
+        vm.switchChild("famB"); advanceUntilIdle()
+        assertEquals(listOf("resume", "switch:famB"), onboarding.calls)
+    }
+
+    @Test
     fun capabilitiesFollowRoleAndMentorFlag() = runTest {
         val vm = RootViewModel(onboarding, members)
         onboarding.profile.value = UserProfile(Role.PARENT, "엄마", "fam", "ABC123", "학생", onboarded = true, memberId = "me")

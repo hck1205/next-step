@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.onboarding
 
+import com.nextstep.app.data.model.GuardianRelation
 import androidx.lifecycle.ViewModel
 import com.nextstep.app.data.model.Role
 
@@ -9,6 +10,7 @@ sealed interface OnboardingEvent {
     data class SetName(val v: String) : OnboardingEvent
     data class SetCode(val v: String) : OnboardingEvent
     data class SetTitle(val v: String) : OnboardingEvent
+    data class SetRelation(val relation: GuardianRelation?) : OnboardingEvent
     data class SetGrade(val gradeYear: Int) : OnboardingEvent
     data class SetBirthDate(val date: java.time.LocalDate?) : OnboardingEvent
     data class SetCreateAsParent(val create: Boolean) : OnboardingEvent

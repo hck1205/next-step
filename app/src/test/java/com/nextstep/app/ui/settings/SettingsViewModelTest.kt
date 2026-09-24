@@ -49,6 +49,22 @@ class SettingsViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun childrenComeFromProfileAndChildEventsGoToOnboarding() = runTest {
+        streams.profile.value = streams.profile.value.copy(children = listOf(com.nextstep.app.data.prefs.LinkedChild("fam", "지우", "A", "me"), com.nextstep.app.data.prefs.LinkedChild("famB", "하은", "B", "me2")))
+        onboarding.joinResult = Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertEquals(listOf("지우", "하은"), s.children.map { it.studentName }); assertEquals("fam", s.activeFamilyId)
+        vm.onEvent(SettingsEvent.SwitchChild("famB")); vm.onEvent(SettingsEvent.AddChild(" 막내 ", null)); vm.onEvent(SettingsEvent.AddChild(" ", null)); vm.onEvent(SettingsEvent.LinkChild("zzz999"))
+        s = settle(vm.state)
+        assertEquals(listOf("switch:famB", "addChild:막내:null", "linkChild:zzz999"), onboarding.calls)
+        assertEquals("코드에 해당하는 학생을 찾지 못했습니다", s.childError)
+        vm.onEvent(SettingsEvent.DismissChildError)
+        assertEquals(null, settle(vm.state).childError)
+        job.cancel()
+    }
+
+    @Test
     fun signOutAndSyncGoToOnboardingRepository() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
         vm.onEvent(SettingsEvent.RequestSync); vm.onEvent(SettingsEvent.SignOut)

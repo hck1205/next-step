@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.mentor
 
+import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.data.local.entity.GradeEntity
@@ -37,6 +38,9 @@ data class MentorDashboardUiState(
     val roadmap: RoadmapSummary = RoadmapSummary(),
     val stage: GrowthStage? = null,
     val mentorTip: String? = null,
+    /** 이 기기에 연결된 학생들과 지금 보고 있는 학생. */
+    val students: List<LinkedChild> = emptyList(),
+    val activeFamilyId: String? = null,
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 }

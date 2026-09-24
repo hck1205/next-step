@@ -56,6 +56,45 @@ class RoomOnboardingAndSessionTest {
     }
 
     @Test
+    fun parentCanAddSecondChildAndSwitchBetweenChildren() = runTest {
+        val first = onboarding().createFamilyAsParent("김수진", "지우", LocalDate.of(2015, 7, 3), relation = "엄마").getOrThrow()
+        val me = members.all.single { it.isParent }
+        assertEquals("엄마", me.title); assertEquals("엄마", me.roleLabel)
+        val second = onboarding().addChildAsParent("하은", LocalDate.of(2020, 5, 1)).getOrThrow()
+        var profile = prefs.profile.value
+        assertEquals(listOf("지우", "하은"), profile.children.map { it.studentName }); assertTrue(profile.hasSeveralChildren)
+        assertEquals(second.familyId, profile.familyId); assertEquals("하은", profile.studentName); assertEquals(second.familyId, sync.startedWith)
+        val meInSecond = members.all.single { it.isParent && it.familyId == second.familyId }
+        assertEquals("엄마", meInSecond.title); assertEquals("김수진", meInSecond.name); assertEquals(meInSecond.id, profile.memberId)
+        onboarding().switchChild(first.familyId)
+        profile = prefs.profile.value
+        assertEquals(first.familyId, profile.familyId); assertEquals(me.id, profile.memberId); assertEquals("지우", profile.studentName)
+        assertEquals(first.familyId, sync.startedWith)
+        sync.startedWith = null
+        onboarding().switchChild(first.familyId); onboarding().switchChild("unknown")
+        assertNull(sync.startedWith)
+    }
+
+    @Test
+    fun linkChildJoinsAnotherStudentOnceAndOnlyForNonStudents() = runTest {
+        val sibling = onboarding().createFamilyAsStudent("민수", 8).getOrThrow()
+        prefs.reset()
+        onboarding().createFamilyAsParent("아빠", "지우", null, relation = "아빠").getOrThrow()
+        val linked = onboarding().linkChild(sibling.pairingCode.lowercase()).getOrThrow()
+        assertEquals(sibling.familyId, linked.familyId)
+        val profile = prefs.profile.value
+        assertEquals(listOf("지우", "민수"), profile.children.map { it.studentName }); assertEquals(sibling.familyId, profile.familyId)
+        assertEquals("아빠", members.all.single { it.familyId == sibling.familyId && it.isParent }.title)
+        val before = members.all.size
+        onboarding().linkChild(sibling.pairingCode).getOrThrow()
+        assertEquals(before, members.all.size)
+        assertTrue(onboarding().linkChild("NOPE00").isFailure)
+        prefs.reset(); onboarding().createFamilyAsStudent("나", 5)
+        assertTrue(onboarding().linkChild(sibling.pairingCode).isFailure)
+        assertTrue(onboarding().addChildAsParent("x", null).isFailure)
+    }
+
+    @Test
     fun studentOnboardingFailsWhenServerRejects() = runTest {
         val failing = RecordingSyncManager(createResult = Result.failure(IllegalStateException("서버 오류")))
         val result = onboarding(failing).createFamilyAsStudent("민수")

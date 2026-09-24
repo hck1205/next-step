@@ -12,4 +12,8 @@ data class UserProfile(
     val onboarded: Boolean,
     /** 이 기기 사용자의 구성원(MemberEntity) ID. */
     val memberId: String?,
-)
+    /** 이 기기에 연결된 모든 자녀. 지금 보고 있는 자녀는 [familyId] 로 고릅니다. */
+    val children: List<LinkedChild> = emptyList(),
+) {
+    val hasSeveralChildren: Boolean get() = children.size > 1
+}

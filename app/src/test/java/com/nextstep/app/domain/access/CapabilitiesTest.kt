@@ -17,6 +17,12 @@ class CapabilitiesTest {
     }
 
     @Test
+    fun onlyParentsAddChildrenAndNonStudentsLinkThem() {
+        assertTrue(parent.canAddChildren); assertFalse(mentor.canAddChildren); assertFalse(student.canAddChildren)
+        assertTrue(parent.canLinkChildren); assertTrue(mentor.canLinkChildren); assertFalse(student.canLinkChildren)
+    }
+
+    @Test
     fun familyManagementIsForStudentAndParent() {
         assertTrue(student.canRemoveMembers); assertTrue(parent.canRemoveMembers); assertFalse(mentor.canRemoveMembers)
         assertTrue(parent.canToggleMentorMode); assertTrue(parentMentor.canToggleMentorMode)

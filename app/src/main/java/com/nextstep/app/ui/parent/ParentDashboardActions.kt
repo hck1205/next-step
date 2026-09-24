@@ -14,4 +14,6 @@ data class ParentDashboardActions(
     val onOpenContent: () -> Unit = {},
     val onOpenJourney: () -> Unit = {},
     val onOpenGoals: () -> Unit = {},
+    /** 다자녀: 다른 자녀로 전환. */
+    val onSwitchChild: (String) -> Unit = { _ -> },
 )

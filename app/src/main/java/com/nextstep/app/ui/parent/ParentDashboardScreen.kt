@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.ui.components.input.ChildSwitcher
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,15 +36,12 @@ import com.nextstep.app.ui.parent.components.CheerPromptCard
 import com.nextstep.app.ui.parent.components.PendingTaskRow
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.row.EventRow
-import com.nextstep.app.ui.components.card.InsightCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.components.card.StageCard
 import com.nextstep.app.ui.components.card.StatusCard
 import com.nextstep.app.ui.components.card.StatusTile
 import com.nextstep.app.ui.components.card.SyncStatusBadge
-import com.nextstep.app.ui.components.card.TalentCard
 import com.nextstep.app.ui.records.RecordSegment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -84,6 +82,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            if (state.children.size > 1) item { ChildSwitcher(state.children, state.activeFamilyId, onSelect = actions.onSwitchChild, onAdd = actions.onOpenSettings) }
             item {
                 val b = state.balance
                 StatusCard(
@@ -103,13 +102,6 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
             if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
-            item {
-                StageCard(
-                    stage = state.stage, gradeLabel = state.gradeLabel,
-                    headline = state.stage?.let { "지금 해 줄 일" }, body = state.stageTip, experience = state.stageExperience,
-                    onSetGrade = actions.onOpenSettings,
-                )
-            }
 
             item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("일정 전체") } }) }
             if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") } }
@@ -122,14 +114,6 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
 
             item { CheerPromptCard(state.notes.firstOrNull()?.text, onOpen = actions.onOpenCheer, onWrite = { showNote = true }) }
 
-            state.talents.firstOrNull()?.let { talent ->
-                item { SectionTitle("재능 신호", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.LEARNING) }) { Text("기록에서 더 보기") } }) }
-                item { TalentCard(talent, state.subjects) }
-            }
-            state.insights.firstOrNull()?.let { insight ->
-                item { SectionTitle("분석 한 줄", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.BALANCE) }) { Text("균형 보기") } }) }
-                item { InsightCard(insight, state.subjects, onAction = null) }
-            }
             item { Spacer(Modifier.height(8.dp)) }
         }
     }

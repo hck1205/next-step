@@ -42,11 +42,14 @@ class RoomOnboardingRepository(
         return Result.success(info)
     }
 
-    override suspend fun createFamilyAsParent(parentName: String, childName: String, birthDate: LocalDate?): Result<FamilyInfo> {
+    override suspend fun createFamilyAsParent(parentName: String, childName: String, birthDate: LocalDate?, relation: String): Result<FamilyInfo> =
+        createChildSpace(parentName, childName, birthDate, relation, mentorEnabled = false)
+
+    private suspend fun createChildSpace(parentName: String, childName: String, birthDate: LocalDate?, relation: String, mentorEnabled: Boolean): Result<FamilyInfo> {
         val info = FamilyInfo(familyId = newId(), pairingCode = generatePairingCode(), studentName = childName)
         sync.createFamily(info).onFailure { return Result.failure(it) }
         val child = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = childName, birthDate = birthDate?.toEpochDay())
-        val parent = MemberEntity(familyId = info.familyId, role = Role.PARENT.name, name = parentName)
+        val parent = MemberEntity(familyId = info.familyId, role = Role.PARENT.name, name = parentName, title = relation, mentorEnabled = mentorEnabled)
         memberDao.upsert(child)
         memberDao.upsert(parent)
         prefs.completeOnboarding(Role.PARENT, parentName, info.familyId, info.pairingCode, childName, parent.id)
@@ -65,6 +68,34 @@ class RoomOnboardingRepository(
         prefs.completeOnboarding(role, name, info.familyId, info.pairingCode, info.studentName, member.id)
         sync.start(info.familyId)
         return Result.success(info)
+    }
+
+    override suspend fun addChildAsParent(childName: String, birthDate: LocalDate?): Result<FamilyInfo> {
+        val profile = prefs.profile.first()
+        if (profile.role != Role.PARENT) return Result.failure(IllegalStateException("자녀 추가는 학부모만 할 수 있습니다"))
+        val me = profile.memberId?.let { memberDao.getById(it) }
+        return createChildSpace(profile.displayName, childName, birthDate, me?.title.orEmpty(), me?.mentorEnabled ?: false)
+    }
+
+    override suspend fun linkChild(code: String): Result<FamilyInfo> {
+        val profile = prefs.profile.first()
+        val role = profile.role?.takeIf { it != Role.STUDENT } ?: return Result.failure(IllegalStateException("학생은 다른 자녀를 연결할 수 없습니다"))
+        if (!sync.isAvailable) return Result.failure(IllegalStateException(NO_SYNC_MESSAGE))
+        val info = sync.findFamilyByCode(code.trim().uppercase(Locale.ROOT))
+            .getOrElse { return Result.failure(it) }
+            ?: return Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
+        if (profile.children.any { it.familyId == info.familyId }) { switchChild(info.familyId); return Result.success(info) }
+        val me = profile.memberId?.let { memberDao.getById(it) }
+        val member = MemberEntity(familyId = info.familyId, role = role.name, name = profile.displayName, title = me?.title.orEmpty(), mentorEnabled = role == Role.MENTOR || (me?.mentorEnabled ?: false))
+        memberDao.upsert(member)
+        prefs.completeOnboarding(role, profile.displayName, info.familyId, info.pairingCode, info.studentName, member.id)
+        sync.start(info.familyId)
+        return Result.success(info)
+    }
+
+    override suspend fun switchChild(familyId: String) {
+        if (prefs.profile.first().familyId == familyId) return
+        if (prefs.switchChild(familyId)) sync.start(familyId)
     }
 
     override suspend fun resumeSync() {

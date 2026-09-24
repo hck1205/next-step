@@ -8,4 +8,6 @@ data class MentorDashboardActions(
     val onOpenContent: () -> Unit = {},
     val onBack: (() -> Unit)? = null,
     val onOpenJourney: () -> Unit = {},
+    /** 여러 학생을 맡은 멘토: 다른 학생으로 전환. */
+    val onSwitchChild: (String) -> Unit = { _ -> },
 )

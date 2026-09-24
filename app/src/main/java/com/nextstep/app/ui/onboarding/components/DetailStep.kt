@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.onboarding.components
 
+import com.nextstep.app.ui.settings.components.RelationPicker
 import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +43,7 @@ internal fun DetailStep(state: OnboardingUiState, onEvent: (OnboardingEvent) -> 
     OutlinedTextField(
         value = state.name,
         onValueChange = { onEvent(OnboardingEvent.SetName(it)) },
-        label = { Text(when (role) { Role.STUDENT -> "학생 이름"; Role.PARENT -> "이름 (예: 엄마, 아빠)"; Role.MENTOR -> "이름 (예: 김선생)" }) },
+        label = { Text(when (role) { Role.STUDENT -> "학생 이름"; Role.PARENT -> "이름"; Role.MENTOR -> "이름 (예: 김선생)" }) },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -55,6 +56,10 @@ internal fun DetailStep(state: OnboardingUiState, onEvent: (OnboardingEvent) -> 
         Text("생년월일과 학년에 따라 여정 타임라인, 추천 영상, 학습 계획 길이, 부모님·멘토 가이드가 달라져요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     if (isParent) {
+        Spacer(Modifier.height(12.dp))
+        Text("아이와의 관계", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        RelationPicker(state.relation, onSelect = { onEvent(OnboardingEvent.SetRelation(it)) })
+        Text("엄마·아빠·할머니 등 여러 보호자가 같은 아이에 함께 연결될 수 있어요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {

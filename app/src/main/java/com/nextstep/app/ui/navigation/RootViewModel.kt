@@ -23,4 +23,7 @@ class RootViewModel(
     init {
         viewModelScope.launch { onboarding.resumeSync() }
     }
+
+    /** 다자녀·다학생: 다른 자녀의 공간으로 전환합니다. 모든 화면의 스트림이 가족 ID 를 따라 바뀝니다. */
+    fun switchChild(familyId: String) = viewModelScope.launch { onboarding.switchChild(familyId) }
 }

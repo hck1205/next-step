@@ -23,6 +23,7 @@ class UserPreferences(private val context: Context) : UserPreferencesStore {
         val STUDENT_NAME = stringPreferencesKey("student_name")
         val ONBOARDED = booleanPreferencesKey("onboarded")
         val MEMBER_ID = stringPreferencesKey("member_id")
+        val CHILDREN = stringPreferencesKey("linked_children")
         val TIMER_SUBJECT = stringPreferencesKey("timer_subject")
         val TIMER_STARTED_AT = longPreferencesKey("timer_started_at")
     }
@@ -36,7 +37,14 @@ class UserPreferences(private val context: Context) : UserPreferencesStore {
             studentName = p[Keys.STUDENT_NAME] ?: "",
             onboarded = p[Keys.ONBOARDED] ?: false,
             memberId = p[Keys.MEMBER_ID],
+            children = linkedChildren(p),
         )
+    }
+
+    /** 저장된 자녀 목록. 다자녀 기능 이전에 온보딩한 기기는 지금 가족 하나로 채웁니다. */
+    private fun linkedChildren(p: Preferences): List<LinkedChild> = LinkedChildCodec.decode(p[Keys.CHILDREN]).ifEmpty {
+        val familyId = p[Keys.FAMILY_ID] ?: return@ifEmpty emptyList()
+        listOf(LinkedChild(familyId, p[Keys.STUDENT_NAME] ?: "", p[Keys.PAIRING_CODE] ?: "", p[Keys.MEMBER_ID] ?: ""))
     }
 
     override val runningTimer: Flow<RunningTimer?> = context.dataStore.data.map { p ->
@@ -53,6 +61,9 @@ class UserPreferences(private val context: Context) : UserPreferencesStore {
         memberId: String,
     ) {
         context.dataStore.edit { p ->
+            // 기존 목록(다자녀 이전 기기면 지금 가족 하나)을 먼저 읽어야 새 자녀로 바뀌기 전 가족을 잃지 않습니다.
+            val before = linkedChildren(p)
+            p[Keys.CHILDREN] = LinkedChildCodec.encode(LinkedChildCodec.upsert(before, LinkedChild(familyId, studentName, pairingCode, memberId)))
             p[Keys.MEMBER_ID] = memberId
             p[Keys.ROLE] = role.name
             p[Keys.DISPLAY_NAME] = displayName
@@ -61,6 +72,19 @@ class UserPreferences(private val context: Context) : UserPreferencesStore {
             p[Keys.STUDENT_NAME] = studentName
             p[Keys.ONBOARDED] = true
         }
+    }
+
+    override suspend fun switchChild(familyId: String): Boolean {
+        var switched = false
+        context.dataStore.edit { p ->
+            val child = linkedChildren(p).firstOrNull { it.familyId == familyId } ?: return@edit
+            p[Keys.FAMILY_ID] = child.familyId
+            p[Keys.PAIRING_CODE] = child.pairingCode
+            p[Keys.STUDENT_NAME] = child.studentName
+            p[Keys.MEMBER_ID] = child.memberId
+            switched = true
+        }
+        return switched
     }
 
     override suspend fun updateStudentName(name: String) {

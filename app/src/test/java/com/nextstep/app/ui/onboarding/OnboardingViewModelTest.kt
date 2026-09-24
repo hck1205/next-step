@@ -88,6 +88,8 @@ class OnboardingViewModelTest : ViewModelTestBase() {
         vm.onEvent(OnboardingEvent.Submit)
         advanceUntilIdle()
         assertEquals(listOf("createAsParent:엄마:아기:2026-07-01"), repo.calls)
+        repo.calls.clear(); vm.onEvent(OnboardingEvent.SetRelation(com.nextstep.app.data.model.GuardianRelation.GRANDMA)); vm.onEvent(OnboardingEvent.Submit); advanceUntilIdle()
+        assertEquals(listOf("createAsParent:엄마:아기:2026-07-01:할머니"), repo.calls); repo.calls.clear()
         // 토글을 끄면 다시 코드가 필요
         vm.onEvent(OnboardingEvent.SetCreateAsParent(false)); vm.onEvent(OnboardingEvent.Submit)
         assertTrue(vm.state.value.error!!.contains("6자리"))

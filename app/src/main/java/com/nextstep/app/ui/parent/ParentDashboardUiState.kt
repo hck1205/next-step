@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyItem
@@ -12,8 +13,6 @@ import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
-import com.nextstep.app.domain.insight.Insight
-import com.nextstep.app.domain.insight.Talent
 import com.nextstep.app.domain.stats.DayMinutes
 import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.stats.SubjectProgress
@@ -37,8 +36,6 @@ data class ParentDashboardUiState(
     val scores: List<SubjectScore> = emptyList(),
     val progress: List<SubjectProgress> = emptyList(),
     val notes: List<NoteEntity> = emptyList(),
-    val insights: List<Insight> = emptyList(),
-    val talents: List<Talent> = emptyList(),
     val streak: Int = 0,
     val roadmapDone: Int = 0,
     val roadmapTotal: Int = 0,
@@ -46,9 +43,6 @@ data class ParentDashboardUiState(
     val parentCount: Int = 0,
     val stage: GrowthStage? = null,
     val gradeLabel: String? = null,
-    /** 오늘의 부모 팁과 경험 제안. 단계가 없으면 null. */
-    val stageTip: String? = null,
-    val stageExperience: String? = null,
     /** 여정에서 지금 준비하거나 놓친 항목 (최대 3개). */
     val journeyNow: List<JourneyItem> = emptyList(),
     val hasBirthDate: Boolean = false,
@@ -61,6 +55,9 @@ data class ParentDashboardUiState(
     val periodLabel: String? = null,
     /** 날짜 목표의 다음 한 걸음(3개까지). */
     val missionFocus: List<MissionFocus> = emptyList(),
+    /** 이 기기에 연결된 자녀들과 지금 보고 있는 자녀. */
+    val children: List<LinkedChild> = emptyList(),
+    val activeFamilyId: String? = null,
 ) {
     /** 첫 화면의 상태 문장: 균형 판단 + 챙길 것 수. 숫자 대신 문장으로. */
     val statusHeadline: String get() {

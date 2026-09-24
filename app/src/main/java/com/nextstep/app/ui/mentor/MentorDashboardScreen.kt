@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.mentor
 
+import com.nextstep.app.ui.components.input.ChildSwitcher
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -84,6 +85,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            if (state.students.size > 1) item { ChildSwitcher(state.students, state.activeFamilyId, onSelect = actions.onSwitchChild, onAdd = actions.onOpenSettings) }
             item { StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null, onSetGrade = actions.onOpenJourney) }
             item {
                 val r = state.roadmap

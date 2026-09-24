@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.components.card.AppCard
 
 /** 연결된 구성원 목록. 나와 학생은 제거할 수 없고, [canRemove] 인 역할만 다른 구성원을 끊을 수 있습니다. */
@@ -37,8 +36,8 @@ internal fun MembersCard(members: List<MemberEntity>, me: MemberEntity?, subject
 }
 
 private fun memberDetail(m: MemberEntity, subjects: List<SubjectEntity>): String = buildList {
-    add(Role.labelOf(m.role))
-    if (m.title.isNotBlank()) add(m.title)
+    add(m.roleLabel)
+    if (m.title.isNotBlank() && !m.isParent) add(m.title)
     if (m.isParent && m.mentorEnabled) add("멘토 겸")
     if (m.isMentor || m.mentorEnabled) add(if (m.subjectIdList.isEmpty()) "전 과목" else subjects.filter { it.id in m.subjectIdList }.joinToString { it.name })
 }.joinToString(" · ")

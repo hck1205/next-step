@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import com.nextstep.app.data.prefs.LinkedChild
 import java.time.LocalDate
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -18,4 +19,9 @@ data class SettingsUiState(
     val student: MemberEntity? = null,
     val birthDate: LocalDate? = null,
     val ageLabel: String? = null,
-)
+    /** 연결 실패 같은 자녀 관련 안내. */
+    val childError: String? = null,
+) {
+    val children: List<LinkedChild> get() = profile?.children.orEmpty()
+    val activeFamilyId: String? get() = profile?.familyId
+}

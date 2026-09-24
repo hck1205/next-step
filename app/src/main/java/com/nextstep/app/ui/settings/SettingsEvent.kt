@@ -12,4 +12,9 @@ sealed interface SettingsEvent {
     data class UpdateMyProfile(val name: String, val title: String) : SettingsEvent
     data class SetGradeYear(val gradeYear: Int) : SettingsEvent
     data class SetBirthDate(val date: java.time.LocalDate?) : SettingsEvent
+    /** 다자녀 */
+    data class SwitchChild(val familyId: String) : SettingsEvent
+    data class AddChild(val name: String, val birthDate: java.time.LocalDate?) : SettingsEvent
+    data class LinkChild(val code: String) : SettingsEvent
+    data object DismissChildError : SettingsEvent
 }

@@ -20,14 +20,11 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
-import com.nextstep.app.domain.insight.InsightEngine
-import com.nextstep.app.domain.insight.TalentEngine
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.stats.BalanceStats
@@ -46,6 +43,8 @@ class ParentDashboardViewModel(
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
         ParentDashboardUiState(
             parentName = profile.displayName,
+            children = profile.children,
+            activeFamilyId = profile.familyId,
             studentName = profile.studentName,
             subjects = subjects,
             todayMinutes = StudyStats.todayMinutes(sessions),
@@ -72,7 +71,6 @@ class ParentDashboardViewModel(
         val ctx = StudentContext.of(x.members, today)
         val stage = ctx.stage
         val period = ctx.currentPeriod
-        val guide = stage?.let { GrowthGuide.forStage(it) }
         val roadmap = RoadmapStats.summarize(x.roadmap, today)
         s.copy(
             todayEvents = StudyStats.eventsOn(today, events),
@@ -83,7 +81,6 @@ class ParentDashboardViewModel(
             hasBirthDate = ctx.hasBirthDate,
             today = today,
             syncStatus = x.sync,
-            talents = TalentEngine.talents(s.subjects, d.topics, d.grades, d.sessions).take(UiDefaults.MAX_ROWS),
             streak = StudyStats.studyStreak(d.sessions),
             roadmapDone = roadmap.done,
             roadmapTotal = roadmap.total,
@@ -91,13 +88,10 @@ class ParentDashboardViewModel(
             parentCount = x.members.count { it.isParent },
             stage = stage,
             gradeLabel = ctx.gradeLabel,
-            stageTip = guide?.let { GrowthGuide.pickForDay(it.parentTips, today) },
-            stageExperience = guide?.let { GrowthGuide.pickForDay(it.experiences, DateUtils.weekStart(today)) },
             recentGrades = d.grades.take(UiDefaults.MAX_RECENT_RECORDS),
             scores = StudyStats.subjectScores(d.grades, s.subjects),
             progress = StudyStats.subjectProgress(d.topics, s.subjects),
             notes = d.notes.take(UiDefaults.MAX_NOTES),
-            insights = InsightEngine.analyze(s.subjects, d.topics, d.grades, d.sessions, d.tasks, events).take(UiDefaults.MAX_ROWS),
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
 

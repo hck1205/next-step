@@ -111,12 +111,12 @@ fun NextStepRoot(rootViewModel: RootViewModel = viewModel(factory = AppViewModel
     when {
         current == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         !current.profile.onboarded || caps == null -> OnboardingScreen()
-        else -> MainScaffold(caps = caps)
+        else -> MainScaffold(caps = caps, onSwitchChild = { rootViewModel.switchChild(it) })
     }
 }
 
 @Composable
-private fun MainScaffold(caps: Capabilities) {
+private fun MainScaffold(caps: Capabilities, onSwitchChild: (String) -> Unit) {
     val navController = rememberNavController()
     val destinations = topLevelDestinations(caps.role)
     val backStack by navController.currentBackStackEntryAsState()
@@ -151,7 +151,7 @@ private fun MainScaffold(caps: Capabilities) {
         },
         floatingActionButtonPosition = FabPosition.Center,
     ) { padding ->
-        NextStepNavHost(navController = navController, caps = caps, modifier = Modifier.padding(padding))
+        NextStepNavHost(navController = navController, caps = caps, onSwitchChild = onSwitchChild, modifier = Modifier.padding(padding))
     }
 
     if (showQuickAdd) {
@@ -160,7 +160,7 @@ private fun MainScaffold(caps: Capabilities) {
 }
 
 @Composable
-private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, modifier: Modifier = Modifier) {
+private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, onSwitchChild: (String) -> Unit, modifier: Modifier = Modifier) {
     val go: (String) -> Unit = { navController.navigate(it) }
     val back: () -> Unit = { navController.popBackStack() }
     val openSubject: (String) -> Unit = { go(Routes.subject(it)) }
@@ -175,12 +175,13 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                         onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject, onOpenRecords = openRecords,
                         onOpenMentor = { go(Routes.MENTOR_HOME) }, onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
                         onOpenJourney = { go(Routes.JOURNEY) }, onOpenCheer = { go(Routes.CHEER) }, onOpenGoals = { go(Routes.GOALS) },
+                        onSwitchChild = onSwitchChild,
                     ),
                 )
                 Role.MENTOR -> MentorDashboardScreen(
                     actions = MentorDashboardActions(
                         onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) },
-                        onOpenContent = { go(Routes.CONTENT) }, onBack = null, onOpenJourney = { go(Routes.JOURNEY) },
+                        onOpenContent = { go(Routes.CONTENT) }, onBack = null, onOpenJourney = { go(Routes.JOURNEY) }, onSwitchChild = onSwitchChild,
                     ),
                 )
                 Role.STUDENT -> StudentHomeScreen(
@@ -208,7 +209,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             MentorDashboardScreen(
                 actions = MentorDashboardActions(
                     onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) },
-                    onOpenContent = { go(Routes.CONTENT) }, onBack = back, onOpenJourney = { go(Routes.JOURNEY) },
+                    onOpenContent = { go(Routes.CONTENT) }, onBack = back, onOpenJourney = { go(Routes.JOURNEY) }, onSwitchChild = onSwitchChild,
                 ),
             )
         }

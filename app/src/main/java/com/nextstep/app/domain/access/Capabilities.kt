@@ -46,6 +46,10 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
 
     /** 가족 탭에서 "멘토 겸하기" 스위치를 보여 줄지. 학부모만. */
     val canToggleMentorMode: Boolean get() = isParent
+    /** 다자녀: 새 자녀 공간을 만들 수 있는지(학부모). */
+    val canAddChildren: Boolean get() = isParent
+    /** 다른 자녀·학생을 연결 코드로 붙일 수 있는지(학부모·멘토). 학생은 자기 공간 하나. */
+    val canLinkChildren: Boolean get() = !isStudent
     /** 연결된 학부모·멘토를 목록에서 제거할 수 있는지. 학생 본인과 학부모만. */
     val canRemoveMembers: Boolean get() = isStudent || isParent
 

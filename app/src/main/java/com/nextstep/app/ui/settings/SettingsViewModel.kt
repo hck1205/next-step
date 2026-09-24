@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
@@ -18,11 +19,24 @@ class SettingsViewModel(
     private val onboarding: OnboardingRepository,
     private val members: MemberRepository,
 ) : ViewModel() {
+    private val childError = MutableStateFlow<String?>(null)
+
     val state: StateFlow<SettingsUiState> = combine(streams.profile, streams.syncStatus, streams.members, streams.myMember, streams.subjects) { p, s, members, me, subjects ->
         val student = members.firstOrNull { it.isStudent }
         val birth = student?.birthDate?.let { LocalDate.ofEpochDay(it) }
         SettingsUiState(p, s, onboarding.syncAvailable, members, me, subjects, student, birth, birth?.let { GrowthStage.ageLabel(it, DateUtils.today()) })
-    }.asUiState(viewModelScope, SettingsUiState())
+    }.combine(childError) { s, e -> s.copy(childError = e) }
+        .asUiState(viewModelScope, SettingsUiState())
+
+    fun switchChild(familyId: String) = viewModelScope.launch { onboarding.switchChild(familyId) }
+    fun addChild(name: String, birthDate: LocalDate?) = viewModelScope.launch {
+        if (name.isBlank()) return@launch
+        onboarding.addChildAsParent(name.trim(), birthDate).onFailure { childError.value = it.message }
+    }
+    fun linkChild(code: String) = viewModelScope.launch {
+        if (code.isBlank()) return@launch
+        onboarding.linkChild(code).onFailure { childError.value = it.message }
+    }
 
     fun signOut() = viewModelScope.launch { onboarding.signOut() }
     fun requestSync() = onboarding.requestSync()
@@ -44,6 +58,10 @@ class SettingsViewModel(
             is SettingsEvent.UpdateMyProfile -> updateMyProfile(event.name, event.title)
             is SettingsEvent.SetGradeYear -> setGradeYear(event.gradeYear)
             is SettingsEvent.SetBirthDate -> setBirthDate(event.date)
+            is SettingsEvent.SwitchChild -> switchChild(event.familyId)
+            is SettingsEvent.AddChild -> addChild(event.name, event.birthDate)
+            is SettingsEvent.LinkChild -> linkChild(event.code)
+            SettingsEvent.DismissChildError -> childError.value = null
         }
     }
 
