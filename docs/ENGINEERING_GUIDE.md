@@ -34,6 +34,7 @@ com.nextstep.app
 │   ├── stats/              StudyStats, BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
 │   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
+│   ├── mission/            MissionKind(단계별 종류), MissionCatalog(날짜에서 거꾸로 쪼갠 단계 설계), MissionPlanner(생성·압축·다음 단계·오늘 카드)
 │   ├── cheer/              CheerStats(오늘 한 일 요약), CheerSuggestions(단계별 칭찬 문구)
 │   ├── mentor/             MentorScope(담당 과목 범위로 성적·세션·단원·메모 좁히기)
 │   ├── text/               NumberText(문장 속 숫자 표기)
