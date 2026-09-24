@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.insight
 
+import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.text.compact
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
@@ -70,7 +71,7 @@ object TalentEngine {
         // 자기주도: 수업 전 예습 비율
         val covered = topics.filter { it.classCovered }
         if (covered.size >= 4) {
-            val previewedBefore = covered.count { it.status == com.nextstep.app.data.model.TopicStatus.PREVIEWED }
+            val previewedBefore = covered.count { it.status == TopicStatus.PREVIEWED }
             val ratio = previewedBefore.toFloat() / covered.size
             if (ratio >= 0.5f) out += Talent("자기주도 학습", "배운 단원의 ${(ratio * 100).toInt()}%를 미리 예습했어요. 스스로 앞서 나가는 성향이 있어요.", null, 0.75f)
         }

@@ -23,7 +23,7 @@ class SettingsViewModel(
 
     val state: StateFlow<SettingsUiState> = combine(streams.profile, streams.syncStatus, streams.members, streams.myMember, streams.subjects) { p, s, members, me, subjects ->
         val student = members.firstOrNull { it.isStudent }
-        val birth = student?.birthDate?.let { LocalDate.ofEpochDay(it) }
+        val birth = student?.birthDate?.let { DateUtils.fromEpochDay(it) }
         SettingsUiState(p, s, onboarding.syncAvailable, members, me, subjects, student, birth, birth?.let { GrowthStage.ageLabel(it, DateUtils.today()) })
     }.combine(childError) { s, e -> s.copy(childError = e) }
         .asUiState(viewModelScope, SettingsUiState())

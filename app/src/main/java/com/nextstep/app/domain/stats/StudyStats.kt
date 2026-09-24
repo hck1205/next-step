@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.stats
 
+import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
@@ -115,7 +116,7 @@ object StudyStats {
         val result = mutableListOf<UpcomingExam>()
         (0..withinDays).forEach { offset ->
             val d = today.plusDays(offset.toLong())
-            eventsOn(d, events).filter { it.event.type == com.nextstep.app.data.model.EventType.EXAM }.forEach {
+            eventsOn(d, events).filter { it.event.type == EventType.EXAM }.forEach {
                 result += UpcomingExam(it.event.title, it.event.subjectId, d)
             }
         }

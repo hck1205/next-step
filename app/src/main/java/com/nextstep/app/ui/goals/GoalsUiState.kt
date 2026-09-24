@@ -2,7 +2,6 @@ package com.nextstep.app.ui.goals
 
 import com.nextstep.app.domain.mission.MissionKind
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.journey.GoalTrack
 import com.nextstep.app.domain.journey.JourneyPeriod
 import java.time.LocalDate
@@ -18,14 +17,15 @@ data class GoalsUiState(
     val availableTracks: List<GoalTrack> = emptyList(),
     /** 날짜가 정해진 진행 중 목표. 목표일이 가까운 순서. */
     val missions: List<GoalView> = emptyList(),
+    /** 날짜 없는 진행 중 장기 목표와 달성·보관된 목표. ViewModel 이 한 번 나눕니다. */
+    val active: List<GoalView> = emptyList(),
+    val finished: List<GoalView> = emptyList(),
     /** 지금 성장 단계에서 만들 수 있는 날짜 목표 종류. */
     val missionKinds: List<MissionKind> = emptyList(),
     /** 과목 이름(수행평가·단원평가 제목용). */
     val subjectNames: List<String> = emptyList(),
     val loaded: Boolean = false,
 ) {
-    val active: List<GoalView> get() = goals.filter { it.goal.status == GoalStatus.ACTIVE && !it.isMission }
-    val finished: List<GoalView> get() = goals.filter { it.goal.status != GoalStatus.ACTIVE }
     val currentPeriodLabel: String? get() = periods.firstOrNull { it.key == currentPeriodKey }?.label
     fun periodLabel(key: String): String = periods.firstOrNull { it.key == key }?.label ?: key
 }

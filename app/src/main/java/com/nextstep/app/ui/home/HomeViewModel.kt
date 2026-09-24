@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.ui.common.UiDefaults
+import com.nextstep.app.domain.stats.StudyQueues
 import com.nextstep.app.domain.mission.MissionPlanner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -59,7 +61,12 @@ class HomeViewModel(
     private val lastPlan = kotlinx.coroutines.flow.MutableStateFlow<StudyPlan?>(null)
 
     private val withProgress = combine(base, streams.topics, streams.runningTimer, streams.roadmap, lastPlan) { s, topics, timer, roadmap, plan ->
-        s.copy(progress = StudyStats.subjectProgress(topics, s.subjects), runningTimer = timer, roadmap = roadmap, lastPlan = plan)
+        val progress = StudyStats.subjectProgress(topics, s.subjects)
+        s.copy(
+            progress = progress, runningTimer = timer, roadmap = roadmap, lastPlan = plan,
+            roadmapFocus = StudyQueues.roadmapFocus(roadmap, UiDefaults.MAX_ROWS), activeSubjects = StudyQueues.activeSubjects(progress),
+            previewQueue = StudyQueues.previewQueue(progress), reviewQueue = StudyQueues.reviewQueue(progress),
+        )
     }
 
     private val enriched = combine(withProgress, streams.contents, streams.grades, streams.members, streams.journeyItems) { s, contents, grades, members, journey ->

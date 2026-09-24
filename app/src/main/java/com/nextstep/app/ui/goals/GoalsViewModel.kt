@@ -53,12 +53,16 @@ class GoalsViewModel(
             loaded = true,
             missionKinds = MissionKind.forStage(ctx.stage),
             subjectNames = subjects.map { it.name },
-        ).let { s -> s.copy(missions = s.goals.filter { it.isMission && it.goal.status == GoalStatus.ACTIVE }.sortedBy { it.target }) }
+        ).let { s ->
+            val (open, closed) = s.goals.partition { it.goal.status == GoalStatus.ACTIVE }
+            val (missions, longTerm) = open.partition { it.isMission }
+            s.copy(missions = missions.sortedBy { it.target }, active = longTerm, finished = closed)
+        }
     }.asUiState(viewModelScope, GoalsUiState())
 
     private fun viewOf(goal: GoalEntity, mine: List<GoalStepEntity>, periods: List<JourneyPeriod>, currentKey: String?, today: LocalDate): GoalView = GoalView(
         goal = goal, steps = mine, progress = GoalPlanner.progress(mine), currentSteps = GoalPlanner.currentSteps(mine, periods, currentKey),
-        isComplete = GoalPlanner.isComplete(mine), kind = MissionPlanner.kindOf(goal), target = goal.targetDate?.let { LocalDate.ofEpochDay(it) },
+        isComplete = GoalPlanner.isComplete(mine), kind = MissionPlanner.kindOf(goal), target = goal.targetDate?.let { DateUtils.fromEpochDay(it) },
         daysLeft = MissionPlanner.daysLeft(goal, today), nextStep = MissionPlanner.nextStep(mine), overdueSteps = MissionPlanner.overdueCount(mine, today),
     )
 

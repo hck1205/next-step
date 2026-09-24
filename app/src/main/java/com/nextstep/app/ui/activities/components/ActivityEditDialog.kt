@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.activities.components
 
+import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,9 +33,9 @@ import androidx.compose.runtime.setValue
 fun ActivityEditDialog(existing: ActivityEntity?, today: LocalDate, onConfirm: (ActivityEntity) -> Unit, onDismiss: () -> Unit) {
     var type by remember { mutableStateOf(existing?.type ?: ActivityType.FIELD_TRIP) }
     var title by remember { mutableStateOf(existing?.title ?: "") }
-    var date by remember { mutableStateOf(existing?.date?.let { LocalDate.ofEpochDay(it) } ?: today) }
+    var date by remember { mutableStateOf(existing?.date?.let { DateUtils.fromEpochDay(it) } ?: today) }
     var hasEnd by remember { mutableStateOf(existing?.endDate != null) }
-    var endDate by remember { mutableStateOf(existing?.endDate?.let { LocalDate.ofEpochDay(it) } ?: today) }
+    var endDate by remember { mutableStateOf(existing?.endDate?.let { DateUtils.fromEpochDay(it) } ?: today) }
     var place by remember { mutableStateOf(existing?.place ?: "") }
     var note by remember { mutableStateOf(existing?.note ?: "") }
     var rating by remember { mutableStateOf(existing?.rating ?: 0) }

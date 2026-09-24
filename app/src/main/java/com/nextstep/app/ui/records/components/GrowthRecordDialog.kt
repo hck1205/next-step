@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.records.components
 
+import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +28,7 @@ import androidx.compose.runtime.setValue
 /** 성장 기록 입력: 날짜, 키, 몸무게, 좌·우 시력, 메모. 아는 값만 넣습니다. */
 @Composable
 fun GrowthRecordDialog(existing: GrowthRecordEntity?, today: LocalDate, onConfirm: (GrowthRecordEntity) -> Unit, onDismiss: () -> Unit) {
-    var date by remember { mutableStateOf(existing?.date?.let { LocalDate.ofEpochDay(it) } ?: today) }
+    var date by remember { mutableStateOf(existing?.date?.let { DateUtils.fromEpochDay(it) } ?: today) }
     var height by remember { mutableStateOf(existing?.heightCm?.toString() ?: "") }
     var weight by remember { mutableStateOf(existing?.weightKg?.toString() ?: "") }
     var visionL by remember { mutableStateOf(existing?.visionLeft?.toString() ?: "") }

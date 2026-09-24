@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.progress
 
+import com.nextstep.app.domain.stats.StudyQueues
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,7 +30,7 @@ class SubjectDetailViewModel(
     private val subjectId: String = checkNotNull(savedStateHandle.get<String>("subjectId"))
 
     val state: StateFlow<SubjectDetailUiState> = combine(subjects.observe(subjectId), topics.observeBySubject(subjectId), streams.subjects) { s, t, all ->
-        SubjectDetailUiState(s, t, all)
+        SubjectDetailUiState(s, t, all, StudyQueues.classIndex(t), StudyQueues.previewTopics(t), StudyQueues.reviewTopics(t))
     }.asUiState(viewModelScope, SubjectDetailUiState())
 
     fun addTopics(raw: String) = viewModelScope.launch {

@@ -29,7 +29,6 @@ import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.GradePicker
 import com.nextstep.app.ui.onboarding.OnboardingEvent
 import com.nextstep.app.ui.onboarding.OnboardingUiState
-import java.time.LocalDate
 
 @Composable
 internal fun DetailStep(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Unit) {

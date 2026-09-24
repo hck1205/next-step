@@ -9,8 +9,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import com.nextstep.app.domain.stats.StudyStats
-import com.nextstep.app.domain.planner.StudyPlanner
-import com.nextstep.app.domain.planner.PlanOptions
 import com.nextstep.app.domain.insight.InsightKind
 import com.nextstep.app.domain.insight.InsightAction
 import com.nextstep.app.domain.insight.InsightEngine

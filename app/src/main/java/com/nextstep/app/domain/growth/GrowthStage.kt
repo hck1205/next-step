@@ -1,8 +1,8 @@
 package com.nextstep.app.domain.growth
 
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.GradeLevel
-import com.nextstep.app.data.model.Role
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -83,7 +83,7 @@ enum class GrowthStage(
         }
 
         /** 구성원의 학생 행에서 단계를 읽습니다. 생년월일이 있으면 그것을, 없으면 학년을 씁니다. */
-        fun of(members: List<MemberEntity>, today: LocalDate = LocalDate.now()): GrowthStage? {
+        fun of(members: List<MemberEntity>, today: LocalDate = DateUtils.today()): GrowthStage? {
             val student = members.firstOrNull { it.isStudent } ?: return null
             student.birthDate?.let { return fromBirthDate(LocalDate.ofEpochDay(it), today) }
             return fromGradeYear(student.gradeYear.takeIf { it > 0 })

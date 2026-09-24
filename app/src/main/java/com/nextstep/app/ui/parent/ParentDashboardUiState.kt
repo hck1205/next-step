@@ -8,41 +8,24 @@ import com.nextstep.app.domain.stats.BalanceReport
 import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
-import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
-import com.nextstep.app.domain.stats.DayMinutes
-import com.nextstep.app.domain.stats.SubjectMinutes
-import com.nextstep.app.domain.stats.SubjectProgress
-import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.domain.stats.UpcomingExam
 
+/** 학부모 첫 화면 상태. 단순한 홈이 보여 주는 값만 둡니다. */
 data class ParentDashboardUiState(
-    val parentName: String = "",
     val studentName: String = "",
     val syncStatus: SyncStatus = SyncStatus.LOCAL_ONLY,
     val subjects: List<SubjectEntity> = emptyList(),
-    val todayMinutes: Int = 0,
     val weekMinutes: Int = 0,
-    val weekGoalMinutes: Int = 0,
-    val daily: List<DayMinutes> = emptyList(),
-    val weeklyBySubject: List<SubjectMinutes> = emptyList(),
     val pendingTasks: List<TaskEntity> = emptyList(),
     val overdueCount: Int = 0,
     val upcomingExams: List<UpcomingExam> = emptyList(),
-    val recentGrades: List<GradeEntity> = emptyList(),
-    val scores: List<SubjectScore> = emptyList(),
-    val progress: List<SubjectProgress> = emptyList(),
     val notes: List<NoteEntity> = emptyList(),
     val streak: Int = 0,
-    val roadmapDone: Int = 0,
-    val roadmapTotal: Int = 0,
-    val mentorCount: Int = 0,
-    val parentCount: Int = 0,
     val stage: GrowthStage? = null,
-    val gradeLabel: String? = null,
     /** 여정에서 지금 준비하거나 놓친 항목 (최대 3개). */
     val journeyNow: List<JourneyItem> = emptyList(),
     val hasBirthDate: Boolean = false,

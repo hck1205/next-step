@@ -4,7 +4,6 @@ import com.nextstep.app.domain.text.compact
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import kotlin.math.abs
 
 /**
  * 성장 기록(키·몸무게·시력)을 요약하고 참고 신호를 냅니다.

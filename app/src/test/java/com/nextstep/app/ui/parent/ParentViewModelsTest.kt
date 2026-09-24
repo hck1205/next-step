@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.parent
 
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.fake.FakeFamilyDataStreams
@@ -22,18 +21,15 @@ class ParentViewModelsTest : ViewModelTestBase() {
     private val today = DateUtils.today()
 
     @Test
-    fun dashboardAggregatesFamilyCounts() = runTest {
+    fun dashboardShowsOnlyWhatTheSimpleHomeNeeds() = runTest {
         streams.subjects.value = listOf(Fixtures.math)
         streams.members.value = listOf(Fixtures.member(Role.STUDENT, "나", gradeYear = 8), Fixtures.member(Role.PARENT, "엄마"), Fixtures.member(Role.PARENT, "아빠", mentorEnabled = true), Fixtures.member(Role.MENTOR, "쌤"))
-        streams.roadmap.value = listOf(Fixtures.roadmap("a", status = RoadmapStatus.DONE), Fixtures.roadmap("b"))
         streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 40), Fixtures.session("math", today.minusDays(1), LocalTime.of(9, 0), 40))
         streams.tasks.value = listOf(Fixtures.task("지남", today.minusDays(1)))
         val vm = ParentDashboardViewModel(streams, tasks, notes); val job = subscribe(vm.state)
         val s = settle(vm.state)
-        assertEquals(2, s.parentCount); assertEquals(2, s.mentorCount); assertEquals(1, s.roadmapDone); assertEquals(2, s.roadmapTotal)
-        assertEquals(2, s.streak); assertEquals(40, s.todayMinutes); assertEquals(1, s.overdueCount)
-        assertEquals(7, s.daily.size)
-        assertEquals(com.nextstep.app.domain.growth.GrowthStage.MIDDLE, s.stage); assertEquals("중2", s.gradeLabel)
+        assertEquals(2, s.streak); assertEquals(1, s.overdueCount); assertEquals(listOf("지남"), s.pendingTasks.map { it.title })
+        assertEquals(com.nextstep.app.domain.growth.GrowthStage.MIDDLE, s.stage)
         // 상태 문장: 균형 판단 + 챙길 것(기한 지난 할 일 1개)
         assertTrue(s.balance != null); assertTrue(s.statusHeadline.contains("챙길 것 하나")); assertTrue(s.statusContext.startsWith("이번 주"))
         assertTrue(s.missionFocus.isEmpty())

@@ -41,6 +41,6 @@ fun ActivityRow(activity: ActivityEntity, onEdit: (() -> Unit)?, onDelete: (() -
 
 private fun dateRange(activity: ActivityEntity): String {
     val start = DateUtils.formatDate(LocalDate.ofEpochDay(activity.date))
-    val end = activity.endDate?.let { DateUtils.formatDate(LocalDate.ofEpochDay(it)) }
+    val end = activity.endDate?.let { DateUtils.formatDate(DateUtils.fromEpochDay(it)) }
     return if (end == null || end == start) start else "$start ~ $end"
 }

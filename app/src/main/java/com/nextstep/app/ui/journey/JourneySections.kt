@@ -11,13 +11,16 @@ import java.time.LocalDate
  * 상태 객체의 getter 로 두면 리컴포지션마다 다시 묶으므로 ViewModel 이 이 함수를 거쳐 상태를 만듭니다.
  */
 internal object JourneySections {
-    fun apply(s: JourneyUiState): JourneyUiState = s.copy(
+    fun apply(state: JourneyUiState): JourneyUiState {
+        val s = state.copy(filtered = state.items.filter { state.filter == null || it.category == state.filter })
+        return s.copy(
         periodSections = periodSections(s),
         phaseSections = phaseSections(s),
         overdueCount = s.items.count { it.phase(s.today) == JourneyPhase.OVERDUE },
         nowCount = s.items.count { it.phase(s.today) == JourneyPhase.NOW },
         pastSectionCount = s.periods.indexOfFirst { it.key == s.currentPeriodKey }.coerceAtLeast(0),
-    )
+        )
+    }
 
     /**
      * 구간별 타임라인. 이정표는 마감일이 속한 구간에, 단계는 periodKey 로 배정됩니다.

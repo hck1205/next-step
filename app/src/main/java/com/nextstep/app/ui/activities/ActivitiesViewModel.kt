@@ -41,6 +41,7 @@ class ActivitiesViewModel(
             filter = filter,
             loaded = true,
             sections = ActivitiesUiState.sectionsOf(filtered, ctx.periods),
+            filtered = filtered,
         )
     }.asUiState(viewModelScope, ActivitiesUiState())
 

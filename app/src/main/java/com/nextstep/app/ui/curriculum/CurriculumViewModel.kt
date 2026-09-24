@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.GradeLevel
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.SubjectPalette
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.ContentRepository

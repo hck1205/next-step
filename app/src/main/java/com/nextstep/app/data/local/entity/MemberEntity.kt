@@ -36,7 +36,7 @@ data class MemberEntity(
     val isStudent: Boolean get() = role == Role.STUDENT.name
     val isParent: Boolean get() = role == Role.PARENT.name
     /** 화면 표시용 역할: 학부모는 관계(엄마·아빠·할머니·보호자)가 있으면 그 이름, 아니면 역할 이름. */
-    val roleLabel: String get() = if (isParent && title.isNotBlank()) title else com.nextstep.app.data.model.Role.labelOf(role)
+    val roleLabel: String get() = if (isParent && title.isNotBlank()) title else Role.labelOf(role)
     val isMentor: Boolean get() = role == Role.MENTOR.name
     val subjectIdList: List<String> get() = subjectIds.split(",").map { it.trim() }.filter { it.isNotEmpty() }
     fun covers(subjectId: String?): Boolean = subjectIdList.isEmpty() || (subjectId != null && subjectId in subjectIdList)

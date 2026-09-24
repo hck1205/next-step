@@ -28,11 +28,12 @@ class ContentViewModel(
         val level = GrowthStage.of(members)?.gradeLevel ?: GradeLevel.ALL
         ContentUiState(
             subjects = subjects, all = contents,
+            subjectKeys = (subjects.map { it.name } + contents.map { it.subjectKey }).filter { it.isNotBlank() }.distinct(),
             recommendations = ContentRecommender.recommend(contents, subjects, progress, StudyStats.subjectScores(grades, subjects), StudyStats.upcomingExams(events, emptyList()), gradeLevel = level, limit = 5),
         )
     }
 
-    val state: StateFlow<ContentUiState> = combine(base, filter, add) { s, f, a -> s.copy(filter = f, add = a) }
+    val state: StateFlow<ContentUiState> = combine(base, filter, add) { s, f, a -> s.copy(filter = f, add = a, filtered = s.all.filter(f::matches)) }
         .asUiState(viewModelScope, ContentUiState())
 
     fun setQuery(q: String) = filter.value.let { filter.value = it.copy(query = q) }

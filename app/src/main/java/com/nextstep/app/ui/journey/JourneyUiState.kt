@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.journey
 
+import com.nextstep.app.domain.curriculum.TermCurriculum
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -27,7 +28,7 @@ data class JourneyUiState(
     val steps: List<GoalStepEntity> = emptyList(),
     val activities: List<ActivityEntity> = emptyList(),
     /** 현재 구간의 교과 커리큘럼(학령기만). */
-    val curriculum: com.nextstep.app.domain.curriculum.TermCurriculum? = null,
+    val curriculum: TermCurriculum? = null,
     val completion: Float = 0f,
     val filter: MilestoneCategory? = null,
     val showCompleted: Boolean = false,
@@ -40,6 +41,6 @@ data class JourneyUiState(
     val overdueCount: Int = 0,
     val nowCount: Int = 0,
     val pastSectionCount: Int = 0,
-) {
-    val filtered: List<JourneyItem> get() = items.filter { filter == null || it.category == filter }
-}
+    /** 종류 필터를 적용한 항목. */
+    val filtered: List<JourneyItem> = emptyList(),
+)

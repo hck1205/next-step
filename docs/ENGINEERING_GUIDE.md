@@ -31,7 +31,7 @@ com.nextstep.app
 │   ├── access/             Capabilities(+ `Capabilities.of(role, me)`: 프로필·구성원 → 권한)
 │   ├── family/             StudentContext(구성원 → 학생·생년월일·단계·구간 달력·현재 구간을 한 번에)
 │   ├── time/               DateUtils
-│   ├── stats/              StudyStats, BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats + 결과 모델
+│   ├── stats/              StudyStats, StudyQueues(예습·복습 대기열), BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
 │   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
 │   ├── mission/            MissionKind(단계별 종류), MissionCatalog(날짜에서 거꾸로 쪼갠 단계 설계), MissionPlanner(생성·압축·다음 단계·오늘 카드)
@@ -83,7 +83,7 @@ com.nextstep.app
 - 규칙 엔진(Insight, Talent, Recommender)은 결과에 **근거(reason)** 를 포함한다.
 
 ### ui.<feature>
-- `XxxUiState`: 불변 data class, 기본값 필수, 파생 값은 `get()` 프로퍼티.
+- `XxxUiState`: 불변 data class, 기본값 필수. 필터·정렬·묶음 결과는 ViewModel 이 계산해 필드로 넣고, `get()` 은 O(1) 조합(문장 만들기 등)만.
 - `XxxViewModel`: 생성자 주입(인터페이스만). `val state: StateFlow<XxxUiState>` 를 `combine(...).stateIn(viewModelScope, WhileSubscribed(5_000), XxxUiState())` 로 만든다. 사용자 의도는 동사 함수(`toggleTask`, `save`)이며 반환은 `Unit`. `viewModelScope.launch` 는 함수 본문 안에서만.
 - `XxxActions`: 화면 밖으로 나가는 콜백 묶음(내비게이션). 화면 시그니처는 `XxxScreen(caps, actions, viewModel)`.
 - `XxxScreen` 은 상태를 수집하고 `XxxContent(state, caps, actions, on...)` 을 호출한다. `XxxContent` 는 stateless 라 프리뷰·테스트가 가능하다.
@@ -149,6 +149,6 @@ CI 명령: `./gradlew :app:assembleDebug :app:testDebugUnitTest`. 빨간 상태�
 - **공통은 한 곳에.** 외부 링크는 `ExternalLinks.open`, 숫자 표기는 `Double.oneDecimal()`(domain 은 `Double.compact()`)·`Float.asPercent()`·`ratio()`, 학생의 시간 맥락은 `StudentContext.of(members, today)`, 권한은 `Capabilities.of(role, me)`. 같은 계산이 두 ViewModel 에 나타나면 domain 으로 올린다(`RoadmapStats`, `CheerStats`, `MentorScope` 가 그 예). 같은 카드·다이얼로그가 두 화면에 나타나면 `ui/components` 로 올린다(`LinkCard`, `UpcomingExamCard`, `NoteRow`, `TextInputDialog`, `AssignTaskDialog`).
 - **화면 파일은 목차만.** `XxxContent` 는 섹션 순서와 다이얼로그 스위치만 갖고, 카드·행·다이얼로그는 `<feature>/components/` 의 `internal` 컴포저블로 뺀다. 화면에서 `java.time.LocalDate.now()` 대신 `DateUtils.today()`, `role == ...` 대신 `caps.canXxx` 를 쓴다.
 - **상태 흐름은 `asUiState`.** `combine(...).asUiState(viewModelScope, XxxUiState())`. 계산은 Default 디스패처에서, 같은 값은 재발행하지 않고, 구독이 끊겨도 5초 유지한다.
-- **파생 값은 ViewModel 에서 한 번.** UiState 의 `get()` 프로퍼티는 O(1) 수준만 허용한다(필터·정렬·그룹은 금지). 묶음·정렬은 `JourneySections.apply` 처럼 상태를 만들 때 계산해 필드로 넣는다.
+- **파생 값은 ViewModel 에서 한 번.** UiState 의 `get()` 프로퍼티는 O(1) 수준만 허용한다(필터·정렬·그룹은 금지). 묶음·정렬은 `JourneySections.apply` 처럼 상태를 만들 때 계산해 필드로 넣는다. 여러 화면이 쓰는 계산(예습·복습 대기열, 평균)은 `domain/stats` 의 순수 함수로 올리고, 화면이 쓰지 않는 필드는 UiState 에 두지 않는다.
 - **카탈로그는 미리 계산.** 키워드 소문자화, 토큰 분해, 생년월일별 구간 달력(`PeriodCalendar` 캐시)처럼 호출마다 같은 결과가 나오는 것은 초기화 시점이나 캐시로 옮긴다.
 - **LazyColumn 은 항상 key.** 항목마다 안정적인 key 를 주고, 목록은 첫 화면에서 `UiDefaults.MAX_ROWS` 까지만 그린다.

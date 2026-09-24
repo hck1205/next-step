@@ -1,5 +1,9 @@
 package com.nextstep.app.ui.journey
 
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.prefs.UserProfile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GoalStepEntity
@@ -113,10 +117,10 @@ class JourneyViewModel(
     }
 
     private data class Base(
-        val profile: com.nextstep.app.data.prefs.UserProfile,
-        val members: List<com.nextstep.app.data.local.entity.MemberEntity>,
-        val stored: List<com.nextstep.app.data.local.entity.JourneyItemEntity>,
-        val goals: List<com.nextstep.app.data.local.entity.GoalEntity>,
+        val profile: UserProfile,
+        val members: List<MemberEntity>,
+        val stored: List<JourneyItemEntity>,
+        val goals: List<GoalEntity>,
         val steps: List<GoalStepEntity>,
     )
 

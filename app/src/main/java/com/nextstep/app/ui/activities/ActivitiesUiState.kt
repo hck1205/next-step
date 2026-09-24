@@ -20,8 +20,9 @@ data class ActivitiesUiState(
     val loaded: Boolean = false,
     /** 구간별 묶음(최근 구간 먼저). ViewModel 이 [sectionsOf] 로 한 번 계산합니다. */
     val sections: List<Pair<String, List<ActivityEntity>>> = emptyList(),
+    /** 종류 필터를 적용한 활동. */
+    val filtered: List<ActivityEntity> = emptyList(),
 ) {
-    val filtered: List<ActivityEntity> get() = activities.filter { filter == null || it.type == filter }
 
     companion object {
         /** 생년월일이 없으면 하나의 묶음. */

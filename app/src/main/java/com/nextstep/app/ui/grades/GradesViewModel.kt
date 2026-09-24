@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.grades
 
+import com.nextstep.app.domain.stats.ScoreStats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GradeEntity
@@ -21,7 +22,10 @@ class GradesViewModel(
     private val filter = MutableStateFlow<String?>(null)
 
     val state: StateFlow<GradesUiState> = combine(streams.subjects, streams.grades, filter) { subjects, grades, f ->
-        GradesUiState(subjects, grades, StudyStats.subjectScores(grades, subjects), f)
+        GradesUiState(
+            subjects, grades, StudyStats.subjectScores(grades, subjects), f,
+            filtered = if (f == null) grades else grades.filter { it.subjectId == f }, overallAverage = ScoreStats.averagePercent(grades),
+        )
     }.asUiState(viewModelScope, GradesUiState())
 
     fun setFilter(subjectId: String?) { filter.value = subjectId }

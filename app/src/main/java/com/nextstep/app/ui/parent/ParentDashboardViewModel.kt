@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.data.prefs.UserProfile
+import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.domain.mission.MissionPlanner
@@ -7,15 +9,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.EventEntity
-import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.local.entity.NoteEntity
-import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
-import com.nextstep.app.data.local.entity.TopicEntity
-import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.NoteRepository
@@ -28,12 +25,14 @@ import kotlinx.coroutines.launch
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.stats.BalanceStats
-import com.nextstep.app.domain.stats.RoadmapStats
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.asUiState
 
-/** 학부모 첫 화면. 상태 문장·지금 챙길 것·오늘의 아이·격려·재능/분석 한 줄. */
+/**
+ * 학부모 첫 화면: 자녀 줄 · 상태 카드 · 챙길 것 · 오늘 · 격려. 화면이 보여 주는 값만 계산합니다(UX 가이드 3 학부모 화면).
+ * 재능·분석·과목 통계는 기록 탭의 ViewModel 이 맡습니다.
+ */
 class ParentDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val tasks: TaskRepository,
@@ -41,57 +40,37 @@ class ParentDashboardViewModel(
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
-        ParentDashboardUiState(
-            parentName = profile.displayName,
-            children = profile.children,
-            activeFamilyId = profile.familyId,
-            studentName = profile.studentName,
-            subjects = subjects,
-            todayMinutes = StudyStats.todayMinutes(sessions),
-            weekMinutes = StudyStats.weekMinutes(sessions),
-            weekGoalMinutes = subjects.sumOf { it.weeklyGoalMinutes },
-            daily = StudyStats.dailyMinutes(sessions, 7),
-            weeklyBySubject = StudyStats.weeklyMinutesBySubject(sessions, subjects),
-            pendingTasks = StudyStats.pendingTasks(tasks),
-            overdueCount = StudyStats.overdueTasks(tasks).size,
-            upcomingExams = StudyStats.upcomingExams(events, tasks).take(UiDefaults.MAX_ROWS),
-        )
+        Core(profile, subjects, sessions, tasks, events)
     }
 
-    private val data = combine(streams.grades, streams.topics, streams.notes, streams.sessions, streams.tasks) { grades, topics, notes, sessions, tasks ->
-        Extra(grades, topics, notes, sessions, tasks)
+    private val side = combine(streams.members, streams.journeyItems, streams.activities, streams.goals, streams.goalSteps) { members, journey, activities, goals, steps ->
+        Side(members, journey, activities, goals, steps)
     }
 
-    private val extra = combine(streams.events, streams.syncStatus, streams.roadmap, streams.members, streams.journeyItems) { e, s, r, m, j -> Side(e, s, r, m, j) }
-        .let { side -> combine(side, streams.activities, streams.goals, streams.goalSteps) { x, a, g, st -> x.copy(activities = a, goals = g, goalSteps = st) } }
-
-    val state: StateFlow<ParentDashboardUiState> = combine(core, data, extra) { s, d, x ->
-        val events = x.events
+    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.notes, streams.syncStatus) { c, x, notes, sync ->
         val today = DateUtils.today()
         val ctx = StudentContext.of(x.members, today)
-        val stage = ctx.stage
         val period = ctx.currentPeriod
-        val roadmap = RoadmapStats.summarize(x.roadmap, today)
-        s.copy(
-            todayEvents = StudyStats.eventsOn(today, events),
-            balance = BalanceStats.report(stage, d.sessions, d.tasks, x.activities, period, today),
+        ParentDashboardUiState(
+            studentName = c.profile.studentName,
+            children = c.profile.children,
+            activeFamilyId = c.profile.familyId,
+            syncStatus = sync,
+            subjects = c.subjects,
+            weekMinutes = StudyStats.weekMinutes(c.sessions),
+            streak = StudyStats.studyStreak(c.sessions),
+            pendingTasks = StudyStats.pendingTasks(c.tasks),
+            overdueCount = StudyStats.overdueTasks(c.tasks).size,
+            upcomingExams = StudyStats.upcomingExams(c.events, c.tasks).take(UiDefaults.MAX_ROWS),
+            todayEvents = StudyStats.eventsOn(today, c.events),
+            notes = notes.take(UiDefaults.MAX_NOTES),
+            stage = ctx.stage,
             periodLabel = period?.label,
-            missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
-            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
             hasBirthDate = ctx.hasBirthDate,
             today = today,
-            syncStatus = x.sync,
-            streak = StudyStats.studyStreak(d.sessions),
-            roadmapDone = roadmap.done,
-            roadmapTotal = roadmap.total,
-            mentorCount = x.members.count { it.isMentor || it.mentorEnabled && !it.isStudent },
-            parentCount = x.members.count { it.isParent },
-            stage = stage,
-            gradeLabel = ctx.gradeLabel,
-            recentGrades = d.grades.take(UiDefaults.MAX_RECENT_RECORDS),
-            scores = StudyStats.subjectScores(d.grades, s.subjects),
-            progress = StudyStats.subjectProgress(d.topics, s.subjects),
-            notes = d.notes.take(UiDefaults.MAX_NOTES),
+            balance = BalanceStats.report(ctx.stage, c.sessions, c.tasks, x.activities, period, today),
+            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
+            missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
@@ -103,23 +82,20 @@ class ParentDashboardViewModel(
         tasks.save(TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = createdByRole))
     }
 
-    private data class Side(
-        val events: List<EventEntity>,
-        val sync: SyncStatus,
-        val roadmap: List<RoadmapItemEntity>,
-        val members: List<MemberEntity>,
-        val journey: List<JourneyItemEntity>,
-        val activities: List<ActivityEntity> = emptyList(),
-        val goals: List<GoalEntity> = emptyList(),
-        val goalSteps: List<GoalStepEntity> = emptyList(),
-    )
-
-    private data class Extra(
-        val grades: List<GradeEntity>,
-        val topics: List<TopicEntity>,
-        val notes: List<NoteEntity>,
+    private data class Core(
+        val profile: UserProfile,
+        val subjects: List<SubjectEntity>,
         val sessions: List<StudySessionEntity>,
         val tasks: List<TaskEntity>,
+        val events: List<EventEntity>,
+    )
+
+    private data class Side(
+        val members: List<MemberEntity>,
+        val journey: List<JourneyItemEntity>,
+        val activities: List<ActivityEntity>,
+        val goals: List<GoalEntity>,
+        val goalSteps: List<GoalStepEntity>,
     )
 
     /** 화면 이벤트 단일 진입점. */

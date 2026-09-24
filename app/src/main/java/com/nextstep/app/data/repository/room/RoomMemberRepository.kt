@@ -1,8 +1,8 @@
 package com.nextstep.app.data.repository.room
 
+import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.repository.FamilyScope
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.TimeSource
@@ -38,7 +38,7 @@ class RoomMemberRepository(
         modify(memberId) { it.copy(mentorEnabled = if (it.isMentor) true else enabled) }
 
     override suspend fun setGradeYear(memberId: String, gradeYear: Int) =
-        modify(memberId) { it.copy(gradeYear = gradeYear.coerceIn(0, com.nextstep.app.domain.growth.GrowthStage.MAX_GRADE)) }
+        modify(memberId) { it.copy(gradeYear = gradeYear.coerceIn(0, GrowthStage.MAX_GRADE)) }
 
     override suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?) =
         modify(memberId) { it.copy(birthDate = birthDate?.toEpochDay()) }

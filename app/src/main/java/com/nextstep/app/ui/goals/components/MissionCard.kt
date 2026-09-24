@@ -38,7 +38,7 @@ fun MissionCard(
     onDelete: () -> Unit,
 ) {
     val row: @Composable (GoalStepEntity) -> Unit = { step ->
-        val due = step.dueDate?.let { LocalDate.ofEpochDay(it) }
+        val due = step.dueDate?.let { DateUtils.fromEpochDay(it) }
         GoalStepRow(
             step = step, goalTitle = null,
             onSetStatus = { onSetStepStatus(step, it) },

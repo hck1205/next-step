@@ -7,13 +7,11 @@ import com.nextstep.app.domain.curriculum.TermCurriculum
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.common.UiDefaults
 import java.time.LocalDate
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
-import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.domain.content.ContentRecommendation
 import com.nextstep.app.domain.planner.StudyPlan
@@ -52,12 +50,9 @@ data class HomeUiState(
     val periodLabel: String? = null,
     /** 날짜 목표(시험·수행평가·입시)의 다음 한 걸음. 가까운 순서로 3개까지. */
     val missionFocus: List<MissionFocus> = emptyList(),
-) {
-    /** 진행 중이거나 목표일이 가까운 로드맵 항목. */
-    val roadmapFocus: List<RoadmapItemEntity> get() = roadmap.filter { it.status != RoadmapStatus.DONE }
-        .sortedWith(compareBy<RoadmapItemEntity> { it.status != RoadmapStatus.IN_PROGRESS }.thenBy { it.targetDate ?: Long.MAX_VALUE }).take(UiDefaults.MAX_ROWS)
-    /** 지금 배우는 과목: 학급 진도가 시작됐고 아직 끝나지 않은 과목. */
-    val activeSubjects: List<SubjectProgress> get() = progress.filter { it.classCovered > 0 && it.classCovered < it.total }
-    val previewQueue: List<Pair<SubjectEntity, TopicEntity>> get() = progress.flatMap { p -> p.previewQueue.take(1).map { p.subject to it } }
-    val reviewQueue: List<Pair<SubjectEntity, TopicEntity>> get() = progress.flatMap { p -> p.reviewQueue.take(2).map { p.subject to it } }
-}
+    /** 아래 네 목록은 ViewModel 이 StudyQueues 로 한 번 계산합니다. */
+    val roadmapFocus: List<RoadmapItemEntity> = emptyList(),
+    val activeSubjects: List<SubjectProgress> = emptyList(),
+    val previewQueue: List<Pair<SubjectEntity, TopicEntity>> = emptyList(),
+    val reviewQueue: List<Pair<SubjectEntity, TopicEntity>> = emptyList(),
+)
