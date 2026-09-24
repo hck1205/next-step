@@ -70,7 +70,7 @@ com.nextstep.app
 - 메서드 이름 고정: `observeAll(familyId)`, `getById(id)`, `upsert(item)`, `upsertAll(items)`, `getDirty(familyId)`, `markClean(ids)`. 이 이름은 `SyncedCollection` 이 제네릭으로 묶는 계약이다.
 
 ### data.sync
-- 엔티티 하나 = `EntityMapper<T>` 구현 하나(`mapper/XxxMapper.kt`) + `SyncRegistry` 의 한 줄. `FirestoreSyncManager` 는 엔티티를 모른다.
+- 엔티티 하나 = `EntityMapper<T>` 구현 하나(`mapper/XxxMapper.kt`) + `SyncRegistry` 의 `SyncedCollection.of(mapper, dao)` 한 줄. DAO 는 `SyncDao<T>`(getById/upsert/getDirty/markClean)를 구현한다. 받기만 하는 공용 컬렉션은 `SyncedCollection.readOnly`. `FirestoreSyncManager` 는 엔티티를 모른다.
 
 ### data.repository
 - 애그리거트마다 인터페이스 하나. 읽기는 `Flow`, 쓰기는 `suspend fun` 이며 `Unit` 또는 `Result<T>` 를 돌려준다. 예외를 밖으로 던지지 않는다.
@@ -136,7 +136,7 @@ CI 명령: `./gradlew :app:assembleDebug :app:testDebugUnitTest`. 빨간 상태�
 ## 7. 체크리스트 (PR 전)
 
 - [ ] 파일당 타입 하나, 200줄 이하
-- [ ] 새 엔티티: entity + dao + mapper + SyncRegistry + Room version + Fake
+- [ ] 새 엔티티: entity + dao(SyncDao) + mapper + SyncRegistry 한 줄 + Room version + Fake
 - [ ] ViewModel 은 인터페이스만 주입, `state` 하나
 - [ ] 화면은 `Screen/Content/Actions` 분리, 역할 분기는 `caps`
 - [ ] domain 변경에 테스트 추가
