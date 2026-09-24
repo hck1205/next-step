@@ -77,21 +77,22 @@ class RoomOnboardingAndSessionTest {
 
     @Test
     fun linkChildJoinsAnotherStudentOnceAndOnlyForNonStudents() = runTest {
-        val sibling = onboarding().createFamilyAsStudent("민수", 8).getOrThrow()
+        val repo = onboarding() // 같은 시드의 저장소를 여러 번 만들면 연결 코드가 겹칩니다
+        val sibling = repo.createFamilyAsStudent("민수", 8).getOrThrow()
         prefs.reset()
-        onboarding().createFamilyAsParent("아빠", "지우", null, relation = "아빠").getOrThrow()
-        val linked = onboarding().linkChild(sibling.pairingCode.lowercase()).getOrThrow()
+        repo.createFamilyAsParent("아빠", "지우", null, relation = "아빠").getOrThrow()
+        val linked = repo.linkChild(sibling.pairingCode.lowercase()).getOrThrow()
         assertEquals(sibling.familyId, linked.familyId)
         val profile = prefs.profile.value
         assertEquals(listOf("지우", "민수"), profile.children.map { it.studentName }); assertEquals(sibling.familyId, profile.familyId)
         assertEquals("아빠", members.all.single { it.familyId == sibling.familyId && it.isParent }.title)
         val before = members.all.size
-        onboarding().linkChild(sibling.pairingCode).getOrThrow()
+        repo.linkChild(sibling.pairingCode).getOrThrow()
         assertEquals(before, members.all.size)
-        assertTrue(onboarding().linkChild("NOPE00").isFailure)
-        prefs.reset(); onboarding().createFamilyAsStudent("나", 5)
-        assertTrue(onboarding().linkChild(sibling.pairingCode).isFailure)
-        assertTrue(onboarding().addChildAsParent("x", null).isFailure)
+        assertTrue(repo.linkChild("NOPE00").isFailure)
+        prefs.reset(); repo.createFamilyAsStudent("나", 5)
+        assertTrue(repo.linkChild(sibling.pairingCode).isFailure)
+        assertTrue(repo.addChildAsParent("x", null).isFailure)
     }
 
     @Test
