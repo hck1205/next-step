@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.goals
 
+import com.nextstep.app.domain.mission.MissionKind
+import java.time.LocalDate
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
@@ -10,6 +12,8 @@ sealed interface GoalsEvent {
     data class StartTrack(val trackId: String) : GoalsEvent
     /** 직접 만든 목표: 제목과 구간별 단계 제목(비어 있으면 단계 없이 시작). */
     data class AddCustomGoal(val title: String, val area: GoalArea, val description: String, val stepsByPeriod: List<Pair<String, String>>) : GoalsEvent
+    /** 날짜가 정해진 목표: 종류·목표일·과목(필요한 종류만). 단계는 MissionCatalog 설계로 자동 생성. */
+    data class StartMission(val kind: MissionKind, val target: LocalDate, val subject: String?, val createdByRole: String) : GoalsEvent
     data class AddStep(val goalId: String, val periodKey: String, val title: String) : GoalsEvent
     data class SetStepStatus(val step: GoalStepEntity, val status: MilestoneStatus) : GoalsEvent
     data class SendStepToTasks(val step: GoalStepEntity, val createdByRole: String) : GoalsEvent

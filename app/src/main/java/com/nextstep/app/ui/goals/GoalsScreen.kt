@@ -31,6 +31,8 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.goals.components.AddGoalDialog
+import com.nextstep.app.ui.goals.components.AddMissionDialog
+import com.nextstep.app.ui.goals.components.MissionCard
 import com.nextstep.app.ui.goals.components.GoalCard
 import com.nextstep.app.ui.goals.components.TrackCard
 import androidx.compose.runtime.getValue
@@ -50,6 +52,7 @@ fun GoalsScreen(caps: Capabilities, actions: GoalsActions, viewModel: GoalsViewM
 @Composable
 internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: GoalsActions, onEvent: (GoalsEvent) -> Unit) {
     var showAdd by remember { mutableStateOf(false) }
+    var showMission by remember { mutableStateOf(false) }
     var expandedGoalId by remember { mutableStateOf<String?>(null) }
     val goalCard: @Composable (GoalView) -> Unit = { view ->
         GoalCard(
@@ -93,6 +96,20 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
                     )
                 }
             }
+            if (state.missionKinds.isNotEmpty() || state.missions.isNotEmpty()) {
+                item { SectionTitle("시험·입시", action = if (caps.canManageGoals && state.missionKinds.isNotEmpty()) ({ TextButton(onClick = { showMission = true }) { Text("추가") } }) else null) }
+                if (state.missions.isEmpty()) item { AppCard { EmptyState("시험·수행평가 날짜를 넣으면 단계가 자동으로 나뉘어요") } }
+                items(state.missions, key = { "m-" + it.goal.id }) { view ->
+                    MissionCard(
+                        view = view, today = state.today, expanded = expandedGoalId == view.goal.id,
+                        onToggle = { expandedGoalId = if (expandedGoalId == view.goal.id) null else view.goal.id },
+                        canManage = caps.canManageGoals,
+                        onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
+                        onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
+                        onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
+                    )
+                }
+            }
             if (state.active.isNotEmpty()) item { SectionTitle("진행 중인 목표 · ${state.active.size}") }
             items(state.active, key = { it.goal.id }) { goalCard(it) }
             if (state.availableTracks.isNotEmpty()) {
@@ -108,6 +125,11 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
         }
     }
 
+    if (showMission && state.missionKinds.isNotEmpty()) AddMissionDialog(
+        kinds = state.missionKinds, subjectNames = state.subjectNames, today = state.today,
+        onConfirm = { kind, target, subject -> onEvent(GoalsEvent.StartMission(kind, target, subject, caps.actingRoleName)); showMission = false },
+        onDismiss = { showMission = false },
+    )
     if (showAdd) AddGoalDialog(
         periods = state.periods, currentPeriodKey = state.currentPeriodKey,
         onConfirm = { title, area, desc, steps -> onEvent(GoalsEvent.AddCustomGoal(title, area, desc, steps)); showAdd = false },

@@ -51,6 +51,8 @@ class MapperRoundTripTest {
     @Test fun peerTopic() = roundTrip(PeerTopicMapper, Fixtures.peerTopic("g7s1", "수학", "정수와 유리수", 12).copy(coveredRatio = 0.4, updatedAt = 9L)) { it.copy(dirty = false) }.let { assertEquals("", it.familyId) }
     @Test fun goal() = roundTrip(GoalMapper, Fixtures.goal("영어", trackId = "english-early", status = GoalStatus.DONE).copy(description = "d", createdByRole = "PARENT", createdAt = 3L, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun goalCustom() = roundTrip(GoalMapper, Fixtures.goal("피아노")) { it.copy(dirty = false) }.let { assertNull(it.trackId) }
+    @Test fun goalMission() = roundTrip(GoalMapper, Fixtures.goal("수학 수행평가", trackId = "mission:PERFORMANCE").copy(targetDate = 20_000L)) { it.copy(dirty = false) }.let { assertEquals(20_000L, it.targetDate) }
+    @Test fun goalStepWithDue() = roundTrip(GoalStepMapper, Fixtures.step("g1", "g5s1", "초안").copy(dueDate = 20_001L)) { it.copy(dirty = false) }.let { assertEquals(20_001L, it.dueDate) }
     @Test fun goalStep() = roundTrip(GoalStepMapper, Fixtures.step("g1", "g3s1", "나눗셈", order = 4, status = MilestoneStatus.DONE, taskId = "t1").copy(detail = "x", doneAt = 9L)) { it.copy(dirty = false) }.let {}
     @Test fun goalStepWithoutTask() = roundTrip(GoalStepMapper, Fixtures.step("g1", "age-12", "첫 단어")) { it.copy(dirty = false) }.let { assertNull(it.taskId); assertNull(it.doneAt) }
     @Test fun journeyCustom() = roundTrip(JourneyItemMapper, Fixtures.journeyItem(null, title = "영어유치원 설명회", leadMonths = 2, category = "LANGUAGE").copy(description = "d", priority = 1)) { it.copy(dirty = false) }.let { assertNull(it.templateId) }

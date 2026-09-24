@@ -3,7 +3,9 @@ package com.nextstep.app.ui.goals
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.mission.MissionKind
 import com.nextstep.app.domain.journey.GoalTrackCatalog
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGoalRepository
@@ -54,6 +56,30 @@ class GoalsViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("g1s1", "g1s2", "g2s1", "g2s2", "g3s1", "g3s2"), view.currentSteps.map { it.periodKey })
         vm.onEvent(GoalsEvent.StartTrack("math-elementary")); vm.onEvent(GoalsEvent.StartTrack("nope")); settle(vm.state)
         assertEquals(1, goals.calls.size)
+        job.cancel()
+    }
+
+    @Test
+    fun missionKindsFollowStageAndStartMissionSchedulesDatedSteps() = runTest {
+        withChild() // 초3 → 단원평가만
+        streams.subjects.value = listOf(Fixtures.math)
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertEquals(listOf(MissionKind.UNIT_TEST), s.missionKinds); assertEquals(listOf("수학"), s.subjectNames)
+        val target = today.plusDays(10)
+        vm.onEvent(GoalsEvent.StartMission(MissionKind.UNIT_TEST, target, "수학", "PARENT")); settle(vm.state)
+        assertEquals(listOf("add:mission:UNIT_TEST:4"), goals.calls)
+        val goal = goals.addedGoals.single()
+        assertEquals("수학 단원평가", goal.title); assertEquals(target.toEpochDay(), goal.targetDate)
+        assertEquals(listOf(5L, 3L, 1L, -1L).map { target.minusDays(it).toEpochDay() }, goals.addedSteps.map { it.dueDate })
+        streams.goals.value = goals.addedGoals.toList(); streams.goalSteps.value = goals.addedSteps.toList()
+        s = settle(vm.state)
+        val m = s.missions.single()
+        assertEquals(10, m.daysLeft); assertEquals("단원 범위 확인", m.nextStep!!.title); assertEquals(MissionKind.UNIT_TEST, m.kind)
+        assertTrue(s.active.isEmpty())
+        vm.onEvent(GoalsEvent.SendStepToTasks(m.nextStep!!, "STUDENT")); settle(vm.state)
+        val task = tasks.saved.single()
+        assertEquals(target.minusDays(5).toEpochDay(), task.dueDate); assertEquals(TaskType.EXAM_PREP, task.type)
         job.cancel()
     }
 

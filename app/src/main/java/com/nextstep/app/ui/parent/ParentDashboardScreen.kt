@@ -37,6 +37,7 @@ import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.card.InsightCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
+import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.StageCard
 import com.nextstep.app.ui.components.card.StatusCard
@@ -100,6 +101,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             }
 
             item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
+            if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
             item {
                 StageCard(

@@ -1,5 +1,9 @@
 package com.nextstep.app.ui.goals
 
+import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.domain.mission.MissionKind
+import com.nextstep.app.domain.mission.MissionPlanner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -31,7 +35,7 @@ class GoalsViewModel(
     private val today: () -> LocalDate = { DateUtils.today() },
 ) : ViewModel() {
 
-    val state: StateFlow<GoalsUiState> = combine(streams.profile, streams.members, streams.goals, streams.goalSteps) { profile, members, goals, steps ->
+    val state: StateFlow<GoalsUiState> = combine(streams.profile, streams.members, streams.goals, streams.goalSteps, streams.subjects) { profile, members, goals, steps, subjects ->
         val day = today()
         val ctx = StudentContext.of(members, day)
         val periods = ctx.periods
@@ -44,14 +48,26 @@ class GoalsViewModel(
             today = day,
             periods = periods,
             currentPeriodKey = currentKey,
-            goals = live.map { goal ->
-                val mine = GoalPlanner.stepsOf(goal, steps)
-                GoalView(goal, mine, GoalPlanner.progress(mine), GoalPlanner.currentSteps(mine, periods, currentKey), GoalPlanner.isComplete(mine))
-            },
+            goals = live.map { goal -> viewOf(goal, GoalPlanner.stepsOf(goal, steps), periods, currentKey, day) },
             availableTracks = GoalPlanner.relevantTracks(GoalTrackCatalog.tracks, periods, currentKey).filter { it.id !in started },
             loaded = true,
-        )
+            missionKinds = MissionKind.forStage(ctx.stage),
+            subjectNames = subjects.map { it.name },
+        ).let { s -> s.copy(missions = s.goals.filter { it.isMission && it.goal.status == GoalStatus.ACTIVE }.sortedBy { it.target }) }
     }.asUiState(viewModelScope, GoalsUiState())
+
+    private fun viewOf(goal: GoalEntity, mine: List<GoalStepEntity>, periods: List<JourneyPeriod>, currentKey: String?, today: LocalDate): GoalView = GoalView(
+        goal = goal, steps = mine, progress = GoalPlanner.progress(mine), currentSteps = GoalPlanner.currentSteps(mine, periods, currentKey),
+        isComplete = GoalPlanner.isComplete(mine), kind = MissionPlanner.kindOf(goal), target = goal.targetDate?.let { LocalDate.ofEpochDay(it) },
+        daysLeft = MissionPlanner.daysLeft(goal, today), nextStep = MissionPlanner.nextStep(mine), overdueSteps = MissionPlanner.overdueCount(mine, today),
+    )
+
+    /** 날짜 목표를 만들고 설계된 세부 단계를 목표일에서 거꾸로 배치합니다. */
+    fun startMission(kind: MissionKind, target: LocalDate, subject: String?, createdByRole: String) = viewModelScope.launch {
+        val s = state.value
+        val (goal, steps) = MissionPlanner.create(kind, target, s.today, s.periods, subject?.takeIf { kind.needsSubject }, createdByRole)
+        goals.add(goal, steps)
+    }
 
     fun startTrack(trackId: String) = viewModelScope.launch {
         val track = GoalTrackCatalog.byId[trackId] ?: return@launch
@@ -86,7 +102,9 @@ class GoalsViewModel(
     fun sendStepToTasks(step: GoalStepEntity, createdByRole: String) = viewModelScope.launch {
         if (step.taskId != null) return@launch
         val s = state.value
-        val task = GoalPlanner.taskFor(step, s.goals.firstOrNull { it.goal.id == step.goalId }?.goal?.title ?: "", s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
+        val view = s.goals.firstOrNull { it.goal.id == step.goalId }
+        val type = if (view?.kind?.isExam == true) TaskType.EXAM_PREP else TaskType.OTHER
+        val task = GoalPlanner.taskFor(step, view?.goal?.title ?: "", s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole, type)
         tasks.save(task)
         goals.setStepTask(step.id, task.id)
     }
@@ -99,6 +117,7 @@ class GoalsViewModel(
         when (event) {
             is GoalsEvent.StartTrack -> startTrack(event.trackId)
             is GoalsEvent.AddCustomGoal -> addCustomGoal(event.title, event.area, event.description, event.stepsByPeriod)
+            is GoalsEvent.StartMission -> startMission(event.kind, event.target, event.subject, event.createdByRole)
             is GoalsEvent.AddStep -> addStep(event.goalId, event.periodKey, event.title)
             is GoalsEvent.SetStepStatus -> setStepStatus(event.step, event.status)
             is GoalsEvent.SendStepToTasks -> sendStepToTasks(event.step, event.createdByRole)

@@ -35,6 +35,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.CurriculumCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.JourneyNowCard
+import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.UpcomingExamCard
@@ -83,6 +84,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
         ) {
             item { TimerCard(state, actions.onOpenTimer) }
             state.curriculum?.let { c -> item { CurriculumCard(curriculum = c, periodLabel = state.periodLabel ?: "이번 학기", onOpen = actions.onOpenCurriculum) } }
+            if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             if (state.hasBirthDate || state.journeyNow.isNotEmpty()) item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
 
             item { SectionTitle("오늘 할 것", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("전체") } }) }

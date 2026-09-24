@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.domain.mission.MissionPlanner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -78,7 +79,9 @@ class HomeViewModel(
         )
     }
 
-    val state: StateFlow<HomeUiState> = combine(enriched, streams.notes) { s, notes -> s.copy(latestNote = notes.maxByOrNull { it.createdAt }) }
+    val state: StateFlow<HomeUiState> = combine(enriched, streams.notes, streams.goals, streams.goalSteps) { s, notes, goals, steps ->
+        s.copy(latestNote = notes.maxByOrNull { it.createdAt }, missionFocus = MissionPlanner.focus(goals, steps, s.today))
+    }
         .asUiState(viewModelScope, HomeUiState())
 
     fun markContentWatched(id: String) = viewModelScope.launch { contents.setWatched(id, true) }

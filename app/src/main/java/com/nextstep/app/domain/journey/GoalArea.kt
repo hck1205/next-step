@@ -9,6 +9,9 @@ enum class GoalArea(val label: String) {
     HOBBY("취미"),
     CLUB("동아리·활동"),
     CAREER("진로·학업"),
+    EXAM("시험"),
+    PERFORMANCE("수행평가"),
+    ADMISSION("입시"),
     CUSTOM("직접 만든 목표");
 
     companion object {

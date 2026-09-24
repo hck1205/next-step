@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.stats.BalanceReport
@@ -58,6 +59,8 @@ data class ParentDashboardUiState(
     val balance: BalanceReport? = null,
     /** 현재 구간 표기 (예: 초3 2학기). */
     val periodLabel: String? = null,
+    /** 날짜 목표의 다음 한 걸음(3개까지). */
+    val missionFocus: List<MissionFocus> = emptyList(),
 ) {
     /** 첫 화면의 상태 문장: 균형 판단 + 챙길 것 수. 숫자 대신 문장으로. */
     val statusHeadline: String get() {

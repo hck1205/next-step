@@ -19,6 +19,8 @@ data class GoalEntity(
     val area: String = "",
     val description: String = "",
     val status: GoalStatus = GoalStatus.ACTIVE,
+    /** 시험·수행평가·입시처럼 날짜가 정해진 목표의 D-day(epochDay). 장기 목표는 null. */
+    val targetDate: Long? = null,
     val createdByRole: String = "",
     val createdAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),

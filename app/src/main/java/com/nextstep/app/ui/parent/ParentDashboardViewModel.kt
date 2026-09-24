@@ -1,5 +1,8 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
+import com.nextstep.app.domain.mission.MissionPlanner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
@@ -61,7 +64,7 @@ class ParentDashboardViewModel(
     }
 
     private val extra = combine(streams.events, streams.syncStatus, streams.roadmap, streams.members, streams.journeyItems) { e, s, r, m, j -> Side(e, s, r, m, j) }
-        .let { side -> combine(side, streams.activities) { x, a -> x.copy(activities = a) } }
+        .let { side -> combine(side, streams.activities, streams.goals, streams.goalSteps) { x, a, g, st -> x.copy(activities = a, goals = g, goalSteps = st) } }
 
     val state: StateFlow<ParentDashboardUiState> = combine(core, data, extra) { s, d, x ->
         val events = x.events
@@ -75,6 +78,7 @@ class ParentDashboardViewModel(
             todayEvents = StudyStats.eventsOn(today, events),
             balance = BalanceStats.report(stage, d.sessions, d.tasks, x.activities, period, today),
             periodLabel = period?.label,
+            missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
             hasBirthDate = ctx.hasBirthDate,
             today = today,
@@ -112,6 +116,8 @@ class ParentDashboardViewModel(
         val members: List<MemberEntity>,
         val journey: List<JourneyItemEntity>,
         val activities: List<ActivityEntity> = emptyList(),
+        val goals: List<GoalEntity> = emptyList(),
+        val goalSteps: List<GoalStepEntity> = emptyList(),
     )
 
     private data class Extra(

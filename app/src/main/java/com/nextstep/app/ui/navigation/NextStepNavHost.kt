@@ -174,7 +174,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                     actions = ParentDashboardActions(
                         onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject, onOpenRecords = openRecords,
                         onOpenMentor = { go(Routes.MENTOR_HOME) }, onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
-                        onOpenJourney = { go(Routes.JOURNEY) }, onOpenCheer = { go(Routes.CHEER) },
+                        onOpenJourney = { go(Routes.JOURNEY) }, onOpenCheer = { go(Routes.CHEER) }, onOpenGoals = { go(Routes.GOALS) },
                     ),
                 )
                 Role.MENTOR -> MentorDashboardScreen(
@@ -187,7 +187,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                     actions = HomeActions(
                         onOpenTimer = { go(Routes.TIMER) }, onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject,
                         onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) }, onOpenJourney = { go(Routes.JOURNEY) },
-                        onOpenRecords = openRecords, onOpenCurriculum = { go(Routes.CURRICULUM) },
+                        onOpenRecords = openRecords, onOpenCurriculum = { go(Routes.CURRICULUM) }, onOpenGoals = { go(Routes.GOALS) },
                     ),
                 )
             }

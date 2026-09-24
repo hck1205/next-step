@@ -52,13 +52,15 @@ object GoalPlanner {
         steps.filter { it.goalId == goal.id && !it.deleted }.sortedBy { it.orderIndex }
 
     /**
-     * 단계를 할 일로 바꿉니다. 마감은 단계 구간의 끝이고, 구간이 이미 지났거나 없으면 오늘 + [FALLBACK_DUE_DAYS]일입니다.
+     * 단계를 할 일로 바꿉니다. 마감은 단계에 날짜가 있으면 그 날(지났으면 오늘), 없으면 단계 구간의 끝이고,
+     * 구간이 이미 지났거나 없으면 오늘 + [FALLBACK_DUE_DAYS]일입니다.
      * 메모에 목표 제목과 단계 설명을 남겨 할 일 목록에서도 맥락이 보이게 합니다.
      */
-    fun taskFor(step: GoalStepEntity, goalTitle: String, period: JourneyPeriod?, today: LocalDate, createdByRole: String): TaskEntity {
-        val due = period?.end?.takeIf { !it.isBefore(today) } ?: today.plusDays(FALLBACK_DUE_DAYS)
+    fun taskFor(step: GoalStepEntity, goalTitle: String, period: JourneyPeriod?, today: LocalDate, createdByRole: String, type: TaskType = TaskType.OTHER): TaskEntity {
+        val stepDue = step.dueDate?.let { LocalDate.ofEpochDay(it) }?.let { if (it.isBefore(today)) today else it }
+        val due = stepDue ?: period?.end?.takeIf { !it.isBefore(today) } ?: today.plusDays(FALLBACK_DUE_DAYS)
         return TaskEntity(
-            familyId = "", title = step.title, type = TaskType.OTHER, dueDate = due.toEpochDay(), createdByRole = createdByRole,
+            familyId = "", title = step.title, type = type, dueDate = due.toEpochDay(), createdByRole = createdByRole,
             note = listOf(goalTitle, step.detail).filter { it.isNotBlank() }.joinToString(" · "),
         )
     }

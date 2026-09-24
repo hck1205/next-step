@@ -13,4 +13,5 @@ data class ParentDashboardActions(
     val onOpenRoadmap: () -> Unit = {},
     val onOpenContent: () -> Unit = {},
     val onOpenJourney: () -> Unit = {},
+    val onOpenGoals: () -> Unit = {},
 )

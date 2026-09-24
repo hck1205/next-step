@@ -30,6 +30,20 @@ class HomeViewModelTest : ViewModelTestBase() {
     private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans)
 
     @Test
+    fun missionFocusShowsNextStepOfDatedGoals() = runTest {
+        val goal = Fixtures.goal("국어 단원평가", id = "m").copy(targetDate = today.plusDays(4).toEpochDay())
+        streams.goals.value = listOf(goal, Fixtures.goal("피아노", id = "p"))
+        streams.goalSteps.value = listOf(
+            Fixtures.step("m", "g5s1", "범위 확인", id = "a", status = com.nextstep.app.data.model.MilestoneStatus.DONE),
+            Fixtures.step("m", "g5s1", "문제 풀기", id = "b", order = 1).copy(dueDate = today.plusDays(2).toEpochDay()),
+        )
+        val vm = vm(); val job = subscribe(vm.state)
+        val f = settle(vm.state).missionFocus.single()
+        assertEquals("문제 풀기", f.nextStep.title); assertEquals(4, f.daysLeft); assertEquals(1, f.doneCount)
+        job.cancel()
+    }
+
+    @Test
     fun stateDerivesTodayFiguresQueuesAndNextExam() = runTest {
         streams.subjects.value = listOf(Fixtures.math)
         streams.topics.value = Fixtures.topics("math", 4, covered = 2, reviewed = 0)

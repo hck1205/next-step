@@ -37,6 +37,10 @@ class ParentViewModelsTest : ViewModelTestBase() {
         assertTrue(s.stageTip!!.isNotBlank()); assertTrue(s.stageExperience!!.isNotBlank())
         // 상태 문장: 균형 판단 + 챙길 것(기한 지난 할 일 1개)
         assertTrue(s.balance != null); assertTrue(s.statusHeadline.contains("챙길 것 하나")); assertTrue(s.statusContext.startsWith("이번 주"))
+        assertTrue(s.missionFocus.isEmpty())
+        streams.goals.value = listOf(Fixtures.goal("중간고사", id = "e").copy(targetDate = today.plusDays(20).toEpochDay()))
+        streams.goalSteps.value = listOf(Fixtures.step("e", "g8s1", "범위 확인", id = "s"))
+        assertEquals("범위 확인", settle(vm.state).missionFocus.single().nextStep.title)
         job.cancel()
     }
 

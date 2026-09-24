@@ -24,6 +24,9 @@ fun GoalStepRow(
     onSetStatus: (MilestoneStatus) -> Unit,
     onSendToTasks: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    /** 날짜가 정해진 단계의 마감 표시(예: "4.20"). */
+    dueLabel: String? = null,
+    dueUrgent: Boolean = false,
 ) {
     val done = step.status == MilestoneStatus.DONE
     val muted = done || step.status == MilestoneStatus.SKIPPED
@@ -38,6 +41,7 @@ fun GoalStepRow(
             val sub = listOfNotNull(goalTitle, step.detail.takeIf { it.isNotBlank() }).joinToString(" · ")
             if (sub.isNotBlank()) Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        if (dueLabel != null && !muted) Text(dueLabel, style = MaterialTheme.typography.labelSmall, color = if (dueUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
         when {
             step.taskId != null -> Text("할 일에 있음", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             onSendToTasks != null && !muted -> TextButton(onClick = onSendToTasks) { Text("할 일로") }

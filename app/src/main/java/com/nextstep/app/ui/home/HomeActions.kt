@@ -10,4 +10,5 @@ data class HomeActions(
     val onOpenJourney: () -> Unit = {},
     val onOpenRecords: (com.nextstep.app.ui.records.RecordSegment) -> Unit = { _ -> },
     val onOpenCurriculum: () -> Unit = {},
+    val onOpenGoals: () -> Unit = {},
 )

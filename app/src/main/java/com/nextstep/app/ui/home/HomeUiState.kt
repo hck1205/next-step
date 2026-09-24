@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.domain.curriculum.TermCurriculum
@@ -49,6 +50,8 @@ data class HomeUiState(
     /** 이번 학기 교과 커리큘럼과 구간 이름. 학령기 + 생년월일/학년이 있을 때만. */
     val curriculum: TermCurriculum? = null,
     val periodLabel: String? = null,
+    /** 날짜 목표(시험·수행평가·입시)의 다음 한 걸음. 가까운 순서로 3개까지. */
+    val missionFocus: List<MissionFocus> = emptyList(),
 ) {
     /** 진행 중이거나 목표일이 가까운 로드맵 항목. */
     val roadmapFocus: List<RoadmapItemEntity> get() = roadmap.filter { it.status != RoadmapStatus.DONE }

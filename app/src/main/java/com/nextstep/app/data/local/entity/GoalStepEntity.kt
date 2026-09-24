@@ -18,6 +18,8 @@ data class GoalStepEntity(
     val detail: String = "",
     val status: MilestoneStatus = MilestoneStatus.UPCOMING,
     val taskId: String? = null,
+    /** 날짜가 정해진 목표의 단계 마감(epochDay). 학기 단위 단계는 null. */
+    val dueDate: Long? = null,
     val doneAt: Long? = null,
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,
