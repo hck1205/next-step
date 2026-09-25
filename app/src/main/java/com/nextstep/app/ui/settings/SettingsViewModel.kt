@@ -1,6 +1,7 @@
 package com.nextstep.app.ui.settings
 
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.growth.YearProfiles
 import kotlinx.coroutines.flow.MutableStateFlow
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.time.DateUtils
@@ -29,6 +30,7 @@ class SettingsViewModel(
             p, s, onboarding.syncAvailable, members, me, subjects, student, birth, birth?.let { GrowthStage.ageLabel(it, DateUtils.today()) },
             autoStudentLevel = student?.let { StudentUiLevel.auto(it) },
             chosenStudentLevel = StudentUiLevel.fromName(student?.uiLevel),
+            yearLabel = student?.let { YearProfiles.of(it)?.label },
         )
     }.combine(childError) { s, e -> s.copy(childError = e) }
         .asUiState(viewModelScope, SettingsUiState())
@@ -51,6 +53,12 @@ class SettingsViewModel(
     fun setGradeYear(gradeYear: Int) = viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setGradeYear(it.id, gradeYear) } }
     fun setBirthDate(date: LocalDate?) = viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setBirthDate(it.id, date) } }
     fun setStudentLevel(level: StudentUiLevel?) = viewModelScope.launch { state.value.student?.let { members.setUiLevel(it.id, level) } }
+    fun saveStudentYear(birthDate: LocalDate?, gradeYear: Int, level: StudentUiLevel?) = viewModelScope.launch {
+        val student = state.value.student ?: return@launch
+        if (birthDate != state.value.birthDate) members.setBirthDate(student.id, birthDate)
+        if (gradeYear != student.gradeYear) members.setGradeYear(student.id, gradeYear)
+        if (level != state.value.chosenStudentLevel) members.setUiLevel(student.id, level)
+    }
     fun updateMyProfile(name: String, title: String) = viewModelScope.launch { state.value.me?.let { members.updateProfile(it.id, name, title) } }
 
     /** 화면 이벤트 단일 진입점. */
@@ -65,6 +73,7 @@ class SettingsViewModel(
             is SettingsEvent.SetGradeYear -> setGradeYear(event.gradeYear)
             is SettingsEvent.SetStudentLevel -> setStudentLevel(event.level)
             is SettingsEvent.SetBirthDate -> setBirthDate(event.date)
+            is SettingsEvent.SaveStudentYear -> saveStudentYear(event.birthDate, event.gradeYear, event.level)
             is SettingsEvent.SwitchChild -> switchChild(event.familyId)
             is SettingsEvent.AddChild -> addChild(event.name, event.birthDate)
             is SettingsEvent.LinkChild -> linkChild(event.code)

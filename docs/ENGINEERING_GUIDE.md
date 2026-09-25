@@ -43,6 +43,7 @@ com.nextstep.app
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
 │   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), ConcernDigests(한눈에 타일)
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
+│   ├── year/               YearPlans(해마다 할 일을 분류별로), YearTask, YearArea(분류 = 올해 탭), YearTerm(1학기·2학기·1년 내내)
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계), ActivitySummary(활동 기록 요약)
 └── ui/
     ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), AppDispatchers, Formatters, ExternalLinks
@@ -59,6 +60,7 @@ com.nextstep.app
     ├── overview/           기록 › 한눈에: 균형 카드 + 관심사 타일
     ├── growth/             기록 › 성장 › 신체: 키·몸무게·시력 전체 기록
     ├── talent/             기록 › 활동·재능 › 재능: 소질 신호 + 관찰 메모 전체
+    ├── yearplan/           학생 "올해" 탭: 분류 탭 + 학기 묶음 목록. 완료는 여정 저장소에 year: 키로
     └── <feature>/          XxxScreen.kt, XxxUiState.kt, XxxViewModel.kt, XxxActions.kt, components/
 ```
 

@@ -1,6 +1,7 @@
 package com.nextstep.app.ui.settings
 
-import com.nextstep.app.ui.settings.components.StudentScreenCard
+import com.nextstep.app.ui.settings.components.StudentYearCard
+import com.nextstep.app.ui.settings.components.StudentYearDialog
 import com.nextstep.app.ui.settings.components.RelationPicker
 import com.nextstep.app.ui.settings.components.ChildrenCard
 import com.nextstep.app.ui.settings.components.AddChildDialog
@@ -47,7 +48,6 @@ import com.nextstep.app.ui.settings.components.InfoRow
 import com.nextstep.app.ui.settings.components.MembersCard
 import com.nextstep.app.ui.settings.components.MentorModeCard
 import com.nextstep.app.ui.settings.components.PairingCodeCard
-import com.nextstep.app.ui.settings.components.StudentProfileCard
 
 @Composable
 fun SettingsScreen(caps: Capabilities, actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -63,6 +63,7 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
     var showSubjects by remember { mutableStateOf(false) }
     var showAddChild by remember { mutableStateOf(false) }
     var showLinkChild by remember { mutableStateOf(false) }
+    var showEditYear by remember { mutableStateOf(false) }
     val profile = state.profile
 
     Scaffold(
@@ -111,15 +112,13 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
                 }
             }
 
-            SectionTitle("자녀 생년월일 · 학년 · 성장 단계")
-            StudentProfileCard(
-                birthDate = state.birthDate, ageLabel = state.ageLabel, gradeYear = state.student?.gradeYear ?: 0,
-                onBirthDate = { onEvent(SettingsEvent.SetBirthDate(it)) }, onGradeYear = { onEvent(SettingsEvent.SetGradeYear(it)) },
+            // 학년은 한 번 정하면 1년을 가므로 요약만 보이고, 바꾸려면 "고치기"로 창을 엽니다.
+            SectionTitle("자녀 학년")
+            StudentYearCard(
+                yearLabel = state.yearLabel, birthDate = state.birthDate, ageLabel = state.ageLabel,
+                level = state.chosenStudentLevel ?: state.autoStudentLevel, chosen = state.chosenStudentLevel != null,
+                onEdit = { showEditYear = true },
             )
-            if (caps.canChooseStudentScreen) state.autoStudentLevel?.let { auto ->
-                SectionTitle("아이 화면")
-                StudentScreenCard(auto = auto, chosen = state.chosenStudentLevel, onChoose = { onEvent(SettingsEvent.SetStudentLevel(it)) })
-            }
 
             SectionTitle("연결된 구성원")
             MembersCard(state.members, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { confirmRemove = it })
@@ -144,6 +143,12 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
         ConfirmDialog("연결 끊기", "'$name' 님을 구성원 목록에서 제거할까요? 상대 기기에서는 다시 코드를 입력해야 연결됩니다.", confirmLabel = "제거", onConfirm = { onEvent(SettingsEvent.RemoveMember(id)) }, onDismiss = { confirmRemove = null })
     }
     if (showAddChild) AddChildDialog(onConfirm = { name, birth -> onEvent(SettingsEvent.AddChild(name, birth)) }, onDismiss = { showAddChild = false })
+    if (showEditYear) StudentYearDialog(
+        birthDate = state.birthDate, ageLabel = state.ageLabel, gradeYear = state.student?.gradeYear ?: 0,
+        auto = state.autoStudentLevel, chosen = state.chosenStudentLevel, canChooseLevel = caps.canChooseStudentScreen,
+        onSave = { birth, grade, level -> onEvent(SettingsEvent.SaveStudentYear(birth, grade, level)); showEditYear = false },
+        onDismiss = { showEditYear = false },
+    )
     if (showLinkChild) TextInputDialog(title = "코드로 연결", label = "연결 코드 6자리", confirmLabel = "연결", onConfirm = { onEvent(SettingsEvent.LinkChild(it)) }, onDismiss = { showLinkChild = false })
     if (showSubjects) {
         SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { onEvent(SettingsEvent.SetMySubjects(it)) }

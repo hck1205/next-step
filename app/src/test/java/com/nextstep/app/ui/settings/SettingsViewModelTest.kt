@@ -94,4 +94,16 @@ class SettingsViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("uiLevel:kid:null", "uiLevel:kid:STEM"), members.calls)
         job.cancel()
     }
+
+    @Test
+    fun yearLabelAndSaveStudentYearWritesOnlyChangedFields() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.PARENT, "엄마", id = "me"), Fixtures.member(Role.STUDENT, "나", id = "kid", gradeYear = 4))
+        val vm = vm(); val job = subscribe(vm.state); val s = settle(vm.state)
+        assertEquals("초4", s.yearLabel)
+        vm.onEvent(SettingsEvent.SaveStudentYear(birthDate = null, gradeYear = 4, level = null)); settle(vm.state)
+        assertEquals(emptyList<String>(), members.calls)
+        vm.onEvent(SettingsEvent.SaveStudentYear(birthDate = null, gradeYear = 5, level = StudentUiLevel.STEM)); settle(vm.state)
+        assertEquals(listOf("grade:kid:5", "uiLevel:kid:STEM"), members.calls)
+        job.cancel()
+    }
 }

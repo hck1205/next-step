@@ -25,6 +25,8 @@ data class SettingsUiState(
     /** 학생 화면 단계: 학년으로 정한 자동 값과 학부모가 고른 값(없으면 자동). */
     val autoStudentLevel: StudentUiLevel? = null,
     val chosenStudentLevel: StudentUiLevel? = null,
+    /** 올해 학년 표기(예: "초5", "만 4세"). 생년월일·학년이 없으면 null. */
+    val yearLabel: String? = null,
 ) {
     val children: List<LinkedChild> get() = profile?.children.orEmpty()
     val activeFamilyId: String? get() = profile?.familyId

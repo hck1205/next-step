@@ -1,0 +1,13 @@
+package com.nextstep.app.ui.yearplan
+
+import com.nextstep.app.domain.year.YearArea
+import com.nextstep.app.domain.year.YearTerm
+
+/** "올해" 화면의 탭 하나. [area] 가 null 이면 전체. 탭 안은 때(지금 학기 → 1년 내내 → 다른 학기) 순서로 묶습니다. */
+data class YearTab(
+    val area: YearArea?,
+    val label: String,
+    val done: Int,
+    val total: Int,
+    val sections: List<Pair<YearTerm, List<YearTaskView>>>,
+)

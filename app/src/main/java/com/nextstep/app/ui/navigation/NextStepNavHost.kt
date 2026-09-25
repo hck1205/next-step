@@ -1,5 +1,8 @@
 package com.nextstep.app.ui.navigation
 
+import com.nextstep.app.ui.yearplan.YearPlanScreen
+import com.nextstep.app.ui.yearplan.YearPlanActions
+import androidx.compose.material.icons.filled.Checklist
 import com.nextstep.app.ui.kidme.KidMeScreen
 import com.nextstep.app.ui.kidfamily.KidFamilyScreen
 import com.nextstep.app.ui.kidfamily.KidFamilyActions
@@ -9,7 +12,6 @@ import com.nextstep.app.domain.hub.ConcernSection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.CompositionLocalProvider
-import com.nextstep.app.domain.growth.StudentUiLevel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -92,6 +94,7 @@ object Routes {
     const val CHEER = "cheer"
     const val CURRICULUM = "curriculum"
     const val TIMER = "timer"
+    const val YEAR = "year"
     /** 아이 모드에서 어른 확인 뒤 여는 설정(보통 모드에서는 가족 탭이 곧 설정). */
     const val SETTINGS = "settings"
     const val SUBJECT = "subject/{subjectId}"
@@ -107,9 +110,10 @@ data class TopLevelDestination(val route: String, val label: String, val icon: I
  * 모든 역할이 같은 뼈대를 씁니다: 오늘 · 여정 · 기록(학생은 "나") · 가족, 가운데 + 는 기록하기 시트.
  * 화면마다 질문 하나("지금 뭐 하지?", "다음은?", "어떻게 하고 있지?", "누구와?")에만 답하고, 새 기능은 탭이 아니라 카드·항목·세그먼트로 들어갑니다.
  */
-private fun topLevelDestinations(caps: Capabilities, studentLevel: StudentUiLevel?): List<TopLevelDestination> = listOfNotNull(
+private fun topLevelDestinations(caps: Capabilities): List<TopLevelDestination> = listOfNotNull(
     TopLevelDestination(Routes.HOME, "오늘", Icons.Default.WbSunny),
-    TopLevelDestination(Routes.JOURNEY, "여정", Icons.Default.Timeline).takeIf { studentLevel?.showsJourneyTab ?: true },
+    // 학생은 여러 해 타임라인(여정) 대신 "올해": 올해 할 일을 분류 탭으로 잘게 나눈 목록. 여정은 올해 화면 위 버튼으로.
+    if (caps.isStudent) TopLevelDestination(Routes.YEAR, "올해", Icons.Default.Checklist) else TopLevelDestination(Routes.JOURNEY, "여정", Icons.Default.Timeline),
     TopLevelDestination(Routes.RECORDS, if (caps.isStudent) "나" else "기록", Icons.Default.BarChart),
     TopLevelDestination(Routes.FAMILY, "가족", Icons.Default.Group),
 )
@@ -132,7 +136,7 @@ fun NextStepRoot(rootViewModel: RootViewModel = viewModel(factory = AppViewModel
 private fun MainScaffold(caps: Capabilities, studentScreen: StudentScreen?, onSwitchChild: (String) -> Unit) {
     val studentLevel = studentScreen?.level
     val navController = rememberNavController()
-    val destinations = topLevelDestinations(caps, studentLevel)
+    val destinations = topLevelDestinations(caps)
     val backStack by navController.currentBackStackEntryAsState()
     val currentDestination = backStack?.destination
     val onTopLevel = destinations.any { d -> currentDestination?.hierarchy?.any { it.route == d.route } == true }
@@ -205,9 +209,13 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                         onOpenTimer = { go(Routes.TIMER) }, onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject,
                         onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) }, onOpenJourney = { go(Routes.JOURNEY) },
                         onOpenRecords = openRecords, onOpenCurriculum = { go(Routes.CURRICULUM) }, onOpenGoals = { go(Routes.GOALS) },
+                        onOpenYear = { go(Routes.YEAR) },
                     ),
                 )
             }
+        }
+        composable(Routes.YEAR) {
+            YearPlanScreen(actions = YearPlanActions(onOpenJourney = if (studentLevel?.showsJourneyTab != false) ({ go(Routes.JOURNEY) }) else null))
         }
         composable(Routes.JOURNEY) {
             JourneyScreen(caps = caps, actions = JourneyActions(onBack = null, onOpenSettings = { go(Routes.FAMILY) }, onOpenGoals = { go(Routes.GOALS) }, onOpenActivities = { go(Routes.ACTIVITIES) }, onOpenCurriculum = { go(Routes.CURRICULUM) }))
