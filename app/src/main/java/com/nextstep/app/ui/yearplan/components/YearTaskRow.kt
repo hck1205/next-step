@@ -29,10 +29,11 @@ import com.nextstep.app.ui.yearplan.YearTaskView
 
 /**
  * 올해 할 일 한 줄: 동그라미 체크(누르면 완료/되돌리기) + 제목 + 방법 한 줄. 줄을 누르면 자세히.
- * [minHeightDp] 는 화면 단계의 누름 영역, [showArea] 는 전체 탭에서 분류 이름을 붙일 때.
+ * [minHeightDp] 는 화면 단계의 누름 영역, [showArea] 는 전체 탭에서 분류 이름을 붙일 때,
+ * [showDoer] 면 제목 위에 누가 하는지(엄마·아빠가 · 같이 · 스스로)를 붙입니다.
  */
 @Composable
-internal fun YearTaskRow(view: YearTaskView, minHeightDp: Int, showArea: Boolean, onToggle: () -> Unit, onOpen: () -> Unit) {
+internal fun YearTaskRow(view: YearTaskView, minHeightDp: Int, showArea: Boolean, showDoer: Boolean, onToggle: () -> Unit, onOpen: () -> Unit) {
     AppCard(modifier = Modifier.heightIn(min = minHeightDp.dp), onClick = onOpen) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             val circle = Modifier.size((minHeightDp - CIRCLE_INSET).coerceAtLeast(MIN_CIRCLE).dp)
@@ -43,6 +44,7 @@ internal fun YearTaskRow(view: YearTaskView, minHeightDp: Int, showArea: Boolean
                 contentAlignment = Alignment.Center,
             ) { if (view.done) Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondary) }
             Column(Modifier.weight(1f)) {
+                if (showDoer) Text(view.task.who.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
                 Text(
                     view.task.title, style = MaterialTheme.typography.titleSmall,
                     textDecoration = if (view.done) TextDecoration.LineThrough else null,

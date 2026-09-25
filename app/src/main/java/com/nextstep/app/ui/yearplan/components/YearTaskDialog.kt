@@ -18,7 +18,7 @@ internal fun YearTaskDialog(view: YearTaskView, onToggle: () -> Unit, onAddToTod
         title = { Text(view.task.title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("${view.task.area.label} · ${view.task.term.label}(${view.task.term.months})", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                Text("${view.task.who.label} · ${view.task.area.label} · ${view.task.term.label}(${view.task.term.months})", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                 Text(view.task.how, style = MaterialTheme.typography.bodyLarge)
                 if (onSpeak != null) TextButton(onClick = { onSpeak("${view.task.title}. ${view.task.how}") }) { Text("읽어 주기") }
             }

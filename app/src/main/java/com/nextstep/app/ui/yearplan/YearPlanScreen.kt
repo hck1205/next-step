@@ -36,6 +36,8 @@ import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.speech.rememberSpeaker
 import com.nextstep.app.ui.yearplan.components.YearTaskDialog
 import com.nextstep.app.ui.yearplan.components.YearTaskRow
+import com.nextstep.app.ui.yearplan.components.YearTrendCard
+import com.nextstep.app.domain.year.YearDoer
 
 /**
  * 학생의 "올해" 탭: 올해(만 나이·학년) 해야 할 일을 분류 탭(전체 · 국어 · 수학 · 영어 · … · 생활)으로 잘게 나눠 보여 줍니다.
@@ -87,6 +89,7 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
                 }
                 val tab = state.tabs[selected]
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.trend?.let { t -> if (tab.area == null) item(key = "trend") { YearTrendCard(t) } }
                     tab.sections.forEach { (term, views) ->
                         stickyHeader(key = "t${tab.label}${term.name}") {
                             Text(
@@ -97,7 +100,7 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
                             )
                         }
                         items(views, key = { "${tab.label}${it.task.key}" }) { v ->
-                            YearTaskRow(v, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onOpen = { open = v })
+                            YearTaskRow(v, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showDoer = state.showsAllDoers || v.task.who != YearDoer.CHILD, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onOpen = { open = v })
                         }
                     }
                 }

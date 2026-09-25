@@ -7,6 +7,8 @@ import com.nextstep.app.domain.growth.YearProfiles
 import com.nextstep.app.domain.year.YearArea
 import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTerm
+import com.nextstep.app.domain.year.YearTrends
+import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeJourneyRepository
 import com.nextstep.app.fake.FakeTaskRepository
@@ -38,6 +40,8 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         assertEquals(yearKey, s.year!!.key)
         assertEquals(YearTerm.SECOND, s.currentTerm)
         assertEquals(plan.size, s.total)
+        assertEquals(YearTrends.of(yearKey), s.trend)
+        assertEquals(plan.any { it.who == YearDoer.PARENT }, s.showsAllDoers)
         assertEquals(listOf("전체") + YearPlans.areasOf(yearKey).map { it.label }, s.tabs.map { it.label })
         assertNull(s.tabs.first().area)
         val order = s.tabs.first().sections.map { it.first }
@@ -88,6 +92,17 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         assertTrue(s.loaded)
         assertNull(s.year)
         assertTrue(s.tabs.isEmpty())
+        job.cancel()
+    }
+
+    @Test
+    fun infantYearShowsWhoDoesEachTask() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "아기", birthDate = today.minusMonths(5)))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals("a0", s.year!!.key)
+        assertTrue(s.showsAllDoers)
+        assertTrue(s.trend!!.advice.contains("0분"))
         job.cancel()
     }
 }

@@ -55,4 +55,18 @@ class YearPlansTest {
         assertEquals("year:e1:MATH:덧셈", task.storageId("e1"))
         assertTrue(task.storageId("e1").startsWith(YearTask.PREFIX))
     }
+
+    @Test
+    fun infantsDoNothingAloneAndSchoolChildrenMostlyDoThemselves() {
+        // 만 0세: 전부 부모가(또는 같이) 해 주는 일. "0세가 그림책을 읽는다" 같은 줄이 없어야 해요.
+        assertTrue(YearPlans.forYear("a0").none { it.who == YearDoer.CHILD })
+        assertTrue(YearPlans.forYear("a1").none { it.who == YearDoer.CHILD })
+        assertTrue(YearPlans.forYear("a0").filter { it.area == YearArea.TALK }.all { it.who == YearDoer.PARENT })
+        // 만 3세부터 "스스로"가 생기고, 학교에 가면 대부분 스스로.
+        assertTrue(YearPlans.forYear("a3").any { it.who == YearDoer.CHILD })
+        listOf("e3", "m1", "h1").forEach { key ->
+            val tasks = YearPlans.forYear(key)
+            assertTrue(key, tasks.count { it.who == YearDoer.CHILD } * 2 > tasks.size)
+        }
+    }
 }

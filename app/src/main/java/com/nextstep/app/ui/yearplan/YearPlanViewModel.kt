@@ -15,6 +15,8 @@ import com.nextstep.app.domain.year.YearArea
 import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTask
 import com.nextstep.app.domain.year.YearTerm
+import com.nextstep.app.domain.year.YearTrends
+import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -47,6 +49,8 @@ class YearPlanViewModel(
             done = views.count { it.done },
             total = views.size,
             today = day,
+            trend = year?.let { YearTrends.of(it.key) },
+            showsAllDoers = views.any { it.task.who == YearDoer.PARENT },
             loaded = true,
         )
     }.asUiState(viewModelScope, YearPlanUiState())
