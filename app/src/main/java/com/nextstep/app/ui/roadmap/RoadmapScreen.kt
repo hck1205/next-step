@@ -64,8 +64,9 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
     }
 
     Scaffold(
+        // onBack 이 없으면 기록 탭의 섹션으로 들어간 것: 관심사·섹션 줄이 제목을 대신합니다.
         topBar = {
-            TopAppBar(
+            if (actions.onBack != null) TopAppBar(
                 title = { Text(if (caps.isStudent) "내 학습 로드맵" else "${state.studentName.ifBlank { "학생" }} 학습 로드맵") },
                 navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
                 actions = { TextButton(onClick = actions.onOpenContent) { Text("콘텐츠") } },

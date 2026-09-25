@@ -58,8 +58,9 @@ internal fun ContentContent(state: ContentUiState, caps: Capabilities, actions: 
     val open: (ContentEntity) -> Unit = { c -> ExternalLinks.open(context, c.url) }
 
     Scaffold(
+        // onBack 이 없으면 기록 탭의 섹션으로 들어간 것: 관심사·섹션 줄이 제목을 대신합니다.
         topBar = {
-            TopAppBar(
+            if (actions.onBack != null) TopAppBar(
                 title = { Text("콘텐츠 저장소") },
                 navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
             )

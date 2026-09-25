@@ -53,7 +53,7 @@ import com.nextstep.app.ui.home.components.RecommendationCard
 import com.nextstep.app.ui.home.components.RoadmapFocusRow
 import com.nextstep.app.ui.home.components.TimerCard
 import com.nextstep.app.ui.home.components.TopicSuggestionRow
-import com.nextstep.app.ui.records.RecordSegment
+import com.nextstep.app.domain.hub.ConcernSection
 
 @Composable
 fun StudentHomeScreen(actions: HomeActions, viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -96,14 +96,14 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             if (level.shows(StudentHomeSection.MISSION) && state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             if (level.shows(StudentHomeSection.JOURNEY) && (state.hasBirthDate || state.journeyNow.isNotEmpty())) item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
 
-            item { SectionTitle(words.tasksTitle, action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("전체") } }) }
+            item { SectionTitle(words.tasksTitle, action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("전체") } }) }
             if (state.pendingTasks.isEmpty()) item { AppCard { EmptyState(words.allDone) } }
             else items(state.pendingTasks.take(level.taskRows), key = { "task" + it.id }) { task ->
                 if (level.showsNumbers) TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
                 else BigTaskRow(task, state.subjects, minHeightDp = level.touchTargetDp, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
             }
             if (state.pendingTasks.size > level.taskRows) item {
-                TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("${state.pendingTasks.size - level.taskRows}개 더 보기") }
+                TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("${state.pendingTasks.size - level.taskRows}개 더 보기") }
             }
 
             if (level.shows(StudentHomeSection.WEEK) && state.week.isNotEmpty()) item { WeekCard(state.week, state.streak, words.weekTitle, showsNumbers = level.showsNumbers) }
@@ -123,7 +123,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             }
 
             if (level.shows(StudentHomeSection.SUBJECTS) && state.activeSubjects.isNotEmpty()) {
-                item { SectionTitle("지금 배우는 과목", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.PROGRESS) }) { Text("진도 전체") } }) }
+                item { SectionTitle("지금 배우는 과목", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.PROGRESS) }) { Text("진도 전체") } }) }
                 item { ActiveSubjectsCard(state.activeSubjects.take(UiDefaults.MAX_ROWS), onOpenSubject = actions.onOpenSubject) }
             }
 

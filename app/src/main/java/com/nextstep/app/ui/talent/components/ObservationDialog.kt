@@ -1,4 +1,4 @@
-package com.nextstep.app.ui.records.components
+package com.nextstep.app.ui.talent.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

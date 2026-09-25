@@ -24,7 +24,9 @@ import com.nextstep.app.ui.parent.ParentDashboardViewModel
 import com.nextstep.app.ui.progress.ProgressViewModel
 import com.nextstep.app.ui.progress.SubjectDetailViewModel
 import com.nextstep.app.ui.quickadd.QuickAddViewModel
-import com.nextstep.app.ui.records.RecordsViewModel
+import com.nextstep.app.ui.growth.GrowthViewModel
+import com.nextstep.app.ui.overview.OverviewViewModel
+import com.nextstep.app.ui.talent.TalentViewModel
 import com.nextstep.app.ui.roadmap.RoadmapViewModel
 import com.nextstep.app.ui.settings.SettingsViewModel
 import com.nextstep.app.ui.timer.TimerViewModel
@@ -50,7 +52,9 @@ object AppViewModelProvider {
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
         initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }
         initializer { with(container()) { ActivitiesViewModel(streams, activities) } }
-        initializer { with(container()) { RecordsViewModel(streams, growth) } }
+        initializer { with(container()) { OverviewViewModel(streams) } }
+        initializer { with(container()) { GrowthViewModel(streams, growth) } }
+        initializer { with(container()) { TalentViewModel(streams, growth) } }
         initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
         initializer { with(container()) { QuickAddViewModel(streams, notes, activities, tasks, grades, events) } }
     }

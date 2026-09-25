@@ -59,8 +59,9 @@ internal fun ActivitiesContent(state: ActivitiesUiState, caps: Capabilities, act
     var showEdit by remember { mutableStateOf(false) }
 
     Scaffold(
+        // onBack 이 없으면 기록 탭의 섹션으로 들어간 것: 관심사·섹션 줄이 제목을 대신합니다.
         topBar = {
-            TopAppBar(
+            if (actions.onBack != null) TopAppBar(
                 title = { Text(if (state.studentName.isBlank()) "활동 기록" else "${state.studentName}의 활동 기록") },
                 navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
                 actions = { TextButton(onClick = actions.onOpenJourney) { Text("타임라인") } },

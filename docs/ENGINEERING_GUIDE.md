@@ -41,6 +41,7 @@ com.nextstep.app
 │   ├── curriculum/         CurriculumCatalog(학기별 과목·단원), CurriculumRecommender(가족 진도·또래·영상 대조)
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
+│   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), ConcernDigests(한눈에 타일)
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학년별 학생 화면 단계: 카드·글자·말투)
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계), ActivitySummary(활동 기록 요약)
 └── ui/
@@ -54,7 +55,10 @@ com.nextstep.app
     ├── theme/
     ├── navigation/
     ├── quickadd/           기록하기 시트: 모든 쓰기의 단일 입구
-    ├── records/            기록 탭: 세그먼트(균형·학습·성적·진도·일정)가 기능 화면을 품음
+    ├── hub/                기록 탭: 관심사 줄 + 섹션 줄 + 페이저. 섹션마다 기능 화면 하나를 품음(관심사·섹션 정의는 domain/hub)
+    ├── overview/           기록 › 한눈에: 균형 카드 + 관심사 타일
+    ├── growth/             기록 › 성장 › 신체: 키·몸무게·시력 전체 기록
+    ├── talent/             기록 › 활동·재능 › 재능: 소질 신호 + 관찰 메모 전체
     └── <feature>/          XxxScreen.kt, XxxUiState.kt, XxxViewModel.kt, XxxActions.kt, components/
 ```
 

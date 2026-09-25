@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.navigation
 
+import com.nextstep.app.domain.hub.ConcernSection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.CompositionLocalProvider
@@ -64,9 +65,8 @@ import com.nextstep.app.ui.parent.ParentDashboardScreen
 import com.nextstep.app.ui.progress.SubjectDetailActions
 import com.nextstep.app.ui.progress.SubjectDetailScreen
 import com.nextstep.app.ui.quickadd.QuickAddSheet
-import com.nextstep.app.ui.records.RecordSegment
-import com.nextstep.app.ui.records.RecordsActions
-import com.nextstep.app.ui.records.RecordsScreen
+import com.nextstep.app.ui.hub.HubActions
+import com.nextstep.app.ui.hub.HubScreen
 import com.nextstep.app.ui.roadmap.RoadmapActions
 import com.nextstep.app.ui.roadmap.RoadmapScreen
 import com.nextstep.app.ui.settings.SettingsActions
@@ -77,7 +77,7 @@ import com.nextstep.app.ui.timer.TimerScreen
 object Routes {
     const val HOME = "home"
     const val JOURNEY = "journey"
-    const val RECORDS = "records/{segment}"
+    const val RECORDS = "records/{section}"
     const val FAMILY = "family"
     const val GOALS = "goals"
     const val ACTIVITIES = "activities"
@@ -89,7 +89,7 @@ object Routes {
     const val TIMER = "timer"
     const val SUBJECT = "subject/{subjectId}"
     fun subject(id: String) = "subject/$id"
-    fun records(segment: RecordSegment = RecordSegment.BALANCE) = "records/${segment.route}"
+    fun records(section: ConcernSection = ConcernSection.OVERVIEW) = "records/${section.route}"
     private const val RECORDS_PREFIX = "records/"
     fun isRecords(route: String?) = route?.startsWith(RECORDS_PREFIX) == true
 }
@@ -157,7 +157,7 @@ private fun MainScaffold(caps: Capabilities, studentLevel: StudentUiLevel?, onSw
         },
         floatingActionButtonPosition = FabPosition.Center,
     ) { padding ->
-        NextStepNavHost(navController = navController, caps = caps, onSwitchChild = onSwitchChild, modifier = Modifier.padding(padding))
+        NextStepNavHost(navController = navController, caps = caps, studentLevel = studentLevel, onSwitchChild = onSwitchChild, modifier = Modifier.padding(padding))
     }
 
     if (showQuickAdd) {
@@ -166,11 +166,11 @@ private fun MainScaffold(caps: Capabilities, studentLevel: StudentUiLevel?, onSw
 }
 
 @Composable
-private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, onSwitchChild: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, studentLevel: StudentUiLevel?, onSwitchChild: (String) -> Unit, modifier: Modifier = Modifier) {
     val go: (String) -> Unit = { navController.navigate(it) }
     val back: () -> Unit = { navController.popBackStack() }
     val openSubject: (String) -> Unit = { go(Routes.subject(it)) }
-    val openRecords: (RecordSegment) -> Unit = { go(Routes.records(it)) }
+    val openRecords: (ConcernSection) -> Unit = { go(Routes.records(it)) }
 
     NavHost(navController = navController, startDestination = Routes.HOME, modifier = modifier) {
         composable(Routes.HOME) {
@@ -202,11 +202,11 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
         composable(Routes.JOURNEY) {
             JourneyScreen(caps = caps, actions = JourneyActions(onBack = null, onOpenSettings = { go(Routes.FAMILY) }, onOpenGoals = { go(Routes.GOALS) }, onOpenActivities = { go(Routes.ACTIVITIES) }, onOpenCurriculum = { go(Routes.CURRICULUM) }))
         }
-        composable(Routes.RECORDS, arguments = listOf(navArgument("segment") { type = NavType.StringType; defaultValue = RecordSegment.BALANCE.route })) { entry ->
-            RecordsScreen(
-                caps = caps,
-                actions = RecordsActions(onOpenSubject = openSubject, onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenActivities = { go(Routes.ACTIVITIES) }, onOpenJourney = { go(Routes.JOURNEY) }),
-                initialSegment = RecordSegment.from(entry.arguments?.getString("segment")),
+        composable(Routes.RECORDS, arguments = listOf(navArgument("section") { type = NavType.StringType; defaultValue = ConcernSection.OVERVIEW.route })) { entry ->
+            HubScreen(
+                caps = caps, studentLevel = studentLevel,
+                actions = HubActions(onOpenSubject = openSubject, onOpenJourney = { go(Routes.JOURNEY) }),
+                initialSection = ConcernSection.from(entry.arguments?.getString("section"), studentLevel),
             )
         }
         composable(Routes.FAMILY) { SettingsScreen(caps = caps, actions = SettingsActions(onBack = null, onOpenContent = { go(Routes.CONTENT) })) }

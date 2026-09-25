@@ -42,7 +42,7 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.StatusCard
 import com.nextstep.app.ui.components.card.StatusTile
 import com.nextstep.app.ui.components.card.SyncStatusBadge
-import com.nextstep.app.ui.records.RecordSegment
+import com.nextstep.app.domain.hub.ConcernSection
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.nextstep.app.ui.common.UiDefaults
@@ -103,11 +103,11 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
 
-            item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("일정 전체") } }) }
+            item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("일정 전체") } }) }
             if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") } }
             items(state.pendingTasks.take(UiDefaults.MAX_ROWS), key = { "t" + it.id }) { t -> PendingTaskRow(t, state.subjects.firstOrNull { it.id == t.subjectId }) }
             if (state.pendingTasks.size > UiDefaults.MAX_ROWS) item {
-                TextButton(onClick = { actions.onOpenRecords(RecordSegment.CALENDAR) }) { Text("할 일 ${state.pendingTasks.size - UiDefaults.MAX_ROWS}개 더 보기") }
+                TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("할 일 ${state.pendingTasks.size - UiDefaults.MAX_ROWS}개 더 보기") }
             }
             items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
             state.upcomingExams.firstOrNull()?.let { exam -> item { UpcomingExamCard(exam) } }

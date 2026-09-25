@@ -1,4 +1,4 @@
-package com.nextstep.app.ui.records.components
+package com.nextstep.app.ui.growth.components
 
 import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Arrangement

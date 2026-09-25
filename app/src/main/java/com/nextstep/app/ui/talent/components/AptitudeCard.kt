@@ -1,4 +1,4 @@
-package com.nextstep.app.ui.records.components
+package com.nextstep.app.ui.talent.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,13 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.domain.insight.AptitudeSignal
 import com.nextstep.app.ui.components.card.AppCard
 
-/** 예체능·비교과 소질 신호 카드: 영역별 근거와 다음 한 걸음, 최근 관찰 메모. */
+/** 재능 섹션 맨 위: 예체능·비교과 소질 신호마다 근거와 다음 한 걸음. 관찰 메모 전체는 [ObservationRow] 가 영역별로 그립니다. */
 @Composable
-fun AptitudeCard(signals: List<AptitudeSignal>, observations: List<ObservationEntity>, onObserve: (() -> Unit)?, onDeleteObservation: ((String) -> Unit)?, modifier: Modifier = Modifier) {
+internal fun AptitudeCard(signals: List<AptitudeSignal>, onObserve: (() -> Unit)?, modifier: Modifier = Modifier) {
     AppCard(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -37,16 +36,6 @@ fun AptitudeCard(signals: List<AptitudeSignal>, observations: List<ObservationEn
                 Text("${s.domain.label} · ${STAGE_LABELS.getValue(s.stage)}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                 Text("근거: ${s.evidence.joinToString(", ")}", style = MaterialTheme.typography.bodySmall)
                 Text("다음: ${s.nextStep}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            if (observations.isNotEmpty()) {
-                Spacer(Modifier.height(4.dp))
-                Text("최근 관찰", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                observations.forEach { o ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("${o.domain.label} · ${o.text}" + (o.authorName.takeIf { it.isNotBlank() }?.let { " · $it" } ?: ""), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                        if (onDeleteObservation != null) TextButton(onClick = { onDeleteObservation(o.id) }) { Text("삭제", color = MaterialTheme.colorScheme.error) }
-                    }
-                }
             }
             Text("신호는 점수가 아니라 '더 해 볼 이유'예요. 키·몸무게 같은 신체 수치는 판단에 쓰지 않아요.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
