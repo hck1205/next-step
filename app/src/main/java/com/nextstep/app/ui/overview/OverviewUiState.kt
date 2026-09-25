@@ -15,7 +15,7 @@ data class OverviewUiState(
     val yearLabel: String? = null,
     val today: LocalDate = DateUtils.today(),
     val balance: BalanceReport? = null,
-    /** 공부 · 시험·성적 · 성장 · 활동·재능 순서. */
+    /** 관심사마다 한 장. 화면은 보는 사람의 관심사 순서대로 골라 그립니다. */
     val digests: List<ConcernDigest> = emptyList(),
     val loaded: Boolean = false,
 )

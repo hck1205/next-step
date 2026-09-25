@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.navigation
 
+import com.nextstep.app.domain.hub.HubViewer
 import com.nextstep.app.ui.yearplan.YearPlanScreen
 import com.nextstep.app.ui.yearplan.YearPlanActions
 import androidx.compose.material.icons.filled.Checklist
@@ -225,7 +226,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             if (kid.stickerMe) KidMeScreen() else HubScreen(
                 caps = caps, studentLevel = studentLevel,
                 actions = HubActions(onOpenSubject = openSubject, onOpenJourney = { go(Routes.JOURNEY) }),
-                initialSection = ConcernSection.from(entry.arguments?.getString("section"), studentLevel),
+                initialSection = ConcernSection.from(entry.arguments?.getString("section"), HubViewer.of(caps, studentLevel)),
             )
         }
         composable(Routes.FAMILY) {

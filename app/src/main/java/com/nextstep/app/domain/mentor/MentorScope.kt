@@ -22,5 +22,9 @@ data class MentorScope(val subjects: List<SubjectEntity>) {
         /** 멘토 화면의 메모: 학생·학부모 메모 전부 + 다른 멘토 메모는 제외하고 내 것만. */
         fun visibleNotes(notes: List<NoteEntity>, me: MemberEntity?): List<NoteEntity> =
             notes.filter { it.authorRole != Role.MENTOR.name || me == null || it.authorName == me.name }
+
+        /** 피드백 화면의 메모: 멘토는 [visibleNotes] 로 좁히고, 학생·학부모는 가족 메모 전부. */
+        fun notesFor(notes: List<NoteEntity>, me: MemberEntity?): List<NoteEntity> =
+            if (me?.isMentor == true) visibleNotes(notes, me) else notes
     }
 }

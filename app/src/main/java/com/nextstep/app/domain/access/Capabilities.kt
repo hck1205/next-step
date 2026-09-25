@@ -2,6 +2,7 @@ package com.nextstep.app.domain.access
 
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.hub.HubAudience
 
 /**
  * 역할별로 볼 수 있는 화면과 쓸 수 있는 기능.
@@ -54,6 +55,13 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canChooseStudentScreen: Boolean get() = isParent
     /** 연결된 학부모·멘토를 목록에서 제거할 수 있는지. 학생 본인과 학부모만. */
     val canRemoveMembers: Boolean get() = isStudent || isParent
+
+    /** 기록 탭의 자리(관심사 순서와 보이는 섹션). 학부모 겸 멘토는 학부모 자리에서 보고, 멘토 화면은 따로 엽니다. */
+    val hubAudience: HubAudience get() = when {
+        isStudent -> HubAudience.STUDENT
+        role == Role.MENTOR -> HubAudience.MENTOR
+        else -> HubAudience.PARENT
+    }
 
     /** 과제/로드맵에 기록될 작성자 역할. 학부모 겸 멘토는 MENTOR 로 남깁니다. */
     val actingRoleName: String get() = if (actsAsMentor && !isStudent) Role.MENTOR.name else role.name

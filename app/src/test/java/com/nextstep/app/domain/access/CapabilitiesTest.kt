@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.access
 
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.hub.HubAudience
 import com.nextstep.app.testing.Fixtures
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -64,5 +65,13 @@ class CapabilitiesTest {
         assertTrue(mentor.canEditRoadmap); assertTrue(mentor.canEditTopics); assertTrue(mentor.canApplyInsightActions)
         assertFalse(mentor.canMarkTopicStatus); assertFalse(mentor.canUpdateRoadmapProgress); assertFalse(mentor.canUseTimer)
         assertEquals("MENTOR", mentor.actingRoleName)
+    }
+
+    @Test
+    fun hubAudienceFollowsRoleAndParentMentorStaysParent() {
+        assertEquals(HubAudience.STUDENT, student.hubAudience)
+        assertEquals(HubAudience.PARENT, parent.hubAudience)
+        assertEquals(HubAudience.PARENT, parentMentor.hubAudience)
+        assertEquals(HubAudience.MENTOR, mentor.hubAudience)
     }
 }

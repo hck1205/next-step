@@ -18,6 +18,11 @@ import com.nextstep.app.domain.insight.AptitudeEngine
 import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.mentor.AssignmentStats
+import com.nextstep.app.domain.stats.SubjectProgress
+import com.nextstep.app.domain.stats.ReviewItem
+import com.nextstep.app.domain.stats.ReviewPlanner
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
@@ -52,18 +57,22 @@ class OverviewViewModel(
         )
     }
 
-    private val progress = combine(streams.topics, streams.subjects) { topics, subjects -> StudyStats.subjectProgress(topics, subjects) }
+    private val progress = combine(streams.topics, streams.subjects, streams.grades) { topics, subjects, grades ->
+        Learn(StudyStats.subjectProgress(topics, subjects), ReviewPlanner.plan(topics, subjects, grades), subjects)
+    }
 
     private val exams = combine(streams.goals, streams.goalSteps, streams.grades) { goals, steps, grades -> Exams(goals, steps, grades) }
 
     private val growth = combine(streams.growthRecords, streams.observations) { records, observations -> Growth(records, observations) }
 
-    val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth, streams.events) { b, progress, e, g, events ->
+    val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth, streams.events) { b, learn, e, g, events ->
         val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events, b.ctx.year))
         s.copy(
             digests = listOf(
-                ConcernDigests.study(s.balance?.weekMinutes ?: 0, progress),
+                ConcernDigests.study(s.balance?.weekMinutes ?: 0, learn.progress),
+                ConcernDigests.learn(learn.review),
                 ConcernDigests.exams(MissionPlanner.focus(e.goals, e.steps, s.today), e.grades),
+                ConcernDigests.classwork(AssignmentStats.report(b.tasks, learn.subjects, s.today)),
                 ConcernDigests.growth(GrowthStats.summarize(g.records.filter { !it.deleted }, s.today)),
                 ConcernDigests.discover(s.balance?.experiencesThisPeriod ?: 0, AptitudeEngine.signals(b.activities, g.observations, s.today)),
             ),
@@ -77,6 +86,8 @@ class OverviewViewModel(
         val tasks: List<TaskEntity>,
         val activities: List<ActivityEntity>,
     )
+
+    private data class Learn(val progress: List<SubjectProgress>, val review: List<ReviewItem>, val subjects: List<SubjectEntity>)
 
     private data class Exams(val goals: List<GoalEntity>, val steps: List<GoalStepEntity>, val grades: List<GradeEntity>)
 

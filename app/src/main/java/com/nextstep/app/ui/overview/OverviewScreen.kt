@@ -33,7 +33,7 @@ fun OverviewScreen(concerns: List<Concern>, actions: OverviewActions, viewModel:
 
 @Composable
 internal fun OverviewContent(state: OverviewUiState, concerns: List<Concern>, actions: OverviewActions) {
-    val tiles = state.digests.filter { it.concern in concerns }
+    val tiles = concerns.mapNotNull { c -> state.digests.firstOrNull { it.concern == c } }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
             val b = state.balance

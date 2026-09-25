@@ -5,7 +5,10 @@ import com.nextstep.app.domain.health.GrowthSignal
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.insight.AptitudeSignal
+import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.mission.MissionFocus
+import com.nextstep.app.domain.stats.ReviewItem
+import com.nextstep.app.domain.stats.ReviewReason
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.testing.Fixtures
 import org.junit.Assert.assertEquals
@@ -53,5 +56,28 @@ class ConcernDigestsTest {
         assertEquals("이번 학기 활동 없음", none.headline); assertTrue(none.attention); assertNull(none.detail)
         val d = ConcernDigests.discover(2, listOf(AptitudeSignal(AptitudeDomain.MUSIC, 5, listOf("피아노"), 2, "정기 레슨")))
         assertEquals("이번 학기 활동 2개", d.headline); assertEquals("음악 쪽에 신호", d.detail); assertFalse(d.attention)
+    }
+
+    @Test
+    fun learnCountsReviewUnitsAndFlagsLowConfidence() {
+        val empty = ConcernDigests.learn(emptyList())
+        assertEquals(Concern.LEARN, empty.concern); assertEquals("복습할 단원 없음", empty.headline); assertNull(empty.detail); assertFalse(empty.attention)
+        val low = ReviewItem(Fixtures.math, Fixtures.topic("math", "분수", 0, covered = true, confidence = 30), ReviewReason.LOW_CONFIDENCE)
+        val next = ReviewItem(Fixtures.math, Fixtures.topic("math", "소수", 1), ReviewReason.NEXT_CLASS)
+        val d = ConcernDigests.learn(listOf(low, next))
+        assertEquals("복습할 단원 2개", d.headline); assertEquals("수학 · 분수", d.detail); assertTrue(d.attention)
+    }
+
+    @Test
+    fun classworkShowsDoneCountAndOverdueFirst() {
+        val today = LocalDate.of(2029, 10, 10)
+        assertEquals("낸 과제 없음", ConcernDigests.classwork(AssignmentStats.report(emptyList(), emptyList(), today)).headline)
+        val tasks = listOf(
+            Fixtures.task("밀림", today.minusDays(2), "math", by = "MENTOR"),
+            Fixtures.task("곧", today.plusDays(1), "math", by = "MENTOR"),
+            Fixtures.task("끝", today, "math", done = true, by = "MENTOR"),
+        )
+        val d = ConcernDigests.classwork(AssignmentStats.report(tasks, listOf(Fixtures.math), today))
+        assertEquals(Concern.CLASS, d.concern); assertEquals("과제 1/3", d.headline); assertEquals("밀린 과제 1개", d.detail); assertTrue(d.attention)
     }
 }

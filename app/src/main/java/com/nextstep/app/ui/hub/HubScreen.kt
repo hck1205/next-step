@@ -22,7 +22,12 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.domain.hub.ConcernSection
+import com.nextstep.app.domain.hub.HubViewer
 import com.nextstep.app.ui.activities.ActivitiesActions
+import com.nextstep.app.ui.feedback.FeedbackScreen
+import com.nextstep.app.ui.assignments.AssignmentsScreen
+import com.nextstep.app.ui.review.ReviewScreen
+import com.nextstep.app.ui.habits.HabitsScreen
 import com.nextstep.app.ui.activities.ActivitiesScreen
 import com.nextstep.app.ui.calendar.CalendarScreen
 import com.nextstep.app.ui.components.input.SegmentedRow
@@ -48,20 +53,22 @@ import kotlinx.coroutines.launch
 
 /**
  * 기록 탭(학생은 "나"): 기능을 관심사별로 나눈 두 단 구조입니다.
- * 위 줄 = 관심사(한눈에 · 공부 · 시험·성적 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
- * 아래 줄 = 그 관심사의 섹션(예: 공부 › 진도 · 시간 · 일정 · 이번 학기 · 영상 · 로드맵). 섹션 하나가 기능 화면 하나이고 각자 ViewModel 을 가집니다.
- * 어떤 섹션이 보이는지는 domain/hub/ConcernSection 이 정합니다(학생은 화면 단계에 따라 줄어듦).
+ * 위 줄 = 관심사(한눈에 · 공부 · 배울 것 · 시험·성적 · 과제·피드백 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
+ * 순서는 보는 자리가 정합니다: 학생은 배울 것, 멘토는 과제·피드백이 한눈에 바로 다음(HubAudience).
+ * 아래 줄 = 그 관심사의 섹션(예: 공부 › 진도 · 시간 · 습관 · 일정). 섹션 하나가 기능 화면 하나이고 각자 ViewModel 을 가집니다.
+ * 어떤 섹션이 보이는지는 domain/hub/ConcernSection 이 정합니다(학생은 화면 단계에 따라 줄고, 멘토에게 신체 기록은 없음).
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubActions, initialSection: ConcernSection) {
-    val concerns = remember(studentLevel) { ConcernSection.concernsFor(studentLevel) }
+    val viewer = remember(caps, studentLevel) { HubViewer.of(caps, studentLevel) }
+    val concerns = remember(viewer) { ConcernSection.concernsFor(viewer) }
     val pager = rememberPagerState(initialPage = concerns.indexOf(initialSection.concern).coerceAtLeast(0)) { concerns.size }
     val chosen = remember { mutableStateMapOf(initialSection.concern to initialSection) }
     val scope = rememberCoroutineScope()
     val open: (ConcernSection) -> Unit = { section ->
         val page = concerns.indexOf(section.concern)
-        if (page >= 0 && section.visibleFor(studentLevel)) {
+        if (page >= 0 && section.visibleFor(viewer)) {
             chosen[section.concern] = section
             scope.launch { pager.animateScrollToPage(page) }
         }
@@ -73,7 +80,7 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
             ConcernTabs(concerns, selected = pager.currentPage, onSelect = { page -> scope.launch { pager.animateScrollToPage(page) } })
             HorizontalPager(state = pager, modifier = Modifier.fillMaxSize(), key = { concerns[it].name }) { page ->
                 val concern = concerns[page]
-                val sections = ConcernSection.sectionsOf(concern, studentLevel)
+                val sections = ConcernSection.sectionsOf(concern, viewer)
                 val section = chosen[concern]?.takeIf { it in sections } ?: sections.first()
                 Column(Modifier.fillMaxSize()) {
                     if (sections.size > 1) {
@@ -96,12 +103,16 @@ private fun SectionContent(section: ConcernSection, caps: Capabilities, concerns
         ConcernSection.OVERVIEW -> OverviewScreen(concerns = concerns, actions = OverviewActions(onOpenConcern = openConcern))
         ConcernSection.PROGRESS -> ProgressScreen(caps = caps, actions = ProgressActions(onOpenSubject = actions.onOpenSubject, onOpenRoadmap = { open(ConcernSection.ROADMAP) }))
         ConcernSection.TIME -> InsightsScreen(caps = caps, actions = InsightsActions())
+        ConcernSection.HABITS -> HabitsScreen()
         ConcernSection.CALENDAR -> CalendarScreen(caps = caps)
         ConcernSection.CURRICULUM -> CurriculumScreen(caps = caps, actions = CurriculumActions(onOpenSubject = actions.onOpenSubject, onOpenContent = { open(ConcernSection.CONTENT) }))
+        ConcernSection.REVIEW -> ReviewScreen(caps = caps)
         ConcernSection.CONTENT -> ContentLibraryScreen(caps = caps, actions = ContentActions())
         ConcernSection.ROADMAP -> RoadmapScreen(caps = caps, actions = RoadmapActions(onOpenContent = { open(ConcernSection.CONTENT) }))
         ConcernSection.MISSIONS -> GoalsScreen(caps = caps, actions = GoalsActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.GRADES -> GradesScreen(caps = caps)
+        ConcernSection.ASSIGNMENTS -> AssignmentsScreen()
+        ConcernSection.FEEDBACK -> FeedbackScreen()
         ConcernSection.BODY -> GrowthScreen(caps = caps)
         ConcernSection.ACTIVITIES -> ActivitiesScreen(caps = caps, actions = ActivitiesActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.TALENT -> TalentScreen(caps = caps)

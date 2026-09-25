@@ -4,7 +4,10 @@ import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.insight.AptitudeSignal
+import com.nextstep.app.domain.mentor.AssignmentReport
 import com.nextstep.app.domain.mission.MissionFocus
+import com.nextstep.app.domain.stats.ReviewItem
+import com.nextstep.app.domain.stats.ReviewReason
 import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.text.compact
@@ -50,6 +53,27 @@ object ConcernDigests {
         headline = if (activitiesThisPeriod == 0) "이번 학기 활동 없음" else "이번 학기 활동 ${activitiesThisPeriod}개",
         detail = signals.firstOrNull()?.let { "${it.domain.label} 쪽에 신호" },
         attention = activitiesThisPeriod == 0,
+    )
+
+    fun learn(review: List<ReviewItem>): ConcernDigest {
+        val first = review.firstOrNull()
+        return ConcernDigest(
+            concern = Concern.LEARN,
+            headline = if (review.isEmpty()) "복습할 단원 없음" else "복습할 단원 ${review.size}개",
+            detail = first?.let { "${it.subject.name} · ${it.topic.title}" },
+            attention = review.any { it.reason == ReviewReason.LOW_CONFIDENCE },
+        )
+    }
+
+    fun classwork(report: AssignmentReport): ConcernDigest = ConcernDigest(
+        concern = Concern.CLASS,
+        headline = if (report.total == 0) "낸 과제 없음" else "과제 ${report.done}/${report.total}",
+        detail = when {
+            report.overdue.isNotEmpty() -> "밀린 과제 ${report.overdue.size}개"
+            report.dueSoon.isNotEmpty() -> "이번 주 마감 ${report.dueSoon.size}개"
+            else -> null
+        },
+        attention = report.overdue.isNotEmpty(),
     )
 
     private fun dDay(daysLeft: Int): String = when {

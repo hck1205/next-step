@@ -1,5 +1,9 @@
 package com.nextstep.app.ui
 
+import com.nextstep.app.ui.feedback.FeedbackViewModel
+import com.nextstep.app.ui.assignments.AssignmentsViewModel
+import com.nextstep.app.ui.review.ReviewViewModel
+import com.nextstep.app.ui.habits.HabitsViewModel
 import com.nextstep.app.ui.yearplan.YearPlanViewModel
 import com.nextstep.app.ui.kidfamily.KidFamilyViewModel
 import com.nextstep.app.ui.kidme.KidMeViewModel
@@ -60,6 +64,10 @@ object AppViewModelProvider {
         initializer { with(container()) { TalentViewModel(streams, growth) } }
         initializer { with(container()) { KidMeViewModel(streams) } }
         initializer { with(container()) { YearPlanViewModel(streams, journey, tasks) } }
+        initializer { with(container()) { HabitsViewModel(streams) } }
+        initializer { with(container()) { ReviewViewModel(streams, tasks, topics) } }
+        initializer { with(container()) { AssignmentsViewModel(streams) } }
+        initializer { with(container()) { FeedbackViewModel(streams) } }
         initializer { with(container()) { KidFamilyViewModel(streams, notes) } }
         initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
         initializer { with(container()) { QuickAddViewModel(streams, notes, activities, tasks, grades, events) } }
