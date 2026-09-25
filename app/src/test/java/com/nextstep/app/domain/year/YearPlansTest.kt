@@ -69,4 +69,23 @@ class YearPlansTest {
             assertTrue(key, tasks.count { it.who == YearDoer.CHILD } * 2 > tasks.size)
         }
     }
+
+    @Test
+    fun schoolYearsFollowCurriculumTermsAndSleepGuidance() {
+        fun task(key: String, title: String) = YearPlans.forYear(key).single { it.title == title }
+        // 2022 개정: 초2 cm 는 1학기·곱셈구구는 2학기, 초3 분수·소수는 1학기, 초4 촌락은 2학기
+        assertEquals(YearTerm.FIRST, task("e2", "길이 재기(cm)").term)
+        assertEquals(YearTerm.SECOND, task("e2", "곱셈구구").term)
+        assertEquals(YearTerm.FIRST, task("e3", "분수와 소수 처음").term)
+        assertEquals(YearTerm.SECOND, task("e4", "촌락과 도시·경제 기초").term)
+        // 창체는 3영역(봉사 영역 없음), 중학교 배정은 부모가
+        assertTrue(YearPlans.forYear("h1").none { it.title.contains("봉사") })
+        assertEquals(YearDoer.PARENT, task("e6", "중학교 배정 원서").who)
+        // 수면은 권장(중·고 8~10시간) 아래로 적지 않아요
+        listOf("m1", "m2", "m3", "h1", "h2", "h3").forEach { key ->
+            val all = YearPlans.forYear(key).joinToString { it.title + it.how }
+            assertFalse(key, all.contains("7시간"))
+            assertTrue(key, all.contains("8시간") || all.contains("8~10시간"))
+        }
+    }
 }

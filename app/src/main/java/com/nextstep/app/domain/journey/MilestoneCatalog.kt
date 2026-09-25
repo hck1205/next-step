@@ -69,7 +69,7 @@ object MilestoneCatalog {
         t("high-school-search", "고등학교 유형 탐색 (일반·특목·자사·특성화)", "중2 여름부터 학교 유형별 입시·교육과정·통학을 비교합니다.", "특목·자사고는 중3 8~12월에 원서를 내므로 중2에 방향을 정해야 합니다.", CAREER, GrowthStage.MIDDLE, SchoolMonth(8, 7), leadMonths = 3, priority = 2),
         t("high-school-apply", "고입 원서 (특목·자사고 8~12월, 일반고 12월)", "지원 학교의 전형 일정에 맞춰 원서·자기소개서·면접을 준비합니다.", "학교 유형마다 접수 기간이 다르고 한 번뿐입니다.", ADMIN, GrowthStage.MIDDLE, SchoolMonth(9, 10), leadMonths = 4, priority = 1),
         t("english-reading-level", "영어 원서·긴 지문 읽기 체력", "학년별 권장 어휘 수준의 원서나 긴 지문을 주 3회 읽습니다.", "고등 영어 지문 길이와 어휘는 중등과 격차가 커서 미리 읽기 체력이 필요합니다.", LANGUAGE, GrowthStage.MIDDLE, SchoolMonth(9, 3), leadMonths = 12, priority = 2),
-        t("sleep-exercise", "수면·운동 시간 지키기", "하루 7시간 이상 수면, 주 3회 운동을 일정에 고정합니다.", "사춘기의 수면 부족은 집중력과 정서에 직접 영향을 줍니다.", HEALTH, GrowthStage.MIDDLE, SchoolMonth(8, 3), leadMonths = 12, priority = 3),
+        t("sleep-exercise", "수면·운동 시간 지키기", "하루 8시간 이상 수면(권장 8~10시간), 주 3회 운동을 일정에 고정합니다.", "사춘기의 수면 부족은 집중력과 정서에 직접 영향을 줍니다.", HEALTH, GrowthStage.MIDDLE, SchoolMonth(8, 3), leadMonths = 12, priority = 3),
 
         // ---------------------------------------------------------------- 고등
         t("subject-selection", "선택과목 결정 (고1 2학기)", "고2~3 선택과목을 진로·대입 전형과 맞춰 결정합니다.", "선택과목은 대학 학과별 권장 과목과 연결되어 되돌리기 어렵습니다.", CAREER, GrowthStage.HIGH, SchoolMonth(10, 9), leadMonths = 3, priority = 1),

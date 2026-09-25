@@ -76,7 +76,7 @@ object CurriculumCatalog {
             u(MATH, "기본 도형 (점·선·면·각)", listOf("기본 도형", "각")), u(MATH, "작도와 합동", listOf("작도", "합동")), u(MATH, "평면도형의 성질 (다각형·원)", listOf("다각형", "내각", "부채꼴"), true), u(MATH, "입체도형의 성질", listOf("입체도형", "겉넓이", "부피")), u(MATH, "자료의 정리와 해석", listOf("통계", "도수분포", "히스토그램"), true),
             u(ENG, "미래·진행 시제와 조동사", listOf("시제", "조동사"), true), u(ENG, "독해 지문 구조", listOf("독해")), u(SCI, "기체의 성질", listOf("기체", "압력")), u(SCI, "지권의 변화", listOf("지권", "암석", "판")), u(SCI, "빛과 파동", listOf("빛", "파동", "소리")),
             u(SOC, "정치와 민주주의", listOf("민주주의", "선거")), u(SOC, "문화와 사회 변동", listOf("문화")), u(HIST, "남북국 시대와 고려", listOf("통일신라", "발해", "고려"), true)),
-        term(termKey(8, 1), listOf("함수 그래프 직접 그리기", "수면 7시간 고정"), emptyList(),
+        term(termKey(8, 1), listOf("함수 그래프 직접 그리기", "수면 8시간 고정"), emptyList(),
             u(KOR, "음운의 체계", listOf("음운", "자음", "모음"), true), u(KOR, "소설의 시점과 갈등", listOf("시점", "갈등")), u(KOR, "주장하는 글 (논증)", listOf("논증", "근거")),
             u(MATH, "유리수와 순환소수", listOf("순환소수", "유리수"), true), u(MATH, "식의 계산 (지수법칙·다항식)", listOf("지수법칙", "다항식"), true), u(MATH, "일차부등식", listOf("부등식")), u(MATH, "연립일차방정식", listOf("연립방정식"), true), u(MATH, "일차함수와 그래프", listOf("일차함수", "기울기", "절편"), true),
             u(ENG, "to부정사·동명사·수동태", listOf("to부정사", "동명사", "수동태", "문법"), true), u(SCI, "물질의 구성 (원소·원자·이온)", listOf("원소", "원자", "이온"), true), u(SCI, "전기와 자기", listOf("전기", "전류", "자기"), true), u(SCI, "태양계", listOf("태양계", "행성")), u(SCI, "식물과 에너지 (광합성)", listOf("광합성", "호흡")),
