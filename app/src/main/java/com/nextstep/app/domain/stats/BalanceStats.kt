@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.stats
 
+import com.nextstep.app.domain.growth.YearProfile
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.ActivityEntity
@@ -13,7 +14,7 @@ import java.time.LocalDate
 
 /**
  * 균형 지표. 학습 시간을 성장 단계의 권장선과 비교하고(또래 비교 없음), 자기주도 비율과 경험 수를 셉니다.
- * 권장선을 넘으면 "줄이기" 가 나갑니다: 이 앱은 더 하라고 밀지 않습니다.
+ * 권장선을 넘으면 "줄이기" 가 나갑니다: 이 앱은 더 하라고 밀지 않습니다. 올해 프로필([YearProfile])이 있으면 해마다 다른 권장선을 씁니다.
  *
  * 영유아기(만 0~6세)는 과열 가드가 하나 더 있습니다. 앉아서 하는 학습 권장선이 0인 시기(영아·유아)에 학습 기록이 있으면 "줄이기",
  * 학원·수업 일정이 단계 상한([classCapWeekMinutes])을 넘어도 "줄이기"입니다. 또래가 얼마나 하는지는 보지 않습니다.
@@ -37,9 +38,10 @@ object BalanceStats {
         currentPeriod: JourneyPeriod?,
         today: LocalDate,
         events: List<EventEntity> = emptyList(),
+        year: YearProfile? = null,
     ): BalanceReport {
         val week = StudyStats.weekMinutes(sessions)
-        val recommended = recommendedWeekMinutes(stage)
+        val recommended = year?.weekMinutes ?: recommendedWeekMinutes(stage)
         val classes = classWeekMinutes(events, today)
         val cap = classCapWeekMinutes(stage)
         return BalanceReport(

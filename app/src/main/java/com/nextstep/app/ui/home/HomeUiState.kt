@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.domain.growth.StudentScreen
+import com.nextstep.app.domain.growth.YearProfile
 import com.nextstep.app.domain.stats.DayMinutes
 import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.growth.StudentUiLevel
@@ -60,6 +62,11 @@ data class HomeUiState(
     val reviewQueue: List<Pair<SubjectEntity, TopicEntity>> = emptyList(),
     /** 학년에 맞춘 화면 단계. 어떤 카드를 몇 줄, 어떤 말로 보여 줄지 정합니다. 학생 정보가 없으면 전체 화면. */
     val level: StudentUiLevel = StudentUiLevel.TREE,
+    /** 올해 프로필(만 나이·학년별 공부 종류와 양). 없으면 null. */
+    val year: YearProfile? = null,
+    /** 할 일 줄 수와 카드 순서: 해마다 달라집니다(StudentScreen). */
+    val taskRows: Int = StudentUiLevel.TREE.taskRows,
+    val homeOrder: List<StudentHomeSection> = StudentScreen.homeOrder(null, StudentUiLevel.TREE),
     /** 지난번 확인한 단계보다 올라갔으면 새 단계와 새로 생긴 카드. 카드를 닫으면 사라집니다. */
     val levelUp: StudentUiLevel? = null,
     val newSections: List<StudentHomeSection> = emptyList(),

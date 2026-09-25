@@ -42,7 +42,7 @@ com.nextstep.app
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
 │   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), ConcernDigests(한눈에 타일)
-│   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학년별 학생 화면 단계: 카드·글자·말투)
+│   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌)
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계), ActivitySummary(활동 기록 요약)
 └── ui/
     ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), AppDispatchers, Formatters, ExternalLinks

@@ -16,6 +16,7 @@ import java.time.LocalDate
  *
  * 단계는 생년월일(없으면 학년)로 자동으로 정해지고, 학부모가 가족 탭에서 직접 고를 수도 있습니다([MemberEntity.uiLevel]).
  * 화면은 학년을 보지 않고 [shows]·[textScale] 같은 이 값만 읽습니다(역할 판단이 Capabilities 한 곳인 것과 같은 규칙).
+ * 단계는 카드·말투·탭의 큰 틀이고, 해마다 달라지는 공부 종류·양·글씨·카드 순서는 [YearProfile]·[StudentScreen] 이 정합니다.
  */
 enum class StudentUiLevel(
     val label: String,
@@ -39,7 +40,7 @@ enum class StudentUiLevel(
 ) {
     SEED(
         "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY,
-        setOf(StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE),
+        setOf(StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE, StudentHomeSection.YEAR),
     ),
     SPROUT(
         "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY,
@@ -91,14 +92,7 @@ enum class StudentUiLevel(
          * 학생 구성원의 자동 단계. 생년월일 → 학년 순으로 판단하고, 둘 다 없으면 전체 화면(나무)을 씁니다.
          * 학령 전 아이는 씨앗, 대학원 이후는 나무입니다.
          */
-        fun auto(student: MemberEntity, today: LocalDate = DateUtils.today()): StudentUiLevel {
-            student.birthDate?.let { epoch ->
-                val birth = DateUtils.fromEpochDay(epoch)
-                GrowthStage.schoolGradeYear(birth, today)?.let { return forGrade(it) }
-                return if (today.year - birth.year < GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH + 1) SEED else TREE
-            }
-            return student.gradeYear.takeIf { it > 0 }?.let(::forGrade) ?: TREE
-        }
+        fun auto(student: MemberEntity, today: LocalDate = DateUtils.today()): StudentUiLevel = YearProfiles.of(student, today)?.level ?: TREE
 
         /** 실제로 쓰는 단계: 학부모가 고른 단계가 있으면 그것, 없으면 자동. */
         fun of(student: MemberEntity, today: LocalDate = DateUtils.today()): StudentUiLevel = fromName(student.uiLevel) ?: auto(student, today)

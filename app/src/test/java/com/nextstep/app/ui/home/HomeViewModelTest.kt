@@ -63,6 +63,22 @@ class HomeViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun eachYearBringsItsOwnStudyKindsOrderAndAmount() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 3))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals("e3", s.year!!.key); assertEquals(40, s.year!!.dailyMinutes); assertEquals(3, s.taskRows)
+        assertEquals(listOf(StudentHomeSection.TIMER, StudentHomeSection.YEAR), s.homeOrder.take(2))
+        assertEquals(20, s.planDefaults.sessionMinutes)
+        vm.onEvent(HomeEvent.AddStudyKind(s.year!!.kinds.first())); settle(vm.state)
+        assertEquals("영어 듣기·단어 10분", tasks.saved.single().title); assertEquals(today.toEpochDay(), tasks.saved.single().dueDate)
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 8).copy(seenUiLevel = "BRANCH"))
+        val m2 = settle(vm.state)
+        assertEquals("m2", m2.year!!.key); assertEquals(listOf(StudentHomeSection.TIMER, StudentHomeSection.MISSION), m2.homeOrder.take(2))
+        job.cancel()
+    }
+
+    @Test
     fun withoutStudentInfoTheFullScreenIsUsed() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
         assertEquals(StudentUiLevel.TREE, settle(vm.state).level); assertTrue(members.calls.isEmpty())

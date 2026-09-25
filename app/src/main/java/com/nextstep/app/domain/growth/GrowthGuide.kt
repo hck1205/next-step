@@ -99,4 +99,7 @@ object GrowthGuide {
 
     /** 단계가 없을 때(학년 미입력) 쓰는 기본 계획 옵션. */
     fun defaultPlanOptions(stage: GrowthStage?): PlanOptions = stage?.let { forStage(it).planOptions } ?: PlanOptions()
+
+    /** 올해 프로필이 있으면 한 번 길이·횟수·주말을 그 해의 값으로 바꿉니다. */
+    fun defaultPlanOptions(stage: GrowthStage?, year: YearProfile?): PlanOptions = defaultPlanOptions(stage).let { base -> year?.planOptions(base) ?: base }
 }

@@ -1,5 +1,7 @@
 package com.nextstep.app.domain.family
 
+import com.nextstep.app.domain.growth.YearProfiles
+import com.nextstep.app.domain.growth.YearProfile
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyPeriod
@@ -16,6 +18,8 @@ data class StudentContext(
     val stage: GrowthStage?,
     val periods: List<JourneyPeriod>,
     val currentPeriod: JourneyPeriod?,
+    /** 올해 프로필(만 나이·학년별 공부 종류와 양). 생년월일·학년이 없으면 null. */
+    val year: YearProfile? = null,
 ) {
     val hasBirthDate: Boolean get() = birthDate != null
     val currentPeriodKey: String? get() = currentPeriod?.key
@@ -32,6 +36,7 @@ data class StudentContext(
                 stage = GrowthStage.of(members, today),
                 periods = periods,
                 currentPeriod = PeriodCalendar.periodOf(periods, today),
+                year = student?.let { YearProfiles.of(it, today) },
             )
         }
     }

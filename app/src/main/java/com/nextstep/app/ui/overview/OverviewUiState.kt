@@ -11,6 +11,8 @@ data class OverviewUiState(
     val studentName: String = "",
     val stage: GrowthStage? = null,
     val currentPeriodLabel: String? = null,
+    /** 올해 표기(예: 초3, 만 4세). 권장선 문장에 씁니다. */
+    val yearLabel: String? = null,
     val today: LocalDate = DateUtils.today(),
     val balance: BalanceReport? = null,
     /** 공부 · 시험·성적 · 성장 · 활동·재능 순서. */

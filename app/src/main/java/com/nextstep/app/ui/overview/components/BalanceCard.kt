@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.stats.BalanceReport
 import com.nextstep.app.domain.stats.BalanceVerdict
 import com.nextstep.app.domain.time.DateUtils
@@ -15,7 +14,7 @@ import com.nextstep.app.ui.components.card.LabeledProgress
 
 /** 균형 카드: 한 줄 판단, 학습 게이지(단계 권장선 대비), 스스로 만든 계획 비율, 영유아기면 학원·수업 게이지, 연속 학습. 또래 비교는 없습니다. */
 @Composable
-internal fun BalanceCard(b: BalanceReport, stage: GrowthStage?) {
+internal fun BalanceCard(b: BalanceReport, yearLabel: String?) {
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(b.headline, style = MaterialTheme.typography.titleMedium)
@@ -27,7 +26,7 @@ internal fun BalanceCard(b: BalanceReport, stage: GrowthStage?) {
                 trailing = b.studyVerdict.label,
             )
             Text(
-                if (b.recommendedWeekMinutes == 0) b.studyLine else "${b.studyLine} · ${stage?.label ?: ""} 권장 주 ${DateUtils.formatMinutes(b.recommendedWeekMinutes)}",
+                if (b.recommendedWeekMinutes == 0) b.studyLine else "${b.studyLine} · ${yearLabel ?: ""} 권장 주 ${DateUtils.formatMinutes(b.recommendedWeekMinutes)}",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             val self = b.selfDirectedRatio

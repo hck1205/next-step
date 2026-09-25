@@ -40,14 +40,14 @@ class RootViewModelTest : ViewModelTestBase() {
         onboarding.profile.value = UserProfile(Role.STUDENT, "지우", "fam", "ABC123", "지우", onboarded = true, memberId = "me")
         members.myMember.value = Fixtures.member(Role.STUDENT, "지우", id = "me", gradeYear = 2)
         advanceUntilIdle()
-        assertEquals(StudentUiLevel.SPROUT, vm.state.value!!.studentLevel)
+        assertEquals(StudentUiLevel.SPROUT, vm.state.value!!.studentLevel); assertEquals(1.25f, vm.state.value!!.studentTextScale, 0f) // 초2 글씨
         members.myMember.value = members.myMember.value!!.copy(uiLevel = "STEM")
         advanceUntilIdle()
-        assertEquals(StudentUiLevel.STEM, vm.state.value!!.studentLevel)
+        assertEquals(StudentUiLevel.STEM, vm.state.value!!.studentLevel); assertEquals(StudentUiLevel.STEM.textScale, vm.state.value!!.studentTextScale, 0f)
         onboarding.profile.value = onboarding.profile.value.copy(role = Role.PARENT)
         members.myMember.value = Fixtures.member(Role.PARENT, "엄마", id = "me")
         advanceUntilIdle()
-        assertNull(vm.state.value!!.studentLevel)
+        assertNull(vm.state.value!!.studentLevel); assertEquals(1f, vm.state.value!!.studentTextScale, 0f)
     }
 
     @Test

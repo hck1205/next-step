@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.stats
 
+import com.nextstep.app.domain.growth.YearProfiles
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.domain.growth.GrowthStage
@@ -42,6 +43,17 @@ class BalanceStatsTest {
             Fixtures.task("e", today, by = "STUDENT").copy(deleted = true),
         )
         assertEquals(2f / 3f, BalanceStats.selfDirectedRatio(tasks, today)!!, 0.0001f)
+    }
+
+    @Test
+    fun yearProfileSetsTheWeeklyLineEachYear() {
+        val sessions = listOf(Fixtures.session("math", today, LocalTime.of(8, 0), 90))
+        val e1 = BalanceStats.report(GrowthStage.EARLY_ELEMENTARY, sessions, emptyList(), emptyList(), null, today, year = YearProfiles.byKey.getValue("e1"))
+        val e3 = BalanceStats.report(GrowthStage.EARLY_ELEMENTARY, sessions, emptyList(), emptyList(), null, today, year = YearProfiles.byKey.getValue("e3"))
+        assertEquals(100, e1.recommendedWeekMinutes); assertEquals(200, e3.recommendedWeekMinutes)
+        assertEquals(BalanceVerdict.WITHIN, e1.studyVerdict); assertEquals(BalanceVerdict.MORE, e3.studyVerdict)
+        val baby = BalanceStats.report(GrowthStage.TODDLER, sessions, emptyList(), emptyList(), null, today, year = YearProfiles.byKey.getValue("a2"))
+        assertEquals(BalanceVerdict.LESS, baby.studyVerdict)
     }
 
     @Test

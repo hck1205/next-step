@@ -37,7 +37,7 @@ internal fun OverviewContent(state: OverviewUiState, concerns: List<Concern>, ac
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
             val b = state.balance
-            if (b != null) BalanceCard(b, state.stage) else AppCard { EmptyState("기록이 쌓이면 균형을 보여 드려요") }
+            if (b != null) BalanceCard(b, state.yearLabel ?: state.stage?.label) else AppCard { EmptyState("기록이 쌓이면 균형을 보여 드려요") }
         }
         if (tiles.isNotEmpty()) item { SectionTitle("관심사별") }
         items(tiles.chunked(TILE_COLUMNS), key = { row -> row.first().concern.name }) { row ->

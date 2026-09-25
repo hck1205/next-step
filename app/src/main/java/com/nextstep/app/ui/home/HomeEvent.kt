@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.domain.growth.StudyKind
 import androidx.lifecycle.ViewModel
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
@@ -20,4 +21,6 @@ sealed interface HomeEvent {
     data class AddQuickTask(val subject: SubjectEntity, val topic: TopicEntity, val type: TaskType) : HomeEvent
     /** "새 화면" 카드 닫기: 지금 단계를 확인한 것으로 남깁니다. */
     data object DismissLevelUp : HomeEvent
+    /** "올해의 공부"의 한 가지를 오늘 할 일로. */
+    data class AddStudyKind(val kind: StudyKind) : HomeEvent
 }

@@ -1,5 +1,8 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.domain.growth.StudyKindType
+import com.nextstep.app.domain.growth.StudyKind
+import com.nextstep.app.domain.growth.StudentScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.filterNotNull
@@ -84,11 +87,15 @@ class HomeViewModel(
         val today = DateUtils.today()
         val ctx = StudentContext.of(members, today)
         val stage = ctx.stage
-        val level = ctx.student?.let { StudentUiLevel.of(it, today) } ?: StudentUiLevel.TREE
+        val screen = StudentScreen.of(ctx.student, today)
+        val level = screen.level
         val seen = StudentUiLevel.fromName(ctx.student?.seenUiLevel)
         val levelUp = level.takeIf { seen != null && it > seen }
         s.copy(
             level = level,
+            year = screen.year,
+            taskRows = screen.taskRows,
+            homeOrder = screen.homeOrder,
             levelUp = levelUp,
             newSections = if (levelUp != null && seen != null) level.newSince(seen) else emptyList(),
             studentId = ctx.student?.id,
@@ -98,7 +105,7 @@ class HomeViewModel(
             hasBirthDate = ctx.hasBirthDate,
             today = today,
             stage = stage,
-            planDefaults = GrowthGuide.defaultPlanOptions(stage),
+            planDefaults = GrowthGuide.defaultPlanOptions(stage, screen.year),
             recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, gradeLevel = stage?.gradeLevel ?: GradeLevel.ALL, limit = 3),
         )
     }
@@ -151,6 +158,17 @@ class HomeViewModel(
         )
     }
 
+    /** 올해의 공부 한 가지를 그 분량의 오늘 할 일로 만듭니다. 시험 준비는 시험 준비 종류로. */
+    fun addStudyKind(kind: StudyKind) = viewModelScope.launch {
+        tasks.save(
+            TaskEntity(
+                familyId = "", title = "${kind.name} ${kind.minutes}분",
+                type = if (kind.type == StudyKindType.TEST_PREP) TaskType.EXAM_PREP else TaskType.HOMEWORK,
+                dueDate = DateUtils.today().toEpochDay(), createdByRole = Role.STUDENT.name,
+            ),
+        )
+    }
+
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: HomeEvent) {
         when (event) {
@@ -162,6 +180,7 @@ class HomeViewModel(
             is HomeEvent.MarkTopic -> markTopic(event.topic, event.status)
             is HomeEvent.AddQuickTask -> addQuickTask(event.subject, event.topic, event.type)
             HomeEvent.DismissLevelUp -> dismissLevelUp()
+            is HomeEvent.AddStudyKind -> addStudyKind(event.kind)
         }
     }
 

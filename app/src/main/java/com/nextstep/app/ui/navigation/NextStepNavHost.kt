@@ -115,7 +115,7 @@ fun NextStepRoot(rootViewModel: RootViewModel = viewModel(factory = AppViewModel
     when {
         current == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         !current.profile.onboarded || caps == null -> OnboardingScreen()
-        else -> StudentTextScale(current.studentLevel) {
+        else -> StudentTextScale(current.studentTextScale) {
             MainScaffold(caps = caps, studentLevel = current.studentLevel, onSwitchChild = { rootViewModel.switchChild(it) })
         }
     }
@@ -232,10 +232,10 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
     }
 }
 
-/** 학생 화면 단계의 글자 배율을 기기 글꼴 크기 위에 곱합니다. 학부모·멘토는 그대로. */
+/** 학생 글씨 배율(해마다 다름)을 기기 글꼴 크기 위에 곱합니다. 학부모·멘토는 1. */
 @Composable
-private fun StudentTextScale(level: StudentUiLevel?, content: @Composable () -> Unit) {
-    if (level == null || level.textScale == 1f) return content()
+private fun StudentTextScale(scale: Float, content: @Composable () -> Unit) {
+    if (scale == 1f) return content()
     val density = LocalDensity.current
-    CompositionLocalProvider(LocalDensity provides Density(density.density, density.fontScale * level.textScale), content = content)
+    CompositionLocalProvider(LocalDensity provides Density(density.density, density.fontScale * scale), content = content)
 }

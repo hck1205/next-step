@@ -41,6 +41,7 @@ class OverviewViewModel(
                 studentName = profile.studentName,
                 stage = ctx.stage,
                 currentPeriodLabel = ctx.currentPeriod?.label,
+                yearLabel = ctx.year?.label,
                 today = day,
                 loaded = true,
             ),
@@ -58,7 +59,7 @@ class OverviewViewModel(
     private val growth = combine(streams.growthRecords, streams.observations) { records, observations -> Growth(records, observations) }
 
     val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth, streams.events) { b, progress, e, g, events ->
-        val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events))
+        val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events, b.ctx.year))
         s.copy(
             digests = listOf(
                 ConcernDigests.study(s.balance?.weekMinutes ?: 0, progress),

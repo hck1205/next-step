@@ -1,6 +1,6 @@
 package com.nextstep.app.ui.navigation
 
-import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.growth.StudentScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.MemberRepository
@@ -19,7 +19,8 @@ class RootViewModel(
 ) : ViewModel() {
     val state: StateFlow<RootUiState?> = combine(onboarding.profile, members.myMember) { profile, me ->
         val caps = profile.role?.let { Capabilities.of(it, me) }
-        RootUiState(profile, caps, studentLevel = me?.takeIf { caps?.isStudent == true }?.let { StudentUiLevel.of(it) })
+        val screen = me?.takeIf { caps?.isStudent == true }?.let { StudentScreen.of(it) }
+        RootUiState(profile, caps, studentLevel = screen?.level, studentTextScale = screen?.textScale ?: 1f)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {

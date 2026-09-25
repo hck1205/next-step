@@ -25,9 +25,9 @@ class OverviewViewModelTest : ViewModelTestBase() {
         streams.tasks.value = listOf(Fixtures.task("a", today, by = "STUDENT"))
         val vm = OverviewViewModel(streams, today = { today }); val job = subscribe(vm.state)
         val s = settle(vm.state)
-        assertTrue(s.loaded); assertEquals(GrowthStage.EARLY_ELEMENTARY, s.stage); assertEquals("초3 2학기", s.currentPeriodLabel)
+        assertTrue(s.loaded); assertEquals(GrowthStage.EARLY_ELEMENTARY, s.stage); assertEquals("초3 2학기", s.currentPeriodLabel); assertEquals("초3", s.yearLabel)
         val b = s.balance!!
-        assertEquals(1, b.experiencesThisPeriod); assertEquals(1f, b.selfDirectedRatio!!, 0f); assertEquals(100, b.recommendedWeekMinutes)
+        assertEquals(1, b.experiencesThisPeriod); assertEquals(1f, b.selfDirectedRatio!!, 0f); assertEquals(200, b.recommendedWeekMinutes) // 초3 올해 프로필: 하루 40분 × 5일
         job.cancel()
     }
 
