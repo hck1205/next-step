@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.ui.components.speech.rememberSpeaker
 import com.nextstep.app.ui.home.components.YearCard
 import androidx.compose.ui.text.style.TextOverflow
 import com.nextstep.app.ui.home.components.WeekCard
@@ -70,6 +71,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
     var showPlanner by remember { mutableStateOf(false) }
     val level = state.level
     val words = level.words
+    val speak = if (level.kid.readsAloud) rememberSpeaker() else null
     Scaffold(
         topBar = {
             TopAppBar(
@@ -108,7 +110,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                         if (state.pendingTasks.isEmpty()) item { AppCard { EmptyState(words.allDone) } }
                         else items(state.pendingTasks.take(state.taskRows), key = { "task" + it.id }) { task ->
                             if (level.showsNumbers) TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
-                            else BigTaskRow(task, state.subjects, minHeightDp = level.touchTargetDp, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
+                            else BigTaskRow(task, state.subjects, minHeightDp = level.touchTargetDp, onToggle = { onEvent(HomeEvent.ToggleTask(task)) }, onSpeak = speak)
                         }
                         if (state.pendingTasks.size > state.taskRows) item {
                             TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("${state.pendingTasks.size - state.taskRows}개 더 보기") }

@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.domain.growth.KidRecord
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
@@ -14,5 +15,7 @@ sealed interface QuickAddEvent {
     data class SaveTask(val title: String, val subjectId: String?, val type: TaskType, val due: LocalDate, val createdByRole: String) : QuickAddEvent
     data class SaveGrade(val subjectId: String, val title: String, val examType: ExamType, val score: Double, val maxScore: Double, val classAverage: Double?, val date: LocalDate, val memo: String) : QuickAddEvent
     data class SaveEvent(val title: String, val subjectId: String?, val type: EventType, val date: LocalDate, val start: LocalTime, val end: LocalTime, val repeatWeekly: Boolean, val location: String, val memo: String) : QuickAddEvent
+    /** 아이용: 그림 타일 한 번으로 오늘 활동 저장. */
+    data class KidRecordTap(val record: KidRecord) : QuickAddEvent
     data object ClearMessage : QuickAddEvent
 }

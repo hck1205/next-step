@@ -20,7 +20,7 @@ class RootViewModel(
     val state: StateFlow<RootUiState?> = combine(onboarding.profile, members.myMember) { profile, me ->
         val caps = profile.role?.let { Capabilities.of(it, me) }
         val screen = me?.takeIf { caps?.isStudent == true }?.let { StudentScreen.of(it) }
-        RootUiState(profile, caps, studentLevel = screen?.level, studentTextScale = screen?.textScale ?: 1f)
+        RootUiState(profile, caps, studentScreen = screen)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {

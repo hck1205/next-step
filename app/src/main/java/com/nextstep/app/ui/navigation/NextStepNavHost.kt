@@ -1,5 +1,10 @@
 package com.nextstep.app.ui.navigation
 
+import com.nextstep.app.ui.kidme.KidMeScreen
+import com.nextstep.app.ui.kidfamily.KidFamilyScreen
+import com.nextstep.app.ui.kidfamily.KidFamilyActions
+import com.nextstep.app.domain.growth.KidMode
+import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.hub.ConcernSection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.platform.LocalDensity
@@ -87,6 +92,8 @@ object Routes {
     const val CHEER = "cheer"
     const val CURRICULUM = "curriculum"
     const val TIMER = "timer"
+    /** 아이 모드에서 어른 확인 뒤 여는 설정(보통 모드에서는 가족 탭이 곧 설정). */
+    const val SETTINGS = "settings"
     const val SUBJECT = "subject/{subjectId}"
     fun subject(id: String) = "subject/$id"
     fun records(section: ConcernSection = ConcernSection.OVERVIEW) = "records/${section.route}"
@@ -116,13 +123,14 @@ fun NextStepRoot(rootViewModel: RootViewModel = viewModel(factory = AppViewModel
         current == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         !current.profile.onboarded || caps == null -> OnboardingScreen()
         else -> StudentTextScale(current.studentTextScale) {
-            MainScaffold(caps = caps, studentLevel = current.studentLevel, onSwitchChild = { rootViewModel.switchChild(it) })
+            MainScaffold(caps = caps, studentScreen = current.studentScreen, onSwitchChild = { rootViewModel.switchChild(it) })
         }
     }
 }
 
 @Composable
-private fun MainScaffold(caps: Capabilities, studentLevel: StudentUiLevel?, onSwitchChild: (String) -> Unit) {
+private fun MainScaffold(caps: Capabilities, studentScreen: StudentScreen?, onSwitchChild: (String) -> Unit) {
+    val studentLevel = studentScreen?.level
     val navController = rememberNavController()
     val destinations = topLevelDestinations(caps, studentLevel)
     val backStack by navController.currentBackStackEntryAsState()
@@ -157,7 +165,7 @@ private fun MainScaffold(caps: Capabilities, studentLevel: StudentUiLevel?, onSw
         },
         floatingActionButtonPosition = FabPosition.Center,
     ) { padding ->
-        NextStepNavHost(navController = navController, caps = caps, studentLevel = studentLevel, onSwitchChild = onSwitchChild, modifier = Modifier.padding(padding))
+        NextStepNavHost(navController = navController, caps = caps, studentScreen = studentScreen, onSwitchChild = onSwitchChild, modifier = Modifier.padding(padding))
     }
 
     if (showQuickAdd) {
@@ -166,7 +174,9 @@ private fun MainScaffold(caps: Capabilities, studentLevel: StudentUiLevel?, onSw
 }
 
 @Composable
-private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, studentLevel: StudentUiLevel?, onSwitchChild: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun NextStepNavHost(navController: NavHostController, caps: Capabilities, studentScreen: StudentScreen?, onSwitchChild: (String) -> Unit, modifier: Modifier = Modifier) {
+    val studentLevel = studentScreen?.level
+    val kid = studentLevel?.kid ?: KidMode.NONE
     val go: (String) -> Unit = { navController.navigate(it) }
     val back: () -> Unit = { navController.popBackStack() }
     val openSubject: (String) -> Unit = { go(Routes.subject(it)) }
@@ -203,13 +213,19 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             JourneyScreen(caps = caps, actions = JourneyActions(onBack = null, onOpenSettings = { go(Routes.FAMILY) }, onOpenGoals = { go(Routes.GOALS) }, onOpenActivities = { go(Routes.ACTIVITIES) }, onOpenCurriculum = { go(Routes.CURRICULUM) }))
         }
         composable(Routes.RECORDS, arguments = listOf(navArgument("section") { type = NavType.StringType; defaultValue = ConcernSection.OVERVIEW.route })) { entry ->
-            HubScreen(
+            // 아이 모드(학령 전·초1~2): 기록 허브 대신 스티커판
+            if (kid.stickerMe) KidMeScreen() else HubScreen(
                 caps = caps, studentLevel = studentLevel,
                 actions = HubActions(onOpenSubject = openSubject, onOpenJourney = { go(Routes.JOURNEY) }),
                 initialSection = ConcernSection.from(entry.arguments?.getString("section"), studentLevel),
             )
         }
-        composable(Routes.FAMILY) { SettingsScreen(caps = caps, actions = SettingsActions(onBack = null, onOpenContent = { go(Routes.CONTENT) })) }
+        composable(Routes.FAMILY) {
+            // 아이 모드: 가족 얼굴과 한 번 누르는 말. 설정은 어른 확인 뒤 별도 화면으로.
+            if (kid.kidFamily) KidFamilyScreen(actions = KidFamilyActions(onOpenSettings = { go(Routes.SETTINGS) }))
+            else SettingsScreen(caps = caps, actions = SettingsActions(onBack = null, onOpenContent = { go(Routes.CONTENT) }))
+        }
+        composable(Routes.SETTINGS) { SettingsScreen(caps = caps, actions = SettingsActions(onBack = back, onOpenContent = { go(Routes.CONTENT) })) }
 
         composable(Routes.MENTOR_HOME) {
             MentorDashboardScreen(
@@ -228,7 +244,10 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
         composable(Routes.SUBJECT, arguments = listOf(navArgument("subjectId") { type = NavType.StringType })) {
             SubjectDetailScreen(caps = caps, actions = SubjectDetailActions(onBack = back))
         }
-        composable(Routes.TIMER) { TimerScreen(actions = TimerActions(onBack = back)) }
+        composable(Routes.TIMER) {
+            // 아이 모드: 숫자 대신 줄어드는 원, 길이는 올해 한 번 공부 길이
+            TimerScreen(actions = TimerActions(onBack = back), visualMinutes = if (kid.visualTimer) studentScreen?.year?.sessionMinutes?.takeIf { it > 0 } ?: DEFAULT_KID_TIMER_MINUTES else null)
+        }
     }
 }
 
@@ -239,3 +258,6 @@ private fun StudentTextScale(scale: Float, content: @Composable () -> Unit) {
     val density = LocalDensity.current
     CompositionLocalProvider(LocalDensity provides Density(density.density, density.fontScale * scale), content = content)
 }
+
+/** 올해 프로필이 없을 때 아이용 타이머 길이(분). */
+private const val DEFAULT_KID_TIMER_MINUTES = 15

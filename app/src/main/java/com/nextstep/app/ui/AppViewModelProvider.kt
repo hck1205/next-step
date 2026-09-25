@@ -1,5 +1,7 @@
 package com.nextstep.app.ui
 
+import com.nextstep.app.ui.kidfamily.KidFamilyViewModel
+import com.nextstep.app.ui.kidme.KidMeViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -55,6 +57,8 @@ object AppViewModelProvider {
         initializer { with(container()) { OverviewViewModel(streams) } }
         initializer { with(container()) { GrowthViewModel(streams, growth) } }
         initializer { with(container()) { TalentViewModel(streams, growth) } }
+        initializer { with(container()) { KidMeViewModel(streams) } }
+        initializer { with(container()) { KidFamilyViewModel(streams, notes) } }
         initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
         initializer { with(container()) { QuickAddViewModel(streams, notes, activities, tasks, grades, events) } }
     }

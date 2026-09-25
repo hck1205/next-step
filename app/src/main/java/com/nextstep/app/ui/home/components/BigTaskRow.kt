@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.home.components
 
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +31,10 @@ import com.nextstep.app.ui.components.card.SubjectTag
 
 /**
  * 어린 단계의 할 일 한 줄: 큰 동그라미 체크 + 과목 배지 + 제목뿐. 날짜·종류·배정자 같은 보조 글자는 없습니다.
- * 줄 전체가 누름 영역이고 높이는 화면 단계의 [minHeightDp] 이상입니다.
+ * 줄 전체가 누름 영역이고 높이는 화면 단계의 [minHeightDp] 이상입니다. [onSpeak] 가 있으면 스피커로 제목을 읽어 줍니다.
  */
 @Composable
-internal fun BigTaskRow(task: TaskEntity, subjects: List<SubjectEntity>, minHeightDp: Int, onToggle: () -> Unit) {
+internal fun BigTaskRow(task: TaskEntity, subjects: List<SubjectEntity>, minHeightDp: Int, onToggle: () -> Unit, onSpeak: ((String) -> Unit)? = null) {
     val subject = subjects.firstOrNull { it.id == task.subjectId }
     AppCard(
         modifier = Modifier.heightIn(min = minHeightDp.dp).semantics {
@@ -53,6 +55,9 @@ internal fun BigTaskRow(task: TaskEntity, subjects: List<SubjectEntity>, minHeig
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(task.title, style = MaterialTheme.typography.titleMedium, maxLines = 2)
                 if (subject != null) SubjectTag(subject)
+            }
+            if (onSpeak != null) IconButton(onClick = { onSpeak(task.title) }) {
+                Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "읽어 주기", tint = MaterialTheme.colorScheme.primary)
             }
         }
     }

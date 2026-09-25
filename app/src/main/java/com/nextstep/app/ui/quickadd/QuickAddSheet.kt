@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.ui.quickadd.components.KidRecordGrid
 import com.nextstep.app.domain.growth.StudentUiLevel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,17 @@ fun QuickAddSheet(caps: Capabilities, studentLevel: StudentUiLevel?, onDismiss: 
             viewModel.onEvent(QuickAddEvent.ClearMessage)
             onDismiss()
         }
+    }
+
+    if (studentLevel?.kid?.pictureRecord == true) {
+        // 아이 모드: 입력 양식 없이 그림 타일 한 번으로 기록
+        ModalBottomSheet(onDismissRequest = onDismiss) {
+            KidRecordGrid(
+                onRecord = { viewModel.onEvent(QuickAddEvent.KidRecordTap(it)) },
+                onTimer = if (QuickAddAction.TIMER in QuickAddAction.availableFor(caps, studentLevel)) ({ onDismiss(); onOpenTimer() }) else null,
+            )
+        }
+        return
     }
 
     if (picked == null) {

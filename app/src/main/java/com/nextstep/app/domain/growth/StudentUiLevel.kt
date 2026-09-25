@@ -35,31 +35,33 @@ enum class StudentUiLevel(
     /** 기록하기(+) 시트에 보이는 항목 수(타이머 · 활동 · 할 일 · 성적 · 일정 순). */
     val recordChoices: Int,
     val words: StudentWords,
+    /** 아이가 직접 쓸 때의 도움 장치(스티커판·아이용 가족·그림 기록·읽어 주기·보이는 타이머). */
+    val kid: KidMode,
     /** 이 단계에서 새로 열리는 카드. 앞 단계의 카드는 그대로 남습니다. */
     val opens: Set<StudentHomeSection>,
 ) {
     SEED(
-        "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY,
+        "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY, KidMode.EARLY,
         setOf(StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE, StudentHomeSection.YEAR),
     ),
     SPROUT(
-        "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY,
+        "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY, KidMode.EARLY,
         setOf(StudentHomeSection.TIMER),
     ),
     SEEDLING(
-        "떡잎", 3, 1.2f, 3, false, 56, false, 3, StudentWords.EASY,
+        "떡잎", 3, 1.2f, 3, false, 56, false, 3, StudentWords.EASY, KidMode.MIDDLE,
         setOf(StudentHomeSection.EVENTS, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION),
     ),
     STEM(
-        "줄기", 5, 1.1f, 3, true, 52, true, 5, StudentWords.STANDARD,
+        "줄기", 5, 1.1f, 3, true, 52, true, 5, StudentWords.STANDARD, KidMode.NONE,
         setOf(StudentHomeSection.PREVIEW, StudentHomeSection.MISSION, StudentHomeSection.EXAM, StudentHomeSection.CURRICULUM),
     ),
     BRANCH(
-        "가지", 7, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD,
+        "가지", 7, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD, KidMode.NONE,
         setOf(StudentHomeSection.SUBJECTS, StudentHomeSection.ROADMAP),
     ),
     TREE(
-        "나무", 10, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD,
+        "나무", 10, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD, KidMode.NONE,
         setOf(StudentHomeSection.JOURNEY, StudentHomeSection.PLANNER),
     );
 

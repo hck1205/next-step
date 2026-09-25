@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.data.model.ActivityType
+import com.nextstep.app.domain.growth.KidRecord
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
@@ -42,6 +44,16 @@ class QuickAddViewModelTest : ViewModelTestBase() {
         assertEquals(listOf(QuickAddAction.TIMER, QuickAddAction.ACTIVITY), QuickAddAction.availableFor(student, StudentUiLevel.SPROUT))
         assertEquals(listOf(QuickAddAction.TIMER, QuickAddAction.ACTIVITY, QuickAddAction.TASK), QuickAddAction.availableFor(student, StudentUiLevel.SEEDLING))
         assertEquals(QuickAddAction.availableFor(student), QuickAddAction.availableFor(student, StudentUiLevel.STEM))
+    }
+
+    @Test
+    fun kidTileSavesTodaysActivityInOneTap() = runTest {
+        val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
+        vm.onEvent(QuickAddEvent.KidRecordTap(KidRecord.READ)); val s = settle(vm.state)
+        val saved = activities.saved.single()
+        assertEquals("책 읽기", saved.title); assertEquals(ActivityType.HOBBY, saved.type); assertEquals(today.toEpochDay(), saved.date); assertEquals("STUDENT", saved.createdByRole)
+        assertTrue(s.savedMessage!!.startsWith("책 읽었어요"))
+        job.cancel()
     }
 
     @Test

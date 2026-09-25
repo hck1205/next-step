@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.timer
 
+import com.nextstep.app.ui.timer.components.KidTimerCard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,14 +47,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 @Composable
-fun TimerScreen(actions: TimerActions, viewModel: TimerViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun TimerScreen(actions: TimerActions, visualMinutes: Int? = null, viewModel: TimerViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    TimerContent(state = state, actions = actions, onEvent = viewModel::onEvent)
+    TimerContent(state = state, actions = actions, visualMinutes = visualMinutes, onEvent = viewModel::onEvent)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TimerContent(state: TimerUiState, actions: TimerActions, onEvent: (TimerEvent) -> Unit) {
+internal fun TimerContent(state: TimerUiState, actions: TimerActions, visualMinutes: Int?, onEvent: (TimerEvent) -> Unit) {
     var showManual by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -61,7 +62,7 @@ internal fun TimerContent(state: TimerUiState, actions: TimerActions, onEvent: (
             TopAppBar(
                 title = { Text("학습 타이머") },
                 navigationIcon = { IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
-                actions = { TextButton(onClick = { showManual = true }) { Text("직접 기록") } },
+                actions = { if (visualMinutes == null) TextButton(onClick = { showManual = true }) { Text("직접 기록") } },
             )
         },
     ) { padding ->
@@ -70,7 +71,9 @@ internal fun TimerContent(state: TimerUiState, actions: TimerActions, onEvent: (
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item {
+            // 아이 모드: 숫자 대신 줄어드는 원(올해 한 번 공부 길이)
+            if (visualMinutes != null) item { KidTimerCard(state, visualMinutes, onEvent) }
+            else item {
                 AppCard {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                         Text(
