@@ -8,7 +8,6 @@ data class ParentDashboardActions(
     val onOpenSubject: (String) -> Unit = { _ -> },
     /** 기록 탭의 세그먼트로 바로 갑니다. */
     val onOpenRecords: (ConcernSection) -> Unit = { _ -> },
-    val onOpenCheer: () -> Unit = {},
     val onOpenMentor: () -> Unit = {},
     val onOpenRoadmap: () -> Unit = {},
     val onOpenContent: () -> Unit = {},

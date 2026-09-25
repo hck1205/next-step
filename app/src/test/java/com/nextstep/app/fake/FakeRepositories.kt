@@ -11,7 +11,6 @@ import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.PeerTopicEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TopicEntity
@@ -31,7 +30,6 @@ import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
-import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.PeerCurriculumRepository
 import com.nextstep.app.data.repository.RoadmapRepository
@@ -79,14 +77,6 @@ class FakeStudySessionRepository(streams: FakeFamilyDataStreams? = null) : Study
     override suspend fun startTimer(subjectId: String?) { runningTimer.value = RunningTimer(subjectId, 0L) }
     override suspend fun stopTimer(note: String): StudySessionEntity? { runningTimer.value = null; return stopResult }
     override suspend fun cancelTimer() { runningTimer.value = null }
-}
-
-class FakeNoteRepository : NoteRepository {
-    override val notes = MutableStateFlow<List<NoteEntity>>(emptyList())
-    val added = mutableListOf<String>()
-    val deleted = mutableListOf<String>()
-    override suspend fun add(text: String) { added += text }
-    override suspend fun delete(id: String) { deleted += id }
 }
 
 class FakeRoadmapRepository : RoadmapRepository {

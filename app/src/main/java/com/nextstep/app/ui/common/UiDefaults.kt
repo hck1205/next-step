@@ -8,8 +8,6 @@ object UiDefaults {
     const val MAX_ROWS = 3
     /** 기록 탭의 최근 기록·관찰 개수. 대시보드의 최근 성적도 같은 수. */
     const val MAX_RECENT_RECORDS = 5
-    /** 대시보드에 펼치는 메모·피드백 개수. */
-    const val MAX_NOTES = 10
     /** 멘토 대시보드의 분석 카드 개수. 학부모 첫 화면은 MAX_ROWS. */
     const val MAX_INSIGHTS = 4
     /** 로드맵 화면의 진도 기반 추천 칩 개수. */

@@ -15,7 +15,6 @@ import com.nextstep.app.data.repository.ActivityRepository
 import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GradeRepository
-import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +28,6 @@ import com.nextstep.app.ui.common.asUiState
 /** 모든 쓰기의 단일 입구. 각 저장소에 한 번 쓰고 한 줄 메시지를 남깁니다. */
 class QuickAddViewModel(
     streams: FamilyDataStreams,
-    private val notes: NoteRepository,
     private val activities: ActivityRepository,
     private val tasks: TaskRepository,
     private val grades: GradeRepository,
@@ -41,11 +39,6 @@ class QuickAddViewModel(
     val state: StateFlow<QuickAddUiState> = combine(streams.subjects, message) { subjects, msg ->
         QuickAddUiState(subjects = subjects, today = today(), savedMessage = msg)
     }.asUiState(viewModelScope, QuickAddUiState())
-
-    fun cheer(text: String) = viewModelScope.launch {
-        if (text.isBlank()) return@launch
-        notes.add(text.trim()); message.value = "격려를 남겼어요"
-    }
 
     fun saveActivity(activity: ActivityEntity) = viewModelScope.launch { activities.save(activity); message.value = "활동을 기록했어요" }
 
@@ -78,7 +71,6 @@ class QuickAddViewModel(
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: QuickAddEvent) {
         when (event) {
-            is QuickAddEvent.Cheer -> cheer(event.text)
             is QuickAddEvent.SaveActivity -> saveActivity(event.activity)
             is QuickAddEvent.SaveTask -> saveTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
             is QuickAddEvent.SaveGrade -> saveGrade(event.subjectId, event.title, event.examType, event.score, event.maxScore, event.classAverage, event.date, event.memo)

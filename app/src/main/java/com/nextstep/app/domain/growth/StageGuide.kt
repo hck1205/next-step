@@ -15,7 +15,7 @@ data class StageGuide(
     val mentorTips: List<String>,
     /** 공부 밖에서 쌓아야 할 경험 제안. */
     val experiences: List<String>,
-    /** 칭찬의 방향. 격려 문구 생성에 씁니다. */
+    /** 칭찬의 방향(부모 가이드). */
     val praiseStyle: String,
     /** 학습 계획 기본값. */
     val planOptions: PlanOptions,

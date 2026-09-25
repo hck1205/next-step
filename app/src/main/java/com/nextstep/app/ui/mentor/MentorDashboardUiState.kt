@@ -5,7 +5,6 @@ import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
@@ -32,7 +31,6 @@ data class MentorDashboardUiState(
     val recentGrades: List<GradeEntity> = emptyList(),
     val myTasks: List<TaskEntity> = emptyList(),
     val insights: List<Insight> = emptyList(),
-    val notes: List<NoteEntity> = emptyList(),
     /** 담당 과목 평균 점수의 평균. 성적이 없으면 null. */
     val averageScore: Double? = null,
     val roadmap: RoadmapSummary = RoadmapSummary(),

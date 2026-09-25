@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.repository.FamilyDataStreams
-import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.insight.InsightAction
 import com.nextstep.app.domain.insight.InsightEngine
@@ -19,13 +18,12 @@ import com.nextstep.app.ui.common.asUiState
 class InsightsViewModel(
     private val streams: FamilyDataStreams,
     private val tasks: TaskRepository,
-    private val notes: NoteRepository,
 ) : ViewModel() {
 
     private val a = combine(streams.subjects, streams.topics, streams.grades) { s, t, g -> Triple(s, t, g) }
-    private val b = combine(streams.sessions, streams.tasks, streams.events, streams.notes) { s, t, e, n -> Quad(s, t, e, n) }
+    private val b = combine(streams.sessions, streams.tasks, streams.events) { s, t, e -> Triple(s, t, e) }
 
-    val state: StateFlow<InsightsUiState> = combine(a, b) { (subjects, topics, grades), (sessions, tasks, events, notes) ->
+    val state: StateFlow<InsightsUiState> = combine(a, b) { (subjects, topics, grades), (sessions, tasks, events) ->
         InsightsUiState(
             subjects = subjects,
             insights = InsightEngine.analyze(subjects, topics, grades, sessions, tasks, events),
@@ -34,7 +32,6 @@ class InsightsViewModel(
             daily14 = StudyStats.dailyMinutes(sessions, 14),
             weeklyBySubject = StudyStats.weeklyMinutesBySubject(sessions, subjects),
             byHour = StudyStats.minutesByHour(sessions),
-            notes = notes,
             totalMinutes = sessions.sumOf { it.durationMinutes },
             talents = TalentEngine.talents(subjects, topics, grades, sessions),
         )
@@ -51,17 +48,11 @@ class InsightsViewModel(
         }
     }
 
-    fun addNote(text: String) = viewModelScope.launch { if (text.isNotBlank()) notes.add(text) }
-    fun deleteNote(id: String) = viewModelScope.launch { notes.delete(id) }
-
-    private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: InsightsEvent) {
         when (event) {
             is InsightsEvent.ApplyAction -> applyAction(event.action, event.createdByRole)
-            is InsightsEvent.AddNote -> addNote(event.text)
-            is InsightsEvent.DeleteNote -> deleteNote(event.id)
         }
     }
 

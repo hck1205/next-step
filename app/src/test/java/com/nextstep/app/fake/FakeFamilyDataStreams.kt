@@ -10,7 +10,6 @@ import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -36,7 +35,6 @@ class FakeFamilyDataStreams(
     override val events = MutableStateFlow<List<EventEntity>>(emptyList())
     override val grades = MutableStateFlow<List<GradeEntity>>(emptyList())
     override val sessions = MutableStateFlow<List<StudySessionEntity>>(emptyList())
-    override val notes = MutableStateFlow<List<NoteEntity>>(emptyList())
     override val members = MutableStateFlow<List<MemberEntity>>(emptyList())
     override val myMember = MutableStateFlow<MemberEntity?>(null)
     override val roadmap = MutableStateFlow<List<RoadmapItemEntity>>(emptyList())

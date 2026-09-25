@@ -15,7 +15,6 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,7 +38,6 @@ import com.nextstep.app.ui.activities.components.ActivityEditDialog
 import com.nextstep.app.ui.components.dialog.EventEditDialog
 import com.nextstep.app.ui.components.dialog.GradeEditDialog
 import com.nextstep.app.ui.components.dialog.TaskEditDialog
-import com.nextstep.app.ui.components.dialog.TextInputDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -84,7 +82,6 @@ fun QuickAddSheet(caps: Capabilities, studentLevel: StudentUiLevel?, onDismiss: 
     }
 
     when (picked) {
-        QuickAddAction.CHEER -> TextInputDialog(title = "격려 한마디", label = "예: 오늘 25분 스스로 끝냈네!", onConfirm = { viewModel.onEvent(QuickAddEvent.Cheer(it)) }, onDismiss = onDismiss)
         QuickAddAction.ACTIVITY -> ActivityEditDialog(existing = null, today = state.today, onConfirm = { viewModel.onEvent(QuickAddEvent.SaveActivity(it)) }, onDismiss = onDismiss)
         QuickAddAction.TASK -> TaskEditDialog(existing = null, subjects = state.subjects, defaultDate = state.today, onDismiss = onDismiss) { title, subjectId, type, due ->
             viewModel.onEvent(QuickAddEvent.SaveTask(title, subjectId, type, due, caps.actingRoleName))
@@ -113,7 +110,6 @@ private fun QuickAddItem(action: QuickAddAction, onClick: () -> Unit) {
 }
 
 private fun iconFor(action: QuickAddAction): ImageVector = when (action) {
-    QuickAddAction.CHEER -> Icons.Default.Favorite
     QuickAddAction.ACTIVITY -> Icons.AutoMirrored.Filled.MenuBook
     QuickAddAction.TASK -> Icons.Default.CheckCircle
     QuickAddAction.GRADE -> Icons.Default.BarChart

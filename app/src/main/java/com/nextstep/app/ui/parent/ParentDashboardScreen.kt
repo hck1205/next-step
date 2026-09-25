@@ -18,8 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,8 +30,6 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.UpcomingExamCard
-import com.nextstep.app.ui.components.dialog.TextInputDialog
-import com.nextstep.app.ui.parent.components.CheerPromptCard
 import com.nextstep.app.ui.parent.components.PendingTaskRow
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.row.EventRow
@@ -43,13 +40,11 @@ import com.nextstep.app.ui.components.card.StatusCard
 import com.nextstep.app.ui.components.card.StatusTile
 import com.nextstep.app.ui.components.card.SyncStatusBadge
 import com.nextstep.app.domain.hub.ConcernSection
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.nextstep.app.ui.common.UiDefaults
 
 /**
  * 학부모의 "오늘": 지금 뭐 하면 되지? 에만 답합니다.
- * 상태 문장 → 지금 챙길 것 → 오늘의 아이 → 격려. 그래프·성적·진도는 기록 탭에 있습니다.
+ * 상태 문장 → 지금 챙길 것 → 오늘의 아이. 그래프·성적·진도는 기록 탭에 있습니다.
  */
 @Composable
 fun ParentDashboardScreen(caps: Capabilities, actions: ParentDashboardActions, viewModel: ParentDashboardViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -60,8 +55,6 @@ fun ParentDashboardScreen(caps: Capabilities, actions: ParentDashboardActions, v
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabilities, actions: ParentDashboardActions, onEvent: (ParentDashboardEvent) -> Unit) {
-    var showNote by remember { mutableStateOf(false) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -112,13 +105,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
             state.upcomingExams.firstOrNull()?.let { exam -> item { UpcomingExamCard(exam) } }
 
-            item { CheerPromptCard(state.notes.firstOrNull()?.text, onOpen = actions.onOpenCheer, onWrite = { showNote = true }) }
-
             item { Spacer(Modifier.height(8.dp)) }
         }
-    }
-
-    if (showNote) {
-        TextInputDialog(title = "격려 한마디", label = "내용", minLines = 2, onConfirm = { onEvent(ParentDashboardEvent.AddNote(it)) }, onDismiss = { showNote = false })
     }
 }

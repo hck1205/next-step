@@ -39,7 +39,6 @@ class MapperRoundTripTest {
     @Test fun event() = roundTrip(EventMapper, Fixtures.event("학원", LocalDate.of(2026, 9, 1), LocalTime.of(9, 0), LocalTime.of(10, 30), EventType.ACADEMY, "s", weekly = true).copy(location = "역삼", memo = "m")) { it.copy(dirty = false) }.let {}
     @Test fun grade() = roundTrip(GradeMapper, Fixtures.grade("s", 87.5, 10, classAvg = 70.25).copy(examType = ExamType.MOCK, maxScore = 90.0, memo = "m")) { it.copy(dirty = false) }.let {}
     @Test fun session() = roundTrip(StudySessionMapper, Fixtures.session("s", LocalDate.of(2026, 9, 1), LocalTime.of(20, 0), 45).copy(note = "n", fromTimer = true)) { it.copy(dirty = false) }.let {}
-    @Test fun note() = roundTrip(NoteMapper, Fixtures.note("힘내", Role.MENTOR, "쌤")) { it.copy(dirty = false) }.let {}
     @Test fun member() = roundTrip(MemberMapper, Fixtures.member(Role.PARENT, "엄마", subjectIds = "a,b", mentorEnabled = true, gradeYear = 9, birthDate = LocalDate.of(2015, 3, 2)).copy(title = "t", uiLevel = "STEM", seenUiLevel = "SPROUT")) { it.copy(dirty = false) }.let {}
     @Test fun memberWithoutBirthDate() = roundTrip(MemberMapper, Fixtures.member(Role.STUDENT, "나")) { it.copy(dirty = false) }.let { assertNull(it.birthDate) }
     @Test fun journeyTemplate() = roundTrip(JourneyItemMapper, Fixtures.journeyItem("daycare-waitlist", MilestoneStatus.DONE, note = "완료").copy(doneAt = 5L, deleted = true)) { it.copy(dirty = false) }.let {}

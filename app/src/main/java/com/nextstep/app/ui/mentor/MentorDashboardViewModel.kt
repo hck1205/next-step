@@ -11,7 +11,6 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
-import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
@@ -33,7 +32,6 @@ class MentorDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val members: MemberRepository,
     private val tasks: TaskRepository,
-    private val notes: NoteRepository,
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.myMember, streams.members, streams.subjects, streams.syncStatus) { profile, me, members, subjects, sync ->
@@ -55,7 +53,7 @@ class MentorDashboardViewModel(
 
     private val data = combine(streams.topics, streams.grades, streams.sessions, streams.tasks, streams.events) { t, g, s, ta, e -> Data(t, g, s, ta, e) }
 
-    val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.notes, streams.roadmap) { s, d, notes, roadmap ->
+    val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.roadmap) { s, d, roadmap ->
         val scope = MentorScope(s.subjects)
         val grades = scope.own(d.grades) { it.subjectId }
         val sessions = scope.own(d.sessions) { it.subjectId }
@@ -71,7 +69,6 @@ class MentorDashboardViewModel(
             recentGrades = grades.take(UiDefaults.MAX_RECENT_RECORDS),
             myTasks = scopedTasks.filter { !it.done && it.createdByRole == Role.MENTOR.name },
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, scopedTasks, d.events).take(UiDefaults.MAX_INSIGHTS),
-            notes = MentorScope.visibleNotes(notes, s.me).take(UiDefaults.MAX_NOTES),
             roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
@@ -86,8 +83,6 @@ class MentorDashboardViewModel(
     }
 
     fun deleteTask(id: String) = viewModelScope.launch { tasks.delete(id) }
-    fun addNote(text: String) = viewModelScope.launch { if (text.isNotBlank()) notes.add(text) }
-    fun deleteNote(id: String) = viewModelScope.launch { notes.delete(id) }
 
     private data class Data(
         val topics: List<TopicEntity>,
@@ -103,8 +98,6 @@ class MentorDashboardViewModel(
             is MentorDashboardEvent.SetSubjects -> setSubjects(event.ids)
             is MentorDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due)
             is MentorDashboardEvent.DeleteTask -> deleteTask(event.id)
-            is MentorDashboardEvent.AddNote -> addNote(event.text)
-            is MentorDashboardEvent.DeleteNote -> deleteNote(event.id)
         }
     }
 }

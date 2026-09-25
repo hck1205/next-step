@@ -1,9 +1,7 @@
 package com.nextstep.app.domain.mentor
 
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.data.model.Role
 
 /**
  * 멘토가 담당하는 과목 범위. 담당 과목을 지정하지 않았으면 전 과목입니다.
@@ -18,13 +16,5 @@ data class MentorScope(val subjects: List<SubjectEntity>) {
     companion object {
         fun of(me: MemberEntity?, all: List<SubjectEntity>): MentorScope =
             if (me == null || me.subjectIdList.isEmpty()) MentorScope(all) else MentorScope(all.filter { it.id in me.subjectIdList })
-
-        /** 멘토 화면의 메모: 학생·학부모 메모 전부 + 다른 멘토 메모는 제외하고 내 것만. */
-        fun visibleNotes(notes: List<NoteEntity>, me: MemberEntity?): List<NoteEntity> =
-            notes.filter { it.authorRole != Role.MENTOR.name || me == null || it.authorName == me.name }
-
-        /** 피드백 화면의 메모: 멘토는 [visibleNotes] 로 좁히고, 학생·학부모는 가족 메모 전부. */
-        fun notesFor(notes: List<NoteEntity>, me: MemberEntity?): List<NoteEntity> =
-            if (me?.isMentor == true) visibleNotes(notes, me) else notes
     }
 }

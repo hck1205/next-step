@@ -16,7 +16,7 @@ class ConcernSectionTest {
         assertEquals(ConcernSection.entries.size, ConcernSection.entries.map { it.route }.toSet().size)
         assertEquals(listOf(ConcernSection.PROGRESS, ConcernSection.TIME, ConcernSection.HABITS, ConcernSection.CALENDAR), ConcernSection.sectionsOf(Concern.STUDY, v))
         assertEquals(listOf(ConcernSection.CURRICULUM, ConcernSection.REVIEW, ConcernSection.CONTENT, ConcernSection.ROADMAP), ConcernSection.sectionsOf(Concern.LEARN, v))
-        assertEquals(listOf(ConcernSection.ASSIGNMENTS, ConcernSection.FEEDBACK), ConcernSection.sectionsOf(Concern.CLASS, v))
+        assertEquals(listOf(ConcernSection.ASSIGNMENTS), ConcernSection.sectionsOf(Concern.CLASS, v))
     }
 
     @Test

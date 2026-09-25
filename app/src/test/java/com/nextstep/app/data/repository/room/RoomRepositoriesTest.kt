@@ -11,7 +11,6 @@ import com.nextstep.app.domain.planner.StudyPlan
 import com.nextstep.app.fake.dao.FakeContentDao
 import com.nextstep.app.fake.dao.FakeEventDao
 import com.nextstep.app.fake.dao.FakeMemberDao
-import com.nextstep.app.fake.dao.FakeNoteDao
 import com.nextstep.app.fake.dao.FakeRoadmapDao
 import com.nextstep.app.fake.dao.FakeSubjectDao
 import com.nextstep.app.fake.dao.FakeTaskDao
@@ -122,19 +121,6 @@ class RoomRepositoriesTest {
         assertEquals(1, gradeRepo.grades.first().size)
         gradeRepo.delete("g-math-1")
         assertTrue(gradeRepo.grades.first().isEmpty())
-    }
-
-    @Test
-    fun noteAddUsesCurrentProfileAndIgnoresBlank() = runTest {
-        val dao = FakeNoteDao()
-        val repo = RoomNoteRepository(dao, FakeFamilyScope(Role.PARENT, displayName = "엄마"), sync, time)
-        repo.add("   ")
-        assertTrue(dao.all.isEmpty())
-        repo.add("  힘내  ")
-        val note = dao.all.single()
-        assertEquals("힘내", note.text); assertEquals("PARENT", note.authorRole); assertEquals("엄마", note.authorName)
-        repo.delete(note.id)
-        assertTrue(dao.getById(note.id)!!.deleted)
     }
 
     @Test

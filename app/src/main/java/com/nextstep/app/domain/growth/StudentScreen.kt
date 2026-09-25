@@ -20,7 +20,7 @@ data class StudentScreen(
         val DEFAULT_ORDER: List<StudentHomeSection> = listOf(
             StudentHomeSection.TIMER, StudentHomeSection.CURRICULUM, StudentHomeSection.MISSION, StudentHomeSection.JOURNEY,
             StudentHomeSection.TASKS, StudentHomeSection.YEAR, StudentHomeSection.WEEK, StudentHomeSection.EVENTS, StudentHomeSection.EXAM,
-            StudentHomeSection.NOTE, StudentHomeSection.RECOMMENDATION, StudentHomeSection.SUBJECTS, StudentHomeSection.REVIEW,
+            StudentHomeSection.RECOMMENDATION, StudentHomeSection.SUBJECTS, StudentHomeSection.REVIEW,
             StudentHomeSection.PREVIEW, StudentHomeSection.ROADMAP, StudentHomeSection.PLANNER,
         )
 

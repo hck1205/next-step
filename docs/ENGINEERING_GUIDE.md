@@ -35,8 +35,7 @@ com.nextstep.app
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
 │   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
 │   ├── mission/            MissionKind(단계별 종류), MissionCatalog(날짜에서 거꾸로 쪼갠 단계 설계), MissionPlanner(생성·압축·다음 단계·오늘 카드)
-│   ├── cheer/              CheerStats(오늘 한 일 요약), CheerSuggestions(단계별 칭찬 문구)
-│   ├── mentor/             MentorScope(담당 과목 범위로 성적·세션·단원·메모 좁히기)
+│   ├── mentor/             MentorScope(담당 과목 범위로 성적·세션·단원 좁히기), AssignmentStats(과제 현황)
 │   ├── text/               NumberText(문장 속 숫자 표기)
 │   ├── curriculum/         CurriculumCatalog(학기별 과목·단원), CurriculumRecommender(가족 진도·또래·영상 대조)
 │   ├── planner/            StudyPlanner + 모델
@@ -52,7 +51,7 @@ com.nextstep.app
     │   ├── chart/          BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip, Legend
     │   ├── dialog/         *EditDialog, AssignTaskDialog, ConfirmDialog, TextInputDialog(한 줄·여러 줄·안내문)
     │   ├── input/          DateField, TimeField, OptionPicker, SubjectPicker, GradePicker, SegmentedRow
-    │   └── row/            EventRow, TaskRow, NoteRow, AssignedByLabel, SessionRow, GoalStepRow
+    │   └── row/            EventRow, TaskRow, AssignedByLabel, SessionRow, GoalStepRow
     ├── theme/
     ├── navigation/
     ├── quickadd/           기록하기 시트: 모든 쓰기의 단일 입구
@@ -62,8 +61,7 @@ com.nextstep.app
     ├── talent/             기록 › 활동·재능 › 재능: 소질 신호 + 관찰 메모 전체
     ├── habits/             기록 › 공부 › 습관: 언제·얼마나·며칠 이어서(domain/stats/StudyHabits)
     ├── review/             기록 › 배울 것 › 복습: 과목을 가로지른 복습 목록(domain/stats/ReviewPlanner)
-    ├── assignments/        기록 › 과제·피드백 › 과제: 멘토가 낸 과제 현황(domain/mentor/AssignmentStats)
-    ├── feedback/           기록 › 과제·피드백 › 피드백: 주마다 묶은 메모(domain/mentor/FeedbackLog)
+    ├── assignments/        기록 › 과제 › 과제: 멘토가 낸 과제 현황(domain/mentor/AssignmentStats)
     ├── yearplan/           학생 "올해" 탭: 분류 탭 + 학기 묶음 목록. 완료는 여정 저장소에 year: 키로
     └── <feature>/          XxxScreen.kt, XxxUiState.kt, XxxViewModel.kt, XxxActions.kt, components/
 ```

@@ -7,7 +7,7 @@ import java.time.LocalDate
 /**
  * 학생 화면의 단계. 저학년일수록 한 번에 받아들일 수 있는 정보가 적으므로 화면이 작게 시작해 학년마다 한 칸씩 자랍니다.
  *
- * - 씨앗(학령 전, 만 0~6세): 가장 큰 글씨·가장 큰 누름 영역, 할 일 2개, 별 스티커, 가족 한마디. 앉아서 공부하는 시기가 아니라 타이머가 없습니다
+ * - 씨앗(학령 전, 만 0~6세): 가장 큰 글씨·가장 큰 누름 영역, 할 일 2개, 별 스티커. 앉아서 공부하는 시기가 아니라 타이머가 없습니다
  * - 새싹(초1~2): 공부 시작 버튼(타이머)이 열림
  * - 떡잎(초3~4): 오늘 일정, 다시 보기(복습), 추천 영상이 열림
  * - 줄기(초5~6): 숫자 기록, 미리 보기(예습), 시험·목표, 이번 학기 배울 것, 여정 탭
@@ -42,7 +42,7 @@ enum class StudentUiLevel(
 ) {
     SEED(
         "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY, KidMode.EARLY,
-        setOf(StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE, StudentHomeSection.YEAR),
+        setOf(StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.YEAR),
     ),
     SPROUT(
         "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY, KidMode.EARLY,

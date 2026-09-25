@@ -10,7 +10,6 @@ import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -35,7 +34,6 @@ interface FamilyDataStreams {
     val events: Flow<List<EventEntity>>
     val grades: Flow<List<GradeEntity>>
     val sessions: Flow<List<StudySessionEntity>>
-    val notes: Flow<List<NoteEntity>>
     val members: Flow<List<MemberEntity>>
     val myMember: Flow<MemberEntity?>
     val roadmap: Flow<List<RoadmapItemEntity>>

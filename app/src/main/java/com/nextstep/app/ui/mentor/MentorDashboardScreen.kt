@@ -45,8 +45,6 @@ import com.nextstep.app.ui.components.chart.BarChart
 import com.nextstep.app.ui.components.chart.BarItem
 import com.nextstep.app.ui.components.dialog.AssignTaskDialog
 import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
-import com.nextstep.app.ui.components.dialog.TextInputDialog
-import com.nextstep.app.ui.components.row.NoteRow
 import com.nextstep.app.ui.mentor.components.MentorGradeRow
 import com.nextstep.app.ui.mentor.components.MentorProgressCard
 import com.nextstep.app.ui.mentor.components.MentorStatsRow
@@ -64,7 +62,6 @@ fun MentorDashboardScreen(actions: MentorDashboardActions, viewModel: MentorDash
 internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: MentorDashboardActions, onEvent: (MentorDashboardEvent) -> Unit) {
     var showSubjects by remember { mutableStateOf(false) }
     var showAssign by remember { mutableStateOf(false) }
-    var showNote by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -145,12 +142,6 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
                 MentorTaskRow(t, state.allSubjects.firstOrNull { it.id == t.subjectId }, onCancel = { onEvent(MentorDashboardEvent.DeleteTask(t.id)) })
             }
 
-            item { SectionTitle("피드백 · 메모", action = { TextButton(onClick = { showNote = true }) { Text("남기기") } }) }
-            if (state.notes.isEmpty()) item { AppCard { EmptyState("학생에게 피드백을 남겨 보세요") } }
-            else items(state.notes, key = { "n" + it.id }) { n ->
-                val mine = n.authorRole == Role.MENTOR.name && n.authorName == state.me?.name
-                NoteRow(n, onDelete = if (mine) ({ onEvent(MentorDashboardEvent.DeleteNote(n.id)) }) else null)
-            }
             item { Spacer(Modifier.height(24.dp)) }
         }
     }
@@ -164,8 +155,5 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
             defaultSubjectId = state.subjects.firstOrNull()?.id, defaultDue = DateUtils.today().plusDays(1),
             onDismiss = { showAssign = false },
         ) { title, subjectId, type, due -> onEvent(MentorDashboardEvent.AssignTask(title, subjectId, type, due)) }
-    }
-    if (showNote) {
-        TextInputDialog(title = "피드백 남기기", label = "내용", minLines = 2, onConfirm = { onEvent(MentorDashboardEvent.AddNote(it)) }, onDismiss = { showNote = false })
     }
 }

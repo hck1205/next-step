@@ -17,7 +17,7 @@ import com.nextstep.app.ui.assignments.components.AssignmentSubjectsCard
 import com.nextstep.app.ui.assignments.components.AssignmentSummaryCard
 import com.nextstep.app.ui.components.card.SectionTitle
 
-/** 과제·피드백 › 과제: 요약 → 밀린 과제 → 이번 주 마감 → 과목별 완료율 → 최근 끝낸 과제. */
+/** 과제 › 과제: 요약 → 밀린 과제 → 이번 주 마감 → 과목별 완료율 → 최근 끝낸 과제. */
 @Composable
 fun AssignmentsScreen(viewModel: AssignmentsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()

@@ -13,7 +13,6 @@ data class StudentWords(
     val reviewDone: String,
     val previewTitle: String,
     val previewDone: String,
-    val noteTitle: String,
     val weekTitle: String,
 ) {
     companion object {
@@ -27,7 +26,6 @@ data class StudentWords(
             reviewDone = "다 봤어요",
             previewTitle = "미리 보기",
             previewDone = "다 봤어요",
-            noteTitle = "가족 한마디",
             weekTitle = "이번 주 스티커",
         )
 
@@ -41,7 +39,6 @@ data class StudentWords(
             reviewDone = "다 봤어요",
             previewTitle = "미리 보기",
             previewDone = "다 봤어요",
-            noteTitle = "가족 한마디",
             weekTitle = "이번 주 별",
         )
 
@@ -55,7 +52,6 @@ data class StudentWords(
             reviewDone = "복습 완료",
             previewTitle = "예습할 단원",
             previewDone = "예습 완료",
-            noteTitle = "부모·멘토 한마디",
             weekTitle = "이번 주",
         )
     }

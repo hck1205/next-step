@@ -15,7 +15,6 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
-import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
@@ -30,13 +29,12 @@ import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.asUiState
 
 /**
- * 학부모 첫 화면: 자녀 줄 · 상태 카드 · 챙길 것 · 오늘 · 격려. 화면이 보여 주는 값만 계산합니다(UX 가이드 3 학부모 화면).
+ * 학부모 첫 화면: 자녀 줄 · 상태 카드 · 챙길 것 · 오늘. 화면이 보여 주는 값만 계산합니다(UX 가이드 3 학부모 화면).
  * 재능·분석·과목 통계는 기록 탭의 ViewModel 이 맡습니다.
  */
 class ParentDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val tasks: TaskRepository,
-    private val notes: NoteRepository,
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
@@ -47,7 +45,7 @@ class ParentDashboardViewModel(
         Side(members, journey, activities, goals, steps)
     }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.notes, streams.syncStatus) { c, x, notes, sync ->
+    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.syncStatus) { c, x, sync ->
         val today = DateUtils.today()
         val ctx = StudentContext.of(x.members, today)
         val period = ctx.currentPeriod
@@ -63,7 +61,6 @@ class ParentDashboardViewModel(
             overdueCount = StudyStats.overdueTasks(c.tasks).size,
             upcomingExams = StudyStats.upcomingExams(c.events, c.tasks).take(UiDefaults.MAX_ROWS),
             todayEvents = StudyStats.eventsOn(today, c.events),
-            notes = notes.take(UiDefaults.MAX_NOTES),
             stage = ctx.stage,
             periodLabel = period?.label,
             hasBirthDate = ctx.hasBirthDate,
@@ -73,9 +70,6 @@ class ParentDashboardViewModel(
             missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
-
-    fun addNote(text: String) = viewModelScope.launch { if (text.isNotBlank()) notes.add(text) }
-    fun deleteNote(id: String) = viewModelScope.launch { notes.delete(id) }
 
     /** 학부모가 자녀에게 할 일을 배정합니다. */
     fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) = viewModelScope.launch {
@@ -101,8 +95,6 @@ class ParentDashboardViewModel(
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: ParentDashboardEvent) {
         when (event) {
-            is ParentDashboardEvent.AddNote -> addNote(event.text)
-            is ParentDashboardEvent.DeleteNote -> deleteNote(event.id)
             is ParentDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
         }
     }

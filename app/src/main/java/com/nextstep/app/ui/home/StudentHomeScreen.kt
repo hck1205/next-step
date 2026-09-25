@@ -49,7 +49,6 @@ import com.nextstep.app.ui.components.card.UpcomingExamCard
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.row.TaskRow
 import com.nextstep.app.ui.home.components.ActiveSubjectsCard
-import com.nextstep.app.ui.home.components.LatestNoteCard
 import com.nextstep.app.ui.home.components.PlanResultDialog
 import com.nextstep.app.ui.home.components.PlannerDialog
 import com.nextstep.app.ui.home.components.RecommendationCard
@@ -123,7 +122,6 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                         else items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
                     }
                     StudentHomeSection.EXAM -> state.nextExam?.let { exam -> item { UpcomingExamCard(exam) } }
-                    StudentHomeSection.NOTE -> state.latestNote?.let { note -> item { LatestNoteCard(note) } }
                     StudentHomeSection.RECOMMENDATION -> state.recommendations.firstOrNull()?.let { rec ->
                         item { SectionTitle("추천 영상 1개", action = { TextButton(onClick = actions.onOpenContent) { Text("저장소") } }) }
                         item { RecommendationCard(rec, onOpen = { ExternalLinks.open(context, rec.content.url) }, onWatched = { onEvent(HomeEvent.MarkContentWatched(rec.content.id)) }) }

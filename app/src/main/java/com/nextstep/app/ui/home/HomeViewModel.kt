@@ -110,8 +110,8 @@ class HomeViewModel(
         )
     }
 
-    val state: StateFlow<HomeUiState> = combine(enriched, streams.notes, streams.goals, streams.goalSteps) { s, notes, goals, steps ->
-        s.copy(latestNote = notes.maxByOrNull { it.createdAt }, missionFocus = MissionPlanner.focus(goals, steps, s.today))
+    val state: StateFlow<HomeUiState> = combine(enriched, streams.goals, streams.goalSteps) { s, goals, steps ->
+        s.copy(missionFocus = MissionPlanner.focus(goals, steps, s.today))
     }
         .asUiState(viewModelScope, HomeUiState())
 

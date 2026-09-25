@@ -6,7 +6,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.nextstep.app.data.local.dao.RoadmapDao
-import com.nextstep.app.data.local.dao.NoteDao
 import com.nextstep.app.data.local.dao.StudySessionDao
 import com.nextstep.app.data.local.dao.TaskDao
 import com.nextstep.app.data.local.dao.GradeDao
@@ -29,7 +28,6 @@ import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.GradeEntity
@@ -48,7 +46,6 @@ import com.nextstep.app.data.local.entity.ContentEntity
         EventEntity::class,
         GradeEntity::class,
         StudySessionEntity::class,
-        NoteEntity::class,
         MemberEntity::class,
         RoadmapItemEntity::class,
         ContentEntity::class,
@@ -60,7 +57,7 @@ import com.nextstep.app.data.local.entity.ContentEntity
         ObservationEntity::class,
         PeerTopicEntity::class,
     ],
-    version = 12,
+    version = 13,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -71,7 +68,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
     abstract fun gradeDao(): GradeDao
     abstract fun studySessionDao(): StudySessionDao
-    abstract fun noteDao(): NoteDao
     abstract fun memberDao(): MemberDao
     abstract fun roadmapDao(): RoadmapDao
     abstract fun contentDao(): ContentDao

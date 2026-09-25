@@ -24,20 +24,4 @@ class MentorScopeTest {
         assertEquals(listOf("m"), scope.own(tasks) { it.subjectId }.map { it.title })
         assertEquals(listOf("m", "g"), scope.ownOrGeneral(tasks) { it.subjectId }.map { it.title })
     }
-
-    @Test
-    fun visibleNotesHideOtherMentors() {
-        val me = Fixtures.member(Role.MENTOR, "쌤")
-        val notes = listOf(Fixtures.note("p", Role.PARENT, "엄마"), Fixtures.note("mine", Role.MENTOR, "쌤"), Fixtures.note("other", Role.MENTOR, "다른쌤"))
-        assertEquals(listOf("p", "mine"), MentorScope.visibleNotes(notes, me).map { it.text })
-        assertEquals(3, MentorScope.visibleNotes(notes, null).size)
-    }
-
-    @Test
-    fun notesForNarrowsOnlyForMentors() {
-        val notes = listOf(Fixtures.note("p", Role.PARENT, "엄마"), Fixtures.note("mine", Role.MENTOR, "쌤"), Fixtures.note("other", Role.MENTOR, "다른쌤"))
-        assertEquals(listOf("p", "mine"), MentorScope.notesFor(notes, Fixtures.member(Role.MENTOR, "쌤")).map { it.text })
-        assertEquals(3, MentorScope.notesFor(notes, Fixtures.member(Role.PARENT, "엄마")).size)
-        assertEquals(3, MentorScope.notesFor(notes, null).size)
-    }
 }

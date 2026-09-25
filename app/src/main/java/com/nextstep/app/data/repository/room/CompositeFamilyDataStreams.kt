@@ -9,7 +9,6 @@ import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
-import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.data.repository.StudySessionRepository
@@ -26,7 +25,6 @@ class CompositeFamilyDataStreams(
     events: EventRepository,
     grades: GradeRepository,
     sessions: StudySessionRepository,
-    notes: NoteRepository,
     members: MemberRepository,
     roadmap: RoadmapRepository,
     contents: ContentRepository,
@@ -43,7 +41,6 @@ class CompositeFamilyDataStreams(
     override val events = events.events
     override val grades = grades.grades
     override val sessions = sessions.sessions
-    override val notes = notes.notes
     override val members = members.members
     override val myMember = members.myMember
     override val roadmap = roadmap.roadmap

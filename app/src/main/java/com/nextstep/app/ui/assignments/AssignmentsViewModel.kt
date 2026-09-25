@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import java.time.LocalDate
 
-/** 과제·피드백 › 과제. 과제를 내는 것은 + 시트, 끝내는 것은 학생의 오늘 화면이 맡고 여기서는 현황만 봅니다. */
+/** 과제 › 과제. 과제를 내는 것은 + 시트, 끝내는 것은 학생의 오늘 화면이 맡고 여기서는 현황만 봅니다. */
 class AssignmentsViewModel(
     streams: FamilyDataStreams,
     private val today: () -> LocalDate = { DateUtils.today() },

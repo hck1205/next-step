@@ -10,7 +10,6 @@ import com.nextstep.app.data.sync.mapper.GradeMapper
 import com.nextstep.app.data.sync.mapper.GrowthRecordMapper
 import com.nextstep.app.data.sync.mapper.JourneyItemMapper
 import com.nextstep.app.data.sync.mapper.MemberMapper
-import com.nextstep.app.data.sync.mapper.NoteMapper
 import com.nextstep.app.data.sync.mapper.ObservationMapper
 import com.nextstep.app.data.sync.mapper.PeerTopicMapper
 import com.nextstep.app.data.sync.mapper.RoadmapItemMapper
@@ -31,7 +30,6 @@ object SyncRegistry {
         SyncedCollection.of(EventMapper, db.eventDao()),
         SyncedCollection.of(GradeMapper, db.gradeDao()),
         SyncedCollection.of(StudySessionMapper, db.studySessionDao()),
-        SyncedCollection.of(NoteMapper, db.noteDao()),
         SyncedCollection.of(MemberMapper, db.memberDao()),
         SyncedCollection.of(RoadmapItemMapper, db.roadmapDao()),
         SyncedCollection.of(ContentMapper.Family, db.contentDao()),

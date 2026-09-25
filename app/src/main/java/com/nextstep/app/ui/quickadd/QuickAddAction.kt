@@ -6,7 +6,6 @@ import com.nextstep.app.domain.access.Capabilities
 
 /** 기록하기 시트의 항목. 역할별로 5개 이하만 보입니다. */
 enum class QuickAddAction(val title: String, val subtitle: String) {
-    CHEER("격려 한마디", "아이 화면 맨 위에 보여요"),
     ACTIVITY("활동 기록", "현장학습·취미·동아리 · 종류, 제목, 날짜면 끝"),
     TASK("할 일 하나", "이번 학기 목표 단계에서 고르거나 직접"),
     GRADE("성적 입력", "시험 이름, 점수, 반 평균(선택)"),
@@ -20,7 +19,6 @@ enum class QuickAddAction(val title: String, val subtitle: String) {
          */
         fun availableFor(caps: Capabilities, level: StudentUiLevel? = null): List<QuickAddAction> = buildList {
             if (caps.canUseTimer && level?.shows(StudentHomeSection.TIMER) != false) add(TIMER)
-            if (!caps.isStudent) add(CHEER)
             if (caps.canRecordActivities) add(ACTIVITY)
             if (caps.canCreateTasks) add(TASK)
             if (caps.canEditGrades) add(GRADE)

@@ -9,7 +9,6 @@ enum class StudentHomeSection(val label: String) {
     TASKS("오늘 할 일"),
     WEEK("이번 주 별"),
     YEAR("올해의 공부"),
-    NOTE("가족 한마디"),
     EVENTS("오늘 일정"),
     REVIEW("다시 보기"),
     RECOMMENDATION("추천 영상"),

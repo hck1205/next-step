@@ -1,6 +1,5 @@
 package com.nextstep.app.ui
 
-import com.nextstep.app.ui.feedback.FeedbackViewModel
 import com.nextstep.app.ui.assignments.AssignmentsViewModel
 import com.nextstep.app.ui.review.ReviewViewModel
 import com.nextstep.app.ui.habits.HabitsViewModel
@@ -26,7 +25,6 @@ import com.nextstep.app.ui.journey.JourneyViewModel
 import com.nextstep.app.ui.mentor.MentorDashboardViewModel
 import com.nextstep.app.ui.navigation.RootViewModel
 import com.nextstep.app.ui.onboarding.OnboardingViewModel
-import com.nextstep.app.ui.parent.CheerViewModel
 import com.nextstep.app.ui.parent.ParentDashboardViewModel
 import com.nextstep.app.ui.progress.ProgressViewModel
 import com.nextstep.app.ui.progress.SubjectDetailViewModel
@@ -44,16 +42,15 @@ object AppViewModelProvider {
         initializer { with(container()) { RootViewModel(onboarding, members) } }
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
         initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members) } }
-        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, notes) } }
-        initializer { with(container()) { MentorDashboardViewModel(streams, members, tasks, notes) } }
+        initializer { with(container()) { ParentDashboardViewModel(streams, tasks) } }
+        initializer { with(container()) { MentorDashboardViewModel(streams, members, tasks) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
         initializer { with(container()) { CalendarViewModel(streams, events, tasks) } }
         initializer { with(container()) { GradesViewModel(streams, grades) } }
-        initializer { with(container()) { InsightsViewModel(streams, tasks, notes) } }
+        initializer { with(container()) { InsightsViewModel(streams, tasks) } }
         initializer { with(container()) { TimerViewModel(streams, sessions) } }
         initializer { with(container()) { SettingsViewModel(streams, onboarding, members) } }
-        initializer { with(container()) { CheerViewModel(streams, notes) } }
         initializer { with(container()) { RoadmapViewModel(streams, roadmap) } }
         initializer { with(container()) { ContentViewModel(streams, contents) } }
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
@@ -67,10 +64,9 @@ object AppViewModelProvider {
         initializer { with(container()) { HabitsViewModel(streams) } }
         initializer { with(container()) { ReviewViewModel(streams, tasks, topics) } }
         initializer { with(container()) { AssignmentsViewModel(streams) } }
-        initializer { with(container()) { FeedbackViewModel(streams) } }
-        initializer { with(container()) { KidFamilyViewModel(streams, notes) } }
+        initializer { with(container()) { KidFamilyViewModel(streams) } }
         initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
-        initializer { with(container()) { QuickAddViewModel(streams, notes, activities, tasks, grades, events) } }
+        initializer { with(container()) { QuickAddViewModel(streams, activities, tasks, grades, events) } }
     }
 }
 

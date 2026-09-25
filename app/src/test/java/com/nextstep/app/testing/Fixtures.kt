@@ -11,7 +11,6 @@ import com.nextstep.app.data.local.entity.PeerTopicEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -61,8 +60,6 @@ object Fixtures {
     fun event(title: String, date: LocalDate, start: LocalTime, end: LocalTime, type: EventType = EventType.CLASS, subjectId: String? = null, weekly: Boolean = false, id: String = "ev-$title") =
         EventEntity(id = id, familyId = FAMILY, subjectId = subjectId, title = title, type = type, startAt = DateUtils.toMillis(date, start), endAt = DateUtils.toMillis(date, end), repeatWeekly = weekly)
 
-    fun note(text: String, role: Role = Role.PARENT, author: String = "엄마", id: String = "n-$text") =
-        NoteEntity(id = id, familyId = FAMILY, authorRole = role.name, authorName = author, text = text)
 
     fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR, gradeYear: Int = 0, birthDate: LocalDate? = null) =
         MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())

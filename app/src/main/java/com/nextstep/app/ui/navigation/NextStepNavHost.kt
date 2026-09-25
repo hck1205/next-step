@@ -67,7 +67,6 @@ import com.nextstep.app.ui.journey.JourneyScreen
 import com.nextstep.app.ui.mentor.MentorDashboardActions
 import com.nextstep.app.ui.mentor.MentorDashboardScreen
 import com.nextstep.app.ui.onboarding.OnboardingScreen
-import com.nextstep.app.ui.parent.CheerScreen
 import com.nextstep.app.ui.parent.ParentDashboardActions
 import com.nextstep.app.ui.parent.ParentDashboardScreen
 import com.nextstep.app.ui.progress.SubjectDetailActions
@@ -92,7 +91,6 @@ object Routes {
     const val ROADMAP = "roadmap"
     const val MENTOR_HOME = "mentor"
     const val CONTENT = "content"
-    const val CHEER = "cheer"
     const val CURRICULUM = "curriculum"
     const val TIMER = "timer"
     const val YEAR = "year"
@@ -195,7 +193,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                     actions = ParentDashboardActions(
                         onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject, onOpenRecords = openRecords,
                         onOpenMentor = { go(Routes.MENTOR_HOME) }, onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
-                        onOpenJourney = { go(Routes.JOURNEY) }, onOpenCheer = { go(Routes.CHEER) }, onOpenGoals = { go(Routes.GOALS) },
+                        onOpenJourney = { go(Routes.JOURNEY) }, onOpenGoals = { go(Routes.GOALS) },
                         onSwitchChild = onSwitchChild,
                     ),
                 )
@@ -253,7 +251,6 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
         composable(Routes.ACTIVITIES) { ActivitiesScreen(caps = caps, actions = ActivitiesActions(onBack = back, onOpenJourney = { go(Routes.JOURNEY) })) }
         composable(Routes.ROADMAP) { RoadmapScreen(caps = caps, actions = RoadmapActions(onBack = back, onOpenContent = { go(Routes.CONTENT) })) }
         composable(Routes.CONTENT) { ContentLibraryScreen(caps = caps, actions = ContentActions(onBack = back)) }
-        composable(Routes.CHEER) { CheerScreen() }
         composable(Routes.CURRICULUM) { CurriculumScreen(caps = caps, actions = CurriculumActions(onBack = back, onOpenSubject = openSubject, onOpenContent = { go(Routes.CONTENT) })) }
         composable(Routes.SUBJECT, arguments = listOf(navArgument("subjectId") { type = NavType.StringType })) {
             SubjectDetailScreen(caps = caps, actions = SubjectDetailActions(onBack = back))

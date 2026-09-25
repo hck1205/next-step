@@ -8,7 +8,6 @@ import com.nextstep.app.domain.stats.BalanceReport
 import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
@@ -23,7 +22,6 @@ data class ParentDashboardUiState(
     val pendingTasks: List<TaskEntity> = emptyList(),
     val overdueCount: Int = 0,
     val upcomingExams: List<UpcomingExam> = emptyList(),
-    val notes: List<NoteEntity> = emptyList(),
     val streak: Int = 0,
     val stage: GrowthStage? = null,
     /** 여정에서 지금 준비하거나 놓친 항목 (최대 3개). */

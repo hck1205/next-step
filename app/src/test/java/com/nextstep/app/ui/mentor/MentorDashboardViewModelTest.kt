@@ -6,7 +6,6 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeMemberRepository
-import com.nextstep.app.fake.FakeNoteRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
@@ -20,10 +19,10 @@ import java.time.LocalTime
 
 class MentorDashboardViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.MENTOR)
-    private val members = FakeMemberRepository(); private val tasks = FakeTaskRepository(); private val notes = FakeNoteRepository()
+    private val members = FakeMemberRepository(); private val tasks = FakeTaskRepository()
     private val today = DateUtils.today()
 
-    private fun vm() = MentorDashboardViewModel(streams, members, tasks, notes)
+    private fun vm() = MentorDashboardViewModel(streams, members, tasks)
 
     @Test
     fun scopedToAssignedSubjectsAndFlagsSetupWhenNone() = runTest {
@@ -53,16 +52,6 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
     }
 
     @Test
-    fun notesFromOtherMentorsAreHidden() = runTest {
-        val me = Fixtures.member(Role.MENTOR, "쌤", id = "me")
-        streams.myMember.value = me
-        streams.notes.value = listOf(Fixtures.note("내 것", Role.MENTOR, "쌤"), Fixtures.note("남의 것", Role.MENTOR, "다른쌤"), Fixtures.note("부모", Role.PARENT, "엄마"))
-        val vm = vm(); val job = subscribe(vm.state)
-        assertEquals(listOf("내 것", "부모"), settle(vm.state).notes.map { it.text })
-        job.cancel()
-    }
-
-    @Test
     fun eventsDelegateAndSetSubjectsNeedsMyMember() = runTest {
         val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
         vm.onEvent(MentorDashboardEvent.SetSubjects(listOf("a")))
@@ -71,11 +60,10 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         streams.myMember.value = Fixtures.member(Role.MENTOR, "쌤", id = "me"); settle(vm.state)
         vm.onEvent(MentorDashboardEvent.SetSubjects(listOf("a")))
         vm.onEvent(MentorDashboardEvent.AssignTask("과제", "math", TaskType.HOMEWORK, today))
-        vm.onEvent(MentorDashboardEvent.DeleteTask("t")); vm.onEvent(MentorDashboardEvent.AddNote("피드백")); vm.onEvent(MentorDashboardEvent.DeleteNote("n"))
+        vm.onEvent(MentorDashboardEvent.DeleteTask("t"))
         settle(vm.state)
         assertEquals(listOf("subjects:me:a"), members.calls)
         assertEquals("MENTOR", tasks.saved.single().createdByRole); assertTrue(tasks.saved.last().deleted || tasks.saved.size == 1)
-        assertEquals(listOf("피드백"), notes.added); assertEquals(listOf("n"), notes.deleted)
         job.cancel()
     }
 }

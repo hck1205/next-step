@@ -9,8 +9,8 @@ import com.nextstep.app.domain.year.YearDoer
  * 역할별로 볼 수 있는 화면과 쓸 수 있는 기능.
  *
  * - 학생: 자기 학습 기록(타이머, 단원 상태, 할 일 완료), 커리큘럼 스케줄링
- * - 학부모: 모니터링·격려·분석·재능 발견. 편집은 일정과 성적 입력 정도로 제한
- * - 멘토: 큐레이팅(로드맵), 학습 지도(단원·학급 진도·과제 배정·피드백)
+ * - 학부모: 모니터링·분석·재능 발견. 편집은 일정과 성적 입력 정도로 제한
+ * - 멘토: 큐레이팅(로드맵), 학습 지도(단원·학급 진도·과제 배정)
  * - 학부모 겸 멘토: 학부모 기능 + 멘토 기능
  */
 data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
@@ -28,7 +28,7 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canEditEvents: Boolean get() = true
     /** 성적 입력은 모두 가능 (학부모가 성적표를 대신 입력하는 경우가 많음). */
     val canEditGrades: Boolean get() = true
-    /** 할 일 생성: 학생은 자기 할 일, 멘토는 과제 배정. 학부모(멘토 아님)는 할 일 대신 격려·메모. */
+    /** 할 일 생성: 학생은 자기 할 일, 멘토는 과제 배정. 학부모(멘토 아님)는 지켜보기와 일정·성적 입력. */
     val canCreateTasks: Boolean get() = isStudent || actsAsMentor
     val canCompleteTasks: Boolean get() = isStudent
     val canEditRoadmap: Boolean get() = actsAsMentor

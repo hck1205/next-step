@@ -18,7 +18,6 @@ import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
-import com.nextstep.app.data.repository.NoteRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.PeerCurriculumRepository
 import com.nextstep.app.data.repository.RoadmapRepository
@@ -39,7 +38,6 @@ import com.nextstep.app.data.repository.room.RoomGradeRepository
 import com.nextstep.app.data.repository.room.RoomGrowthRepository
 import com.nextstep.app.data.repository.room.RoomJourneyRepository
 import com.nextstep.app.data.repository.room.RoomMemberRepository
-import com.nextstep.app.data.repository.room.RoomNoteRepository
 import com.nextstep.app.data.repository.room.RoomOnboardingRepository
 import com.nextstep.app.data.repository.room.RoomPeerCurriculumRepository
 import com.nextstep.app.data.repository.room.RoomRoadmapRepository
@@ -73,7 +71,6 @@ class AppContainer(context: Context) {
     val events: EventRepository = RoomEventRepository(database.eventDao(), scope, syncManager, time)
     val grades: GradeRepository = RoomGradeRepository(database.gradeDao(), scope, syncManager, time)
     val sessions: StudySessionRepository = RoomStudySessionRepository(database.studySessionDao(), preferences, scope, syncManager, time)
-    val notes: NoteRepository = RoomNoteRepository(database.noteDao(), scope, syncManager, time)
     val roadmap: RoadmapRepository = RoomRoadmapRepository(database.roadmapDao(), scope, syncManager, time)
     val contents: ContentRepository = RoomContentRepository(database.contentDao(), database.subjectDao(), YouTubeMetadataFetcher(), scope, syncManager, time)
     val journey: JourneyRepository = RoomJourneyRepository(database.journeyDao(), scope, syncManager, time)
@@ -82,7 +79,7 @@ class AppContainer(context: Context) {
     val growth: GrowthRepository = RoomGrowthRepository(database.growthRecordDao(), database.observationDao(), scope, syncManager, time)
     val peerCurriculum: PeerCurriculumRepository = RoomPeerCurriculumRepository(database.peerTopicDao())
     val plans: StudyPlanRepository = RoomStudyPlanRepository(database.eventDao(), database.taskDao(), scope, syncManager, time)
-    val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, notes, members, roadmap, contents, journey, goals, activities, growth)
+    val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, members, roadmap, contents, journey, goals, activities, growth)
 
     private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
         if (FirebaseApp.getApps(context).isEmpty()) {

@@ -7,7 +7,6 @@ import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.data.local.entity.EventEntity
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.domain.curriculum.TermCurriculum
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyItem
@@ -48,8 +47,6 @@ data class HomeUiState(
     val journeyNow: List<JourneyItem> = emptyList(),
     val hasBirthDate: Boolean = false,
     val today: LocalDate = DateUtils.today(),
-    /** 가장 최근 격려·메모. 학생 홈 상단 카드. */
-    val latestNote: NoteEntity? = null,
     /** 이번 학기 교과 커리큘럼과 구간 이름. 학령기 + 생년월일/학년이 있을 때만. */
     val curriculum: TermCurriculum? = null,
     val periodLabel: String? = null,

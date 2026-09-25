@@ -27,7 +27,6 @@ enum class ConcernSection(
     MISSIONS(Concern.EXAMS, "시험·목표", "missions", StudentUiLevel.STEM),
     GRADES(Concern.EXAMS, "성적", "grades", StudentUiLevel.STEM),
     ASSIGNMENTS(Concern.CLASS, "과제", "assignments", StudentUiLevel.STEM),
-    FEEDBACK(Concern.CLASS, "피드백", "feedback", StudentUiLevel.SEEDLING),
     BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = setOf(HubAudience.PARENT, HubAudience.STUDENT)),
     ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED),
     TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING);

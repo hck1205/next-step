@@ -24,7 +24,6 @@ import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.hub.HubViewer
 import com.nextstep.app.ui.activities.ActivitiesActions
-import com.nextstep.app.ui.feedback.FeedbackScreen
 import com.nextstep.app.ui.assignments.AssignmentsScreen
 import com.nextstep.app.ui.review.ReviewScreen
 import com.nextstep.app.ui.habits.HabitsScreen
@@ -53,8 +52,8 @@ import kotlinx.coroutines.launch
 
 /**
  * 기록 탭(학생은 "나"): 기능을 관심사별로 나눈 두 단 구조입니다.
- * 위 줄 = 관심사(한눈에 · 공부 · 배울 것 · 시험·성적 · 과제·피드백 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
- * 순서는 보는 자리가 정합니다: 학생은 배울 것, 멘토는 과제·피드백이 한눈에 바로 다음(HubAudience).
+ * 위 줄 = 관심사(한눈에 · 공부 · 배울 것 · 시험·성적 · 과제 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
+ * 순서는 보는 자리가 정합니다: 학생은 배울 것, 멘토는 과제가 한눈에 바로 다음(HubAudience).
  * 아래 줄 = 그 관심사의 섹션(예: 공부 › 진도 · 시간 · 습관 · 일정). 섹션 하나가 기능 화면 하나이고 각자 ViewModel 을 가집니다.
  * 어떤 섹션이 보이는지는 domain/hub/ConcernSection 이 정합니다(학생은 화면 단계에 따라 줄고, 멘토에게 신체 기록은 없음).
  */
@@ -112,7 +111,6 @@ private fun SectionContent(section: ConcernSection, caps: Capabilities, concerns
         ConcernSection.MISSIONS -> GoalsScreen(caps = caps, actions = GoalsActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.GRADES -> GradesScreen(caps = caps)
         ConcernSection.ASSIGNMENTS -> AssignmentsScreen()
-        ConcernSection.FEEDBACK -> FeedbackScreen()
         ConcernSection.BODY -> GrowthScreen(caps = caps)
         ConcernSection.ACTIVITIES -> ActivitiesScreen(caps = caps, actions = ActivitiesActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.TALENT -> TalentScreen(caps = caps)

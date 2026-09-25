@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.insights
 
-import com.nextstep.app.data.local.entity.NoteEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.domain.insight.Insight
 import com.nextstep.app.domain.insight.Talent
@@ -17,7 +16,6 @@ data class InsightsUiState(
     val daily14: List<DayMinutes> = emptyList(),
     val weeklyBySubject: List<SubjectMinutes> = emptyList(),
     val byHour: IntArray = IntArray(24),
-    val notes: List<NoteEntity> = emptyList(),
     val totalMinutes: Int = 0,
     val talents: List<Talent> = emptyList(),
 )
