@@ -38,6 +38,7 @@ class QuickAddViewModelTest : ViewModelTestBase() {
         assertTrue(Role.entries.all { QuickAddAction.availableFor(Capabilities(it, true)).size <= QuickAddAction.MAX_ITEMS })
         // 학생은 화면 단계만큼: 새싹 = 타이머·활동, 떡잎 = + 할 일, 줄기부터 전부
         val student = Capabilities(Role.STUDENT, false)
+        assertEquals(listOf(QuickAddAction.ACTIVITY), QuickAddAction.availableFor(student, StudentUiLevel.SEED))
         assertEquals(listOf(QuickAddAction.TIMER, QuickAddAction.ACTIVITY), QuickAddAction.availableFor(student, StudentUiLevel.SPROUT))
         assertEquals(listOf(QuickAddAction.TIMER, QuickAddAction.ACTIVITY, QuickAddAction.TASK), QuickAddAction.availableFor(student, StudentUiLevel.SEEDLING))
         assertEquals(QuickAddAction.availableFor(student), QuickAddAction.availableFor(student, StudentUiLevel.STEM))

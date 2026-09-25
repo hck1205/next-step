@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.access.Capabilities
 
@@ -15,10 +16,10 @@ enum class QuickAddAction(val title: String, val subtitle: String) {
     companion object {
         /**
          * 권한에 따라 보이는 항목. 순서가 곧 화면 순서입니다.
-         * 학생은 화면 단계만큼만(새싹: 타이머·활동, 떡잎: + 할 일) 보여 줍니다.
+         * 학생은 화면 단계만큼만(씨앗: 활동, 새싹: 타이머·활동, 떡잎: + 할 일) 보여 줍니다. 타이머는 그 단계에 타이머가 있을 때만.
          */
         fun availableFor(caps: Capabilities, level: StudentUiLevel? = null): List<QuickAddAction> = buildList {
-            if (caps.canUseTimer) add(TIMER)
+            if (caps.canUseTimer && level?.shows(StudentHomeSection.TIMER) != false) add(TIMER)
             if (!caps.isStudent) add(CHEER)
             if (caps.canRecordActivities) add(ACTIVITY)
             if (caps.canCreateTasks) add(TASK)

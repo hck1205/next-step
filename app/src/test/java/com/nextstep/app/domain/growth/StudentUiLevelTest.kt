@@ -14,7 +14,7 @@ class StudentUiLevelTest {
     @Test
     fun gradesMapToLevelsTwoYearsAtATimeThenBySchool() {
         val byGrade = (0..18).associateWith { StudentUiLevel.forGrade(it) }
-        assertEquals(StudentUiLevel.SPROUT, byGrade[0]); assertEquals(StudentUiLevel.SPROUT, byGrade[2])
+        assertEquals(StudentUiLevel.SEED, byGrade[0]); assertEquals(StudentUiLevel.SPROUT, byGrade[1]); assertEquals(StudentUiLevel.SPROUT, byGrade[2])
         assertEquals(StudentUiLevel.SEEDLING, byGrade[3]); assertEquals(StudentUiLevel.SEEDLING, byGrade[4])
         assertEquals(StudentUiLevel.STEM, byGrade[5]); assertEquals(StudentUiLevel.STEM, byGrade[6])
         assertEquals(StudentUiLevel.BRANCH, byGrade[7]); assertEquals(StudentUiLevel.BRANCH, byGrade[9])
@@ -34,6 +34,10 @@ class StudentUiLevelTest {
         assertEquals(setOf(StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE), StudentUiLevel.SPROUT.sections)
         assertTrue(!StudentUiLevel.SEEDLING.showsNumbers && StudentUiLevel.STEM.showsNumbers)
         assertEquals(StudentWords.EASY, StudentUiLevel.SEEDLING.words); assertEquals(StudentWords.STANDARD, StudentUiLevel.STEM.words)
+        // 가장 어린 단계: 타이머 없이 할 일·별·가족 한마디만, 가장 큰 글씨
+        assertEquals(setOf(StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE), StudentUiLevel.SEED.sections)
+        assertTrue(!StudentUiLevel.SEED.shows(StudentHomeSection.TIMER)); assertEquals(StudentUiLevel.entries.first(), StudentUiLevel.SEED)
+        assertEquals(listOf(StudentHomeSection.TIMER), StudentUiLevel.SPROUT.newSince(StudentUiLevel.SEED))
     }
 
     @Test
@@ -48,7 +52,8 @@ class StudentUiLevelTest {
     fun autoUsesBirthDateThenGradeThenFullScreen() {
         assertEquals(StudentUiLevel.SPROUT, StudentUiLevel.auto(student(birth = LocalDate.of(2019, 5, 1)), today)) // 초1
         assertEquals(StudentUiLevel.SEEDLING, StudentUiLevel.auto(student(gradeYear = 9, birth = LocalDate.of(2017, 5, 1)), today)) // 생년월일(초3)이 학년보다 우선
-        assertEquals(StudentUiLevel.SPROUT, StudentUiLevel.auto(student(birth = LocalDate.of(2022, 1, 1)), today)) // 학령 전
+        assertEquals(StudentUiLevel.SEED, StudentUiLevel.auto(student(birth = LocalDate.of(2022, 1, 1)), today)) // 학령 전
+        assertEquals(StudentUiLevel.SEED, StudentUiLevel.auto(student(birth = LocalDate.of(2026, 3, 1)), today)) // 갓난아기도 씨앗
         assertEquals(StudentUiLevel.TREE, StudentUiLevel.auto(student(birth = LocalDate.of(1990, 1, 1)), today)) // 대학원 이후
         assertEquals(StudentUiLevel.BRANCH, StudentUiLevel.auto(student(gradeYear = 8), today))
         assertEquals(StudentUiLevel.TREE, StudentUiLevel.auto(student(), today))
@@ -66,6 +71,6 @@ class StudentUiLevelTest {
 
     @Test
     fun gradeSpanLabels() {
-        assertEquals(listOf("초2까지", "초3–초4", "초5–초6", "중1–중3", "고1부터"), StudentUiLevel.entries.map { it.gradeSpan })
+        assertEquals(listOf("학령 전", "초1–초2", "초3–초4", "초5–초6", "중1–중3", "고1부터"), StudentUiLevel.entries.map { it.gradeSpan })
     }
 }

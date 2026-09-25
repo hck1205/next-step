@@ -43,5 +43,11 @@ class MilestoneCatalogTest {
         assertEquals(MilestoneCategory.LANGUAGE, MilestoneCatalog.byId.getValue("english-exposure").category)
         assertEquals(GrowthStage.PRESCHOOL, MilestoneCatalog.byId.getValue("english-exposure").stage)
         assertEquals(1, MilestoneCatalog.byId.getValue("daycare-waitlist").priority)
+        // 과열을 거르는 이정표가 가장 어린 나이부터 이어짐: 영아 전집 → 유아 수업 수 → 영어유치원 시험 → 7세 고시
+        assertEquals(
+            listOf(GrowthStage.NEWBORN, GrowthStage.TODDLER, GrowthStage.PRESCHOOL, GrowthStage.PRESCHOOL),
+            listOf("early-kit-pass", "class-limit-toddler", "english-kinder-check", "reading-over-cramming").map { MilestoneCatalog.byId.getValue(it).stage },
+        )
+        assertTrue(MilestoneCatalog.byId.getValue("english-kinder-check").description.contains("레벨테스트"))
     }
 }

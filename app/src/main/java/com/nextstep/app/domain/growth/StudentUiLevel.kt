@@ -7,7 +7,8 @@ import java.time.LocalDate
 /**
  * 학생 화면의 단계. 저학년일수록 한 번에 받아들일 수 있는 정보가 적으므로 화면이 작게 시작해 학년마다 한 칸씩 자랍니다.
  *
- * - 새싹(학령 전·초1~2): 큰 글씨, 할 일 2개, 숫자 대신 별, 공부 시작·할 일·별·가족 한마디만
+ * - 씨앗(학령 전, 만 0~6세): 가장 큰 글씨·가장 큰 누름 영역, 할 일 2개, 별 스티커, 가족 한마디. 앉아서 공부하는 시기가 아니라 타이머가 없습니다
+ * - 새싹(초1~2): 공부 시작 버튼(타이머)이 열림
  * - 떡잎(초3~4): 오늘 일정, 다시 보기(복습), 추천 영상이 열림
  * - 줄기(초5~6): 숫자 기록, 미리 보기(예습), 시험·목표, 이번 학기 배울 것, 여정 탭
  * - 가지(중1~3): 과목별 진도, 멘토 로드맵
@@ -36,9 +37,13 @@ enum class StudentUiLevel(
     /** 이 단계에서 새로 열리는 카드. 앞 단계의 카드는 그대로 남습니다. */
     val opens: Set<StudentHomeSection>,
 ) {
+    SEED(
+        "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY,
+        setOf(StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE),
+    ),
     SPROUT(
-        "새싹", 0, 1.3f, 2, false, 64, false, 2, StudentWords.EASY,
-        setOf(StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.WEEK, StudentHomeSection.NOTE),
+        "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY,
+        setOf(StudentHomeSection.TIMER),
     ),
     SEEDLING(
         "떡잎", 3, 1.2f, 3, false, 56, false, 3, StudentWords.EASY,
@@ -70,7 +75,7 @@ enum class StudentUiLevel(
     val gradeSpan: String get() {
         val next = entries.getOrNull(ordinal + 1)?.fromGrade
         return when {
-            fromGrade == 0 -> "초2까지"
+            fromGrade == 0 -> "학령 전"
             next == null -> "고1부터"
             else -> "${GrowthStage.fromGradeYear(fromGrade)!!.gradeLabel(fromGrade)}–${GrowthStage.fromGradeYear(next - 1)!!.gradeLabel(next - 1)}"
         }
@@ -84,13 +89,13 @@ enum class StudentUiLevel(
 
         /**
          * 학생 구성원의 자동 단계. 생년월일 → 학년 순으로 판단하고, 둘 다 없으면 전체 화면(나무)을 씁니다.
-         * 학령 전 아이는 새싹, 대학원 이후는 나무입니다.
+         * 학령 전 아이는 씨앗, 대학원 이후는 나무입니다.
          */
         fun auto(student: MemberEntity, today: LocalDate = DateUtils.today()): StudentUiLevel {
             student.birthDate?.let { epoch ->
                 val birth = DateUtils.fromEpochDay(epoch)
                 GrowthStage.schoolGradeYear(birth, today)?.let { return forGrade(it) }
-                return if (today.year - birth.year < GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH + 1) SPROUT else TREE
+                return if (today.year - birth.year < GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH + 1) SEED else TREE
             }
             return student.gradeYear.takeIf { it > 0 }?.let(::forGrade) ?: TREE
         }

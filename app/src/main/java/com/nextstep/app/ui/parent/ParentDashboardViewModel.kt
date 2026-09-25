@@ -68,7 +68,7 @@ class ParentDashboardViewModel(
             periodLabel = period?.label,
             hasBirthDate = ctx.hasBirthDate,
             today = today,
-            balance = BalanceStats.report(ctx.stage, c.sessions, c.tasks, x.activities, period, today),
+            balance = BalanceStats.report(ctx.stage, c.sessions, c.tasks, x.activities, period, today, c.events),
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
             missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
         )

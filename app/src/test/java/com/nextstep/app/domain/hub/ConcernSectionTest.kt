@@ -22,6 +22,9 @@ class ConcernSectionTest {
     fun youngStudentsSeeFewerSectionsAndTheHubGrowsWithLevel() {
         assertEquals(listOf(ConcernSection.OVERVIEW, ConcernSection.TIME, ConcernSection.BODY, ConcernSection.ACTIVITIES), ConcernSection.visibleFor(StudentUiLevel.SPROUT))
         assertEquals(listOf(Concern.OVERVIEW, Concern.STUDY, Concern.GROWTH, Concern.DISCOVER), ConcernSection.concernsFor(StudentUiLevel.SPROUT))
+        // 학령 전(씨앗): 공부 관심사 자체가 없음
+        assertEquals(listOf(ConcernSection.OVERVIEW, ConcernSection.BODY, ConcernSection.ACTIVITIES), ConcernSection.visibleFor(StudentUiLevel.SEED))
+        assertEquals(ConcernSection.OVERVIEW, ConcernSection.from("time", StudentUiLevel.SEED))
         StudentUiLevel.entries.zipWithNext().forEach { (younger, older) ->
             assertTrue(ConcernSection.visibleFor(older).containsAll(ConcernSection.visibleFor(younger)))
         }

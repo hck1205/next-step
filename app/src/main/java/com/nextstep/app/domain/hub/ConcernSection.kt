@@ -8,7 +8,7 @@ import com.nextstep.app.domain.growth.StudentUiLevel
  * [route] 는 내비게이션 인자이며, 오늘 카드의 "전체" 버튼이 이 값으로 해당 섹션을 바로 엽니다.
  */
 enum class ConcernSection(val concern: Concern, val label: String, val route: String, val minLevel: StudentUiLevel) {
-    OVERVIEW(Concern.OVERVIEW, "한눈에", "overview", StudentUiLevel.SPROUT),
+    OVERVIEW(Concern.OVERVIEW, "한눈에", "overview", StudentUiLevel.SEED),
     PROGRESS(Concern.STUDY, "진도", "progress", StudentUiLevel.SEEDLING),
     TIME(Concern.STUDY, "시간", "time", StudentUiLevel.SPROUT),
     CALENDAR(Concern.STUDY, "일정", "calendar", StudentUiLevel.SEEDLING),
@@ -17,8 +17,8 @@ enum class ConcernSection(val concern: Concern, val label: String, val route: St
     ROADMAP(Concern.STUDY, "로드맵", "roadmap", StudentUiLevel.BRANCH),
     MISSIONS(Concern.EXAMS, "시험·목표", "missions", StudentUiLevel.STEM),
     GRADES(Concern.EXAMS, "성적", "grades", StudentUiLevel.STEM),
-    BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SPROUT),
-    ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SPROUT),
+    BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED),
+    ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED),
     TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING);
 
     fun visibleFor(level: StudentUiLevel?): Boolean = level == null || level >= minLevel

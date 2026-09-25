@@ -26,6 +26,7 @@ object MilestoneCatalog {
         t("vaccine-2m", "2개월 예방접종 시작", "BCG(4주 이내), B형간염, DTaP·소아마비·Hib·폐렴구균·로타 등 2·4·6개월 접종 일정을 시작합니다.", "국가예방접종 일정은 시기가 정해져 있고 밀리면 이후 접종이 함께 밀립니다.", HEALTH, GrowthStage.NEWBORN, AgeMonths(2), leadMonths = 1, priority = 1),
         t("infant-checkup-1", "영유아 건강검진 1차 (4~6개월)", "국민건강보험 영유아 건강검진 1차. 성장·발달·청각 등을 확인합니다.", "생후 4~6개월이 검진 기간이며 이후 8회까지 시기별로 이어집니다. 기간을 넘기면 무료 검진을 못 받습니다.", HEALTH, GrowthStage.NEWBORN, AgeMonths(5), leadMonths = 1, priority = 1),
         t("talk-daily", "매일 말 걸기·그림책 읽어 주기 습관", "하루 여러 번 아이 눈을 맞추고 말을 걸고, 6개월부터는 그림책을 보여 줍니다.", "생후 1년의 언어 노출량이 이후 어휘력과 읽기 능력의 토대라는 연구가 많습니다. 학습이 아니라 대화입니다.", LANGUAGE, GrowthStage.NEWBORN, AgeMonths(6), leadMonths = 6, priority = 2),
+        t("early-kit-pass", "전집·교구·영어 DVD 권유 거르기", "'두뇌 발달' 전집·교구·영어 영상 세트 권유가 많아지는 때예요. 필요한 건 말 걸기와 그림책 몇 권입니다.", "돌 전후 발달은 비싼 교구보다 양육자와 주고받는 대화에서 나옵니다. 사지 않아도 뒤처지지 않아요.", LEARNING, GrowthStage.NEWBORN, AgeMonths(9), leadMonths = 3, priority = 3),
         t("infant-checkup-2", "영유아 건강검진 2차 (9~12개월)", "2차 검진과 구강검진 시작 시기를 확인합니다.", "발달 지연은 일찍 발견할수록 개입 효과가 큽니다.", HEALTH, GrowthStage.NEWBORN, AgeMonths(10), leadMonths = 1, priority = 2),
         t("mmr-12m", "12개월 예방접종 (MMR·수두·일본뇌염 등)", "돌 전후 접종 묶음. 어린이집 입소 시 접종 증명이 필요합니다.", "돌 접종은 어린이집 입소 요건이기도 합니다.", HEALTH, GrowthStage.NEWBORN, AgeMonths(12), leadMonths = 1, priority = 1),
 
@@ -34,13 +35,16 @@ object MilestoneCatalog {
         t("language-checkup", "언어·발달 점검 (18~24개월)", "영유아검진 3~4차에서 언어 발달 문항을 꼼꼼히. 두 단어 조합이 늦으면 상담을 받습니다.", "만 2세 전후는 언어 폭발기라 지연을 가장 잘 알아챌 수 있는 시기입니다.", HEALTH, GrowthStage.TODDLER, AgeMonths(20), leadMonths = 2, priority = 1),
         t("picture-books", "그림책 하루 3권 루틴", "같은 책 반복도 좋습니다. 아이가 고르게 하세요.", "이 시기 어휘 노출량이 초등 읽기 이해력과 직결됩니다.", LANGUAGE, GrowthStage.TODDLER, AgeMonths(24), leadMonths = 10, priority = 2),
         t("toddler-play", "몸 놀이·또래 놀이 시간 확보", "놀이터·문화센터·놀이 교실 등 매주 정기적인 신체·또래 활동을 둡니다.", "대근육 발달과 사회성의 기초가 이 시기에 만들어집니다. 화면 시간은 최소로.", SOCIAL, GrowthStage.TODDLER, AgeMonths(30), leadMonths = 12, priority = 3),
+        t("class-limit-toddler", "문화센터·놀이 수업은 주 1~2개", "아이가 즐거워하는 수업 한두 개면 충분해요. 나머지는 놀이터와 집 놀이로 채웁니다.", "만 1~3세는 짜인 수업보다 자유 놀이에서 더 많이 배웁니다. 학원·수업 일정이 주 2시간을 넘으면 앱이 '줄이기'를 알려 드려요.", SOCIAL, GrowthStage.TODDLER, AgeMonths(26), leadMonths = 6, priority = 2),
         t("screen-rule", "화면 시간 규칙 정하기", "만 2세 전에는 영상 노출을 거의 하지 않고, 이후에도 하루 한도를 정합니다.", "소아과 지침은 만 2세 미만 영상 노출을 권하지 않습니다. 습관은 처음 정할 때가 가장 쉽습니다.", HEALTH, GrowthStage.TODDLER, AgeMonths(24), leadMonths = 6, priority = 2),
 
         // ---------------------------------------------------------------- 유치원기 (3~6세)
         t("english-exposure", "영어 소리 노출 시작 (노래·영상·놀이)", "하루 10~20분 영어 노래, 짧은 영상, 영어 그림책. 학습지가 아니라 소리에 익숙해지는 것이 목표.", "만 3~7세는 소리를 구별·모방하는 능력이 가장 좋은 언어 민감기입니다. 이 시기의 편안한 노출이 이후 발음·듣기의 차이를 만듭니다.", LANGUAGE, GrowthStage.PRESCHOOL, AgeMonths(42), leadMonths = 6, priority = 1),
+        t("english-kinder-check", "영어유치원 고르기 전 확인할 것", "입학·반 배정 시험(레벨테스트)은 2026년 10월부터 법으로 금지예요. 토플 점수·말하기 영상·면접을 요구하는 곳도 같은 신호로 보고 피하세요.", "만 3~4세 시험 경쟁('4세 고시')은 배우는 즐거움을 먼저 꺾습니다. 영어는 노래·그림책 노출로도 충분히 시작할 수 있어요.", LANGUAGE, GrowthStage.PRESCHOOL, AgeMonths(40), leadMonths = 6, priority = 2),
         t("kindergarten-apply", "유치원 지원 (처음학교로, 11월)", "만 3세가 되는 해 11월 '처음학교로'에서 국공립·사립 유치원에 지원합니다. 어린이집 계속 다닐지 함께 결정.", "유치원 접수는 매년 11월 한 번이며 추첨입니다. 놓치면 결원만 노려야 합니다.", ADMIN, GrowthStage.PRESCHOOL, BirthYearOffset(3, 11), leadMonths = 2, priority = 1),
         t("preschool-checkup", "영유아 건강검진 마지막 회차 (54~66개월)", "취학 전 마지막 검진. 시력·청력·치과를 함께 확인합니다.", "초등 입학 전에 시력 교정, 치아 치료를 끝내야 적응이 쉽습니다.", HEALTH, GrowthStage.PRESCHOOL, AgeMonths(60), leadMonths = 3, priority = 2),
         t("hangul-play", "한글 놀이 시작 (아이가 글자에 관심 보일 때)", "간판·이름·좋아하는 단어부터. 쓰기보다 읽기 먼저.", "대부분 만 5~6세에 자연스럽게 관심이 생깁니다. 억지로 앞당기면 흥미를 잃습니다.", LEARNING, GrowthStage.PRESCHOOL, AgeMonths(66), leadMonths = 12, priority = 2),
+        t("reading-over-cramming", "'7세 고시' 대신 매일 함께 읽기", "초등 어학원 입학시험 준비보다 하루 20분 함께 읽기를 지키세요. 학원·수업은 주 5시간 안이면 충분해요.", "1학년 적응을 좌우하는 건 선행 진도가 아니라 읽기 습관과 생활 자립입니다. 입학시험을 초등 뒤로 미룬 '8세 고시'도 같은 이유로 서두를 필요가 없어요.", LEARNING, GrowthStage.PRESCHOOL, AgeMonths(62), leadMonths = 6, priority = 2),
         t("school-entry-notice", "취학통지서 확인·예비소집 (1월)", "12월 취학통지서를 받고 1월 초등학교 예비소집에 참석합니다. 입학 유예·조기 입학은 이때 신청.", "예비소집 불참 시 학교가 확인 절차를 밟습니다. 돌봄교실·방과후 신청도 이 무렵 시작합니다.", ADMIN, GrowthStage.PRESCHOOL, BirthYearOffset(7, 1, 10), leadMonths = 2, priority = 1),
         t("after-school-care", "초등 돌봄교실·늘봄 신청", "맞벌이라면 입학 전 돌봄교실(늘봄학교) 신청 시기를 확인합니다.", "정원이 있어 신청 시기를 놓치면 대기입니다.", ADMIN, GrowthStage.PRESCHOOL, BirthYearOffset(7, 2), leadMonths = 2, priority = 2),
         t("school-readiness", "초등 입학 준비 (생활 습관)", "일찍 자고 일어나기, 혼자 화장실·옷 입기, 20분 앉아 있기, 자기 물건 챙기기.", "학습보다 생활 자립이 1학년 적응을 좌우합니다.", SOCIAL, GrowthStage.PRESCHOOL, BirthYearOffset(7, 3), leadMonths = 4, priority = 2),

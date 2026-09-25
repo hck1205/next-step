@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.stats
 
+import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.PeriodCalendar
@@ -41,6 +42,30 @@ class BalanceStatsTest {
             Fixtures.task("e", today, by = "STUDENT").copy(deleted = true),
         )
         assertEquals(2f / 3f, BalanceStats.selfDirectedRatio(tasks, today)!!, 0.0001f)
+    }
+
+    @Test
+    fun youngestAgesGetAnOverheatingGuard() {
+        // 영아·유아: 앉아서 하는 학습 권장선이 0 → 기록이 있으면 "줄이기"
+        val baby = BalanceStats.report(GrowthStage.TODDLER, listOf(Fixtures.session("math", today, LocalTime.of(8, 0), 20)), emptyList(), emptyList(), null, today)
+        assertEquals(BalanceVerdict.LESS, baby.studyVerdict); assertTrue(baby.studyLine.contains("권하지 않아요")); assertTrue(baby.headline.contains("줄여도"))
+        // 단계를 모르면 판단하지 않음
+        assertEquals(BalanceVerdict.NONE, BalanceStats.report(null, listOf(Fixtures.session("math", today, LocalTime.of(8, 0), 20)), emptyList(), emptyList(), null, today).studyVerdict)
+        // 학원·수업 상한: 영아 1시간 · 유아 2시간 · 유치원기 5시간 · 학령기 없음
+        assertEquals(listOf(60, 120, 300, null), listOf(GrowthStage.NEWBORN, GrowthStage.TODDLER, GrowthStage.PRESCHOOL, GrowthStage.EARLY_ELEMENTARY).map { BalanceStats.classCapWeekMinutes(it) })
+        val monday = today.minusDays(today.dayOfWeek.value - 1L)
+        val classes = listOf(
+            Fixtures.event("영어 학원", monday, LocalTime.of(10, 0), LocalTime.of(13, 0), EventType.ACADEMY, weekly = true),
+            Fixtures.event("발레", monday.plusDays(2), LocalTime.of(16, 0), LocalTime.of(19, 0), EventType.CLASS),
+            Fixtures.event("병원", monday.plusDays(3), LocalTime.of(9, 0), LocalTime.of(11, 0), EventType.OTHER),
+        )
+        assertEquals(360, BalanceStats.classWeekMinutes(classes, today))
+        val kid = BalanceStats.report(GrowthStage.PRESCHOOL, emptyList(), emptyList(), emptyList(), null, today, classes)
+        assertEquals(BalanceVerdict.LESS, kid.classVerdict); assertTrue(kid.headline.startsWith("학원·수업이 많아요")); assertTrue(kid.classLine!!.contains("5시간"))
+        val calm = BalanceStats.report(GrowthStage.PRESCHOOL, emptyList(), emptyList(), emptyList(), null, today, classes.take(1))
+        assertEquals(BalanceVerdict.WITHIN, calm.classVerdict)
+        val school = BalanceStats.report(GrowthStage.EARLY_ELEMENTARY, emptyList(), emptyList(), emptyList(), null, today, classes)
+        assertEquals(BalanceVerdict.NONE, school.classVerdict); assertNull(school.classLine)
     }
 
     @Test

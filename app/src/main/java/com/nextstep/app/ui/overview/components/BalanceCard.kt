@@ -13,7 +13,7 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 
-/** 균형 카드: 한 줄 판단, 학습 게이지(단계 권장선 대비), 스스로 만든 계획 비율, 연속 학습. 또래 비교는 없습니다. */
+/** 균형 카드: 한 줄 판단, 학습 게이지(단계 권장선 대비), 스스로 만든 계획 비율, 영유아기면 학원·수업 게이지, 연속 학습. 또래 비교는 없습니다. */
 @Composable
 internal fun BalanceCard(b: BalanceReport, stage: GrowthStage?) {
     AppCard {
@@ -40,6 +40,15 @@ internal fun BalanceCard(b: BalanceReport, stage: GrowthStage?) {
                 },
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (b.classCapWeekMinutes != null) {
+                LabeledProgress(
+                    label = "학원·수업 · ${DateUtils.formatMinutes(b.classWeekMinutes)}",
+                    ratio = (b.classWeekMinutes.toFloat() / b.classCapWeekMinutes).coerceIn(0f, 1f),
+                    color = if (b.classVerdict == BalanceVerdict.LESS) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.secondary,
+                    trailing = b.classVerdict.label,
+                )
+                b.classLine?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            }
             Text(
                 if (b.streak == 0) "연속 학습 · 오늘 첫 기록을 남기면 시작돼요" else "연속 학습 · ${b.streak}일째",
                 style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary,

@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.overview
 
+import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.StudySessionEntity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
@@ -40,9 +42,11 @@ class OverviewViewModel(
                 stage = ctx.stage,
                 currentPeriodLabel = ctx.currentPeriod?.label,
                 today = day,
-                balance = BalanceStats.report(ctx.stage, sessions, tasks, activities, ctx.currentPeriod, day),
                 loaded = true,
             ),
+            ctx,
+            sessions,
+            tasks,
             activities,
         )
     }
@@ -53,8 +57,8 @@ class OverviewViewModel(
 
     private val growth = combine(streams.growthRecords, streams.observations) { records, observations -> Growth(records, observations) }
 
-    val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth) { b, progress, e, g ->
-        val s = b.state
+    val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth, streams.events) { b, progress, e, g, events ->
+        val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events))
         s.copy(
             digests = listOf(
                 ConcernDigests.study(s.balance?.weekMinutes ?: 0, progress),
@@ -65,7 +69,13 @@ class OverviewViewModel(
         )
     }.asUiState(viewModelScope, OverviewUiState())
 
-    private data class Base(val state: OverviewUiState, val activities: List<ActivityEntity>)
+    private data class Base(
+        val state: OverviewUiState,
+        val ctx: StudentContext,
+        val sessions: List<StudySessionEntity>,
+        val tasks: List<TaskEntity>,
+        val activities: List<ActivityEntity>,
+    )
 
     private data class Exams(val goals: List<GoalEntity>, val steps: List<GoalStepEntity>, val grades: List<GradeEntity>)
 

@@ -17,6 +17,20 @@ data class StudentWords(
     val weekTitle: String,
 ) {
     companion object {
+        /** 학령 전: 글을 다 읽지 못해도 알 수 있게 아주 짧게. 그림과 별이 주인공입니다. */
+        val EARLY = StudentWords(
+            tasksTitle = "오늘 해 볼 것",
+            allDone = "다 했어! 최고야",
+            timerIdle = "놀이처럼 해 봐요",
+            timerStart = "시작!",
+            reviewTitle = "다시 보기",
+            reviewDone = "다 봤어요",
+            previewTitle = "미리 보기",
+            previewDone = "다 봤어요",
+            noteTitle = "가족 한마디",
+            weekTitle = "이번 주 스티커",
+        )
+
         /** 초1~4: 짧고 쉬운 말, 칭찬하는 말투. */
         val EASY = StudentWords(
             tasksTitle = "오늘 할 일",
