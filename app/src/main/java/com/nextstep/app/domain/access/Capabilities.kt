@@ -3,6 +3,7 @@ package com.nextstep.app.domain.access
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.hub.HubAudience
+import com.nextstep.app.domain.year.YearDoer
 
 /**
  * 역할별로 볼 수 있는 화면과 쓸 수 있는 기능.
@@ -61,6 +62,14 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
         isStudent -> HubAudience.STUDENT
         role == Role.MENTOR -> HubAudience.MENTOR
         else -> HubAudience.PARENT
+    }
+
+    /** "올해" 화면에서 "내 할 일"로 모아 볼 몫. 학생은 스스로·같이, 학부모는 엄마·아빠가·같이(멘토 겸하면 멘토 몫까지), 멘토는 멘토 몫. */
+    val yearDoers: Set<YearDoer> get() = when {
+        isStudent -> setOf(YearDoer.CHILD, YearDoer.TOGETHER)
+        role == Role.MENTOR -> setOf(YearDoer.MENTOR)
+        actsAsMentor -> setOf(YearDoer.PARENT, YearDoer.TOGETHER, YearDoer.MENTOR)
+        else -> setOf(YearDoer.PARENT, YearDoer.TOGETHER)
     }
 
     /** 과제/로드맵에 기록될 작성자 역할. 학부모 겸 멘토는 MENTOR 로 남깁니다. */

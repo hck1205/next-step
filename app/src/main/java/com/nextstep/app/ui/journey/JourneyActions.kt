@@ -7,4 +7,6 @@ data class JourneyActions(
     val onOpenGoals: () -> Unit = {},
     val onOpenActivities: () -> Unit = {},
     val onOpenCurriculum: () -> Unit = {},
+    /** 올해 할 일(학부모·멘토용). 학생은 하단 탭에 있어 null. */
+    val onOpenYear: (() -> Unit)? = null,
 )

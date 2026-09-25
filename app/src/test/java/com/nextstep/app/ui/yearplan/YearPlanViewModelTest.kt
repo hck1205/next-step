@@ -16,6 +16,7 @@ import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -103,6 +104,28 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         assertEquals("a0", s.year!!.key)
         assertTrue(s.showsAllDoers)
         assertTrue(s.trend!!.advice.contains("0분"))
+        job.cancel()
+    }
+
+    @Test
+    fun mineFilterShowsOnlyTheViewersShareAndFallsBackToAll() = runTest {
+        streams.members.value = listOf(student)
+        val vm = vm(); val job = subscribe(vm.state)
+        val all = settle(vm.state)
+        assertFalse(all.mineOnly)
+        vm.onEvent(YearPlanEvent.SetMine(setOf(YearDoer.MENTOR)))
+        val mentor = settle(vm.state)
+        assertTrue(mentor.mineOnly)
+        assertEquals(YearPlans.forYear(yearKey).count { it.who == YearDoer.MENTOR }, mentor.total)
+        assertEquals(YearPlans.forYear(yearKey).size, mentor.allCount)
+        vm.onEvent(YearPlanEvent.ShowMine(false))
+        assertEquals(mentor.allCount, settle(vm.state).total)
+        // 내 몫이 하나도 없으면 전체를 보여 줘요.
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "아기", birthDate = today.minusMonths(5)))
+        vm.onEvent(YearPlanEvent.ShowMine(true))
+        val infant = settle(vm.state)
+        assertFalse(infant.mineOnly)
+        assertEquals(infant.allCount, infant.total)
         job.cancel()
     }
 }

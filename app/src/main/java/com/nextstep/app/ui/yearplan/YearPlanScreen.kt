@@ -1,5 +1,13 @@
 package com.nextstep.app.ui.yearplan
 
+import com.nextstep.app.domain.access.Capabilities
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,12 +48,13 @@ import com.nextstep.app.ui.yearplan.components.YearTrendCard
 import com.nextstep.app.domain.year.YearDoer
 
 /**
- * 학생의 "올해" 탭: 올해(만 나이·학년) 해야 할 일을 분류 탭(전체 · 국어 · 수학 · 영어 · … · 생활)으로 잘게 나눠 보여 줍니다.
+ * "올해" 화면(학생은 하단 탭, 학부모·멘토는 여정에서): 올해(만 나이·학년) 해야 할 일을 분류 탭(전체 · 국어 · 수학 · 영어 · … · 생활)으로 잘게 나눠 보여 줍니다.
  * 탭 안은 지금 학기 → 1년 내내 → 다른 학기 순서이고, 각 줄은 체크 한 번으로 끝납니다. 학년은 여기서 고르지 않습니다(생년월일로 자동).
  */
 @Composable
-fun YearPlanScreen(actions: YearPlanActions, viewModel: YearPlanViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun YearPlanScreen(caps: Capabilities, actions: YearPlanActions, viewModel: YearPlanViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(caps.yearDoers) { viewModel.onEvent(YearPlanEvent.SetMine(caps.yearDoers)) }
     YearPlanContent(state = state, actions = actions, onEvent = viewModel::onEvent)
 }
 
@@ -62,6 +71,7 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
         topBar = {
             TopAppBar(
                 title = { Text(state.year?.let { "${it.label} · 올해 할 일" } ?: "올해 할 일") },
+                navigationIcon = { actions.onBack?.let { back -> IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } } },
                 actions = { actions.onOpenJourney?.let { TextButton(onClick = it) { Text("여정") } } },
             )
         },
@@ -79,6 +89,12 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
                             if (numbers) "${state.done} / ${state.total} 끝냈어요 · 지금 ${state.currentTerm.label}" else "별 ${state.done}개 모았어요",
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                }
+                if (state.mineCount > 0 && state.mineCount < state.allCount) {
+                    Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = state.mineOnly, onClick = { onEvent(YearPlanEvent.ShowMine(true)) }, label = { Text("내 할 일 ${state.mineCount}") })
+                        FilterChip(selected = !state.mineOnly, onClick = { onEvent(YearPlanEvent.ShowMine(false)) }, label = { Text("가족 전체 ${state.allCount}") })
                     }
                 }
                 val selected = tabIndex.coerceIn(0, state.tabs.lastIndex)

@@ -8,4 +8,5 @@ enum class YearDoer(val label: String) {
     PARENT("엄마·아빠가"),
     TOGETHER("같이"),
     CHILD("스스로"),
+    MENTOR("멘토가"),
 }

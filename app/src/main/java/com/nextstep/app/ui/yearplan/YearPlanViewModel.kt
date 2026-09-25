@@ -18,6 +18,7 @@ import com.nextstep.app.domain.year.YearTerm
 import com.nextstep.app.domain.year.YearTrends
 import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.ui.common.asUiState
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ import java.time.LocalDate
 
 /**
  * "올해" 탭: 올해(만 나이·학년) 할 일을 분류별 탭으로 나누고, 완료 표시는 여정 저장소에 "year:" 키로 남깁니다(동기화됨).
+ * 학생·학부모·멘토가 같은 목록을 보되, 기본은 "내 할 일"(보는 사람의 몫)만 보여 줍니다.
  */
 class YearPlanViewModel(
     streams: FamilyDataStreams,
@@ -33,12 +35,18 @@ class YearPlanViewModel(
     private val today: () -> LocalDate = { DateUtils.today() },
 ) : ViewModel() {
 
-    val state: StateFlow<YearPlanUiState> = combine(streams.members, streams.journeyItems) { members, stored ->
+    private val mine = MutableStateFlow<Set<YearDoer>?>(null)
+    private val mineOnly = MutableStateFlow(true)
+
+    val state: StateFlow<YearPlanUiState> = combine(streams.members, streams.journeyItems, mine, mineOnly) { members, stored, mySet, onlyMine ->
         val day = today()
         val screen = StudentScreen.of(members.firstOrNull { it.isStudent }, day)
         val year = screen.year
         val done = stored.filter { !it.deleted && it.status == MilestoneStatus.DONE && it.templateId?.startsWith(YearTask.PREFIX) == true }.mapNotNull { it.templateId }.toSet()
-        val views = year?.let { y -> YearPlans.forYear(y.key).map { YearTaskView(it, it.storageId(y.key) in done) } }.orEmpty()
+        val all = year?.let { y -> YearPlans.forYear(y.key).map { YearTaskView(it, it.storageId(y.key) in done) } }.orEmpty()
+        val mineViews = mySet?.let { set -> all.filter { it.task.who in set } }.orEmpty()
+        val showMine = onlyMine && mineViews.isNotEmpty()
+        val views = if (showMine) mineViews else all
         val current = YearTerm.current(day)
         YearPlanUiState(
             year = year,
@@ -50,7 +58,10 @@ class YearPlanViewModel(
             total = views.size,
             today = day,
             trend = year?.let { YearTrends.of(it.key) },
-            showsAllDoers = views.any { it.task.who == YearDoer.PARENT },
+            showsAllDoers = all.any { it.task.who == YearDoer.PARENT },
+            mineOnly = showMine,
+            mineCount = mineViews.size,
+            allCount = all.size,
             loaded = true,
         )
     }.asUiState(viewModelScope, YearPlanUiState())
@@ -69,6 +80,8 @@ class YearPlanViewModel(
         when (event) {
             is YearPlanEvent.Toggle -> toggle(event.view)
             is YearPlanEvent.AddToToday -> addToToday(event.task)
+            is YearPlanEvent.SetMine -> mine.value = event.doers
+            is YearPlanEvent.ShowMine -> mineOnly.value = event.mineOnly
         }
     }
 

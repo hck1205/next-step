@@ -36,10 +36,9 @@ class YearPlansTest {
             assertTrue(profile.key, YearArea.TALK in areas && YearArea.PLAY in areas)
             assertFalse(profile.key, areas.any { it in school })
         }
-        // 영아기(만 0~2세)는 말·놀이·생활·몸만.
-        listOf("a0", "a1", "a2").forEach { key ->
-            assertEquals(key, listOf(YearArea.TALK, YearArea.PLAY, YearArea.LIFE, YearArea.BODY), YearPlans.areasOf(key))
-        }
+        // 영아기(만 0~2세)는 말·놀이·생활·몸·마음과 부모의 지원·서류·상담만.
+        val infant = setOf(YearArea.TALK, YearArea.PLAY, YearArea.LIFE, YearArea.BODY, YearArea.MIND, YearArea.GUIDE, YearArea.ADMIN)
+        listOf("a0", "a1", "a2").forEach { key -> assertTrue(key, infant.containsAll(YearPlans.areasOf(key))) }
     }
 
     @Test
@@ -62,11 +61,12 @@ class YearPlansTest {
         assertTrue(YearPlans.forYear("a0").none { it.who == YearDoer.CHILD })
         assertTrue(YearPlans.forYear("a1").none { it.who == YearDoer.CHILD })
         assertTrue(YearPlans.forYear("a0").filter { it.area == YearArea.TALK }.all { it.who == YearDoer.PARENT })
-        // 만 3세부터 "스스로"가 생기고, 학교에 가면 대부분 스스로.
+        // 만 3세부터 "스스로"가 생기고, 학교에 가면 교과 공부는 대부분 스스로.
         assertTrue(YearPlans.forYear("a3").any { it.who == YearDoer.CHILD })
+        val subjects = setOf(YearArea.KOREAN, YearArea.MATH, YearArea.ENGLISH, YearArea.SOCIETY, YearArea.SCIENCE, YearArea.READING)
         listOf("e3", "m1", "h1").forEach { key ->
-            val tasks = YearPlans.forYear(key)
-            assertTrue(key, tasks.count { it.who == YearDoer.CHILD } * 2 > tasks.size)
+            val study = YearPlans.forYear(key).filter { it.area in subjects && it.who != YearDoer.MENTOR }
+            assertTrue(key, study.count { it.who == YearDoer.CHILD } * 2 > study.size)
         }
     }
 
@@ -87,5 +87,35 @@ class YearPlansTest {
             assertFalse(key, all.contains("7시간"))
             assertTrue(key, all.contains("8시간") || all.contains("8~10시간"))
         }
+    }
+
+    @Test
+    fun everyRoleHasItsShareAtTheRightAges() {
+        val school = listOf("e1", "e2", "e3", "e4", "e5", "e6", "m1", "m2", "m3", "h1", "h2", "h3")
+        // 멘토 몫은 학교부터, 학령 전에는 없어요.
+        school.forEach { key -> assertTrue(key, YearPlans.forYear(key).any { it.who == YearDoer.MENTOR }) }
+        listOf("a0", "a3", "a6").forEach { key -> assertTrue(key, YearPlans.forYear(key).none { it.who == YearDoer.MENTOR }) }
+        // 부모 몫(지원·서류·상담)과 건강 체크리스트는 고3까지 해마다.
+        (listOf("a0", "a1", "a2", "a3", "a4", "a5", "a6") + school).forEach { key ->
+            val tasks = YearPlans.forYear(key)
+            assertTrue(key, tasks.any { it.who == YearDoer.PARENT })
+            assertTrue(key, tasks.any { it.area == YearArea.BODY })
+            assertTrue(key, tasks.size >= 10)
+        }
+    }
+
+    @Test
+    fun healthChecklistFollowsNationalSchedules() {
+        fun titles(key: String) = YearPlans.forYear(key).map { it.title }
+        assertTrue(titles("a0").containsAll(listOf("BCG(결핵)", "영유아 검진 1차", "영유아 검진 2차", "영유아 검진 3차")))
+        assertTrue(titles("a1").contains("MMR 1차·수두"))
+        assertTrue(YearPlans.forYear("e6").any { it.how.contains("HPV") && it.how.contains("남아") })
+        // 학생 건강검진은 초1·초4·중1·고1만, 정서·행동특성검사도 같은 학년
+        listOf("e1", "e4", "m1", "h1").forEach { key ->
+            assertTrue(key, titles(key).containsAll(listOf("학생 건강검진", "학생정서·행동특성검사")))
+        }
+        listOf("e2", "e3", "e5", "e6", "m2", "m3", "h2", "h3").forEach { key -> assertFalse(key, titles(key).contains("학생 건강검진")) }
+        // 인플루엔자 무료 접종은 만 13세까지: 고등학생 목록엔 무료 문구가 없어요.
+        listOf("h1", "h2", "h3").forEach { key -> assertFalse(key, YearPlans.forYear(key).any { it.how.contains("만 13세 무료") }) }
     }
 }

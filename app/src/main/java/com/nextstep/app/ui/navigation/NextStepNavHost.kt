@@ -216,10 +216,15 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             }
         }
         composable(Routes.YEAR) {
-            YearPlanScreen(actions = YearPlanActions(onOpenJourney = if (studentLevel?.showsJourneyTab != false) ({ go(Routes.JOURNEY) }) else null))
+            // 학생은 하단 탭(여정은 위 버튼), 학부모·멘토는 여정에서 열어 뒤로 가기로 돌아갑니다.
+            YearPlanScreen(
+                caps = caps,
+                actions = if (caps.isStudent) YearPlanActions(onOpenJourney = if (studentLevel?.showsJourneyTab != false) ({ go(Routes.JOURNEY) }) else null)
+                else YearPlanActions(onBack = back),
+            )
         }
         composable(Routes.JOURNEY) {
-            JourneyScreen(caps = caps, actions = JourneyActions(onBack = null, onOpenSettings = { go(Routes.FAMILY) }, onOpenGoals = { go(Routes.GOALS) }, onOpenActivities = { go(Routes.ACTIVITIES) }, onOpenCurriculum = { go(Routes.CURRICULUM) }))
+            JourneyScreen(caps = caps, actions = JourneyActions(onBack = null, onOpenSettings = { go(Routes.FAMILY) }, onOpenGoals = { go(Routes.GOALS) }, onOpenActivities = { go(Routes.ACTIVITIES) }, onOpenCurriculum = { go(Routes.CURRICULUM) }, onOpenYear = if (caps.isStudent) null else ({ go(Routes.YEAR) })))
         }
         composable(Routes.RECORDS, arguments = listOf(navArgument("section") { type = NavType.StringType; defaultValue = ConcernSection.OVERVIEW.route })) { entry ->
             // 아이 모드(학령 전·초1~2): 기록 허브 대신 스티커판

@@ -71,6 +71,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
                 title = { Text(if (state.studentName.isBlank()) "성장 여정" else "${state.studentName}의 성장 여정") },
                 navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
                 actions = {
+                    actions.onOpenYear?.let { TextButton(onClick = it) { Text("올해") } }
                     TextButton(onClick = actions.onOpenGoals) { Text("목표") }
                     TextButton(onClick = actions.onOpenActivities) { Text("활동") }
                     TextButton(onClick = actions.onOpenSettings) { Text("설정") }

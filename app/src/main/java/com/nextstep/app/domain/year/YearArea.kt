@@ -16,4 +16,7 @@ enum class YearArea(val label: String) {
     CAREER("진로·입시"),
     LIFE("생활 습관"),
     BODY("몸·건강"),
+    MIND("마음 건강"),
+    GUIDE("상담·코칭"),
+    ADMIN("지원·서류"),
 }
