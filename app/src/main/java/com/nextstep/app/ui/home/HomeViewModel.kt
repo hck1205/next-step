@@ -130,7 +130,7 @@ class HomeViewModel(
 
     val state: StateFlow<HomeUiState> = combine(enriched, streams.goals, streams.goalSteps, streams.projectLogs, selfWeek) { s, goals, steps, logs, w ->
         s.copy(
-            week = w.week, weekAccess = w.access,
+            myWeek = w.week, myWeekAccess = w.access,
             missionFocus = MissionPlanner.focus(goals, steps, s.today),
             routines = ProjectPlanner.progressAll(goals, steps, logs, s.today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
         )

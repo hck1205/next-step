@@ -117,10 +117,10 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                             TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("${state.pendingTasks.size - state.taskRows}개 더 보기") }
                         }
                     }
-                    StudentHomeSection.MY_WEEK -> state.week?.let { week ->
+                    StudentHomeSection.MY_WEEK -> state.myWeek?.let { week ->
                         item {
                             WeekPlanCard(
-                                week = week, access = state.weekAccess, big = !level.showsNumbers,
+                                week = week, access = state.myWeekAccess, big = !level.showsNumbers,
                                 onSavePlan = { goals, minutes -> onEvent(HomeEvent.SaveWeekPlan(goals, minutes)) },
                                 onToggle = { id, i -> onEvent(HomeEvent.ToggleWeekGoal(id, i)) }, onApprove = {},
                                 onReflect = { w, mood, good, hard, change -> onEvent(HomeEvent.ReflectWeek(w, mood, good, hard, change)) },
