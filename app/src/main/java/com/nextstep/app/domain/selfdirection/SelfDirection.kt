@@ -7,8 +7,8 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.stats.BalanceStats
+import com.nextstep.app.domain.time.DateUtils
 import java.time.DayOfWeek
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -31,8 +31,6 @@ object SelfDirection {
     fun stageOf(student: MemberEntity?, today: LocalDate): SelfDirectionStage =
         SelfDirectionStage.fromName(student?.selfDirection) ?: defaultStage(student, today)
 
-    fun weekStart(date: LocalDate): LocalDate = date.with(DayOfWeek.MONDAY)
-
     fun planFor(plans: List<WeekPlanEntity>, weekStart: LocalDate): WeekPlanEntity? =
         plans.firstOrNull { !it.deleted && it.weekStart == weekStart.toEpochDay() }
 
@@ -40,28 +38,28 @@ object SelfDirection {
     fun minutesIn(sessions: List<StudySessionEntity>, weekStart: LocalDate, zone: ZoneId = ZoneId.systemDefault()): Int {
         val end = weekStart.plusDays(DAYS_IN_WEEK)
         return sessions.filter { !it.deleted }.filter {
-            val day = Instant.ofEpochMilli(it.startAt).atZone(zone).toLocalDate()
+            val day = DateUtils.toLocalDate(it.startAt, zone)
             !day.isBefore(weekStart) && day.isBefore(end)
         }.sumOf { it.durationMinutes }
     }
 
     /** 돌아볼 주: 금~일이면 이번 주, 월~목이면 지난주(계획이 있었고 아직 안 돌아봤을 때만). 이번 주를 이미 돌아봤으면 null. */
     fun reflectWeek(plans: List<WeekPlanEntity>, today: LocalDate): LocalDate? {
-        val thisWeek = weekStart(today)
+        val thisWeek = DateUtils.weekStart(today)
         if (today.dayOfWeek >= DayOfWeek.FRIDAY) return thisWeek.takeIf { planFor(plans, it)?.isReflected != true }
         val last = thisWeek.minusWeeks(1)
         return last.takeIf { planFor(plans, it)?.let { p -> p.hasPlan && !p.isReflected } == true }
     }
 
     fun week(stage: SelfDirectionStage, plans: List<WeekPlanEntity>, sessions: List<StudySessionEntity>, today: LocalDate, zone: ZoneId = ZoneId.systemDefault()): WeekStatus {
-        val start = weekStart(today)
+        val start = DateUtils.weekStart(today)
         val last = listOf(start, start.minusWeeks(1)).firstNotNullOfOrNull { w -> planFor(plans, w)?.takeIf { it.isReflected } }
         return WeekStatus(stage, start, planFor(plans, start), minutesIn(sessions, start, zone), reflectWeek(plans, today), last)
     }
 
     /** 이번 주를 뺀 최근 [WINDOW_WEEKS]주의 흔적(오래된 주 → 최근 주). */
     fun evidence(plans: List<WeekPlanEntity>, sessions: List<StudySessionEntity>, today: LocalDate, zone: ZoneId = ZoneId.systemDefault()): List<WeekEvidence> {
-        val thisWeek = weekStart(today)
+        val thisWeek = DateUtils.weekStart(today)
         return (WINDOW_WEEKS downTo 1).map { back ->
             val w = thisWeek.minusWeeks(back.toLong())
             val p = planFor(plans, w)

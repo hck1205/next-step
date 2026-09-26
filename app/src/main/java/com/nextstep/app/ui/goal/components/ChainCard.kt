@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.goaltree.GoalNode
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 
@@ -32,7 +33,7 @@ internal fun ChainCard(chain: List<GoalNode>, achieved: Boolean, onOpen: (String
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("→ ".repeat(i + 1) + n.goal.title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                     }
-                    LabeledProgress(label = "${(n.rate * PERCENT).toInt()}%", ratio = n.rate, color = MaterialTheme.colorScheme.secondary)
+                    LabeledProgress(label = n.rate.asPercent(), ratio = n.rate, color = MaterialTheme.colorScheme.secondary)
                 }
             }
             onChange?.let { TextButton(onClick = it) { Text(if (chain.isEmpty()) "이어지는 목표 정하기" else "이어지는 목표 바꾸기") } }
@@ -40,4 +41,3 @@ internal fun ChainCard(chain: List<GoalNode>, achieved: Boolean, onOpen: (String
     }
 }
 
-private const val PERCENT = 100

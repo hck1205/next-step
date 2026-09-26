@@ -94,6 +94,31 @@ class GoalTreeTest {
     }
 
     @Test
+    fun attentionPicksOneThingToLookAtFirst() {
+        val goals = listOf(goal("ready"), goal("late"), goal("idle"), goal("empty"), goal("done", status = GoalStatus.DONE))
+        val tasks = listOf(
+            task("ready", "r", today, done = today), task("late", "l", today.minusDays(1)), task("idle", "i", today.plusDays(1)),
+            task("done", "d", today.minusDays(3)),
+        )
+        val fresh = goals.map { if (it.id == "empty") it.copy(createdAt = millis(today)) else it }
+        val byId = GoalTree.nodes(fresh, tasks, today, utc).associateBy { it.goal.id }
+        assertEquals(GoalAttention.READY, byId.getValue("ready").attention)
+        assertEquals("밀린 할 일 1개", byId.getValue("late").attentionLine)
+        assertEquals(GoalAttention.IDLE, byId.getValue("idle").attention); assertTrue(byId.getValue("idle").isIdle)
+        assertEquals("20일째 그대로예요", byId.getValue("idle").attentionLine)
+        assertEquals(GoalAttention.EMPTY, byId.getValue("empty").attention)
+        assertNull(byId.getValue("done").attention) // 달성한 목표는 밀린 할 일이 있어도 조용히
+        assertFalse(byId.getValue("done").isIdle)
+    }
+
+    @Test
+    fun assignerNamesWhoGaveIt() {
+        assertEquals(Assigner.SELF, Assigner.of("STUDENT")); assertEquals("스스로 정한 일", Assigner.SELF.taskLabel)
+        assertEquals("학부모가 준 일", Assigner.of("PARENT")!!.taskLabel); assertEquals("멘토가 만든 목표", Assigner.of("MENTOR")!!.goalLabel)
+        assertNull(Assigner.of("")); assertNull(Assigner.of(null))
+    }
+
+    @Test
     fun onlyTreeGoalsAndNoArchivedChildren() {
         val goals = listOf(goal("a"), goal("b", leadsTo = "a", status = GoalStatus.ARCHIVED), Fixtures.goal("트랙 목표", trackId = "track"))
         assertEquals(listOf("a", "b"), GoalTree.nodes(goals, emptyList(), today, utc).map { it.goal.id })

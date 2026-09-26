@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.LabeledProgress
@@ -125,7 +126,7 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
                 AppCard(onClick = { actions.onOpenGoal(c.goal.id) }) {
                     Column {
                         Text((if (c.isAchieved) "✓ " else "") + c.goal.title, style = MaterialTheme.typography.bodyLarge)
-                        LabeledProgress(label = "${(c.rate * PERCENT).toInt()}% · 할 일 ${c.doneTasks}/${c.totalTasks}", ratio = c.rate, color = MaterialTheme.colorScheme.secondary)
+                        LabeledProgress(label = "${c.rate.asPercent()} · 할 일 ${c.doneTasks}/${c.totalTasks}", ratio = c.rate, color = MaterialTheme.colorScheme.secondary)
                     }
                 }
             }
@@ -136,7 +137,7 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
         }
     }
     val goal = node?.goal ?: return
-    val area = GoalArea.entries.firstOrNull { it.name == goal.area } ?: GoalArea.CUSTOM
+    val area = GoalArea.from(goal.area)
     if (addingTask) {
         TaskEditDialog(existing = null, subjects = state.subjects, defaultDate = state.today.plusDays(DEFAULT_DUE_DAYS), onDismiss = { addingTask = false }) { title, subjectId, type, due ->
             onEvent(GoalEvent.AddTask(title, subjectId, type, due, caps.actingRoleName))
@@ -158,5 +159,4 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
     if (editing) EditGoalDialog(goal, state.today, onDismiss = { editing = false }, onSave = { t, w, d -> onEvent(GoalEvent.Edit(t, w, d)) })
 }
 
-private const val PERCENT = 100
 private const val DEFAULT_DUE_DAYS = 3L

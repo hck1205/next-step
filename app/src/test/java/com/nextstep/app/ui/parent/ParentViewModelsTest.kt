@@ -6,7 +6,6 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeProjectRepository
 import com.nextstep.app.fake.FakeWeekPlanRepository
-import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.fake.FakeTaskRepository
@@ -87,7 +86,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
         s = settle(vm.state)
         assertEquals(SelfDirectionStage.PLAN_FIRST, s.week!!.stage); assertFalse(s.weekAccess.canPlan); assertTrue(s.weekAccess.canApprove)
         weekPlans.role = "STUDENT"
-        weekPlans.savePlan(SelfDirection.weekStart(today), listOf("수학 익힘 3쪽"), 180)
+        weekPlans.savePlan(DateUtils.weekStart(today), listOf("수학 익힘 3쪽"), 180)
         s = settle(vm.state)
         assertTrue(s.week!!.waitingApproval)
         vm.onEvent(ParentDashboardEvent.ApproveWeek(s.week!!.plan!!.id))

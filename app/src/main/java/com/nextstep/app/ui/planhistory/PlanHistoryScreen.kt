@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.goaltree.RateBy
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.LabeledProgress
@@ -45,7 +46,7 @@ internal fun PlanHistoryContent(state: PlanHistoryUiState, actions: PlanHistoryA
             AppCard {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("최근 4주 달성률", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Text(state.recentRate?.let { "${(it * PERCENT).toInt()}%" } ?: "마감이던 할 일이 없어요", style = MaterialTheme.typography.headlineSmall)
+                    Text(state.recentRate?.asPercent() ?: "마감이던 할 일이 없어요", style = MaterialTheme.typography.headlineSmall)
                     Text("마감이 지난(오늘까지) 할 일 중 끝낸 비율이에요", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     WeekBars(state.weeks)
                 }
@@ -83,9 +84,8 @@ internal fun PlanHistoryContent(state: PlanHistoryUiState, actions: PlanHistoryA
 private fun RateCard(rows: List<RateBy>) {
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            rows.forEach { r -> LabeledProgress(label = "${r.label} · ${r.done}/${r.total}", ratio = r.rate, color = MaterialTheme.colorScheme.secondary, trailing = "${(r.rate * PERCENT).toInt()}%") }
+            rows.forEach { r -> LabeledProgress(label = "${r.label} · ${r.done}/${r.total}", ratio = r.rate, color = MaterialTheme.colorScheme.secondary, trailing = r.rate.asPercent()) }
         }
     }
 }
 
-private const val PERCENT = 100

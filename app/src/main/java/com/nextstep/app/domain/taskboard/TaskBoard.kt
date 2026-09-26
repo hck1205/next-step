@@ -2,8 +2,7 @@ package com.nextstep.app.domain.taskboard
 
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
-import java.time.DayOfWeek
-import java.time.Instant
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -27,12 +26,12 @@ object TaskBoard {
     private fun lane(subject: SubjectEntity?, tasks: List<TaskEntity>, suggestions: List<TaskSuggestion>, today: LocalDate, zone: ZoneId): SubjectLane {
         val day = today.toEpochDay()
         val open = tasks.filter { !it.done }.sortedBy { it.dueDate }
-        val monday = today.with(DayOfWeek.MONDAY)
+        val monday = DateUtils.weekStart(today)
         val recent = tasks.filter { it.dueDate in today.minusDays(RECENT_DAYS).toEpochDay()..day }
         return SubjectLane(
             subject = subject,
             overdue = open.filter { it.dueDate < day }, today = open.filter { it.dueDate == day }, upcoming = open.filter { it.dueDate > day },
-            doneThisWeek = tasks.count { t -> t.done && t.doneAt?.let { !Instant.ofEpochMilli(it).atZone(zone).toLocalDate().isBefore(monday) } ?: (t.dueDate >= monday.toEpochDay() && t.dueDate <= day) },
+            doneThisWeek = tasks.count { t -> t.done && t.doneAt?.let { !DateUtils.toLocalDate(it, zone).isBefore(monday) } ?: (t.dueDate >= monday.toEpochDay() && t.dueDate <= day) },
             suggestions = suggestions.take(SUGGESTIONS_PER_LANE),
             recentRate = if (recent.isEmpty()) null else recent.count { it.done }.toFloat() / recent.size,
         )

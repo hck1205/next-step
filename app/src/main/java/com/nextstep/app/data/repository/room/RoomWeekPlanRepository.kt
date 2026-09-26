@@ -1,5 +1,6 @@
 package com.nextstep.app.data.repository.room
 
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.dao.WeekPlanDao
 import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.repository.FamilyScope
@@ -24,7 +25,7 @@ class RoomWeekPlanRepository(
         val clean = SelfDirection.cleanGoals(goals)
         val minutes = plannedMinutes.coerceIn(0, MAX_MINUTES)
         if (clean.isEmpty() && minutes == 0) return
-        val week = SelfDirection.weekStart(weekStart)
+        val week = DateUtils.weekStart(weekStart)
         val existing = dao.findByWeek(familyIdOr(""), week.toEpochDay())
         val text = clean.joinToString("\n")
         val changed = existing == null || existing.goals != text
@@ -55,7 +56,7 @@ class RoomWeekPlanRepository(
 
     override suspend fun reflect(weekStart: LocalDate, mood: Int, good: String, hard: String, change: String) {
         if (mood !in 1..MAX_MOOD) return
-        val week = SelfDirection.weekStart(weekStart)
+        val week = DateUtils.weekStart(weekStart)
         val base = dao.findByWeek(familyIdOr(""), week.toEpochDay()) ?: WeekPlanEntity(familyId = familyIdOr(""), weekStart = week.toEpochDay())
         dao.upsert(
             base.copy(

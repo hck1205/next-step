@@ -16,8 +16,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
-import com.nextstep.app.data.model.Role
-import com.nextstep.app.domain.goaltree.PlanHistory
+import com.nextstep.app.domain.goaltree.Assigner
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
@@ -29,7 +28,7 @@ internal fun SubTaskRow(task: TaskEntity, subjects: List<SubjectEntity>, today: 
         Checkbox(checked = task.done, onCheckedChange = { onToggle() }, enabled = canCheck)
         Column(Modifier.weight(1f)) {
             Text(task.title, style = MaterialTheme.typography.bodyMedium, textDecoration = if (task.done) TextDecoration.LineThrough else null)
-            val who = Role.from(task.createdByRole)?.let { if (it == Role.STUDENT) "스스로 정한 일" else PlanHistory.assignerLabel(it) + " 준 일" }
+            val who = Assigner.of(task.createdByRole)?.taskLabel
             val whenLine = if (task.done) task.doneAt?.let { "${DateUtils.formatDate(DateUtils.toLocalDate(it))} 끝냄" } ?: "끝냄"
             else (if (overdue) "밀림 · " else "") + "마감 ${DateUtils.formatDate(DateUtils.fromEpochDay(task.dueDate))}"
             Text(

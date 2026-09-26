@@ -42,7 +42,7 @@ com.nextstep.app
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
 │   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), HubAudience·HubViewer(역할별 관심사 순서·보는 사람), ConcernDigests(한눈에 타일)
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
-│   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
+│   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
 │   ├── taskboard/          TaskSuggester(복습 목록 · 로드맵 · 시험 → 과목·단원별 추천), TaskBoard(과목별 줄)
 │   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
 │   ├── project/            ProjectCatalog(교육 프로젝트: 목표 → 단계 → 하루 루틴), ProjectPlanner(시작·일정·진행·속도·도착 예상), ProjectPlan/ProjectPhase/RoutineItem/ProjectProgress

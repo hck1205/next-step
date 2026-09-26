@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.TaskEntity
-import com.nextstep.app.data.model.Role
-import com.nextstep.app.domain.goaltree.PlanHistory
+import com.nextstep.app.domain.goaltree.Assigner
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.domain.taskboard.SubjectLane
 import com.nextstep.app.domain.taskboard.TaskSuggestion
 import com.nextstep.app.domain.time.DateUtils
@@ -48,7 +48,7 @@ internal fun LaneCard(
                 Text(
                     listOfNotNull(
                         "이번 주 ${lane.doneThisWeek}개 끝",
-                        lane.recentRate?.let { "4주 ${(it * PERCENT).toInt()}%" },
+                        lane.recentRate?.let { "4주 ${it.asPercent()}" },
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -78,7 +78,7 @@ private fun Group(
             Checkbox(checked = t.done, onCheckedChange = { onToggle(t) }, enabled = canCheck)
             Column(Modifier.weight(1f)) {
                 Text(t.title, style = MaterialTheme.typography.bodyMedium)
-                val who = Role.from(t.createdByRole)?.takeIf { it != Role.STUDENT }?.let { PlanHistory.assignerLabel(it) + " 준 일" }
+                val who = Assigner.of(t.createdByRole)?.takeIf { it != Assigner.SELF }?.taskLabel
                 val goal = goalTitle(t.goalId)
                 Text(
                     listOfNotNull(t.type.label, DateUtils.formatShortDate(DateUtils.fromEpochDay(t.dueDate)), who, goal?.let { "목표: $it" }).joinToString(" · "),
@@ -113,4 +113,3 @@ private fun SuggestionRow(s: TaskSuggestion, goals: List<GoalEntity>, canAccept:
 }
 
 private const val UPCOMING_ROWS = 5
-private const val PERCENT = 100

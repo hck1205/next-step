@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.selfdirection.SelfDirectionReport
 import com.nextstep.app.domain.selfdirection.WeekEvidence
 import com.nextstep.app.ui.components.card.AppCard
-import kotlin.math.roundToInt
+import com.nextstep.app.ui.common.asPercent
 
 /** 최근 4주 흔적: 주마다 계획(스스로 ✓ · 어른이 ○ · 없음 −), 돌아보기, 목표 끝낸 수, 계획 대비 시간. 비교 대상은 아이 자신뿐입니다. */
 @Composable
@@ -28,7 +28,7 @@ internal fun EvidenceCard(report: SelfDirectionReport) {
             Text("최근 4주", style = MaterialTheme.typography.titleSmall)
             Text(
                 "스스로 계획 ${report.childPlannedWeeks}주 · 돌아보기 ${report.reflectedWeeks}주" +
-                    (report.selfTaskRatio?.let { " · 스스로 만든 할 일 ${(it * PERCENT).roundToInt()}%" } ?: ""),
+                    (report.selfTaskRatio?.let { " · 스스로 만든 할 일 ${it.asPercent()}" } ?: ""),
                 style = MaterialTheme.typography.bodySmall,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { report.weeks.forEach { WeekCell(it, Modifier.weight(1f)) } }
@@ -49,8 +49,7 @@ private fun WeekCell(w: WeekEvidence, modifier: Modifier) {
         Icon(icon, contentDescription = if (w.childPlanned) "스스로 계획" else if (w.planned) "어른과 계획" else "계획 없음", tint = tint, modifier = Modifier.size(22.dp))
         Text(if (w.reflected) "돌아봄" else "−", style = MaterialTheme.typography.labelSmall)
         if (w.goalsTotal > 0) Text("${w.goalsDone}/${w.goalsTotal}", style = MaterialTheme.typography.labelSmall)
-        w.keptRatio?.let { Text("${(it * PERCENT).roundToInt()}%", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant) }
+        w.keptRatio?.let { Text(it.asPercent(), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant) }
     }
 }
 
-private const val PERCENT = 100

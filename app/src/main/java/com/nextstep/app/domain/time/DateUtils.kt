@@ -23,6 +23,8 @@ object DateUtils {
     fun toMillis(date: LocalDate, time: LocalTime): Long = toMillis(LocalDateTime.of(date, time))
     fun toLocalDateTime(millis: Long): LocalDateTime = Instant.ofEpochMilli(millis).atZone(zone).toLocalDateTime()
     fun toLocalDate(millis: Long): LocalDate = toLocalDateTime(millis).toLocalDate()
+    /** 시간대를 정해 날짜로(테스트에서 시간대를 고정할 때). */
+    fun toLocalDate(millis: Long, zone: ZoneId): LocalDate = Instant.ofEpochMilli(millis).atZone(zone).toLocalDate()
     fun startOfDayMillis(date: LocalDate): Long = toMillis(date, LocalTime.MIDNIGHT)
 
     /** 이번 주 월요일. */

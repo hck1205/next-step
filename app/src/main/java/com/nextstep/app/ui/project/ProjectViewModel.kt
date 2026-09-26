@@ -9,7 +9,6 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.domain.project.ProjectPlanner
-import com.nextstep.app.domain.project.RoutineItem
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
@@ -42,15 +41,10 @@ class ProjectViewModel(
 
     fun onEvent(event: ProjectEvent) {
         when (event) {
-            is ProjectEvent.ToggleRoutine -> toggle(event.item)
+            is ProjectEvent.ToggleRoutine -> viewModelScope.launch { state.value.progress?.let { projects.toggleRoutine(it, event.item, today()) } }
             ProjectEvent.PassCheckpoint -> passCheckpoint()
             ProjectEvent.Archive -> viewModelScope.launch { goals.setGoalStatus(goalId, GoalStatus.ARCHIVED) }
         }
-    }
-
-    private fun toggle(item: RoutineItem) = viewModelScope.launch {
-        val phase = state.value.progress?.current ?: return@launch
-        projects.toggle(goalId, phase.key, item.name, item.minutes, today().toEpochDay())
     }
 
     /** 지금 단계를 통과로, 다음 단계를 진행 중으로. 다음이 없으면 프로젝트를 달성으로 닫습니다. */

@@ -191,10 +191,7 @@ class HomeViewModel(
         )
     }
 
-    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch {
-        val phase = progress.current ?: return@launch
-        projects.toggle(progress.goalId, phase.key, item.name, item.minutes, state.value.today.toEpochDay())
-    }
+    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch { projects.toggleRoutine(progress, item, state.value.today) }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: HomeEvent) {
@@ -209,7 +206,7 @@ class HomeViewModel(
             HomeEvent.DismissLevelUp -> dismissLevelUp()
             is HomeEvent.AddStudyKind -> addStudyKind(event.kind)
             is HomeEvent.ToggleRoutine -> toggleRoutine(event.progress, event.item)
-            is HomeEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(SelfDirection.weekStart(state.value.today), event.goals, event.minutes) }
+            is HomeEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(DateUtils.weekStart(state.value.today), event.goals, event.minutes) }
             is HomeEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
             is HomeEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }
         }

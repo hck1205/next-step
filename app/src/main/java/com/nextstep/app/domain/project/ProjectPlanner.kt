@@ -6,7 +6,7 @@ import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
-import java.time.DayOfWeek
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -108,7 +108,7 @@ object ProjectPlanner {
         val current = plan.phases.getOrNull(currentIndex)
 
         val mine = logs.filter { it.goalId == goal.id && !it.deleted }
-        val monday = today.with(DayOfWeek.MONDAY).toEpochDay()
+        val monday = DateUtils.weekStart(today).toEpochDay()
         val week = mine.filter { it.date in monday..today.toEpochDay() }
         val todays = mine.filter { it.date == today.toEpochDay() && it.phaseKey == current?.key }
 

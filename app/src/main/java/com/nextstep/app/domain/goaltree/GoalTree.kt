@@ -6,7 +6,7 @@ import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
-import java.time.Instant
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -19,6 +19,8 @@ import java.time.temporal.ChronoUnit
  */
 object GoalTree {
     const val TRACK = "tree"
+    /** 이만큼(일) 아무것도 끝내지 않으면 "멈춘 목표"로 봅니다. */
+    const val IDLE_DAYS = 7
     /** 사람이 고르는 목표 분류(시험·수행평가·입시는 시험·목표에서). */
     val AREAS: List<GoalArea> = listOf(
         GoalArea.KOREAN, GoalArea.MATH, GoalArea.LANGUAGE, GoalArea.HABIT, GoalArea.EXPERIENCE, GoalArea.HOBBY, GoalArea.CLUB, GoalArea.CAREER, GoalArea.CUSTOM,
@@ -48,8 +50,8 @@ object GoalTree {
         val tree = treeGoals(goals)
         val mine = tasks.filter { !it.deleted && it.goalId == goal.id }
             .sortedWith(compareBy<TaskEntity> { it.done }.thenBy { if (it.done) -(it.doneAt ?: 0L) else it.dueDate })
-        val created = Instant.ofEpochMilli(goal.createdAt).atZone(zone).toLocalDate()
-        val last = (mine.mapNotNull { it.doneAt } + listOfNotNull(goal.doneAt)).maxOrNull()?.let { Instant.ofEpochMilli(it).atZone(zone).toLocalDate() }
+        val created = DateUtils.toLocalDate(goal.createdAt, zone)
+        val last = (mine.mapNotNull { it.doneAt } + listOfNotNull(goal.doneAt)).maxOrNull()?.let { DateUtils.toLocalDate(it, zone) }
             ?.takeIf { it.isAfter(created) } ?: created
         return GoalNode(
             goal = goal, tasks = mine,

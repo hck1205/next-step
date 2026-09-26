@@ -27,7 +27,7 @@ class SelfDirectionViewModel(
         val day = today()
         val student = StudentContext.of(all, day).student
         val report = SelfDirection.report(student, plans, sessions, tasks, day)
-        val thisWeek = SelfDirection.weekStart(day).toEpochDay()
+        val thisWeek = DateUtils.weekStart(day).toEpochDay()
         SelfDirectionUiState(
             loaded = true, studentName = profile.studentName, studentId = student?.id, report = report,
             week = SelfDirection.week(report.stage, plans, sessions, day),
@@ -37,7 +37,7 @@ class SelfDirectionViewModel(
 
     fun onEvent(event: SelfDirectionEvent) {
         when (event) {
-            is SelfDirectionEvent.SavePlan -> viewModelScope.launch { weekPlans.savePlan(SelfDirection.weekStart(today()), event.goals, event.minutes) }
+            is SelfDirectionEvent.SavePlan -> viewModelScope.launch { weekPlans.savePlan(DateUtils.weekStart(today()), event.goals, event.minutes) }
             is SelfDirectionEvent.ToggleGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
             is SelfDirectionEvent.Approve -> viewModelScope.launch { weekPlans.approve(event.planId) }
             is SelfDirectionEvent.Reflect -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }

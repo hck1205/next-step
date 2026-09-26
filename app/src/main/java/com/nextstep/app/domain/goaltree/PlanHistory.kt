@@ -4,9 +4,7 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.GoalStatus
-import com.nextstep.app.data.model.Role
-import java.time.DayOfWeek
-import java.time.Instant
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -20,7 +18,7 @@ object PlanHistory {
     const val TIMELINE_LIMIT = 40
 
     fun weeks(tasks: List<TaskEntity>, today: LocalDate, count: Int = WEEKS): List<WeekRate> {
-        val thisWeek = today.with(DayOfWeek.MONDAY)
+        val thisWeek = DateUtils.weekStart(today)
         val live = tasks.filter { !it.deleted }
         return (count - 1 downTo 0).map { back ->
             val start = thisWeek.minusWeeks(back.toLong())
@@ -32,9 +30,9 @@ object PlanHistory {
     /** 최근 [WINDOW_DAYS]일(오늘까지 마감) 할 일을 준 사람별로: 스스로 · 학부모가 · 멘토가. */
     fun byAssigner(tasks: List<TaskEntity>, today: LocalDate): List<RateBy> {
         val recent = window(tasks, today)
-        return Role.entries.mapNotNull { role ->
-            val mine = recent.filter { it.createdByRole == role.name }
-            if (mine.isEmpty()) null else RateBy(role.name, assignerLabel(role), mine.count { it.done }, mine.size)
+        return Assigner.entries.mapNotNull { a ->
+            val mine = recent.filter { it.createdByRole == a.role.name }
+            if (mine.isEmpty()) null else RateBy(a.role.name, a.label, mine.count { it.done }, mine.size)
         }
     }
 
@@ -57,7 +55,7 @@ object PlanHistory {
     fun timeline(goals: List<GoalEntity>, tasks: List<TaskEntity>, zone: ZoneId = ZoneId.systemDefault(), limit: Int = TIMELINE_LIMIT): List<HistoryEvent> {
         val tree = GoalTree.treeGoals(goals)
         val byId = goals.associateBy { it.id }
-        val day = { millis: Long -> Instant.ofEpochMilli(millis).atZone(zone).toLocalDate() }
+        val day = { millis: Long -> DateUtils.toLocalDate(millis, zone) }
         val started = tree.map { HistoryEvent(day(it.createdAt), HistoryKind.GOAL_STARTED, it.title, it.createdByRole) }
         val achieved = tree.filter { it.status == GoalStatus.DONE && it.doneAt != null }.map {
             HistoryEvent(day(it.doneAt!!), HistoryKind.GOAL_ACHIEVED, it.title, it.createdByRole, leadsToTitle = it.leadsTo?.let { id -> byId[id]?.title })
@@ -66,12 +64,6 @@ object PlanHistory {
             HistoryEvent(day(it.doneAt!!), HistoryKind.TASK_DONE, it.title, it.createdByRole, goalTitle = it.goalId?.let { id -> byId[id]?.title })
         }
         return (started + achieved + done).sortedWith(compareByDescending<HistoryEvent> { it.date }.thenByDescending { it.kind.ordinal }).take(limit)
-    }
-
-    fun assignerLabel(role: Role): String = when (role) {
-        Role.STUDENT -> "스스로"
-        Role.PARENT -> "학부모가"
-        Role.MENTOR -> "멘토가"
     }
 
     private fun window(tasks: List<TaskEntity>, today: LocalDate): List<TaskEntity> {

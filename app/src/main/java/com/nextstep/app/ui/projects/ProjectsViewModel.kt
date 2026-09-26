@@ -6,8 +6,6 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.domain.project.ProjectCategory
 import com.nextstep.app.domain.project.ProjectPlanner
-import com.nextstep.app.domain.project.ProjectProgress
-import com.nextstep.app.domain.project.RoutineItem
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,12 +31,7 @@ class ProjectsViewModel(
     fun onEvent(event: ProjectsEvent) {
         when (event) {
             is ProjectsEvent.SelectCategory -> filter.value = event.category
-            is ProjectsEvent.ToggleRoutine -> toggle(event.progress, event.item)
+            is ProjectsEvent.ToggleRoutine -> viewModelScope.launch { projects.toggleRoutine(event.progress, event.item, today()) }
         }
-    }
-
-    private fun toggle(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch {
-        val phase = progress.current ?: return@launch
-        projects.toggle(progress.goalId, phase.key, item.name, item.minutes, today().toEpochDay())
     }
 }

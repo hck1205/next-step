@@ -14,7 +14,6 @@ import com.nextstep.app.fake.FakeContentRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeProjectRepository
 import com.nextstep.app.fake.FakeWeekPlanRepository
-import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.project.ProjectCatalog
 import com.nextstep.app.domain.project.ProjectPlanner
@@ -204,8 +203,8 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("영어 책 3권"), s.myWeek!!.plan!!.goalList); assertTrue(s.myWeek!!.waitingApproval)
         vm.onEvent(HomeEvent.ToggleWeekGoal(s.myWeek!!.plan!!.id, 0)); s = settle(vm.state)
         assertEquals(1, s.myWeek!!.plan!!.doneCount)
-        vm.onEvent(HomeEvent.ReflectWeek(SelfDirection.weekStart(today), 3, "매일 읽음", "", "아침에")); settle(vm.state)
-        assertEquals("reflect:${SelfDirection.weekStart(today)}:3:매일 읽음::아침에", weekPlans.calls.last())
+        vm.onEvent(HomeEvent.ReflectWeek(DateUtils.weekStart(today), 3, "매일 읽음", "", "아침에")); settle(vm.state)
+        assertEquals("reflect:${DateUtils.weekStart(today)}:3:매일 읽음::아침에", weekPlans.calls.last())
         job.cancel()
     }
 

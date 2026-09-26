@@ -111,17 +111,14 @@ class ParentDashboardViewModel(
         val goalSteps: List<GoalStepEntity>,
     )
 
-    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch {
-        val phase = progress.current ?: return@launch
-        projects.toggle(progress.goalId, phase.key, item.name, item.minutes, DateUtils.today().toEpochDay())
-    }
+    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch { projects.toggleRoutine(progress, item, DateUtils.today()) }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: ParentDashboardEvent) {
         when (event) {
             is ParentDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
             is ParentDashboardEvent.ToggleRoutine -> toggleRoutine(event.progress, event.item)
-            is ParentDashboardEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(SelfDirection.weekStart(DateUtils.today()), event.goals, event.minutes) }
+            is ParentDashboardEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(DateUtils.weekStart(DateUtils.today()), event.goals, event.minutes) }
             is ParentDashboardEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
             is ParentDashboardEvent.ApproveWeek -> viewModelScope.launch { weekPlans.approve(event.planId) }
             is ParentDashboardEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }

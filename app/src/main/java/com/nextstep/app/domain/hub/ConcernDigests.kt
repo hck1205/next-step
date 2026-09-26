@@ -22,8 +22,6 @@ import kotlin.math.roundToInt
 object ConcernDigests {
     /** 성적 평균에 쓰는 최근 시험 수. */
     const val RECENT_GRADES = 5
-    /** 목표가 이만큼(일) 그대로면 먼저 볼 곳으로 표시합니다. */
-    const val IDLE_DAYS = 7
 
     fun study(weekMinutes: Int, progress: List<SubjectProgress>): ConcernDigest {
         val total = progress.sumOf { it.total }
@@ -86,7 +84,7 @@ object ConcernDigests {
     /** 목표·할 일: 이번 주 마감 할 일 중 끝낸 수, 밀린 할 일 → 오래 멈춘 목표 → 진행 중인 목표 수. */
     fun plan(goals: List<GoalNode>, week: WeekRate?, overdue: Int): ConcernDigest {
         val active = goals.filter { it.goal.status == GoalStatus.ACTIVE }
-        val idle = active.filter { it.idleDays >= IDLE_DAYS }.maxByOrNull { it.idleDays }
+        val idle = active.filter { it.isIdle }.maxByOrNull { it.idleDays }
         return ConcernDigest(
             concern = Concern.PLAN,
             headline = if (week == null || week.due == 0) "이번 주 마감 할 일 없음" else "이번 주 할 일 ${week.done}/${week.due}",

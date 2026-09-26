@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.BalanceReport
 import com.nextstep.app.domain.stats.BalanceVerdict
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 
@@ -30,7 +31,7 @@ internal fun BalanceCard(b: BalanceReport, yearLabel: String?) {
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             val self = b.selfDirectedRatio
-            LabeledProgress(label = "스스로 만든 계획", ratio = self ?: 0f, color = MaterialTheme.colorScheme.tertiary, trailing = self?.let { "${(it * PERCENT).toInt()}%" } ?: "아직 없음")
+            LabeledProgress(label = "스스로 만든 계획", ratio = self ?: 0f, color = MaterialTheme.colorScheme.tertiary, trailing = self?.asPercent() ?: "아직 없음")
             Text(
                 when {
                     self == null -> "할 일이 쌓이면 학생이 스스로 만든 비율을 보여 드려요"
@@ -56,5 +57,4 @@ internal fun BalanceCard(b: BalanceReport, yearLabel: String?) {
     }
 }
 
-private const val PERCENT = 100
 private const val SELF_DIRECTED_GOOD = 0.6f

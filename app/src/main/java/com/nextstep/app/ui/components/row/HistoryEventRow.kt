@@ -15,10 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.goaltree.HistoryEvent
 import com.nextstep.app.domain.goaltree.HistoryKind
-import com.nextstep.app.domain.goaltree.PlanHistory
+import com.nextstep.app.domain.goaltree.Assigner
 import com.nextstep.app.domain.time.DateUtils
 
 /** 기록 한 줄: 날짜 · 무엇이(목표 시작 · 할 일 끝 · 목표 달성) · 어느 목표의 일인지 · 달성이 어느 목표로 이어졌는지. */
@@ -34,9 +33,9 @@ fun HistoryEventRow(e: HistoryEvent) {
         Icon(icon, contentDescription = e.kind.label, tint = tint, modifier = Modifier.size(18.dp))
         Column(Modifier.weight(1f)) {
             Text(e.title, style = MaterialTheme.typography.bodyMedium)
-            val who = Role.from(e.byRole)?.let { PlanHistory.assignerLabel(it) }
+            val who = Assigner.of(e.byRole)
             val sub = listOfNotNull(
-                e.kind.label, who?.let { if (e.kind != HistoryKind.TASK_DONE) "$it 만든 목표" else if (e.byRole == Role.STUDENT.name) "스스로 정한 일" else "$it 준 일" },
+                e.kind.label, who?.let { if (e.kind == HistoryKind.TASK_DONE) it.taskLabel else it.goalLabel },
                 e.goalTitle?.let { "목표: $it" }, e.leadsToTitle?.let { "→ $it" },
             )
             Text(sub.joinToString(" · "), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

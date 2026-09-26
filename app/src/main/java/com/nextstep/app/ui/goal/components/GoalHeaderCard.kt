@@ -13,9 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.model.GoalStatus
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.goaltree.GoalNode
-import com.nextstep.app.domain.goaltree.PlanHistory
+import com.nextstep.app.domain.goaltree.Assigner
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
@@ -30,7 +30,7 @@ internal fun GoalHeaderCard(node: GoalNode, canClose: Boolean, onAchieve: () -> 
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "${GoalArea.entries.firstOrNull { it.name == g.area }?.label ?: "목표"} · ${Role.from(g.createdByRole)?.let { PlanHistory.assignerLabel(it) } ?: ""} 만든 목표",
+                    listOfNotNull(GoalArea.from(g.area).label, Assigner.of(g.createdByRole)?.goalLabel).joinToString(" · "),
                     style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f),
                 )
                 node.daysLeft?.takeIf { !node.isAchieved }?.let { DDayBadge(it) }
@@ -38,7 +38,7 @@ internal fun GoalHeaderCard(node: GoalNode, canClose: Boolean, onAchieve: () -> 
             Text(g.title, style = MaterialTheme.typography.titleLarge)
             if (g.description.isNotBlank()) Text("왜: ${g.description}", style = MaterialTheme.typography.bodyMedium)
             LabeledProgress(
-                label = "달성 ${(node.rate * PERCENT).toInt()}% · 할 일 ${node.doneTasks}/${node.totalTasks}" +
+                label = "달성 ${node.rate.asPercent()} · 할 일 ${node.doneTasks}/${node.totalTasks}" +
                     (if (node.children.isNotEmpty()) " · 작은 목표 ${node.achievedChildren}/${node.children.size}" else ""),
                 ratio = node.rate, color = MaterialTheme.colorScheme.primary,
             )
@@ -48,7 +48,7 @@ internal fun GoalHeaderCard(node: GoalNode, canClose: Boolean, onAchieve: () -> 
                     when (g.status) {
                         GoalStatus.DONE -> g.doneAt?.let { "${DateUtils.formatDate(DateUtils.toLocalDate(it))} 달성" } ?: "달성"
                         GoalStatus.ARCHIVED -> "보관함"
-                        GoalStatus.ACTIVE -> if (node.idleDays >= IDLE_DAYS) "${node.idleDays}일째 그대로" else "마지막 진행 ${DateUtils.formatDate(node.lastActivity)}"
+                        GoalStatus.ACTIVE -> if (node.isIdle) "${node.idleDays}일째 그대로" else "마지막 진행 ${DateUtils.formatDate(node.lastActivity)}"
                     },
                     if (node.overdue > 0) "밀린 할 일 ${node.overdue}개" else null,
                 ).joinToString(" · "),
@@ -68,5 +68,3 @@ internal fun GoalHeaderCard(node: GoalNode, canClose: Boolean, onAchieve: () -> 
     }
 }
 
-private const val PERCENT = 100
-private const val IDLE_DAYS = 7
