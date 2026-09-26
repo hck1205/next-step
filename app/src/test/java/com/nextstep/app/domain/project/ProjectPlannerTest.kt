@@ -133,6 +133,7 @@ class ProjectPlannerTest {
         val (goal, steps) = saved(4)
         val slots = ProjectPlanner.slotsOf(english, goal.copy(createdAt = 0L), steps)
         assertNull(slots[0].end)
+        assertEquals(day, slots[4].start)
         assertEquals(LocalDate.ofEpochDay(steps[4].dueDate!!), slots[4].end)
         assertEquals(slots[4].end!!.plusDays(1), slots[5].start)
     }

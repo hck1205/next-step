@@ -6,7 +6,6 @@ import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.domain.time.DateUtils
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -133,17 +132,18 @@ object ProjectPlanner {
         )
     }
 
-    /** 저장된 단계의 계획 일정(타임라인용). 시작날은 앞 단계 끝날 다음 날, 첫 단계는 목표를 만든 날. 건너뛴 단계는 날짜 없음. */
+    /** 저장된 단계의 계획 일정(타임라인용). 시작날은 앞 단계 끝날 다음 날, 첫 단계는 끝날에서 보통 기간만큼 거슬러 간 날. 건너뛴 단계는 날짜 없음. */
     fun slotsOf(plan: ProjectPlan, goal: GoalEntity, steps: List<GoalStepEntity>): List<PhaseSlot> {
         val keyed = steps.filter { it.goalId == goal.id && !it.deleted }.associateBy { phaseKeyOf(it) }
-        var cursor: LocalDate? = DateUtils.toLocalDate(goal.createdAt)
+        var cursor: LocalDate? = null
         return plan.phases.mapIndexed { i, phase ->
             val step = keyed[phase.key]
             val end = step?.takeIf { it.status != MilestoneStatus.SKIPPED }?.dueDate?.let { LocalDate.ofEpochDay(it) }
             if (end == null) {
                 PhaseSlot(i, phase, null, null)
             } else {
-                PhaseSlot(i, phase, cursor, end).also { cursor = end.plusDays(1) }
+                val start = cursor ?: end.minusWeeks(phase.weeks.toLong()).plusDays(1)
+                PhaseSlot(i, phase, start, end).also { cursor = end.plusDays(1) }
             }
         }
     }
