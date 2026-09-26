@@ -22,10 +22,10 @@ class GamifyTest {
 
     @Test
     fun levelsWidenStepByStep() {
-        assertEquals(listOf(0, 10, 30, 60, 100, 150), (1..6).map { GameLevel.threshold(it) })
-        assertEquals(1, GameLevel.of(0).number); assertEquals(1, GameLevel.of(9).number); assertEquals(2, GameLevel.of(10).number)
-        val l = GameLevel.of(45)
-        assertEquals(3, l.number); assertEquals("도전자", l.title); assertEquals(0.5f, l.progress(45), 0.001f); assertEquals(15, l.remaining(45))
+        assertEquals(listOf(0, 25, 75, 150, 250, 375), (1..6).map { GameLevel.threshold(it) })
+        assertEquals(1, GameLevel.of(0).number); assertEquals(1, GameLevel.of(24).number); assertEquals(2, GameLevel.of(25).number)
+        val l = GameLevel.of(110)
+        assertEquals(3, l.number); assertEquals("도전자", l.title); assertEquals(35f / 75, l.progress(110), 0.001f); assertEquals(40, l.remaining(110))
         assertEquals("전설 +2", GameLevel.level(12).title)
     }
 
@@ -48,7 +48,7 @@ class GamifyTest {
         assertEquals(2, s.tasksDone); assertEquals(1, s.onTime); assertEquals(1, s.selfDone); assertEquals(1, s.goals); assertEquals(1, s.phases)
         // 2×2 + 1 + 1 + 루틴 1 + 공부 2(45분) + 계획 3 + 돌아보기 3 + 목표 10 + 단계 15
         assertEquals(40, p.xp)
-        assertEquals(3, p.level.number)
+        assertEquals(2, p.level.number)
         assertTrue(p.lines.none { it.count == 0 })
         assertTrue(p.earnedBadges.map { it.badge }.containsAll(listOf(Badge.FIRST_TASK, Badge.FIRST_GOAL, Badge.PHASE_1)))
         assertFalse(p.badges.first { it.badge == Badge.TASKS_10 }.earned); assertEquals(0.2f, p.badges.first { it.badge == Badge.TASKS_10 }.ratio, 0.001f)

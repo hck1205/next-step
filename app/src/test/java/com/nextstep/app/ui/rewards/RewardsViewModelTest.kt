@@ -32,8 +32,8 @@ class RewardsViewModelTest : ViewModelTestBase() {
             Fixtures.goal("영어 일기", trackId = GoalTree.TRACK, id = "g2"),
             Fixtures.goal("중간고사", trackId = "exam", id = "g3"),
         )
-        // 어른이 준 할 일 3개를 마감 날 끝냄: 3×2 + 마감 덤 3 = 9, 목표 달성 10 → 19 XP(레벨 2)
-        streams.tasks.value = (1..3).map { Fixtures.task("t$it", today, done = true, by = "PARENT").copy(doneAt = noon) }
+        // 어른이 준 할 일 5개를 마감 날 끝냄: 5×2 + 마감 덤 5 = 15, 목표 달성 10 → 25 XP(레벨 2)
+        streams.tasks.value = (1..5).map { Fixtures.task("t$it", today, done = true, by = "PARENT").copy(doneAt = noon) }
     }
 
     @Test
@@ -41,7 +41,7 @@ class RewardsViewModelTest : ViewModelTestBase() {
         seed()
         val vm = vm(); val job = subscribe(vm.state)
         var s = settle(vm.state)
-        assertTrue(s.gamify); assertEquals(19, s.profile.xp); assertEquals(2, s.profile.level.number)
+        assertTrue(s.gamify); assertEquals(25, s.profile.xp); assertEquals(2, s.profile.level.number)
         assertTrue(s.profile.earnedBadges.map { it.badge }.containsAll(listOf(Badge.FIRST_TASK, Badge.FIRST_GOAL)))
         assertEquals(listOf("g2"), s.goals.map { it.id }) // 보상을 걸 수 있는 목표: 진행 중인 목표 트리만
         assertEquals(listOf(3, 4, 5, 6, 7), s.levelChoices); assertTrue(s.canPromise)

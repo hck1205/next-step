@@ -57,8 +57,9 @@ class ParentViewModelsTest : ViewModelTestBase() {
         streams.rewards.value = listOf(
             com.nextstep.app.data.local.entity.RewardEntity(id = "r1", familyId = Fixtures.FAMILY, kind = "GOAL", targetId = "g1", title = "보드게임"),
             com.nextstep.app.data.local.entity.RewardEntity(id = "r2", familyId = Fixtures.FAMILY, kind = "GOAL", targetId = "g2", title = "나들이"),
-            com.nextstep.app.data.local.entity.RewardEntity(id = "r3", familyId = Fixtures.FAMILY, kind = "LEVEL", targetId = "2", title = "영화"), // 목표 달성 10 XP → 레벨 2
+            com.nextstep.app.data.local.entity.RewardEntity(id = "r3", familyId = Fixtures.FAMILY, kind = "LEVEL", targetId = "2", title = "영화"), // 목표 달성 10 + 할 일 5개 15 = 25 XP → 레벨 2
         )
+        streams.tasks.value = (1..5).map { Fixtures.task("t$it", today, done = true, by = "PARENT").copy(doneAt = System.currentTimeMillis()) }
         val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
         assertEquals(setOf("r1", "r3"), settle(vm.state).rewardsDue.map { it.reward.id }.toSet())
         vm.onEvent(ParentDashboardEvent.GiveReward("r1"))
