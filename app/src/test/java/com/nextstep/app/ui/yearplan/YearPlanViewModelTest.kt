@@ -124,7 +124,7 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         val mentor = settle(vm.state)
         assertTrue(mentor.mineOnly)
         assertEquals(YearPlans.base(yearKey).count { it.who == YearDoer.MENTOR }, mentor.total)
-        assertEquals(YearPlans.forYear(yearKey).size, mentor.allCount)
+        assertEquals(YearPlans.base(yearKey).size, mentor.allCount)
         vm.onEvent(YearPlanEvent.ShowMine(false))
         assertEquals(mentor.allCount, settle(vm.state).total)
         // 내 몫이 하나도 없으면 전체를 보여 줘요.

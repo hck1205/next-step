@@ -28,7 +28,7 @@ data class YearPlanUiState(
     val showsAllDoers: Boolean = false,
     /** 지금 "내 할 일"만 보는지(내 몫이 하나도 없으면 전체로 보여 주고 false). */
     val mineOnly: Boolean = false,
-    /** 내 몫과 전체의 개수. 내 몫을 모르면(화면이 아직 안 알림) [mineCount] 는 0. */
+    /** 내 몫과 전체의 기본 개수(앞서 가기 제외). 내 몫을 모르면(화면이 아직 안 알림) [mineCount] 는 0. */
     val mineCount: Int = 0,
     val allCount: Int = 0,
     val loaded: Boolean = false,
