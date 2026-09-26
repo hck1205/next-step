@@ -24,6 +24,8 @@ enum class ConcernSection(
     REVIEW(Concern.LEARN, "복습", "review", StudentUiLevel.SEEDLING),
     CONTENT(Concern.LEARN, "영상", "content", StudentUiLevel.SEEDLING),
     ROADMAP(Concern.LEARN, "로드맵", "roadmap", StudentUiLevel.BRANCH),
+    PROJECTS(Concern.PROJECT, "진행 중", "projects", StudentUiLevel.SEED),
+    PROJECT_CATALOG(Concern.PROJECT, "새로 시작", "project-catalog", StudentUiLevel.STEM),
     MISSIONS(Concern.EXAMS, "시험·목표", "missions", StudentUiLevel.STEM),
     GRADES(Concern.EXAMS, "성적", "grades", StudentUiLevel.STEM),
     ASSIGNMENTS(Concern.CLASS, "과제", "assignments", StudentUiLevel.STEM),

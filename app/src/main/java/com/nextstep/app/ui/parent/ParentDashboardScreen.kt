@@ -35,6 +35,7 @@ import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
+import com.nextstep.app.ui.components.card.RoutineCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.StatusCard
 import com.nextstep.app.ui.components.card.StatusTile
@@ -95,6 +96,10 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
             if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
+            if (state.routines.isNotEmpty()) {
+                item { SectionTitle("오늘의 루틴", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.PROJECTS) }) { Text("프로젝트") } }) }
+                item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(ParentDashboardEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject) }
+            }
 
             item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("일정 전체") } }) }
             if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") } }

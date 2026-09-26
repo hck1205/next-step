@@ -16,6 +16,7 @@ import com.nextstep.app.data.repository.FamilyScope
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.data.repository.GrowthRepository
+import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
@@ -36,6 +37,7 @@ import com.nextstep.app.data.repository.room.RoomEventRepository
 import com.nextstep.app.data.repository.room.RoomGoalRepository
 import com.nextstep.app.data.repository.room.RoomGradeRepository
 import com.nextstep.app.data.repository.room.RoomGrowthRepository
+import com.nextstep.app.data.repository.room.RoomProjectRepository
 import com.nextstep.app.data.repository.room.RoomJourneyRepository
 import com.nextstep.app.data.repository.room.RoomMemberRepository
 import com.nextstep.app.data.repository.room.RoomOnboardingRepository
@@ -79,7 +81,8 @@ class AppContainer(context: Context) {
     val growth: GrowthRepository = RoomGrowthRepository(database.growthRecordDao(), database.observationDao(), scope, syncManager, time)
     val peerCurriculum: PeerCurriculumRepository = RoomPeerCurriculumRepository(database.peerTopicDao())
     val plans: StudyPlanRepository = RoomStudyPlanRepository(database.eventDao(), database.taskDao(), scope, syncManager, time)
-    val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, members, roadmap, contents, journey, goals, activities, growth)
+    val projects: ProjectRepository = RoomProjectRepository(database.projectLogDao(), scope, syncManager, time)
+    val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, members, roadmap, contents, journey, goals, activities, growth, projects)
 
     private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
         if (FirebaseApp.getApps(context).isEmpty()) {

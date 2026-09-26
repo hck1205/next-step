@@ -9,6 +9,8 @@ import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.planner.PlanOptions
+import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.project.RoutineItem
 
 /** Home 화면의 사용자 의도. Content 는 이 이벤트만 내보내고 ViewModel 이 처리합니다. */
 sealed interface HomeEvent {
@@ -23,4 +25,6 @@ sealed interface HomeEvent {
     data object DismissLevelUp : HomeEvent
     /** "올해의 공부"의 한 가지를 오늘 할 일로. */
     data class AddStudyKind(val kind: StudyKind) : HomeEvent
+    /** 오늘의 루틴 한 줄 체크(다시 누르면 취소). */
+    data class ToggleRoutine(val progress: ProjectProgress, val item: RoutineItem) : HomeEvent
 }

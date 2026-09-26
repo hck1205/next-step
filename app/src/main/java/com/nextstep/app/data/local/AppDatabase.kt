@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.nextstep.app.data.local.dao.ProjectLogDao
 import com.nextstep.app.data.local.dao.RoadmapDao
 import com.nextstep.app.data.local.dao.StudySessionDao
 import com.nextstep.app.data.local.dao.TaskDao
@@ -37,6 +38,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.ContentEntity
+import com.nextstep.app.data.local.entity.ProjectLogEntity
 
 @Database(
     entities = [
@@ -56,8 +58,9 @@ import com.nextstep.app.data.local.entity.ContentEntity
         GrowthRecordEntity::class,
         ObservationEntity::class,
         PeerTopicEntity::class,
+        ProjectLogEntity::class,
     ],
-    version = 13,
+    version = 14,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -78,6 +81,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun growthRecordDao(): GrowthRecordDao
     abstract fun observationDao(): ObservationDao
     abstract fun peerTopicDao(): PeerTopicDao
+    abstract fun projectLogDao(): ProjectLogDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

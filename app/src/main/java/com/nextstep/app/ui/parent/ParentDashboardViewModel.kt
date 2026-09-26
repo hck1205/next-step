@@ -15,7 +15,11 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.project.RoutineItem
 import com.nextstep.app.domain.stats.StudyStats
 import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +39,7 @@ import com.nextstep.app.ui.common.asUiState
 class ParentDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val tasks: TaskRepository,
+    private val projects: ProjectRepository,
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
@@ -45,7 +50,7 @@ class ParentDashboardViewModel(
         Side(members, journey, activities, goals, steps)
     }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.syncStatus) { c, x, sync ->
+    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.syncStatus, streams.projectLogs) { c, x, sync, logs ->
         val today = DateUtils.today()
         val ctx = StudentContext.of(x.members, today)
         val period = ctx.currentPeriod
@@ -68,6 +73,7 @@ class ParentDashboardViewModel(
             balance = BalanceStats.report(ctx.stage, c.sessions, c.tasks, x.activities, period, today, c.events, ctx.year),
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
             missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
+            routines = ProjectPlanner.progressAll(x.goals, x.goalSteps, logs, today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
@@ -92,10 +98,16 @@ class ParentDashboardViewModel(
         val goalSteps: List<GoalStepEntity>,
     )
 
+    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch {
+        val phase = progress.current ?: return@launch
+        projects.toggle(progress.goalId, phase.key, item.name, item.minutes, DateUtils.today().toEpochDay())
+    }
+
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: ParentDashboardEvent) {
         when (event) {
             is ParentDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
+            is ParentDashboardEvent.ToggleRoutine -> toggleRoutine(event.progress, event.item)
         }
     }
 

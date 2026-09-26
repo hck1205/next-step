@@ -12,6 +12,9 @@ import com.nextstep.app.domain.planner.PlanOptions
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.fake.FakeContentRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
+import com.nextstep.app.fake.FakeProjectRepository
+import com.nextstep.app.domain.project.ProjectCatalog
+import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.fake.FakeRoadmapRepository
 import com.nextstep.app.fake.FakeStudyPlanRepository
 import com.nextstep.app.fake.FakeTaskRepository
@@ -30,9 +33,10 @@ class HomeViewModelTest : ViewModelTestBase() {
     private val tasks = FakeTaskRepository(); private val topics = FakeTopicRepository()
     private val roadmap = FakeRoadmapRepository(); private val contents = FakeContentRepository(); private val plans = FakeStudyPlanRepository()
     private val members = FakeMemberRepository()
+    private val projects = FakeProjectRepository(streams)
     private val today = DateUtils.today()
 
-    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members)
+    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects)
 
     @Test
     fun youngStudentGetsSproutScreenWeekStarsAndSeenLevelIsRecorded() = runTest {
@@ -163,6 +167,23 @@ class HomeViewModelTest : ViewModelTestBase() {
         val s = settle(vm.state)
         assertTrue(s.lastPlan!!.isEmpty)
         assertEquals(1, plans.applied.size) // 저장소가 빈 계획을 무시하는 책임을 가짐
+        job.cancel()
+    }
+
+    @Test
+    fun todaysRoutineComesFromRunningProjectsAndTogglesOnTap() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "하은", id = "kid", gradeYear = 1))
+        val (goal, steps) = ProjectPlanner.start(ProjectCatalog.byId.getValue("english-reader"), 4, today, "PARENT")
+        streams.goals.value = listOf(goal.copy(familyId = Fixtures.FAMILY)); streams.goalSteps.value = steps
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertTrue(StudentHomeSection.ROUTINE in s.homeOrder)
+        val p = s.routines.single(); val item = p.current!!.routine.first()
+        assertEquals("파닉스", p.current!!.title)
+        vm.onEvent(HomeEvent.ToggleRoutine(p, item)); s = settle(vm.state)
+        assertEquals(setOf(item.name), s.routines.single().todayDoneItems); assertEquals(item.minutes, s.routines.single().todayMinutes)
+        vm.onEvent(HomeEvent.ToggleRoutine(s.routines.single(), item)); s = settle(vm.state)
+        assertTrue(s.routines.single().todayDoneItems.isEmpty())
         job.cancel()
     }
 }

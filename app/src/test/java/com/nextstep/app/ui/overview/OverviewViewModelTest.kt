@@ -3,6 +3,8 @@ package com.nextstep.app.ui.overview
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.project.ProjectCatalog
+import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.stats.BalanceVerdict
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.testing.Fixtures
@@ -48,13 +50,28 @@ class OverviewViewModelTest : ViewModelTestBase() {
         streams.growthRecords.value = listOf(Fixtures.growth(LocalDate.of(2029, 9, 1), height = 130.0))
         val vm = OverviewViewModel(streams, today = { today }); val job = subscribe(vm.state)
         val d = settle(vm.state).digests
-        assertEquals(listOf(Concern.STUDY, Concern.LEARN, Concern.EXAMS, Concern.CLASS, Concern.GROWTH, Concern.DISCOVER), d.map { it.concern })
+        assertEquals(listOf(Concern.STUDY, Concern.LEARN, Concern.PROJECT, Concern.EXAMS, Concern.CLASS, Concern.GROWTH, Concern.DISCOVER), d.map { it.concern })
         assertEquals("복습 1/4단원", d[0].detail)
         assertEquals("복습할 단원 2개", d[1].headline); assertEquals("수학 · 단원 1", d[1].detail)
-        assertEquals("다가오는 시험 없음", d[2].headline); assertEquals("최근 1번 평균 90점", d[2].detail)
-        assertEquals("낸 과제 없음", d[3].headline)
-        assertEquals("키 130cm", d[4].headline)
-        assertEquals("이번 학기 활동 없음", d[5].headline)
+        assertEquals("진행 중인 프로젝트 없음", d[2].headline)
+        assertEquals("다가오는 시험 없음", d[3].headline); assertEquals("최근 1번 평균 90점", d[3].detail)
+        assertEquals("낸 과제 없음", d[4].headline)
+        assertEquals("키 130cm", d[5].headline)
+        assertEquals("이번 학기 활동 없음", d[6].headline)
+        job.cancel()
+    }
+
+    @Test
+    fun projectDigestFlagsAProjectThatFellBehind() = runTest {
+        val plan = ProjectCatalog.byId.getValue("piano")
+        val (goal, steps) = ProjectPlanner.start(plan, 1, today.minusYears(2), "PARENT")
+        streams.goals.value = listOf(goal.copy(familyId = Fixtures.FAMILY))
+        streams.goalSteps.value = steps
+        val vm = OverviewViewModel(streams, today = { today }); val job = subscribe(vm.state)
+        val d = settle(vm.state).digests.single { it.concern == Concern.PROJECT }
+        assertEquals("프로젝트 1개 진행 중", d.headline)
+        assertEquals("피아노 한 곡 완성 · 바이엘 · 계획보다 늦어요", d.detail)
+        assertTrue(d.attention)
         job.cancel()
     }
 }

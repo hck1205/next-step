@@ -28,6 +28,9 @@ import com.nextstep.app.ui.onboarding.OnboardingViewModel
 import com.nextstep.app.ui.parent.ParentDashboardViewModel
 import com.nextstep.app.ui.progress.ProgressViewModel
 import com.nextstep.app.ui.progress.SubjectDetailViewModel
+import com.nextstep.app.ui.project.ProjectViewModel
+import com.nextstep.app.ui.projectcatalog.ProjectCatalogViewModel
+import com.nextstep.app.ui.projects.ProjectsViewModel
 import com.nextstep.app.ui.quickadd.QuickAddViewModel
 import com.nextstep.app.ui.growth.GrowthViewModel
 import com.nextstep.app.ui.overview.OverviewViewModel
@@ -41,8 +44,8 @@ object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { with(container()) { RootViewModel(onboarding, members) } }
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
-        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members) } }
-        initializer { with(container()) { ParentDashboardViewModel(streams, tasks) } }
+        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects) } }
+        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects) } }
         initializer { with(container()) { MentorDashboardViewModel(streams, members, tasks) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
@@ -67,6 +70,9 @@ object AppViewModelProvider {
         initializer { with(container()) { KidFamilyViewModel(streams) } }
         initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
         initializer { with(container()) { QuickAddViewModel(streams, activities, tasks, grades, events) } }
+        initializer { with(container()) { ProjectsViewModel(streams, projects) } }
+        initializer { with(container()) { ProjectCatalogViewModel(streams, goals) } }
+        initializer { with(container()) { ProjectViewModel(createSavedStateHandle(), streams, goals, projects) } }
     }
 }
 

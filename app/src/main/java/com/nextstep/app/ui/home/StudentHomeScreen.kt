@@ -43,6 +43,7 @@ import com.nextstep.app.ui.components.card.CurriculumCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
+import com.nextstep.app.ui.components.card.RoutineCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.UpcomingExamCard
@@ -114,6 +115,10 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                         if (state.pendingTasks.size > state.taskRows) item {
                             TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("${state.pendingTasks.size - state.taskRows}개 더 보기") }
                         }
+                    }
+                    StudentHomeSection.ROUTINE -> if (state.routines.isNotEmpty()) {
+                        item { SectionTitle(StudentHomeSection.ROUTINE.label) }
+                        item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, big = !level.showsNumbers) }
                     }
                     StudentHomeSection.WEEK -> if (state.week.isNotEmpty()) item { WeekCard(state.week, state.streak, words.weekTitle, showsNumbers = level.showsNumbers) }
                     StudentHomeSection.EVENTS -> {

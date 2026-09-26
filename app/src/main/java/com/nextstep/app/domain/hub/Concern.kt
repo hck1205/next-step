@@ -9,6 +9,7 @@ enum class Concern(val label: String, val question: String) {
     OVERVIEW("한눈에", "전체적으로 어때?"),
     STUDY("공부", "얼마나, 어떻게 공부하고 있지?"),
     LEARN("배울 것", "지금 무엇을 공부하면 되지?"),
+    PROJECT("교육 프로젝트", "오래 키우는 힘은 어디까지 왔지?"),
     EXAMS("시험·성적", "시험 준비와 결과는?"),
     CLASS("과제", "받은 과제는 어떻게 되고 있지?"),
     GROWTH("성장", "몸은 잘 자라고 있지?"),

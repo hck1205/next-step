@@ -6,6 +6,8 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.mission.MissionKind
+import com.nextstep.app.domain.project.ProjectCatalog
+import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.journey.GoalTrackCatalog
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGoalRepository
@@ -124,6 +126,17 @@ class GoalsViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("stepStatus:s3:DONE", "goalStatus:g:DONE"), goals.calls)
         vm.onEvent(GoalsEvent.SetGoalStatus("g", GoalStatus.ARCHIVED)); vm.onEvent(GoalsEvent.DeleteGoal("g")); settle(vm.state)
         assertEquals(listOf("goalStatus:g:ARCHIVED", "delete:g"), goals.calls.takeLast(2))
+        job.cancel()
+    }
+
+    @Test
+    fun educationProjectsStayOutOfTheGoalList() = runTest {
+        withChild()
+        val (project, steps) = ProjectPlanner.start(ProjectCatalog.byId.getValue("piano"), 0, today, "PARENT")
+        streams.goals.value = listOf(project.copy(familyId = Fixtures.FAMILY), Fixtures.goal("수학 목표"))
+        streams.goalSteps.value = steps
+        val vm = vm(); val job = subscribe(vm.state)
+        assertEquals(listOf("수학 목표"), settle(vm.state).goals.map { it.goal.title })
         job.cancel()
     }
 }

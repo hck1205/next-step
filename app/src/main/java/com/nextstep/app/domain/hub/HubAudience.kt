@@ -6,7 +6,7 @@ package com.nextstep.app.domain.hub
  * 어느 자리인지는 [com.nextstep.app.domain.access.Capabilities.hubAudience] 가 정합니다.
  */
 enum class HubAudience(val order: List<Concern>) {
-    PARENT(listOf(Concern.OVERVIEW, Concern.STUDY, Concern.LEARN, Concern.EXAMS, Concern.CLASS, Concern.GROWTH, Concern.DISCOVER)),
-    STUDENT(listOf(Concern.OVERVIEW, Concern.LEARN, Concern.STUDY, Concern.EXAMS, Concern.CLASS, Concern.DISCOVER, Concern.GROWTH)),
-    MENTOR(listOf(Concern.OVERVIEW, Concern.CLASS, Concern.STUDY, Concern.LEARN, Concern.EXAMS, Concern.DISCOVER, Concern.GROWTH)),
+    PARENT(listOf(Concern.OVERVIEW, Concern.STUDY, Concern.LEARN, Concern.PROJECT, Concern.EXAMS, Concern.CLASS, Concern.GROWTH, Concern.DISCOVER)),
+    STUDENT(listOf(Concern.OVERVIEW, Concern.LEARN, Concern.PROJECT, Concern.STUDY, Concern.EXAMS, Concern.CLASS, Concern.DISCOVER, Concern.GROWTH)),
+    MENTOR(listOf(Concern.OVERVIEW, Concern.CLASS, Concern.STUDY, Concern.LEARN, Concern.PROJECT, Concern.EXAMS, Concern.DISCOVER, Concern.GROWTH)),
 }

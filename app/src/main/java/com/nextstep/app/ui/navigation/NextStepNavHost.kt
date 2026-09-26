@@ -71,6 +71,8 @@ import com.nextstep.app.ui.parent.ParentDashboardActions
 import com.nextstep.app.ui.parent.ParentDashboardScreen
 import com.nextstep.app.ui.progress.SubjectDetailActions
 import com.nextstep.app.ui.progress.SubjectDetailScreen
+import com.nextstep.app.ui.project.ProjectActions
+import com.nextstep.app.ui.project.ProjectScreen
 import com.nextstep.app.ui.quickadd.QuickAddSheet
 import com.nextstep.app.ui.hub.HubActions
 import com.nextstep.app.ui.hub.HubScreen
@@ -98,6 +100,8 @@ object Routes {
     const val SETTINGS = "settings"
     const val SUBJECT = "subject/{subjectId}"
     fun subject(id: String) = "subject/$id"
+    const val PROJECT = "project/{goalId}"
+    fun project(goalId: String) = "project/$goalId"
     fun records(section: ConcernSection = ConcernSection.OVERVIEW) = "records/${section.route}"
     private const val RECORDS_PREFIX = "records/"
     fun isRecords(route: String?) = route?.startsWith(RECORDS_PREFIX) == true
@@ -184,6 +188,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
     val back: () -> Unit = { navController.popBackStack() }
     val openSubject: (String) -> Unit = { go(Routes.subject(it)) }
     val openRecords: (ConcernSection) -> Unit = { go(Routes.records(it)) }
+    val openProject: (String) -> Unit = { go(Routes.project(it)) }
 
     NavHost(navController = navController, startDestination = Routes.HOME, modifier = modifier) {
         composable(Routes.HOME) {
@@ -194,7 +199,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                         onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject, onOpenRecords = openRecords,
                         onOpenMentor = { go(Routes.MENTOR_HOME) }, onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) },
                         onOpenJourney = { go(Routes.JOURNEY) }, onOpenGoals = { go(Routes.GOALS) },
-                        onSwitchChild = onSwitchChild,
+                        onSwitchChild = onSwitchChild, onOpenProject = openProject,
                     ),
                 )
                 Role.MENTOR -> MentorDashboardScreen(
@@ -208,7 +213,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
                         onOpenTimer = { go(Routes.TIMER) }, onOpenSettings = { go(Routes.FAMILY) }, onOpenSubject = openSubject,
                         onOpenRoadmap = { go(Routes.ROADMAP) }, onOpenContent = { go(Routes.CONTENT) }, onOpenJourney = { go(Routes.JOURNEY) },
                         onOpenRecords = openRecords, onOpenCurriculum = { go(Routes.CURRICULUM) }, onOpenGoals = { go(Routes.GOALS) },
-                        onOpenYear = { go(Routes.YEAR) },
+                        onOpenYear = { go(Routes.YEAR) }, onOpenProject = openProject,
                     ),
                 )
             }
@@ -228,7 +233,7 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
             // 아이 모드(학령 전·초1~2): 기록 허브 대신 스티커판
             if (kid.stickerMe) KidMeScreen() else HubScreen(
                 caps = caps, studentLevel = studentLevel,
-                actions = HubActions(onOpenSubject = openSubject, onOpenJourney = { go(Routes.JOURNEY) }),
+                actions = HubActions(onOpenSubject = openSubject, onOpenJourney = { go(Routes.JOURNEY) }, onOpenProject = openProject),
                 initialSection = ConcernSection.from(entry.arguments?.getString("section"), HubViewer.of(caps, studentLevel)),
             )
         }
@@ -254,6 +259,9 @@ private fun NextStepNavHost(navController: NavHostController, caps: Capabilities
         composable(Routes.CURRICULUM) { CurriculumScreen(caps = caps, actions = CurriculumActions(onBack = back, onOpenSubject = openSubject, onOpenContent = { go(Routes.CONTENT) })) }
         composable(Routes.SUBJECT, arguments = listOf(navArgument("subjectId") { type = NavType.StringType })) {
             SubjectDetailScreen(caps = caps, actions = SubjectDetailActions(onBack = back))
+        }
+        composable(Routes.PROJECT, arguments = listOf(navArgument("goalId") { type = NavType.StringType })) {
+            ProjectScreen(caps = caps, actions = ProjectActions(onBack = back))
         }
         composable(Routes.TIMER) {
             // 아이 모드: 숫자 대신 줄어드는 원, 길이는 올해 한 번 공부 길이

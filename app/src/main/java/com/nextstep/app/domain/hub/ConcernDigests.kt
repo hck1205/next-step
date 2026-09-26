@@ -6,6 +6,8 @@ import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.insight.AptitudeSignal
 import com.nextstep.app.domain.mentor.AssignmentReport
 import com.nextstep.app.domain.mission.MissionFocus
+import com.nextstep.app.domain.project.ProjectPace
+import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewReason
 import com.nextstep.app.domain.stats.ScoreStats
@@ -62,6 +64,18 @@ object ConcernDigests {
             headline = if (review.isEmpty()) "복습할 단원 없음" else "복습할 단원 ${review.size}개",
             detail = first?.let { "${it.subject.name} · ${it.topic.title}" },
             attention = review.any { it.reason == ReviewReason.LOW_CONFIDENCE },
+        )
+    }
+
+    /** 교육 프로젝트: 진행 중인 수와, 늦어진 것(없으면 첫 프로젝트)의 지금 단계. 이번 주 기록이 없거나 늦어지면 주의. */
+    fun project(progress: List<ProjectProgress>): ConcernDigest {
+        val open = progress.filter { !it.isDone }
+        val focus = open.firstOrNull { it.pace == ProjectPace.BEHIND } ?: open.firstOrNull()
+        return ConcernDigest(
+            concern = Concern.PROJECT,
+            headline = if (open.isEmpty()) "진행 중인 프로젝트 없음" else "프로젝트 ${open.size}개 진행 중",
+            detail = focus?.let { p -> "${p.plan.title} · ${p.current?.title ?: ""} · ${p.pace.label}" },
+            attention = open.any { it.pace == ProjectPace.BEHIND || it.weekMinutes == 0 },
         )
     }
 

@@ -7,6 +7,7 @@ package com.nextstep.app.domain.growth
 enum class StudentHomeSection(val label: String) {
     TIMER("공부 시작 버튼"),
     TASKS("오늘 할 일"),
+    ROUTINE("오늘의 루틴"),
     WEEK("이번 주 별"),
     YEAR("올해의 공부"),
     EVENTS("오늘 일정"),

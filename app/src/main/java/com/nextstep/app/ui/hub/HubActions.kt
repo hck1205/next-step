@@ -4,4 +4,6 @@ package com.nextstep.app.ui.hub
 data class HubActions(
     val onOpenSubject: (String) -> Unit = { _ -> },
     val onOpenJourney: () -> Unit = {},
+    /** 교육 프로젝트 한 개 화면(목표 id). */
+    val onOpenProject: (String) -> Unit = { _ -> },
 )

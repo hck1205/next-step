@@ -14,4 +14,5 @@ data class HomeActions(
     val onOpenCurriculum: () -> Unit = {},
     val onOpenGoals: () -> Unit = {},
     val onOpenYear: () -> Unit = {},
+    val onOpenProject: (String) -> Unit = { _ -> },
 )

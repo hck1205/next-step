@@ -10,12 +10,14 @@ import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
+import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.health.GrowthStats
 import com.nextstep.app.domain.hub.ConcernDigests
 import com.nextstep.app.domain.insight.AptitudeEngine
 import com.nextstep.app.domain.mission.MissionPlanner
+import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -61,7 +63,7 @@ class OverviewViewModel(
         Learn(StudyStats.subjectProgress(topics, subjects), ReviewPlanner.plan(topics, subjects, grades), subjects)
     }
 
-    private val exams = combine(streams.goals, streams.goalSteps, streams.grades) { goals, steps, grades -> Exams(goals, steps, grades) }
+    private val exams = combine(streams.goals, streams.goalSteps, streams.grades, streams.projectLogs) { goals, steps, grades, logs -> Exams(goals, steps, grades, logs) }
 
     private val growth = combine(streams.growthRecords, streams.observations) { records, observations -> Growth(records, observations) }
 
@@ -71,6 +73,7 @@ class OverviewViewModel(
             digests = listOf(
                 ConcernDigests.study(s.balance?.weekMinutes ?: 0, learn.progress),
                 ConcernDigests.learn(learn.review),
+                ConcernDigests.project(ProjectPlanner.progressAll(e.goals, e.steps, e.logs, s.today)),
                 ConcernDigests.exams(MissionPlanner.focus(e.goals, e.steps, s.today), e.grades),
                 ConcernDigests.classwork(AssignmentStats.report(b.tasks, learn.subjects, s.today)),
                 ConcernDigests.growth(GrowthStats.summarize(g.records.filter { !it.deleted }, s.today)),
@@ -89,7 +92,7 @@ class OverviewViewModel(
 
     private data class Learn(val progress: List<SubjectProgress>, val review: List<ReviewItem>, val subjects: List<SubjectEntity>)
 
-    private data class Exams(val goals: List<GoalEntity>, val steps: List<GoalStepEntity>, val grades: List<GradeEntity>)
+    private data class Exams(val goals: List<GoalEntity>, val steps: List<GoalStepEntity>, val grades: List<GradeEntity>, val logs: List<ProjectLogEntity>)
 
     private data class Growth(val records: List<GrowthRecordEntity>, val observations: List<ObservationEntity>)
 }

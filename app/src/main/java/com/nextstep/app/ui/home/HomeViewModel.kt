@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.repository.MemberRepository
+import com.nextstep.app.data.repository.ProjectRepository
+import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.project.RoutineItem
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.domain.stats.StudyQueues
 import com.nextstep.app.domain.mission.MissionPlanner
@@ -52,6 +56,7 @@ class HomeViewModel(
     private val contents: ContentRepository,
     private val plans: StudyPlanRepository,
     private val members: MemberRepository,
+    private val projects: ProjectRepository,
 ) : ViewModel() {
 
     private val base = combine(streams.profile, streams.subjects, streams.events, streams.tasks, streams.sessions) { profile, subjects, events, tasks, sessions ->
@@ -110,8 +115,11 @@ class HomeViewModel(
         )
     }
 
-    val state: StateFlow<HomeUiState> = combine(enriched, streams.goals, streams.goalSteps) { s, goals, steps ->
-        s.copy(missionFocus = MissionPlanner.focus(goals, steps, s.today))
+    val state: StateFlow<HomeUiState> = combine(enriched, streams.goals, streams.goalSteps, streams.projectLogs) { s, goals, steps, logs ->
+        s.copy(
+            missionFocus = MissionPlanner.focus(goals, steps, s.today),
+            routines = ProjectPlanner.progressAll(goals, steps, logs, s.today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
+        )
     }
         .asUiState(viewModelScope, HomeUiState())
 
@@ -169,6 +177,11 @@ class HomeViewModel(
         )
     }
 
+    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch {
+        val phase = progress.current ?: return@launch
+        projects.toggle(progress.goalId, phase.key, item.name, item.minutes, state.value.today.toEpochDay())
+    }
+
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: HomeEvent) {
         when (event) {
@@ -181,6 +194,7 @@ class HomeViewModel(
             is HomeEvent.AddQuickTask -> addQuickTask(event.subject, event.topic, event.type)
             HomeEvent.DismissLevelUp -> dismissLevelUp()
             is HomeEvent.AddStudyKind -> addStudyKind(event.kind)
+            is HomeEvent.ToggleRoutine -> toggleRoutine(event.progress, event.item)
         }
     }
 

@@ -13,6 +13,7 @@ import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
@@ -32,6 +33,7 @@ import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.PeerCurriculumRepository
+import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.StudySessionRepository
@@ -191,6 +193,21 @@ class FakeGrowthRepository : GrowthRepository {
     override suspend fun deleteRecord(id: String) { calls += "deleteRecord:$id" }
     override suspend fun addObservation(observation: ObservationEntity) { calls += "observe:${observation.domain}:${observation.strength}:${observation.text}" }
     override suspend fun deleteObservation(id: String) { calls += "deleteObservation:$id" }
+}
+
+/** [streams] 를 주면 기록이 그 파사드의 projectLogs 에도 보여, 실제 앱처럼 쓰기가 읽기에 반영됩니다. */
+class FakeProjectRepository(streams: FakeFamilyDataStreams? = null) : ProjectRepository {
+    override val logs: MutableStateFlow<List<ProjectLogEntity>> = streams?.projectLogs ?: MutableStateFlow(emptyList())
+    val calls = mutableListOf<String>()
+    override suspend fun log(goalId: String, phaseKey: String, item: String, minutes: Int, date: Long) {
+        calls += "log:$goalId:$phaseKey:$item:$minutes:$date"
+        logs.value = logs.value + ProjectLogEntity(familyId = "fam", goalId = goalId, phaseKey = phaseKey, item = item, minutes = minutes, date = date)
+    }
+    override suspend fun toggle(goalId: String, phaseKey: String, item: String, minutes: Int, date: Long) {
+        val same = logs.value.filter { it.goalId == goalId && it.item == item && it.date == date }
+        if (same.isEmpty()) log(goalId, phaseKey, item, minutes, date) else { calls += "untoggle:$goalId:$item:$date"; logs.value = logs.value - same.toSet() }
+    }
+    override suspend fun delete(id: String) { calls += "delete:$id"; logs.value = logs.value.filter { it.id != id } }
 }
 
 class FakePeerCurriculumRepository : PeerCurriculumRepository {

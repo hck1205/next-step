@@ -45,6 +45,10 @@ import com.nextstep.app.ui.overview.OverviewActions
 import com.nextstep.app.ui.overview.OverviewScreen
 import com.nextstep.app.ui.progress.ProgressActions
 import com.nextstep.app.ui.progress.ProgressScreen
+import com.nextstep.app.ui.projectcatalog.ProjectCatalogActions
+import com.nextstep.app.ui.projectcatalog.ProjectCatalogScreen
+import com.nextstep.app.ui.projects.ProjectsActions
+import com.nextstep.app.ui.projects.ProjectsScreen
 import com.nextstep.app.ui.roadmap.RoadmapActions
 import com.nextstep.app.ui.roadmap.RoadmapScreen
 import com.nextstep.app.ui.talent.TalentScreen
@@ -52,7 +56,7 @@ import kotlinx.coroutines.launch
 
 /**
  * 기록 탭(학생은 "나"): 기능을 관심사별로 나눈 두 단 구조입니다.
- * 위 줄 = 관심사(한눈에 · 공부 · 배울 것 · 시험·성적 · 과제 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
+ * 위 줄 = 관심사(한눈에 · 공부 · 배울 것 · 교육 프로젝트 · 시험·성적 · 과제 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
  * 순서는 보는 자리가 정합니다: 학생은 배울 것, 멘토는 과제가 한눈에 바로 다음(HubAudience).
  * 아래 줄 = 그 관심사의 섹션(예: 공부 › 진도 · 시간 · 습관 · 일정). 섹션 하나가 기능 화면 하나이고 각자 ViewModel 을 가집니다.
  * 어떤 섹션이 보이는지는 domain/hub/ConcernSection 이 정합니다(학생은 화면 단계에 따라 줄고, 멘토에게 신체 기록은 없음).
@@ -88,7 +92,7 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
                         )
                     }
-                    Box(Modifier.fillMaxSize()) { SectionContent(section, caps, concerns, actions, open, openConcern) }
+                    Box(Modifier.fillMaxSize()) { SectionContent(section, caps, viewer, concerns, actions, open, openConcern) }
                 }
             }
         }
@@ -97,7 +101,7 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
 
 /** 섹션 → 기능 화면. 기능 화면은 onBack 없이 그려져 제목줄 대신 관심사·섹션 줄을 씁니다. */
 @Composable
-private fun SectionContent(section: ConcernSection, caps: Capabilities, concerns: List<Concern>, actions: HubActions, open: (ConcernSection) -> Unit, openConcern: (Concern) -> Unit) {
+private fun SectionContent(section: ConcernSection, caps: Capabilities, viewer: HubViewer, concerns: List<Concern>, actions: HubActions, open: (ConcernSection) -> Unit, openConcern: (Concern) -> Unit) {
     when (section) {
         ConcernSection.OVERVIEW -> OverviewScreen(concerns = concerns, actions = OverviewActions(onOpenConcern = openConcern))
         ConcernSection.PROGRESS -> ProgressScreen(caps = caps, actions = ProgressActions(onOpenSubject = actions.onOpenSubject, onOpenRoadmap = { open(ConcernSection.ROADMAP) }))
@@ -108,6 +112,10 @@ private fun SectionContent(section: ConcernSection, caps: Capabilities, concerns
         ConcernSection.REVIEW -> ReviewScreen(caps = caps)
         ConcernSection.CONTENT -> ContentLibraryScreen(caps = caps, actions = ContentActions())
         ConcernSection.ROADMAP -> RoadmapScreen(caps = caps, actions = RoadmapActions(onOpenContent = { open(ConcernSection.CONTENT) }))
+        ConcernSection.PROJECTS -> ProjectsScreen(
+            actions = ProjectsActions(onOpenProject = actions.onOpenProject, onBrowse = if (ConcernSection.PROJECT_CATALOG.visibleFor(viewer)) ({ open(ConcernSection.PROJECT_CATALOG) }) else null),
+        )
+        ConcernSection.PROJECT_CATALOG -> ProjectCatalogScreen(caps = caps, actions = ProjectCatalogActions(onStarted = { open(ConcernSection.PROJECTS) }))
         ConcernSection.MISSIONS -> GoalsScreen(caps = caps, actions = GoalsActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.GRADES -> GradesScreen(caps = caps)
         ConcernSection.ASSIGNMENTS -> AssignmentsScreen()
