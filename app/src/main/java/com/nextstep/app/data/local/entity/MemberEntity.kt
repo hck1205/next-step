@@ -32,6 +32,8 @@ data class MemberEntity(
     val uiLevel: String = "",
     /** 학생이 마지막으로 확인한 화면 단계. 이보다 높은 단계가 되면 "새 화면" 카드를 한 번 보여 줍니다. */
     val seenUiLevel: String = "",
+    /** 자기주도 단계(SelfDirectionStage 이름)를 학부모가 직접 고른 값. 비어 있으면 화면 단계에 맞춰 자동. */
+    val selfDirection: String = "",
     val joinedAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,

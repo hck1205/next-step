@@ -14,7 +14,7 @@ class ConcernSectionTest {
         assertEquals(ConcernSection.entries.toSet(), ConcernSection.visibleFor(v).toSet())
         assertEquals(ConcernSection.OVERVIEW, ConcernSection.visibleFor(v).first())
         assertEquals(ConcernSection.entries.size, ConcernSection.entries.map { it.route }.toSet().size)
-        assertEquals(listOf(ConcernSection.PROGRESS, ConcernSection.TIME, ConcernSection.HABITS, ConcernSection.CALENDAR), ConcernSection.sectionsOf(Concern.STUDY, v))
+        assertEquals(listOf(ConcernSection.SELF, ConcernSection.PROGRESS, ConcernSection.TIME, ConcernSection.HABITS, ConcernSection.CALENDAR), ConcernSection.sectionsOf(Concern.STUDY, v))
         assertEquals(listOf(ConcernSection.CURRICULUM, ConcernSection.REVIEW, ConcernSection.CONTENT, ConcernSection.ROADMAP), ConcernSection.sectionsOf(Concern.LEARN, v))
         assertEquals(listOf(ConcernSection.ASSIGNMENTS), ConcernSection.sectionsOf(Concern.CLASS, v))
         assertEquals(listOf(ConcernSection.PROJECTS, ConcernSection.PROJECT_CATALOG), ConcernSection.sectionsOf(Concern.PROJECT, v))
@@ -37,6 +37,9 @@ class ConcernSectionTest {
         // 학령 전(씨앗): 공부·배울 것 관심사 자체가 없고, 교육 프로젝트는 진행 중인 것만(새로 시작은 줄기부터)
         assertEquals(listOf(ConcernSection.OVERVIEW, ConcernSection.PROJECTS, ConcernSection.ACTIVITIES, ConcernSection.BODY), ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.SEED)))
         assertTrue(ConcernSection.PROJECT_CATALOG in ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.STEM)))
+        // 자기주도 사다리는 스스로 계획을 같이 세우기 시작하는 떡잎(초3)부터 학생에게 보임(어린 단계는 오늘 카드로만)
+        assertFalse(ConcernSection.SELF in ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.SPROUT)))
+        assertEquals(ConcernSection.SELF, ConcernSection.sectionsOf(Concern.STUDY, HubViewer.student(StudentUiLevel.SEEDLING)).first())
         assertTrue(ConcernSection.REVIEW in ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.SEEDLING)))
         assertFalse(ConcernSection.ASSIGNMENTS in ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.SEEDLING)))
         StudentUiLevel.entries.zipWithNext().forEach { (younger, older) ->

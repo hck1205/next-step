@@ -36,6 +36,7 @@ import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.RoutineCard
+import com.nextstep.app.ui.components.card.WeekPlanCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.StatusCard
 import com.nextstep.app.ui.components.card.StatusTile
@@ -96,6 +97,19 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
             if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
+            state.week?.let { week ->
+                item { SectionTitle("스스로 하는 힘", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.SELF) }) { Text("사다리") } }) }
+                item {
+                    WeekPlanCard(
+                        week = week, access = state.weekAccess,
+                        onSavePlan = { goals, minutes -> onEvent(ParentDashboardEvent.SaveWeekPlan(goals, minutes)) },
+                        onToggle = { id, i -> onEvent(ParentDashboardEvent.ToggleWeekGoal(id, i)) },
+                        onApprove = { onEvent(ParentDashboardEvent.ApproveWeek(it)) },
+                        onReflect = { w, mood, good, hard, change -> onEvent(ParentDashboardEvent.ReflectWeek(w, mood, good, hard, change)) },
+                        onOpen = { actions.onOpenRecords(ConcernSection.SELF) },
+                    )
+                }
+            }
             if (state.routines.isNotEmpty()) {
                 item { SectionTitle("오늘의 루틴", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.PROJECTS) }) { Text("프로젝트") } }) }
                 item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(ParentDashboardEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject) }

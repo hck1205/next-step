@@ -1,6 +1,7 @@
 package com.nextstep.app.data.repository.room
 
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -51,6 +52,9 @@ class RoomMemberRepository(
         if (dao.getById(memberId)?.seenUiLevel == level.name) return
         modify(memberId) { it.copy(seenUiLevel = level.name) }
     }
+
+    override suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?) =
+        modify(memberId) { it.copy(selfDirection = stage?.name.orEmpty()) }
 
     override suspend fun remove(memberId: String) = modify(memberId) { it.copy(deleted = true) }
 

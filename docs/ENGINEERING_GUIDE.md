@@ -42,6 +42,7 @@ com.nextstep.app
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
 │   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), HubAudience·HubViewer(역할별 관심사 순서·보는 사람), ConcernDigests(한눈에 타일)
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
+│   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
 │   ├── project/            ProjectCatalog(교육 프로젝트: 목표 → 단계 → 하루 루틴), ProjectPlanner(시작·일정·진행·속도·도착 예상), ProjectPlan/ProjectPhase/RoutineItem/ProjectProgress
 │   ├── year/               YearPlans(해마다 할 일을 분류별로), YearTask, YearArea(분류 = 올해 탭), YearTerm(1학기·2학기·1년 내내)
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계), ActivitySummary(활동 기록 요약)
@@ -63,6 +64,7 @@ com.nextstep.app
     ├── habits/             기록 › 공부 › 습관: 언제·얼마나·며칠 이어서(domain/stats/StudyHabits)
     ├── review/             기록 › 배울 것 › 복습: 과목을 가로지른 복습 목록(domain/stats/ReviewPlanner)
     ├── assignments/        기록 › 과제 › 과제: 멘토가 낸 과제 현황(domain/mentor/AssignmentStats)
+    ├── selfdirection/      기록 › 공부 › 스스로: 사다리 + 제안 + 한 바퀴 + 이번 주 + 최근 4주 + 지난 주들
     ├── projects/           기록 › 교육 프로젝트 › 진행 중: 분류 칩 + 프로젝트 카드 + 오늘 루틴
     ├── projectcatalog/     기록 › 교육 프로젝트 › 새로 시작: 나이에 맞는 계획과 시작 단계 고르기
     ├── project/            교육 프로젝트 한 개(route "project/{goalId}"): 목표·속도·루틴·통과 기준·단계 일정

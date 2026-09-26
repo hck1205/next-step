@@ -16,6 +16,7 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.data.prefs.UserProfile
@@ -47,4 +48,5 @@ interface FamilyDataStreams {
     val growthRecords: Flow<List<GrowthRecordEntity>>
     val observations: Flow<List<ObservationEntity>>
     val projectLogs: Flow<List<ProjectLogEntity>>
+    val weekPlans: Flow<List<WeekPlanEntity>>
 }

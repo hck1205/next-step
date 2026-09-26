@@ -3,6 +3,9 @@ package com.nextstep.app.domain.access
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.hub.HubAudience
+import com.nextstep.app.domain.selfdirection.LoopStep
+import com.nextstep.app.domain.selfdirection.Owner
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.year.YearDoer
 
 /**
@@ -56,6 +59,22 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canChooseStudentScreen: Boolean get() = isParent
     /** 연결된 학부모·멘토를 목록에서 제거할 수 있는지. 학생 본인과 학부모만. */
     val canRemoveMembers: Boolean get() = isStudent || isParent
+
+    /**
+     * 자기주도 사다리의 한 걸음을 이 사람이 할 수 있는지. 어른이 맡은 걸음은 학부모, 같이 맡은 걸음은 학생·학부모, 스스로 맡은 걸음은 학생만.
+     * 멘토는 보기만 합니다(주간 계획은 가족의 몫).
+     */
+    fun canDo(step: LoopStep, stage: SelfDirectionStage): Boolean = when (stage.owner(step)) {
+        Owner.ADULT -> isParent
+        Owner.TOGETHER -> isStudent || isParent
+        Owner.CHILD -> isStudent
+    }
+    /** 아이가 먼저 쓴 주간 계획을 "확인"하는 것은 학부모. */
+    fun canApproveWeekPlan(stage: SelfDirectionStage): Boolean = isParent && stage.needsApproval
+    /** 주간 계획·돌아보기의 세부 내용을 볼 수 있는지. 마지막 단계(내가 주인)에서 어른은 요약만. */
+    fun seesWeekDetails(stage: SelfDirectionStage): Boolean = isStudent || stage.adultSeesDetails
+    /** 자기주도 단계를 한 칸 올리거나 내리는 것은 학부모. */
+    val canChooseSelfDirection: Boolean get() = isParent
 
     /** 기록 탭의 자리(관심사 순서와 보이는 섹션). 학부모 겸 멘토는 학부모 자리에서 보고, 멘토 화면은 따로 엽니다. */
     val hubAudience: HubAudience get() = when {

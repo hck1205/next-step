@@ -16,6 +16,7 @@ enum class ConcernSection(
     val audiences: Set<HubAudience> = ALL,
 ) {
     OVERVIEW(Concern.OVERVIEW, "한눈에", "overview", StudentUiLevel.SEED),
+    SELF(Concern.STUDY, "스스로", "self", StudentUiLevel.SEEDLING),
     PROGRESS(Concern.STUDY, "진도", "progress", StudentUiLevel.SEEDLING),
     TIME(Concern.STUDY, "시간", "time", StudentUiLevel.SPROUT),
     HABITS(Concern.STUDY, "습관", "habits", StudentUiLevel.SEEDLING),

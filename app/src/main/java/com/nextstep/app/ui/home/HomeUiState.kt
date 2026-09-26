@@ -7,6 +7,8 @@ import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.selfdirection.WeekAccess
+import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.domain.curriculum.TermCurriculum
 import com.nextstep.app.domain.growth.GrowthStage
@@ -55,6 +57,9 @@ data class HomeUiState(
     val missionFocus: List<MissionFocus> = emptyList(),
     /** 진행 중인 교육 프로젝트의 오늘 루틴(3개까지). */
     val routines: List<ProjectProgress> = emptyList(),
+    /** 나의 이번 주(자기주도 한 바퀴)와 이 사람이 할 수 있는 것. */
+    val week: WeekStatus? = null,
+    val weekAccess: WeekAccess = WeekAccess(),
     /** 아래 네 목록은 ViewModel 이 StudyQueues 로 한 번 계산합니다. */
     val roadmapFocus: List<RoadmapItemEntity> = emptyList(),
     val activeSubjects: List<SubjectProgress> = emptyList(),

@@ -36,7 +36,7 @@ class StudentScreenTest {
     fun preschoolersHaveNoTimerAndTasksComeFirst() {
         val s = StudentScreen.of(Fixtures.member(Role.STUDENT, "아기", birthDate = LocalDate.of(2022, 3, 1)), today)
         assertEquals("a4", s.year!!.key); assertEquals(StudentUiLevel.SEED, s.level); assertEquals(1.4f, s.textScale, 0f)
-        assertEquals(listOf(StudentHomeSection.TASKS, StudentHomeSection.ROUTINE, StudentHomeSection.YEAR, StudentHomeSection.WEEK), s.homeOrder)
+        assertEquals(listOf(StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.YEAR, StudentHomeSection.WEEK), s.homeOrder)
     }
 
     @Test

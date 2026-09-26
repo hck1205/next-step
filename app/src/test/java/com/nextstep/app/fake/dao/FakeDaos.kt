@@ -8,6 +8,7 @@ import com.nextstep.app.data.local.dao.GoalDao
 import com.nextstep.app.data.local.dao.GrowthRecordDao
 import com.nextstep.app.data.local.dao.ObservationDao
 import com.nextstep.app.data.local.dao.ProjectLogDao
+import com.nextstep.app.data.local.dao.WeekPlanDao
 import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.dao.JourneyDao
 import com.nextstep.app.data.local.dao.MemberDao
@@ -24,6 +25,7 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
+import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
@@ -60,6 +62,10 @@ class FakeActivityDao : InMemoryTable<ActivityEntity>(), ActivityDao
 class FakeGrowthRecordDao : InMemoryTable<GrowthRecordEntity>(), GrowthRecordDao
 
 class FakeObservationDao : InMemoryTable<ObservationEntity>(), ObservationDao
+
+class FakeWeekPlanDao : InMemoryTable<WeekPlanEntity>(), WeekPlanDao {
+    override suspend fun findByWeek(familyId: String, weekStart: Long) = all.firstOrNull { it.familyId == familyId && it.weekStart == weekStart && !it.deleted }
+}
 
 class FakeProjectLogDao : InMemoryTable<ProjectLogEntity>(), ProjectLogDao {
     override suspend fun findOn(goalId: String, item: String, date: Long) = all.filter { it.goalId == goalId && it.item == item && it.date == date && !it.deleted }

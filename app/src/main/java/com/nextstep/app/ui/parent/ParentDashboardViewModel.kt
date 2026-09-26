@@ -16,6 +16,11 @@ import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.ProjectRepository
+import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.selfdirection.SelfDirection
+import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.project.ProjectProgress
@@ -40,6 +45,7 @@ class ParentDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val tasks: TaskRepository,
     private val projects: ProjectRepository,
+    private val weekPlans: WeekPlanRepository,
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
@@ -50,9 +56,12 @@ class ParentDashboardViewModel(
         Side(members, journey, activities, goals, steps)
     }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.syncStatus, streams.projectLogs) { c, x, sync, logs ->
+    private val self = combine(streams.weekPlans, streams.myMember, streams.profile) { plans, me, profile -> Triple(plans, me, profile.role) }
+
+    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.syncStatus, streams.projectLogs, self) { c, x, sync, logs, (plans, me, role) ->
         val today = DateUtils.today()
         val ctx = StudentContext.of(x.members, today)
+        val selfStage = SelfDirection.stageOf(ctx.student, today)
         val period = ctx.currentPeriod
         ParentDashboardUiState(
             studentName = c.profile.studentName,
@@ -73,6 +82,8 @@ class ParentDashboardViewModel(
             balance = BalanceStats.report(ctx.stage, c.sessions, c.tasks, x.activities, period, today, c.events, ctx.year),
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
             missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
+            week = SelfDirection.week(selfStage, plans, c.sessions, today),
+            weekAccess = WeekAccess.of(Capabilities.of(role ?: Role.PARENT, me), selfStage),
             routines = ProjectPlanner.progressAll(x.goals, x.goalSteps, logs, today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
@@ -108,6 +119,10 @@ class ParentDashboardViewModel(
         when (event) {
             is ParentDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
             is ParentDashboardEvent.ToggleRoutine -> toggleRoutine(event.progress, event.item)
+            is ParentDashboardEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(SelfDirection.weekStart(DateUtils.today()), event.goals, event.minutes) }
+            is ParentDashboardEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
+            is ParentDashboardEvent.ApproveWeek -> viewModelScope.launch { weekPlans.approve(event.planId) }
+            is ParentDashboardEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }
         }
     }
 

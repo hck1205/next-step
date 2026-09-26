@@ -13,6 +13,9 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.fake.FakeContentRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeProjectRepository
+import com.nextstep.app.fake.FakeWeekPlanRepository
+import com.nextstep.app.domain.selfdirection.SelfDirection
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.project.ProjectCatalog
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.fake.FakeRoadmapRepository
@@ -23,6 +26,7 @@ import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,9 +38,10 @@ class HomeViewModelTest : ViewModelTestBase() {
     private val roadmap = FakeRoadmapRepository(); private val contents = FakeContentRepository(); private val plans = FakeStudyPlanRepository()
     private val members = FakeMemberRepository()
     private val projects = FakeProjectRepository(streams)
+    private val weekPlans = FakeWeekPlanRepository(streams)
     private val today = DateUtils.today()
 
-    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects)
+    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans)
 
     @Test
     fun youngStudentGetsSproutScreenWeekStarsAndSeenLevelIsRecorded() = runTest {
@@ -184,6 +189,33 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertEquals(setOf(item.name), s.routines.single().todayDoneItems); assertEquals(item.minutes, s.routines.single().todayMinutes)
         vm.onEvent(HomeEvent.ToggleRoutine(s.routines.single(), item)); s = settle(vm.state)
         assertTrue(s.routines.single().todayDoneItems.isEmpty())
+        job.cancel()
+    }
+
+    @Test
+    fun myWeekLetsAFifthGraderPlanAndReflectButNotApprove() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 5))
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertTrue(StudentHomeSection.MY_WEEK in s.homeOrder)
+        assertEquals(SelfDirectionStage.PLAN_FIRST, s.week!!.stage)
+        assertTrue(s.weekAccess.canPlan); assertTrue(s.weekAccess.canReflect); assertTrue(s.weekAccess.forChild); assertFalse(s.weekAccess.canApprove)
+        vm.onEvent(HomeEvent.SaveWeekPlan(listOf("영어 책 3권"), 180)); s = settle(vm.state)
+        assertEquals(listOf("영어 책 3권"), s.week!!.plan!!.goalList); assertTrue(s.week!!.waitingApproval)
+        vm.onEvent(HomeEvent.ToggleWeekGoal(s.week!!.plan!!.id, 0)); s = settle(vm.state)
+        assertEquals(1, s.week!!.plan!!.doneCount)
+        vm.onEvent(HomeEvent.ReflectWeek(SelfDirection.weekStart(today), 3, "매일 읽음", "", "아침에")); settle(vm.state)
+        assertEquals("reflect:${SelfDirection.weekStart(today)}:3:매일 읽음::아침에", weekPlans.calls.last())
+        job.cancel()
+    }
+
+    @Test
+    fun youngChildFollowsTheAdultsPlan() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "하은", id = "kid", gradeYear = 1))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(SelfDirectionStage.CHOOSE, s.week!!.stage)
+        assertFalse(s.weekAccess.canPlan); assertTrue(s.weekAccess.canCheck); assertTrue(s.weekAccess.canReflect)
         job.cancel()
     }
 }

@@ -36,6 +36,7 @@ import com.nextstep.app.ui.growth.GrowthViewModel
 import com.nextstep.app.ui.overview.OverviewViewModel
 import com.nextstep.app.ui.talent.TalentViewModel
 import com.nextstep.app.ui.roadmap.RoadmapViewModel
+import com.nextstep.app.ui.selfdirection.SelfDirectionViewModel
 import com.nextstep.app.ui.settings.SettingsViewModel
 import com.nextstep.app.ui.timer.TimerViewModel
 
@@ -44,8 +45,8 @@ object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { with(container()) { RootViewModel(onboarding, members) } }
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
-        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects) } }
-        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects) } }
+        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans) } }
+        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans) } }
         initializer { with(container()) { MentorDashboardViewModel(streams, members, tasks) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
@@ -71,6 +72,7 @@ object AppViewModelProvider {
         initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
         initializer { with(container()) { QuickAddViewModel(streams, activities, tasks, grades, events) } }
         initializer { with(container()) { ProjectsViewModel(streams, projects) } }
+        initializer { with(container()) { SelfDirectionViewModel(streams, weekPlans, members) } }
         initializer { with(container()) { ProjectCatalogViewModel(streams, goals) } }
         initializer { with(container()) { ProjectViewModel(createSavedStateHandle(), streams, goals, projects) } }
     }

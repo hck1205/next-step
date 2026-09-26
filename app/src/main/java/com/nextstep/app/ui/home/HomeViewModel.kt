@@ -11,6 +11,11 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.ProjectRepository
+import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.selfdirection.SelfDirection
+import com.nextstep.app.domain.selfdirection.WeekAccess
+import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.project.RoutineItem
@@ -57,6 +62,7 @@ class HomeViewModel(
     private val plans: StudyPlanRepository,
     private val members: MemberRepository,
     private val projects: ProjectRepository,
+    private val weekPlans: WeekPlanRepository,
 ) : ViewModel() {
 
     private val base = combine(streams.profile, streams.subjects, streams.events, streams.tasks, streams.sessions) { profile, subjects, events, tasks, sessions ->
@@ -115,8 +121,16 @@ class HomeViewModel(
         )
     }
 
-    val state: StateFlow<HomeUiState> = combine(enriched, streams.goals, streams.goalSteps, streams.projectLogs) { s, goals, steps, logs ->
+    /** 나의 이번 주: 자기주도 단계가 누가 계획·점검·돌아보기를 하는지 정합니다. */
+    private val selfWeek = combine(streams.profile, streams.members, streams.myMember, streams.weekPlans, streams.sessions) { profile, all, me, plans, sessions ->
+        val day = DateUtils.today()
+        val stage = SelfDirection.stageOf(StudentContext.of(all, day).student, day)
+        SelfWeek(SelfDirection.week(stage, plans, sessions, day), WeekAccess.of(Capabilities.of(profile.role ?: Role.STUDENT, me), stage))
+    }
+
+    val state: StateFlow<HomeUiState> = combine(enriched, streams.goals, streams.goalSteps, streams.projectLogs, selfWeek) { s, goals, steps, logs, w ->
         s.copy(
+            week = w.week, weekAccess = w.access,
             missionFocus = MissionPlanner.focus(goals, steps, s.today),
             routines = ProjectPlanner.progressAll(goals, steps, logs, s.today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
         )
@@ -195,8 +209,13 @@ class HomeViewModel(
             HomeEvent.DismissLevelUp -> dismissLevelUp()
             is HomeEvent.AddStudyKind -> addStudyKind(event.kind)
             is HomeEvent.ToggleRoutine -> toggleRoutine(event.progress, event.item)
+            is HomeEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(SelfDirection.weekStart(state.value.today), event.goals, event.minutes) }
+            is HomeEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
+            is HomeEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }
         }
     }
+
+    private data class SelfWeek(val week: WeekStatus, val access: WeekAccess)
 
     private companion object {
         const val DAYS_IN_WEEK = 7

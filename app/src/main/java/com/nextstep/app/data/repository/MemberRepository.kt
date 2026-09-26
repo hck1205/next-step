@@ -1,6 +1,7 @@
 package com.nextstep.app.data.repository
 
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.data.local.entity.MemberEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -23,5 +24,7 @@ interface MemberRepository {
     suspend fun setUiLevel(memberId: String, level: StudentUiLevel?)
     /** 학생이 이 화면 단계를 확인했다고 남깁니다("새 화면" 카드를 닫음). */
     suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel)
+    /** 자기주도 단계를 직접 고릅니다. null 이면 화면 단계에 맞춰 자동. */
+    suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?)
     suspend fun remove(memberId: String)
 }

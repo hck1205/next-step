@@ -2,6 +2,8 @@ package com.nextstep.app.domain.access
 
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.hub.HubAudience
+import com.nextstep.app.domain.selfdirection.LoopStep
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.testing.Fixtures
 import org.junit.Assert.assertEquals
@@ -10,6 +12,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CapabilitiesTest {
+    @Test
+    fun selfDirectionStepsFollowWhoOwnsThem() {
+        val follow = SelfDirectionStage.FOLLOW; val together = SelfDirectionStage.PLAN_TOGETHER; val first = SelfDirectionStage.PLAN_FIRST
+        assertTrue(parent.canDo(LoopStep.PLAN, follow)); assertFalse(student.canDo(LoopStep.PLAN, follow))
+        assertTrue(student.canDo(LoopStep.REFLECT, follow)); assertTrue(parent.canDo(LoopStep.REFLECT, follow))
+        assertTrue(student.canDo(LoopStep.PLAN, together)); assertTrue(parent.canDo(LoopStep.PLAN, together))
+        assertTrue(student.canDo(LoopStep.PLAN, first)); assertFalse(parent.canDo(LoopStep.PLAN, first))
+        SelfDirectionStage.entries.forEach { st -> LoopStep.entries.forEach { assertFalse(mentor.canDo(it, st)) } }
+        assertTrue(parent.canApproveWeekPlan(first)); assertFalse(student.canApproveWeekPlan(first)); assertFalse(parent.canApproveWeekPlan(together))
+        assertTrue(parent.seesWeekDetails(SelfDirectionStage.SELF)); assertFalse(parent.seesWeekDetails(SelfDirectionStage.OWN)); assertTrue(student.seesWeekDetails(SelfDirectionStage.OWN))
+        assertTrue(parent.canChooseSelfDirection); assertFalse(student.canChooseSelfDirection); assertFalse(mentor.canChooseSelfDirection)
+    }
+
     @Test
     fun factoryTakesMentorFlagFromMemberUnlessRoleIsMentor() {
         assertFalse(Capabilities.of(Role.PARENT, null).actsAsMentor)

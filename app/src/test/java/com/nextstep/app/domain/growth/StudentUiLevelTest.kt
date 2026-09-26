@@ -31,11 +31,11 @@ class StudentUiLevelTest {
         }
         assertEquals(StudentHomeSection.entries.toSet(), StudentUiLevel.TREE.sections)
         assertTrue(StudentUiLevel.entries.all { it.taskRows <= 3 && it.touchTargetDp >= 48 })
-        assertEquals(setOf(StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.ROUTINE, StudentHomeSection.WEEK, StudentHomeSection.YEAR), StudentUiLevel.SPROUT.sections)
+        assertEquals(setOf(StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.WEEK, StudentHomeSection.YEAR), StudentUiLevel.SPROUT.sections)
         assertTrue(!StudentUiLevel.SEEDLING.showsNumbers && StudentUiLevel.STEM.showsNumbers)
         assertEquals(StudentWords.EASY, StudentUiLevel.SEEDLING.words); assertEquals(StudentWords.STANDARD, StudentUiLevel.STEM.words)
         // 가장 어린 단계: 타이머 없이 할 일·별·가족 한마디만, 가장 큰 글씨
-        assertEquals(setOf(StudentHomeSection.TASKS, StudentHomeSection.ROUTINE, StudentHomeSection.WEEK, StudentHomeSection.YEAR), StudentUiLevel.SEED.sections)
+        assertEquals(setOf(StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.WEEK, StudentHomeSection.YEAR), StudentUiLevel.SEED.sections)
         assertTrue(!StudentUiLevel.SEED.shows(StudentHomeSection.TIMER)); assertEquals(StudentUiLevel.entries.first(), StudentUiLevel.SEED)
         assertEquals(listOf(StudentHomeSection.TIMER), StudentUiLevel.SPROUT.newSince(StudentUiLevel.SEED))
     }

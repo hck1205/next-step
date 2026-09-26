@@ -15,6 +15,7 @@ import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
@@ -38,9 +39,11 @@ import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.StudySessionRepository
 import com.nextstep.app.data.repository.TopicRepository
+import com.nextstep.app.data.repository.WeekPlanRepository
 import com.nextstep.app.data.sync.FamilyInfo
 import com.nextstep.app.domain.content.ContentClassification
 import com.nextstep.app.domain.planner.StudyPlan
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -129,6 +132,7 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun setBirthDate(memberId: String, birthDate: java.time.LocalDate?) { calls += "birth:$memberId:$birthDate" }
     override suspend fun setUiLevel(memberId: String, level: StudentUiLevel?) { calls += "uiLevel:$memberId:${level?.name}" }
     override suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel) { calls += "seen:$memberId:${level.name}" }
+    override suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?) { calls += "self:$memberId:${stage?.name}" }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 
@@ -208,6 +212,32 @@ class FakeProjectRepository(streams: FakeFamilyDataStreams? = null) : ProjectRep
         if (same.isEmpty()) log(goalId, phaseKey, item, minutes, date) else { calls += "untoggle:$goalId:$item:$date"; logs.value = logs.value - same.toSet() }
     }
     override suspend fun delete(id: String) { calls += "delete:$id"; logs.value = logs.value.filter { it.id != id } }
+}
+
+/** [streams] 를 주면 쓰기가 그 파사드의 weekPlans 에도 보여, 실제 앱처럼 쓰기가 읽기에 반영됩니다. 작성자는 [role]. */
+class FakeWeekPlanRepository(streams: FakeFamilyDataStreams? = null, var role: String = "STUDENT") : WeekPlanRepository {
+    override val plans: MutableStateFlow<List<WeekPlanEntity>> = streams?.weekPlans ?: MutableStateFlow(emptyList())
+    val calls = mutableListOf<String>()
+    private fun upsert(row: WeekPlanEntity) { plans.value = plans.value.filter { it.id != row.id } + row }
+    private fun find(week: LocalDate) = plans.value.firstOrNull { it.weekStart == week.toEpochDay() }
+    override suspend fun savePlan(weekStart: LocalDate, goals: List<String>, plannedMinutes: Int) {
+        calls += "plan:$weekStart:${goals.joinToString("|")}:$plannedMinutes"
+        val base = find(weekStart) ?: WeekPlanEntity(familyId = "fam", weekStart = weekStart.toEpochDay())
+        upsert(base.copy(goals = goals.joinToString("\n"), plannedMinutes = plannedMinutes, authorRole = role, approvedAt = null))
+    }
+    override suspend fun toggleGoal(planId: String, index: Int) {
+        calls += "toggle:$planId:$index"
+        plans.value.firstOrNull { it.id == planId }?.let { upsert(it.copy(doneMask = it.doneMask xor (1 shl index))) }
+    }
+    override suspend fun approve(planId: String) {
+        calls += "approve:$planId"
+        plans.value.firstOrNull { it.id == planId }?.let { upsert(it.copy(approvedAt = 1L)) }
+    }
+    override suspend fun reflect(weekStart: LocalDate, mood: Int, good: String, hard: String, change: String) {
+        calls += "reflect:$weekStart:$mood:$good:$hard:$change"
+        val base = find(weekStart) ?: WeekPlanEntity(familyId = "fam", weekStart = weekStart.toEpochDay())
+        upsert(base.copy(mood = mood, good = good, hard = hard, change = change, reflectedByRole = role, reflectedAt = 1L))
+    }
 }
 
 class FakePeerCurriculumRepository : PeerCurriculumRepository {
