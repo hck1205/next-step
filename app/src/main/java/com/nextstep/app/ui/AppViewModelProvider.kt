@@ -18,6 +18,10 @@ import com.nextstep.app.ui.calendar.CalendarViewModel
 import com.nextstep.app.ui.content.ContentViewModel
 import com.nextstep.app.ui.curriculum.CurriculumViewModel
 import com.nextstep.app.ui.goals.GoalsViewModel
+import com.nextstep.app.ui.goal.GoalViewModel
+import com.nextstep.app.ui.goaltree.GoalTreeViewModel
+import com.nextstep.app.ui.planhistory.PlanHistoryViewModel
+import com.nextstep.app.ui.todo.TodoViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
 import com.nextstep.app.ui.home.HomeViewModel
 import com.nextstep.app.ui.insights.InsightsViewModel
@@ -72,6 +76,10 @@ object AppViewModelProvider {
         initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
         initializer { with(container()) { QuickAddViewModel(streams, activities, tasks, grades, events) } }
         initializer { with(container()) { ProjectsViewModel(streams, projects) } }
+        initializer { with(container()) { GoalTreeViewModel(streams, goals) } }
+        initializer { with(container()) { GoalViewModel(createSavedStateHandle(), streams, goals, tasks) } }
+        initializer { with(container()) { TodoViewModel(streams, tasks) } }
+        initializer { with(container()) { PlanHistoryViewModel(streams) } }
         initializer { with(container()) { SelfDirectionViewModel(streams, weekPlans, members) } }
         initializer { with(container()) { ProjectCatalogViewModel(streams, goals) } }
         initializer { with(container()) { ProjectViewModel(createSavedStateHandle(), streams, goals, projects) } }

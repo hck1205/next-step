@@ -63,7 +63,7 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
         ProjectLogEntity::class,
         WeekPlanEntity::class,
     ],
-    version = 15,
+    version = 16,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

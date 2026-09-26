@@ -5,7 +5,9 @@ import com.nextstep.app.domain.health.GrowthSignal
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.insight.AptitudeSignal
-import com.nextstep.app.domain.mentor.AssignmentStats
+import com.nextstep.app.domain.goaltree.GoalTree
+import com.nextstep.app.domain.goaltree.WeekRate
+import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewReason
@@ -17,6 +19,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
+import java.time.ZoneOffset
 
 class ConcernDigestsTest {
     private fun focus(title: String, daysLeft: Int, overdue: Int = 0) =
@@ -69,15 +72,17 @@ class ConcernDigestsTest {
     }
 
     @Test
-    fun classworkShowsDoneCountAndOverdueFirst() {
+    fun planShowsThisWeeksTasksThenOverdueOrStalledGoals() {
         val today = LocalDate.of(2029, 10, 10)
-        assertEquals("낸 과제 없음", ConcernDigests.classwork(AssignmentStats.report(emptyList(), emptyList(), today)).headline)
-        val tasks = listOf(
-            Fixtures.task("밀림", today.minusDays(2), "math", by = "MENTOR"),
-            Fixtures.task("곧", today.plusDays(1), "math", by = "MENTOR"),
-            Fixtures.task("끝", today, "math", done = true, by = "MENTOR"),
-        )
-        val d = ConcernDigests.classwork(AssignmentStats.report(tasks, listOf(Fixtures.math), today))
-        assertEquals(Concern.CLASS, d.concern); assertEquals("과제 1/3", d.headline); assertEquals("밀린 과제 1개", d.detail); assertTrue(d.attention)
+        val empty = ConcernDigests.plan(emptyList(), null, 0)
+        assertEquals("이번 주 마감 할 일 없음", empty.headline); assertNull(empty.detail); assertFalse(empty.attention)
+        val goal = GoalTree.create("영어 일기", "", GoalArea.LANGUAGE, null, null, "PARENT").copy(createdAt = today.minusDays(10).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
+        val node = GoalTree.node(goal, listOf(goal), emptyList(), today, ZoneOffset.UTC)
+        val week = WeekRate(today, due = 4, done = 3)
+        val overdue = ConcernDigests.plan(listOf(node), week, 2)
+        assertEquals(Concern.PLAN, overdue.concern); assertEquals("이번 주 할 일 3/4", overdue.headline); assertEquals("밀린 할 일 2개", overdue.detail); assertTrue(overdue.attention)
+        assertEquals("영어 일기 · 10일째 그대로", ConcernDigests.plan(listOf(node), week, 0).detail)
+        val fresh = GoalTree.node(goal.copy(createdAt = today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()), listOf(goal), emptyList(), today, ZoneOffset.UTC)
+        assertEquals("목표 1개 진행 중", ConcernDigests.plan(listOf(fresh), week, 0).detail)
     }
 }

@@ -7,6 +7,7 @@ import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeProjectRepository
 import com.nextstep.app.fake.FakeWeekPlanRepository
 import com.nextstep.app.domain.selfdirection.SelfDirection
+import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.domain.project.ProjectCatalog
@@ -91,6 +92,20 @@ class ParentViewModelsTest : ViewModelTestBase() {
         assertTrue(s.week!!.waitingApproval)
         vm.onEvent(ParentDashboardEvent.ApproveWeek(s.week!!.plan!!.id))
         assertFalse(settle(vm.state).week!!.waitingApproval)
+        job.cancel()
+    }
+
+    @Test
+    fun dashboardMonitorsParentGivenGoalsWithOverdueFirst() = runTest {
+        streams.goals.value = listOf(
+            Fixtures.goal("영어 일기", trackId = GoalTree.TRACK, id = "a"), Fixtures.goal("줄넘기", trackId = GoalTree.TRACK, id = "b"),
+            Fixtures.goal("끝난 것", trackId = GoalTree.TRACK, id = "c", status = com.nextstep.app.data.model.GoalStatus.DONE),
+        )
+        streams.tasks.value = listOf(Fixtures.task("3줄 쓰기", today.minusDays(1), by = "PARENT").copy(goalId = "b"))
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(listOf("b", "a"), s.goalFocus.map { it.goal.id })
+        assertTrue(s.missionFocus.isEmpty())
         job.cancel()
     }
 }

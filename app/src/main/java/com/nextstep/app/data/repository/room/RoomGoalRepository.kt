@@ -47,8 +47,34 @@ class RoomGoalRepository(
 
     override suspend fun setGoalStatus(goalId: String, status: GoalStatus) {
         val goal = goalDao.getById(goalId) ?: return
-        goalDao.upsert(goal.copy(status = status, updatedAt = now(), dirty = true))
+        val now = now()
+        goalDao.upsert(goal.copy(status = status, doneAt = if (status == GoalStatus.DONE) goal.doneAt ?: now else null, updatedAt = now, dirty = true))
         pushLater()
+    }
+
+    override suspend fun link(goalId: String, leadsTo: String?) {
+        val goal = goalDao.getById(goalId) ?: return
+        if (leadsTo != null && createsCycle(goalId, leadsTo)) return
+        goalDao.upsert(goal.copy(leadsTo = leadsTo, updatedAt = now(), dirty = true))
+        pushLater()
+    }
+
+    override suspend fun edit(goalId: String, title: String, description: String, targetDate: Long?) {
+        val goal = goalDao.getById(goalId) ?: return
+        if (title.isBlank()) return
+        goalDao.upsert(goal.copy(title = title.trim(), description = description.trim(), targetDate = targetDate, updatedAt = now(), dirty = true))
+        pushLater()
+    }
+
+    /** [target] 에서 위로 따라 올라가다 [goalId] 를 만나면 순환입니다. */
+    private suspend fun createsCycle(goalId: String, target: String): Boolean {
+        var cursor: String? = target
+        val seen = mutableSetOf<String>()
+        while (cursor != null && seen.add(cursor)) {
+            if (cursor == goalId) return true
+            cursor = goalDao.getById(cursor)?.leadsTo
+        }
+        return false
     }
 
     override suspend fun delete(goalId: String) {

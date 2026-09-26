@@ -38,6 +38,12 @@ import com.nextstep.app.ui.goals.GoalsActions
 import com.nextstep.app.ui.goals.GoalsScreen
 import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.growth.GrowthScreen
+import com.nextstep.app.ui.goaltree.GoalTreeActions
+import com.nextstep.app.ui.goaltree.GoalTreeScreen
+import com.nextstep.app.ui.planhistory.PlanHistoryActions
+import com.nextstep.app.ui.planhistory.PlanHistoryScreen
+import com.nextstep.app.ui.todo.TodoActions
+import com.nextstep.app.ui.todo.TodoScreen
 import com.nextstep.app.ui.hub.components.ConcernTabs
 import com.nextstep.app.ui.insights.InsightsActions
 import com.nextstep.app.ui.insights.InsightsScreen
@@ -58,7 +64,7 @@ import kotlinx.coroutines.launch
 
 /**
  * 기록 탭(학생은 "나"): 기능을 관심사별로 나눈 두 단 구조입니다.
- * 위 줄 = 관심사(한눈에 · 공부 · 배울 것 · 교육 프로젝트 · 시험·성적 · 과제 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
+ * 위 줄 = 관심사(한눈에 · 목표·할 일 · 공부 · 배울 것 · 교육 프로젝트 · 시험·성적 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
  * 순서는 보는 자리가 정합니다: 학생은 배울 것, 멘토는 과제가 한눈에 바로 다음(HubAudience).
  * 아래 줄 = 그 관심사의 섹션(예: 공부 › 스스로 · 진도 · 시간 · 습관 · 일정). 섹션 하나가 기능 화면 하나이고 각자 ViewModel 을 가집니다.
  * 어떤 섹션이 보이는지는 domain/hub/ConcernSection 이 정합니다(학생은 화면 단계에 따라 줄고, 멘토에게 신체 기록은 없음).
@@ -121,7 +127,10 @@ private fun SectionContent(section: ConcernSection, caps: Capabilities, viewer: 
         ConcernSection.PROJECT_CATALOG -> ProjectCatalogScreen(caps = caps, actions = ProjectCatalogActions(onStarted = { open(ConcernSection.PROJECTS) }))
         ConcernSection.MISSIONS -> GoalsScreen(caps = caps, actions = GoalsActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.GRADES -> GradesScreen(caps = caps)
+        ConcernSection.GOAL_TREE -> GoalTreeScreen(caps = caps, actions = GoalTreeActions(onOpenGoal = actions.onOpenGoal))
+        ConcernSection.TODO -> TodoScreen(caps = caps, actions = TodoActions(onOpenGoal = actions.onOpenGoal, onOpenSubject = actions.onOpenSubject))
         ConcernSection.ASSIGNMENTS -> AssignmentsScreen()
+        ConcernSection.PLAN_HISTORY -> PlanHistoryScreen(actions = PlanHistoryActions(onOpenGoal = actions.onOpenGoal))
         ConcernSection.BODY -> GrowthScreen(caps = caps)
         ConcernSection.ACTIVITIES -> ActivitiesScreen(caps = caps, actions = ActivitiesActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.TALENT -> TalentScreen(caps = caps)

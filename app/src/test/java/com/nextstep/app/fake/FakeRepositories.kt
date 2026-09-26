@@ -178,6 +178,8 @@ class FakeGoalRepository : GoalRepository {
     override suspend fun setStepStatus(stepId: String, status: MilestoneStatus) { calls += "stepStatus:$stepId:$status" }
     override suspend fun setStepTask(stepId: String, taskId: String?) { calls += "stepTask:$stepId:${if (taskId == null) "null" else "set"}" }
     override suspend fun setGoalStatus(goalId: String, status: GoalStatus) { calls += "goalStatus:$goalId:$status" }
+    override suspend fun link(goalId: String, leadsTo: String?) { calls += "link:$goalId:$leadsTo" }
+    override suspend fun edit(goalId: String, title: String, description: String, targetDate: Long?) { calls += "edit:$goalId:$title:$description:$targetDate" }
     override suspend fun delete(goalId: String) { calls += "delete:$goalId" }
 }
 

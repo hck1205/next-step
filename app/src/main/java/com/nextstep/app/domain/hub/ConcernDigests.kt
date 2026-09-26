@@ -4,8 +4,10 @@ import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.insight.AptitudeSignal
-import com.nextstep.app.domain.mentor.AssignmentReport
 import com.nextstep.app.domain.mission.MissionFocus
+import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.domain.goaltree.GoalNode
+import com.nextstep.app.domain.goaltree.WeekRate
 import com.nextstep.app.domain.project.ProjectPace
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.stats.ReviewItem
@@ -20,6 +22,8 @@ import kotlin.math.roundToInt
 object ConcernDigests {
     /** 성적 평균에 쓰는 최근 시험 수. */
     const val RECENT_GRADES = 5
+    /** 목표가 이만큼(일) 그대로면 먼저 볼 곳으로 표시합니다. */
+    const val IDLE_DAYS = 7
 
     fun study(weekMinutes: Int, progress: List<SubjectProgress>): ConcernDigest {
         val total = progress.sumOf { it.total }
@@ -79,16 +83,22 @@ object ConcernDigests {
         )
     }
 
-    fun classwork(report: AssignmentReport): ConcernDigest = ConcernDigest(
-        concern = Concern.CLASS,
-        headline = if (report.total == 0) "낸 과제 없음" else "과제 ${report.done}/${report.total}",
-        detail = when {
-            report.overdue.isNotEmpty() -> "밀린 과제 ${report.overdue.size}개"
-            report.dueSoon.isNotEmpty() -> "이번 주 마감 ${report.dueSoon.size}개"
-            else -> null
-        },
-        attention = report.overdue.isNotEmpty(),
-    )
+    /** 목표·할 일: 이번 주 마감 할 일 중 끝낸 수, 밀린 할 일 → 오래 멈춘 목표 → 진행 중인 목표 수. */
+    fun plan(goals: List<GoalNode>, week: WeekRate?, overdue: Int): ConcernDigest {
+        val active = goals.filter { it.goal.status == GoalStatus.ACTIVE }
+        val idle = active.filter { it.idleDays >= IDLE_DAYS }.maxByOrNull { it.idleDays }
+        return ConcernDigest(
+            concern = Concern.PLAN,
+            headline = if (week == null || week.due == 0) "이번 주 마감 할 일 없음" else "이번 주 할 일 ${week.done}/${week.due}",
+            detail = when {
+                overdue > 0 -> "밀린 할 일 ${overdue}개"
+                idle != null -> "${idle.goal.title} · ${idle.idleDays}일째 그대로"
+                active.isNotEmpty() -> "목표 ${active.size}개 진행 중"
+                else -> null
+            },
+            attention = overdue > 0 || idle != null,
+        )
+    }
 
     private fun dDay(daysLeft: Int): String = when {
         daysLeft > 0 -> "D-$daysLeft"

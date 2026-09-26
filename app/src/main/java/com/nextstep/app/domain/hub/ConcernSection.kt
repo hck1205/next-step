@@ -29,7 +29,10 @@ enum class ConcernSection(
     PROJECT_CATALOG(Concern.PROJECT, "새로 시작", "project-catalog", StudentUiLevel.STEM),
     MISSIONS(Concern.EXAMS, "시험·목표", "missions", StudentUiLevel.STEM),
     GRADES(Concern.EXAMS, "성적", "grades", StudentUiLevel.STEM),
-    ASSIGNMENTS(Concern.CLASS, "과제", "assignments", StudentUiLevel.STEM),
+    GOAL_TREE(Concern.PLAN, "목표", "goal-tree", StudentUiLevel.SEEDLING),
+    TODO(Concern.PLAN, "할 일", "todo", StudentUiLevel.SEEDLING),
+    ASSIGNMENTS(Concern.PLAN, "과제", "assignments", StudentUiLevel.STEM),
+    PLAN_HISTORY(Concern.PLAN, "기록", "plan-history", StudentUiLevel.SEEDLING),
     BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = setOf(HubAudience.PARENT, HubAudience.STUDENT)),
     ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED),
     TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING);

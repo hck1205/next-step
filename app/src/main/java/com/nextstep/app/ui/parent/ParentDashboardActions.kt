@@ -17,4 +17,6 @@ data class ParentDashboardActions(
     val onSwitchChild: (String) -> Unit = { _ -> },
     /** 교육 프로젝트 한 개 화면(목표 id). */
     val onOpenProject: (String) -> Unit = { _ -> },
+    /** 목표 트리의 목표 한 개 화면(목표 id). */
+    val onOpenGoal: (String) -> Unit = { _ -> },
 )

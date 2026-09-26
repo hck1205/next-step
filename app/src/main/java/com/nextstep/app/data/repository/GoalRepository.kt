@@ -16,7 +16,12 @@ interface GoalRepository {
     suspend fun addStep(step: GoalStepEntity)
     suspend fun setStepStatus(stepId: String, status: MilestoneStatus)
     suspend fun setStepTask(stepId: String, taskId: String?)
+    /** 달성(DONE)이면 달성 시각을 남기고, 다시 열면 지웁니다. */
     suspend fun setGoalStatus(goalId: String, status: GoalStatus)
+    /** 이 목표가 이어지는 목표를 바꿉니다(null 이면 끊기). 자기 자신·순환은 무시합니다. */
+    suspend fun link(goalId: String, leadsTo: String?)
+    /** 제목·이유·기한만 고칩니다. */
+    suspend fun edit(goalId: String, title: String, description: String, targetDate: Long?)
     /** 목표와 단계를 모두 소프트 삭제합니다. */
     suspend fun delete(goalId: String)
 }

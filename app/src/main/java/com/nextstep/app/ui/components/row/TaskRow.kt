@@ -35,6 +35,7 @@ fun TaskRow(task: TaskEntity, subjects: List<SubjectEntity>, onToggle: () -> Uni
                     Text(task.type.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     if (subject != null) SubjectTag(subject)
                     AssignedByLabel(task)
+                    if (task.goalId != null) Text("목표", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                     Text(
                         (if (overdue) "기한 지남 · " else "") + DateUtils.formatDate(DateUtils.fromEpochDay(task.dueDate)),
                         style = MaterialTheme.typography.labelSmall,

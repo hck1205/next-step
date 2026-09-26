@@ -5,6 +5,7 @@ import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.mission.MissionKind
 import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.goaltree.GoalTree
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -41,8 +42,8 @@ class GoalsViewModel(
         val ctx = StudentContext.of(members, day)
         val periods = ctx.periods
         val currentKey = ctx.currentPeriodKey
-        // 교육 프로젝트는 같은 목표 저장소를 쓰지만 기록 › 교육 프로젝트에서 따로 봅니다.
-        val live = goals.filter { !it.deleted && !ProjectPlanner.isProject(it) }
+        // 교육 프로젝트와 직접 만든 목표 트리는 같은 목표 저장소를 쓰지만 각자의 섹션에서 따로 봅니다.
+        val live = goals.filter { !it.deleted && !ProjectPlanner.isProject(it) && !GoalTree.isTreeGoal(it) }
         val started = live.mapNotNull { it.trackId }.toSet()
         GoalsUiState(
             studentName = profile.studentName,

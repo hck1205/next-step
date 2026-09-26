@@ -73,6 +73,15 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     fun canApproveWeekPlan(stage: SelfDirectionStage): Boolean = isParent && stage.needsApproval
     /** 주간 계획·돌아보기의 세부 내용을 볼 수 있는지. 마지막 단계(내가 주인)에서 어른은 요약만. */
     fun seesWeekDetails(stage: SelfDirectionStage): Boolean = isStudent || stage.adultSeesDetails
+    /**
+     * 목표 트리의 목표와 세부 할 일을 만들어 주기. 학생은 스스로, 학부모·멘토는 아이에게 줍니다(누가 줬는지는 할 일에 남습니다).
+     */
+    val canAssignTasks: Boolean get() = true
+    /** 할 일을 끝냄으로 체크하기: 학생 본인, 그리고 점검을 같이 하는 어린 단계(자기주도 사다리)에서는 학부모도. */
+    fun canCheckTask(stage: SelfDirectionStage): Boolean = isStudent || canDo(LoopStep.CHECK, stage)
+    /** 목표를 달성으로 표시하거나 보관하기. 만든 사람이 아니어도 가족이면 누구나(멘토 포함). */
+    val canCloseGoals: Boolean get() = true
+
     /** 자기주도 단계를 한 칸 올리거나 내리는 것은 학부모. */
     val canChooseSelfDirection: Boolean get() = isParent
 

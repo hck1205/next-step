@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.mission
 
 import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
@@ -54,7 +55,8 @@ object MissionPlanner {
 
     fun kindOf(goal: GoalEntity): MissionKind? = MissionKind.ofTrackId(goal.trackId)
 
-    fun isMission(goal: GoalEntity): Boolean = goal.targetDate != null
+    /** 날짜가 있는 목표. 사람이 만든 목표 트리의 목표는 기한이 있어도 미션이 아닙니다. */
+    fun isMission(goal: GoalEntity): Boolean = goal.targetDate != null && !GoalTree.isTreeGoal(goal)
 
     /** 아직 끝내지 않은 첫 단계. */
     fun nextStep(steps: List<GoalStepEntity>): GoalStepEntity? = steps.filter { it.isOpen }.minByOrNull { it.orderIndex }
@@ -67,7 +69,7 @@ object MissionPlanner {
 
     /** 진행 중인 날짜 목표마다 다음 한 걸음. 목표일이 가까운 순서로 [limit]개까지. */
     fun focus(goals: List<GoalEntity>, steps: List<GoalStepEntity>, today: LocalDate, limit: Int = FOCUS_LIMIT): List<MissionFocus> =
-        goals.filter { !it.deleted && it.status == GoalStatus.ACTIVE && it.targetDate != null }
+        goals.filter { !it.deleted && it.status == GoalStatus.ACTIVE && isMission(it) }
             .sortedBy { it.targetDate }
             .mapNotNull { goal ->
                 val mine = GoalPlanner.stepsOf(goal, steps)

@@ -107,6 +107,13 @@ class RoomRepositoriesTest {
         taskRepo.save(Fixtures.task("숙제", LocalDate.of(2026, 9, 1)).copy(familyId = ""))
         taskRepo.setDone("task-숙제", true)
         assertTrue(tasks.getById("task-숙제")!!.done)
+        val doneAt = tasks.getById("task-숙제")!!.doneAt
+        assertTrue(doneAt != null)
+        taskRepo.setDone("task-숙제", true) // 이미 끝낸 할 일은 끝낸 시각을 바꾸지 않음
+        assertEquals(doneAt, tasks.getById("task-숙제")!!.doneAt)
+        taskRepo.setDone("task-숙제", false)
+        assertTrue(tasks.getById("task-숙제")!!.doneAt == null)
+        taskRepo.setDone("task-숙제", true)
         taskRepo.delete("task-숙제")
         assertTrue(tasks.getById("task-숙제")!!.deleted)
 

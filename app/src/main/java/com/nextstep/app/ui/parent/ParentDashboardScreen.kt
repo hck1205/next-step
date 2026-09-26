@@ -35,6 +35,7 @@ import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
+import com.nextstep.app.ui.components.card.GoalFocusCard
 import com.nextstep.app.ui.components.card.RoutineCard
 import com.nextstep.app.ui.components.card.WeekPlanCard
 import com.nextstep.app.ui.components.card.SectionTitle
@@ -96,6 +97,10 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
 
             item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
             if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
+            if (state.goalFocus.isNotEmpty()) {
+                item { SectionTitle("목표 진행", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.GOAL_TREE) }) { Text("목표 전체") } }) }
+                item { GoalFocusCard(state.goalFocus, onOpen = actions.onOpenGoal) }
+            }
             item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
             state.week?.let { week ->
                 item { SectionTitle("스스로 하는 힘", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.SELF) }) { Text("사다리") } }) }

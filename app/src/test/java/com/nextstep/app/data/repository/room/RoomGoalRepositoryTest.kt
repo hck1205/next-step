@@ -64,4 +64,32 @@ class RoomGoalRepositoryTest {
         assertTrue(repo.goals.first().isEmpty()); assertEquals(listOf("s3"), repo.steps.first().map { it.id })
         repo.delete("nope")
     }
+
+    @Test
+    fun achievingKeepsTheTimeLinksRefuseCyclesAndEditTrims() = runTest {
+        goalDao.seed(
+            Fixtures.goal("top", trackId = "tree", id = "top"), Fixtures.goal("mid", trackId = "tree", id = "mid").copy(leadsTo = "top"),
+            Fixtures.goal("leaf", trackId = "tree", id = "leaf").copy(leadsTo = "mid"),
+        )
+        repo.setGoalStatus("leaf", GoalStatus.DONE)
+        val doneAt = goalDao.getById("leaf")!!.doneAt
+        assertTrue(doneAt != null)
+        repo.setGoalStatus("leaf", GoalStatus.DONE)
+        assertEquals(doneAt, goalDao.getById("leaf")!!.doneAt)
+        repo.setGoalStatus("leaf", GoalStatus.ACTIVE)
+        assertNull(goalDao.getById("leaf")!!.doneAt)
+        repo.link("top", "leaf") // top → leaf → mid → top 은 순환
+        assertNull(goalDao.getById("top")!!.leadsTo)
+        repo.link("top", "top")
+        assertNull(goalDao.getById("top")!!.leadsTo)
+        repo.link("leaf", "top")
+        assertEquals("top", goalDao.getById("leaf")!!.leadsTo)
+        repo.link("leaf", null)
+        assertNull(goalDao.getById("leaf")!!.leadsTo)
+        repo.edit("mid", " 중간 목표 ", " 이유 ", 99L)
+        val mid = goalDao.getById("mid")!!
+        assertEquals("중간 목표", mid.title); assertEquals("이유", mid.description); assertEquals(99L, mid.targetDate)
+        repo.edit("mid", " ", "", null)
+        assertEquals("중간 목표", goalDao.getById("mid")!!.title)
+    }
 }

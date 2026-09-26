@@ -25,7 +25,8 @@ class RoomTaskRepository(
 
     override suspend fun setDone(id: String, done: Boolean) {
         val task = dao.getById(id) ?: return
-        save(task.copy(done = done))
+        if (task.done == done) return
+        save(task.copy(done = done, doneAt = if (done) now() else null))
     }
 
     override suspend fun delete(id: String) {

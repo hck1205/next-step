@@ -36,7 +36,7 @@ class MapperRoundTripTest {
 
     @Test fun subject() = roundTrip(SubjectMapper, Fixtures.subject("s", "수학", 120).copy(teacher = "김", orderIndex = 3, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun topic() = roundTrip(TopicMapper, Fixtures.topic("s", "단원", 2, covered = true, status = TopicStatus.MASTERED, confidence = 80)) { it.copy(dirty = false) }.let {}
-    @Test fun task() = roundTrip(TaskMapper, Fixtures.task("숙제", LocalDate.of(2026, 9, 1), "s", done = true, type = TaskType.REVIEW, by = "MENTOR").copy(topicId = "t", note = "n")) { it.copy(dirty = false) }.let {}
+    @Test fun task() = roundTrip(TaskMapper, Fixtures.task("숙제", LocalDate.of(2026, 9, 1), "s", done = true, type = TaskType.REVIEW, by = "MENTOR").copy(topicId = "t", note = "n", goalId = "g", doneAt = 9L)) { it.copy(dirty = false) }.let {}
     @Test fun event() = roundTrip(EventMapper, Fixtures.event("학원", LocalDate.of(2026, 9, 1), LocalTime.of(9, 0), LocalTime.of(10, 30), EventType.ACADEMY, "s", weekly = true).copy(location = "역삼", memo = "m")) { it.copy(dirty = false) }.let {}
     @Test fun grade() = roundTrip(GradeMapper, Fixtures.grade("s", 87.5, 10, classAvg = 70.25).copy(examType = ExamType.MOCK, maxScore = 90.0, memo = "m")) { it.copy(dirty = false) }.let {}
     @Test fun session() = roundTrip(StudySessionMapper, Fixtures.session("s", LocalDate.of(2026, 9, 1), LocalTime.of(20, 0), 45).copy(note = "n", fromTimer = true)) { it.copy(dirty = false) }.let {}
@@ -59,7 +59,7 @@ class MapperRoundTripTest {
         .let { assertNull(it.approvedAt); assertNull(it.reflectedAt) }
     @Test fun projectLog() = roundTrip(ProjectLogMapper, Fixtures.projectLog("g", "p5", "파닉스 교재 한 쪽", 10, LocalDate.of(2029, 3, 4)).copy(authorRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun peerTopic() = roundTrip(PeerTopicMapper, Fixtures.peerTopic("g7s1", "수학", "정수와 유리수", 12).copy(coveredRatio = 0.4, updatedAt = 9L)) { it.copy(dirty = false) }.let { assertEquals("", it.familyId) }
-    @Test fun goal() = roundTrip(GoalMapper, Fixtures.goal("영어", trackId = "english-early", status = GoalStatus.DONE).copy(description = "d", createdByRole = "PARENT", createdAt = 3L, deleted = true)) { it.copy(dirty = false) }.let {}
+    @Test fun goal() = roundTrip(GoalMapper, Fixtures.goal("영어", trackId = "english-early", status = GoalStatus.DONE).copy(description = "d", createdByRole = "PARENT", createdAt = 3L, deleted = true, leadsTo = "big", doneAt = 4L)) { it.copy(dirty = false) }.let {}
     @Test fun goalCustom() = roundTrip(GoalMapper, Fixtures.goal("피아노")) { it.copy(dirty = false) }.let { assertNull(it.trackId) }
     @Test fun goalMission() = roundTrip(GoalMapper, Fixtures.goal("수학 수행평가", trackId = "mission:PERFORMANCE").copy(targetDate = 20_000L)) { it.copy(dirty = false) }.let { assertEquals(20_000L, it.targetDate) }
     @Test fun goalStepWithDue() = roundTrip(GoalStepMapper, Fixtures.step("g1", "g5s1", "초안").copy(dueDate = 20_001L)) { it.copy(dirty = false) }.let { assertEquals(20_001L, it.dueDate) }

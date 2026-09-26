@@ -5,6 +5,7 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.domain.mission.MissionPlanner
+import com.nextstep.app.domain.goaltree.GoalTree
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
@@ -82,6 +83,7 @@ class ParentDashboardViewModel(
             balance = BalanceStats.report(ctx.stage, c.sessions, c.tasks, x.activities, period, today, c.events, ctx.year),
             journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, x.journey, today), today),
             missionFocus = MissionPlanner.focus(x.goals, x.goalSteps, today),
+            goalFocus = GoalTree.focus(GoalTree.nodes(x.goals, c.tasks, today)),
             week = SelfDirection.week(selfStage, plans, c.sessions, today),
             weekAccess = WeekAccess.of(Capabilities.of(role ?: Role.PARENT, me), selfStage),
             routines = ProjectPlanner.progressAll(x.goals, x.goalSteps, logs, today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),

@@ -21,7 +21,8 @@ import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.domain.mentor.AssignmentStats
+import com.nextstep.app.domain.goaltree.GoalTree
+import com.nextstep.app.domain.goaltree.PlanHistory
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewPlanner
@@ -71,11 +72,11 @@ class OverviewViewModel(
         val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events, b.ctx.year))
         s.copy(
             digests = listOf(
+                ConcernDigests.plan(GoalTree.nodes(e.goals, b.tasks, s.today), PlanHistory.weeks(b.tasks, s.today, 1).lastOrNull(), b.tasks.count { !it.deleted && !it.done && it.dueDate < s.today.toEpochDay() }),
                 ConcernDigests.study(s.balance?.weekMinutes ?: 0, learn.progress),
                 ConcernDigests.learn(learn.review),
                 ConcernDigests.project(ProjectPlanner.progressAll(e.goals, e.steps, e.logs, s.today)),
                 ConcernDigests.exams(MissionPlanner.focus(e.goals, e.steps, s.today), e.grades),
-                ConcernDigests.classwork(AssignmentStats.report(b.tasks, learn.subjects, s.today)),
                 ConcernDigests.growth(GrowthStats.summarize(g.records.filter { !it.deleted }, s.today)),
                 ConcernDigests.discover(s.balance?.experiencesThisPeriod ?: 0, AptitudeEngine.signals(b.activities, g.observations, s.today)),
             ),

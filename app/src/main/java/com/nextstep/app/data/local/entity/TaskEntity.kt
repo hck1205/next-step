@@ -19,6 +19,10 @@ data class TaskEntity(
     val done: Boolean = false,
     val createdByRole: String,
     val note: String = "",
+    /** 사용자가 만든 목표(목표 트리)의 세부 할 일이면 그 목표 id. */
+    val goalId: String? = null,
+    /** 끝낸 시각. 기록(히스토리)과 달성률의 기준이며, 다시 열면 지웁니다. */
+    val doneAt: Long? = null,
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,
     override val dirty: Boolean = true,

@@ -2,7 +2,7 @@ package com.nextstep.app.ui.components.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.AssignmentTurnedIn
+import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Flag
@@ -19,7 +19,7 @@ fun concernIcon(concern: Concern): ImageVector = when (concern) {
     Concern.LEARN -> Icons.Default.Lightbulb
     Concern.PROJECT -> Icons.Default.Flag
     Concern.EXAMS -> Icons.Default.EmojiEvents
-    Concern.CLASS -> Icons.Default.AssignmentTurnedIn
+    Concern.PLAN -> Icons.Default.AccountTree
     Concern.GROWTH -> Icons.Default.Height
     Concern.DISCOVER -> Icons.Default.Palette
 }
