@@ -31,6 +31,9 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.card.BadgeGrid
+import com.nextstep.app.ui.components.card.GameCard
+import com.nextstep.app.ui.components.row.RewardRow
 import com.nextstep.app.ui.kidme.components.StickerGrid
 
 /**
@@ -48,6 +51,15 @@ fun KidMeScreen(viewModel: KidMeViewModel = viewModel(factory = AppViewModelProv
 internal fun KidMeContent(state: KidMeUiState) {
     Scaffold(topBar = { TopAppBar(title = { Text(if (state.studentName.isBlank()) "내 스티커" else "${state.studentName}의 스티커") }) }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            state.game?.let { g ->
+                item { GameCard(g, state.nextReward, showsNumbers = false) }
+                item { SectionTitle(g.style.badgeWord) }
+                item { BadgeGrid(g.badges, showsNumbers = false) }
+            }
+            if (state.rewards.isNotEmpty()) {
+                item { SectionTitle("약속한 선물") }
+                item { AppCard { Column(verticalArrangement = Arrangement.spacedBy(10.dp)) { state.rewards.forEach { RewardRow(it) } } } }
+            }
             val board = state.board
             if (board == null) {
                 item { AppCard { EmptyState("공부하거나 활동하면 스티커가 생겨요") } }
@@ -58,7 +70,7 @@ internal fun KidMeContent(state: KidMeUiState) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(32.dp))
-                            Text("스티커 ${board.stickers}개", style = MaterialTheme.typography.headlineSmall)
+                            Text("스티커 붙인 날 ${board.stickers}일", style = MaterialTheme.typography.titleLarge)
                         }
                         StickerGrid(board.days, state.today)
                     }

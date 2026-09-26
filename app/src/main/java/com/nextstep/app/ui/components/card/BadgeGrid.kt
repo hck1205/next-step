@@ -1,4 +1,4 @@
-package com.nextstep.app.ui.rewards.components
+package com.nextstep.app.ui.components.card
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,11 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.gamify.BadgeProgress
-import com.nextstep.app.ui.components.card.AppCard
 
-/** 배지판: 받은 배지가 먼저, 그다음 가까운 것부터. 아직인 배지는 받는 방법과 지금까지 한 만큼을 보여 줍니다. */
+/**
+ * 배지판(기록 › 보상·배지, 아이용 "나"): 받은 배지가 먼저, 그다음 가까운 것부터. 아직인 배지는 받는 방법과 지금까지 한 만큼을 보여 줍니다.
+ * 어떤 배지가 보이는지는 나이에 맞춘 게임 모양이 정합니다(Badge.of(style)).
+ */
 @Composable
-internal fun BadgeGrid(badges: List<BadgeProgress>, showsNumbers: Boolean) {
+fun BadgeGrid(badges: List<BadgeProgress>, showsNumbers: Boolean) {
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             badges.sortedWith(compareByDescending<BadgeProgress> { it.earned }.thenByDescending { it.ratio }).chunked(COLUMNS).forEach { row ->

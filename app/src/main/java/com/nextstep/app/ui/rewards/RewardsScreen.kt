@@ -33,7 +33,7 @@ import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.dialog.PromiseRewardDialog
 import com.nextstep.app.ui.components.row.RewardRow
-import com.nextstep.app.ui.rewards.components.BadgeGrid
+import com.nextstep.app.ui.components.card.BadgeGrid
 import com.nextstep.app.ui.rewards.components.XpBreakdownCard
 
 /**
