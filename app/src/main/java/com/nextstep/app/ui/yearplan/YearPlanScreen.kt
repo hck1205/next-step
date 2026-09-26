@@ -1,5 +1,9 @@
 package com.nextstep.app.ui.yearplan
 
+import com.nextstep.app.domain.year.YearTerm
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
+import com.nextstep.app.ui.yearplan.components.YearTaskGroup
 import com.nextstep.app.domain.access.Capabilities
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -65,6 +69,7 @@ fun YearPlanScreen(caps: Capabilities, actions: YearPlanActions, viewModel: Year
 internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, onEvent: (YearPlanEvent) -> Unit) {
     var tabIndex by rememberSaveable { mutableIntStateOf(0) }
     var open by remember { mutableStateOf<YearTaskView?>(null) }
+    var openTerms by rememberSaveable { mutableStateOf(setOf<String>()) }
     val speak = if (state.level.kid.readsAloud) rememberSpeaker() else null
     val numbers = state.level.showsNumbers
     open?.let { v -> YearTaskDialog(v, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onAddToToday = { onEvent(YearPlanEvent.AddToToday(v.task)) }, onSpeak = speak, onDismiss = { open = null }) }
@@ -115,22 +120,39 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     state.trend?.let { t -> if (tab.area == null) item(key = "trend") { YearTrendCard(t) } }
                     tab.sections.forEach { (term, views) ->
-                        stickyHeader(key = "t${tab.label}${term.name}") {
-                            Text(
-                                "${term.label} · ${term.months}" + if (term == state.currentTerm) " · 지금" else "",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (term == state.currentTerm) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background).padding(vertical = 6.dp),
-                            )
+                        // 지금 학기와 1년 내내는 펼쳐 두고, 다른 학기는 접어 둡니다(누르면 펼침).
+                        val termKey = "${tab.label}:${term.name}"
+                        val folds = term != state.currentTerm && term != YearTerm.ALL_YEAR
+                        val expanded = !folds || termKey in openTerms
+                        stickyHeader(key = "t$termKey") {
+                            Row(
+                                Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
+                                    .then(if (folds) Modifier.clickable { openTerms = if (expanded) openTerms - termKey else openTerms + termKey } else Modifier)
+                                    .padding(vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    "${term.label} · ${term.months}" + if (term == state.currentTerm) " · 지금" else "",
+                                    style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f),
+                                    color = if (term == state.currentTerm) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                )
+                                if (folds) Text(if (expanded) "접기" else "${views.size}개 · 펼치기", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                            }
                         }
-                        items(views, key = { "${tab.label}${it.task.key}" }) { v ->
-                            YearTaskRow(v, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showDoer = state.showsAllDoers || v.task.who != YearDoer.CHILD, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onOpen = { open = v })
+                        if (expanded) item(key = "g$termKey") {
+                            YearTaskGroup(
+                                views, key = termKey, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showsAllDoers = state.showsAllDoers,
+                                onToggle = { onEvent(YearPlanEvent.Toggle(it)) }, onOpen = { open = it },
+                            )
                         }
                     }
                     if (tab.ahead.isNotEmpty()) {
                         item(key = "ahead-head-${tab.label}") { AheadHeader(state.aheadHeading, state.aheadNote) }
-                        items(tab.ahead, key = { "a${tab.label}${it.task.key}" }) { v ->
-                            YearTaskRow(v, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showDoer = state.showsAllDoers || v.task.who != YearDoer.CHILD, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onOpen = { open = v })
+                        item(key = "ahead-${tab.label}") {
+                            YearTaskGroup(
+                                tab.ahead, key = "ahead:${tab.label}", minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showsAllDoers = state.showsAllDoers,
+                                onToggle = { onEvent(YearPlanEvent.Toggle(it)) }, onOpen = { open = it },
+                            )
                         }
                     }
                 }

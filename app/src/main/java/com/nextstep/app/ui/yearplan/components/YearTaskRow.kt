@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.yearplan.components
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.background
@@ -26,18 +28,21 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.ui.components.card.AppCard
+
 import com.nextstep.app.ui.yearplan.YearTaskView
 
 /**
  * 올해 할 일 한 줄: 동그라미 체크(누르면 완료/되돌리기) + 제목 + 방법 한 줄 + 도달 기준("이만큼이면 충분" · 앞서 가기는 도착점). 줄을 누르면 자세히.
  * [minHeightDp] 는 화면 단계의 누름 영역, [showArea] 는 전체 탭에서 분류 이름을 붙일 때,
  * [showDoer] 면 제목 위에 누가 하는지(엄마·아빠가 · 같이 · 스스로)를 붙입니다.
+ * 카드 한 장 안에 여러 줄을 담는 묶음([YearTaskGroup])의 한 줄이라 카드 틀 없이 그립니다.
  */
 @Composable
 internal fun YearTaskRow(view: YearTaskView, minHeightDp: Int, showArea: Boolean, showDoer: Boolean, onToggle: () -> Unit, onOpen: () -> Unit) {
-    AppCard(modifier = Modifier.heightIn(min = minHeightDp.dp), onClick = onOpen) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = minHeightDp.dp).clickable(onClick = onOpen).padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
             val circle = Modifier.size((minHeightDp - CIRCLE_INSET).coerceAtLeast(MIN_CIRCLE).dp)
             Box(
                 (if (view.done) circle.background(MaterialTheme.colorScheme.secondary, CircleShape) else circle.border(2.dp, MaterialTheme.colorScheme.outline, CircleShape))
@@ -68,7 +73,6 @@ internal fun YearTaskRow(view: YearTaskView, minHeightDp: Int, showArea: Boolean
                 }
             }
         }
-    }
 }
 
 private const val CIRCLE_INSET = 16

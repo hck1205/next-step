@@ -19,6 +19,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.overview.components.BalanceCard
+import com.nextstep.app.ui.overview.components.AttentionLegend
 import com.nextstep.app.ui.overview.components.ConcernTile
 
 /**
@@ -39,7 +40,9 @@ internal fun OverviewContent(state: OverviewUiState, concerns: List<Concern>, ac
             val b = state.balance
             if (b != null) BalanceCard(b, state.yearLabel ?: state.stage?.label) else AppCard { EmptyState("기록이 쌓이면 균형을 보여 드려요") }
         }
-        if (tiles.isNotEmpty()) item { SectionTitle("관심사별") }
+        if (tiles.isNotEmpty()) item {
+            SectionTitle("관심사별", action = if (tiles.any { it.attention }) ({ AttentionLegend() }) else null)
+        }
         items(tiles.chunked(TILE_COLUMNS), key = { row -> row.first().concern.name }) { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 row.forEach { d -> ConcernTile(d, onClick = { actions.onOpenConcern(d.concern) }, modifier = Modifier.weight(1f)) }

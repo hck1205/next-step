@@ -2,6 +2,9 @@ package com.nextstep.app.ui.components.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.domain.today.TodayGroup
@@ -27,11 +30,17 @@ fun <T> LazyListScope.todayBoard(
     if (groups.size > 1) stickyHeader(key = "concern-filter") { ConcernFilterRow(groups.map { it.concern to it.cards.size }, filter, onFilter) }
     if (filter == null) {
         groups.forEach { g ->
-            item(key = "group-${g.concern.name}") { GroupHeader(g.concern, g.cards.size, onSeeAll = { onFilter(g.concern) }) }
             val only = g.cards.singleOrNull()
             if (only != null) {
-                item(key = "card-${key(only)}") { TodayCardFrame(title(only), onExpand = { onExpand(only) }) { body(only, true) } }
+                // 카드가 하나면 머리 한 줄에 카드 이름·펼치기까지(제목 줄이 두 번 쌓이지 않게).
+                item(key = "card-${key(only)}") {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        GroupHeader(g.concern, 1, onSeeAll = null, subtitle = title(only).ifBlank { null }, onExpand = { onExpand(only) })
+                        body(only, true)
+                    }
+                }
             } else {
+                item(key = "group-${g.concern.name}") { GroupHeader(g.concern, g.cards.size, onSeeAll = { onFilter(g.concern) }) }
                 item(key = "slide-${g.concern.name}") {
                     CardCarousel(g.cards.size) { i ->
                         val card = g.cards[i]
