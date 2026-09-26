@@ -1,6 +1,6 @@
 package com.nextstep.app.ui.home
 
-import com.nextstep.app.domain.growth.StudyKindType
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.growth.StudyKind
 import com.nextstep.app.domain.growth.StudentScreen
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -185,25 +185,11 @@ class HomeViewModel(
     fun markTopic(topic: TopicEntity, status: TopicStatus) = viewModelScope.launch { topics.setStatus(topic.id, status) }
 
     fun addQuickTask(subject: SubjectEntity, topic: TopicEntity, type: TaskType) = viewModelScope.launch {
-        tasks.save(
-            TaskEntity(
-                familyId = "", subjectId = subject.id, topicId = topic.id,
-                title = "${subject.name} ${topic.title} ${type.label}", type = type,
-                dueDate = DateUtils.today().toEpochDay(), createdByRole = Role.STUDENT.name,
-            ),
-        )
+        tasks.save(TaskDrafts.forTopic(subject, topic, type, DateUtils.today(), Role.STUDENT.name))
     }
 
     /** 올해의 공부 한 가지를 그 분량의 오늘 할 일로 만듭니다. 시험 준비는 시험 준비 종류로. */
-    fun addStudyKind(kind: StudyKind) = viewModelScope.launch {
-        tasks.save(
-            TaskEntity(
-                familyId = "", title = "${kind.name} ${kind.minutes}분",
-                type = if (kind.type == StudyKindType.TEST_PREP) TaskType.EXAM_PREP else TaskType.HOMEWORK,
-                dueDate = DateUtils.today().toEpochDay(), createdByRole = Role.STUDENT.name,
-            ),
-        )
-    }
+    fun addStudyKind(kind: StudyKind) = viewModelScope.launch { tasks.save(TaskDrafts.forStudyKind(kind, DateUtils.today())) }
 
     fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch { projects.toggleRoutine(progress, item, state.value.today) }
 

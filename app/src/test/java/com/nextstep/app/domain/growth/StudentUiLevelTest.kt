@@ -73,4 +73,9 @@ class StudentUiLevelTest {
     fun gradeSpanLabels() {
         assertEquals(listOf("학령 전", "초1–초2", "초3–초4", "초5–초6", "중1–중3", "고1부터"), StudentUiLevel.entries.map { it.gradeSpan })
     }
+
+    @Test
+    fun onlyPreschoolShowsWhoDoesEveryYearTask() {
+        assertEquals(listOf(StudentUiLevel.SEED), StudentUiLevel.entries.filter { it.showsAllDoers })
+    }
 }

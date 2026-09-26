@@ -1,11 +1,11 @@
 package com.nextstep.app.ui.todo
 
+import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
@@ -55,14 +55,8 @@ class TodoViewModel(
             is TodoEvent.SetFilter -> filter.value = event.filter
             is TodoEvent.Toggle -> viewModelScope.launch { tasks.setDone(event.taskId, event.done) }
             is TodoEvent.Accept -> viewModelScope.launch {
-                val s = event.suggestion
                 val goal = state.value.goals.firstOrNull { it.id == event.goalId }
-                tasks.save(
-                    TaskEntity(
-                        familyId = "", subjectId = s.subjectId, topicId = s.topicId, title = s.title, type = s.type, dueDate = s.due.toEpochDay(),
-                        createdByRole = event.createdByRole, note = listOfNotNull(goal?.title, s.source.label).joinToString(" · "), goalId = goal?.id,
-                    ),
-                )
+                tasks.save(TaskDrafts.forSuggestion(event.suggestion, goal, event.createdByRole))
             }
         }
     }

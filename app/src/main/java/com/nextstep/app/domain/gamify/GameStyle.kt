@@ -26,10 +26,15 @@ enum class GameStyle(
     val activeDaysTarget: Int,
     /** 학생이 스스로 끌 수 있는지. 아니면 학부모만. */
     val studentCanTurnOff: Boolean,
+    /** 켜고 끄는 곳에 보이는 한 줄 설명(이 나이에 어떻게 보이는지). */
+    val summary: String,
 ) {
-    STICKERS("나의 스티커판", "특별 스티커", showsLevelTitle = false, showsLevel = false, showsStreak = false, restDays = 0, activeDaysTarget = 0, studentCanTurnOff = false),
-    LEVELS("나의 레벨", "배지", showsLevelTitle = true, showsLevel = true, showsStreak = true, restDays = 0, activeDaysTarget = 4, studentCanTurnOff = false),
-    GROWTH("나의 성장 기록", "기록", showsLevelTitle = false, showsLevel = true, showsStreak = true, restDays = 1, activeDaysTarget = 5, studentCanTurnOff = true);
+    STICKERS("나의 스티커판", "특별 스티커", showsLevelTitle = false, showsLevel = false, showsStreak = false, restDays = 0, activeDaysTarget = 0, studentCanTurnOff = false,
+        summary = "지금 나이에는 한 일마다 스티커 한 장, 10장이면 한 판을 채워요. 숫자·연속 기록은 보이지 않아요."),
+    LEVELS("나의 레벨", "배지", showsLevelTitle = true, showsLevel = true, showsStreak = true, restDays = 0, activeDaysTarget = 4, studentCanTurnOff = false,
+        summary = "해낸 일과 꾸준함으로 레벨이 오르고 배지를 모아요. 점수를 깎거나 남과 비교하지 않아요."),
+    GROWTH("나의 성장 기록", "기록", showsLevelTitle = false, showsLevel = true, showsStreak = true, restDays = 1, activeDaysTarget = 5, studentCanTurnOff = true,
+        summary = "레벨 이름 대신 누적 기록과 Lv 로 보여요. 연속 기록은 하루 쉬어도 이어지고, 스스로 끌 수도 있어요.");
 
     companion object {
         /** 스티커판 한 판의 칸 수. */

@@ -1,18 +1,15 @@
 package com.nextstep.app.ui.yearplan
 
+import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.data.model.Role
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.year.YearArea
-import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.year.AheadPlans
 import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTask
@@ -66,7 +63,7 @@ class YearPlanViewModel(
             today = day,
             trend = year?.let { YearTrends.of(it.key) },
             // 학령 전은 모든 줄에 "누가"를, 학교부터는 "스스로"가 아닌 줄에만(부모 몫은 해마다 있어서 그것으로 가르면 모든 줄에 붙음).
-            showsAllDoers = year?.level == StudentUiLevel.SEED,
+            showsAllDoers = year?.level?.showsAllDoers == true,
             mineOnly = showMine,
             // 칩의 수도 진행률처럼 기본만 셉니다.
             mineCount = mineViews.count { !it.task.isAhead },
@@ -81,7 +78,7 @@ class YearPlanViewModel(
     }
 
     fun addToToday(task: YearTask) = viewModelScope.launch {
-        tasks.save(TaskEntity(familyId = "", title = task.title, type = if (task.area == YearArea.EXAM) TaskType.EXAM_PREP else TaskType.HOMEWORK, dueDate = today().toEpochDay(), createdByRole = Role.STUDENT.name, note = task.how))
+        tasks.save(TaskDrafts.forYearTask(task, today()))
     }
 
     /** 화면 이벤트 단일 진입점. */

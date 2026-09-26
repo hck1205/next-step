@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.KidRecord
 import androidx.lifecycle.ViewModel
@@ -7,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.TaskType
@@ -44,7 +44,7 @@ class QuickAddViewModel(
 
     fun saveTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) = viewModelScope.launch {
         if (title.isBlank()) return@launch
-        tasks.save(TaskEntity(familyId = "", subjectId = subjectId, title = title.trim(), type = type, dueDate = due.toEpochDay(), createdByRole = createdByRole))
+        tasks.save(TaskDrafts.written(title.trim(), subjectId, type, due, createdByRole))
         message.value = "할 일을 추가했어요"
     }
 

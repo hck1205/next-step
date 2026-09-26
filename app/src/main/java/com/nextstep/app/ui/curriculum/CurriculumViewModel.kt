@@ -1,9 +1,9 @@
 package com.nextstep.app.ui.curriculum
 
+import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.SubjectPalette
 import com.nextstep.app.data.model.TaskType
@@ -85,7 +85,7 @@ class CurriculumViewModel(
         val type = if (status == UnitStatus.IN_CLASS) TaskType.REVIEW else TaskType.PREVIEW
         val subjectId = s.plan?.subjects?.firstOrNull { it.subject == unit.subject }?.familySubject?.id
         val due = s.selected?.end?.takeIf { !it.isBefore(today()) } ?: today().plusDays(DEFAULT_DUE_DAYS)
-        tasks.save(TaskEntity(familyId = "", subjectId = subjectId, title = "${unit.subject} · ${unit.title}", type = type, dueDate = due.toEpochDay(), createdByRole = createdByRole, note = "이번 학기 커리큘럼"))
+        tasks.save(TaskDrafts.forCurriculum(unit, subjectId, type, due, createdByRole))
     }
 
     fun markWatched(contentId: String) = viewModelScope.launch { contents.setWatched(contentId, true) }

@@ -1,8 +1,8 @@
 package com.nextstep.app.ui.review
 
+import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
@@ -37,14 +37,8 @@ class ReviewViewModel(
     }.asUiState(viewModelScope, ReviewUiState())
 
     fun addTask(item: ReviewItem, byRole: String) = viewModelScope.launch {
-        val preview = item.reason == ReviewReason.NEXT_CLASS
-        tasks.save(
-            TaskEntity(
-                familyId = "", subjectId = item.subject.id, topicId = item.topic.id,
-                title = "${item.subject.name} ${item.topic.title} ${if (preview) "예습" else "복습"}",
-                type = if (preview) TaskType.PREVIEW else TaskType.REVIEW, dueDate = today().toEpochDay(), createdByRole = byRole,
-            ),
-        )
+        val type = if (item.reason == ReviewReason.NEXT_CLASS) TaskType.PREVIEW else TaskType.REVIEW
+        tasks.save(TaskDrafts.forTopic(item.subject, item.topic, type, today(), byRole))
     }
 
     fun markDone(item: ReviewItem) = viewModelScope.launch {

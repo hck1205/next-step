@@ -1,11 +1,11 @@
 package com.nextstep.app.ui.progress
 
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.stats.StudyQueues
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
@@ -17,7 +17,6 @@ import com.nextstep.app.domain.time.DateUtils
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.common.asUiState
 
 class SubjectDetailViewModel(
@@ -48,12 +47,7 @@ class SubjectDetailViewModel(
 
     fun addTask(topic: TopicEntity, type: TaskType, createdByRole: String) = viewModelScope.launch {
         val subject = state.value.subject ?: return@launch
-        tasks.save(
-            TaskEntity(
-                familyId = "", subjectId = subject.id, topicId = topic.id, title = "${subject.name} ${topic.title} ${type.label}",
-                type = type, dueDate = DateUtils.today().plusDays(if (createdByRole == Role.STUDENT.name) 0 else 1).toEpochDay(), createdByRole = createdByRole,
-            ),
-        )
+        tasks.save(TaskDrafts.forTopic(subject, topic, type, TaskDrafts.topicDue(createdByRole, DateUtils.today()), createdByRole))
     }
 
     fun updateSubject(subject: SubjectEntity) = viewModelScope.launch { subjects.save(subject) }

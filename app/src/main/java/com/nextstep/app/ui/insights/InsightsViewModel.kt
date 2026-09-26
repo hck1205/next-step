@@ -1,8 +1,8 @@
 package com.nextstep.app.ui.insights
 
+import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.insight.InsightAction
@@ -39,12 +39,7 @@ class InsightsViewModel(
 
     fun applyAction(action: InsightAction, createdByRole: String) = viewModelScope.launch {
         when (action) {
-            is InsightAction.CreateTask -> tasks.save(
-                TaskEntity(
-                    familyId = "", subjectId = action.subjectId, topicId = action.topicId, title = action.title, type = action.type,
-                    dueDate = DateUtils.today().plusDays(1).toEpochDay(), createdByRole = createdByRole,
-                ),
-            )
+            is InsightAction.CreateTask -> tasks.save(TaskDrafts.forInsight(action, createdByRole, DateUtils.today()))
         }
     }
 

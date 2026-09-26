@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.mentor
 
+import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.EventEntity
@@ -79,7 +80,7 @@ class MentorDashboardViewModel(
     }
 
     fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) = viewModelScope.launch {
-        tasks.save(TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = Role.MENTOR.name))
+        tasks.save(TaskDrafts.written(title, subjectId, type, due, Role.MENTOR.name))
     }
 
     fun deleteTask(id: String) = viewModelScope.launch { tasks.delete(id) }

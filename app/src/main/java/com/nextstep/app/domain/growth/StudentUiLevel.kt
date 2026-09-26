@@ -85,9 +85,14 @@ enum class StudentUiLevel(
         return when {
             fromGrade == 0 -> "학령 전"
             next == null -> "고1부터"
-            else -> "${GrowthStage.fromGradeYear(fromGrade)!!.gradeLabel(fromGrade)}–${GrowthStage.fromGradeYear(next - 1)!!.gradeLabel(next - 1)}"
+            else -> "${gradeLabel(fromGrade)}–${gradeLabel(next - 1)}"
         }
     }
+
+    /** 올해 할 일에서 줄마다 누가 하는지 칩을 붙일지. 학령 전은 거의 모든 일을 어른과 같이 해서 줄마다, 학교부터는 "스스로"가 아닌 줄에만. */
+    val showsAllDoers: Boolean get() = this == SEED
+
+    private fun gradeLabel(gradeYear: Int): String = GrowthStage.fromGradeYear(gradeYear)?.gradeLabel(gradeYear).orEmpty()
 
     companion object {
         /** 학년(1=초1 … 18)으로 고릅니다. 0 이하는 학령 전. */

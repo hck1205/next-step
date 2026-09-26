@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.data.repository.RewardRepository
 import com.nextstep.app.domain.gamify.Gamify
@@ -105,7 +106,7 @@ class ParentDashboardViewModel(
 
     /** 학부모가 자녀에게 할 일을 배정합니다. */
     fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) = viewModelScope.launch {
-        tasks.save(TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = createdByRole))
+        tasks.save(TaskDrafts.written(title, subjectId, type, due, createdByRole))
     }
 
     private data class Core(
