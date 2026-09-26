@@ -217,4 +217,20 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertFalse(s.myWeekAccess.canPlan); assertTrue(s.myWeekAccess.canCheck); assertTrue(s.myWeekAccess.canReflect)
         job.cancel()
     }
+
+    @Test
+    fun levelCardFollowsTheGamifySwitchAndShowsTheNextReward() = runTest {
+        val kid = Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 5)
+        streams.members.value = listOf(kid)
+        streams.tasks.value = listOf(Fixtures.task("단어", today, done = true).copy(doneAt = System.currentTimeMillis()))
+        streams.rewards.value = listOf(com.nextstep.app.data.local.entity.RewardEntity(id = "r", familyId = Fixtures.FAMILY, kind = "LEVEL", targetId = "2", title = "보드게임"))
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertTrue(StudentHomeSection.GAME in s.homeOrder)
+        assertEquals(4, s.game!!.xp) // 할 일 2 + 마감 덤 1 + 스스로 덤 1
+        assertEquals("보드게임", s.nextReward!!.reward.title)
+        streams.members.value = listOf(kid.copy(gamify = false)); s = settle(vm.state)
+        assertNull(s.game); assertNull(s.nextReward)
+        job.cancel()
+    }
 }

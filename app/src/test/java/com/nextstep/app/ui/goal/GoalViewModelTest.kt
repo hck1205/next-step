@@ -11,6 +11,8 @@ import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGoalRepository
 import com.nextstep.app.fake.FakeTaskRepository
+import com.nextstep.app.fake.FakeRewardRepository
+import com.nextstep.app.domain.reward.RewardStatus
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
@@ -24,9 +26,10 @@ class GoalViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)
     private val goals = FakeGoalRepository()
     private val tasks = FakeTaskRepository(streams)
+    private val rewards = FakeRewardRepository(streams)
     private val today = LocalDate.of(2029, 5, 10)
 
-    private fun vm(id: String = "mid") = GoalViewModel(SavedStateHandle(mapOf("goalId" to id)), streams, goals, tasks, today = { today })
+    private fun vm(id: String = "mid") = GoalViewModel(SavedStateHandle(mapOf("goalId" to id)), streams, goals, tasks, rewards, today = { today })
     private fun tree(id: String, leadsTo: String? = null, status: GoalStatus = GoalStatus.ACTIVE) =
         Fixtures.goal("목표$id", trackId = GoalTree.TRACK, id = id, status = status).copy(leadsTo = leadsTo, createdByRole = "PARENT")
 
@@ -79,6 +82,26 @@ class GoalViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("link:mid:other", "edit:mid:새 제목:이유:null"), goals.calls.take(2))
         assertEquals(listOf("mid", "top"), goals.addedGoals.map { it.leadsTo })
         assertEquals("goalStatus:mid:${GoalStatus.ARCHIVED}", goals.calls.last())
+        job.cancel()
+    }
+
+    @Test
+    fun rewardOnAGoalCanBePromisedChangedGivenOrCancelled() = runTest {
+        seed()
+        val vm = vm(); val job = subscribe(vm.state)
+        assertNull(settle(vm.state).reward)
+        vm.onEvent(GoalEvent.PromiseReward("보드게임")); vm.onEvent(GoalEvent.PromiseReward("영화 보기"))
+        var s = settle(vm.state)
+        assertEquals("영화 보기", s.reward!!.reward.title); assertEquals(RewardStatus.PROMISED, s.reward!!.status)
+        assertEquals(1, streams.rewards.value.size) // 아직 안 준 약속은 바뀜
+        streams.goals.value = streams.goals.value.map { if (it.id == "mid") it.copy(status = GoalStatus.DONE) else it }
+        s = settle(vm.state)
+        assertEquals(RewardStatus.EARNED, s.reward!!.status)
+        vm.onEvent(GoalEvent.GiveReward(s.reward!!.reward.id)); s = settle(vm.state)
+        assertEquals(RewardStatus.GIVEN, s.reward!!.status)
+        vm.onEvent(GoalEvent.CancelReward(s.reward!!.reward.id))
+        assertNull(settle(vm.state).reward)
+        assertEquals(listOf("promise:GOAL:mid:보드게임", "promise:GOAL:mid:영화 보기"), rewards.calls.take(2))
         job.cancel()
     }
 }

@@ -99,7 +99,7 @@ internal fun GoalTreeContent(state: GoalTreeUiState, caps: Capabilities, actions
 private fun LazyListScope.tree(goalId: String, state: GoalTreeUiState, depth: Int, actions: GoalTreeActions) {
     val node = state.nodes.firstOrNull { it.goal.id == goalId } ?: return
     item(key = "g-$goalId-$depth") {
-        GoalNodeCard(node, depth, onOpen = { actions.onOpenGoal(goalId) })
+        GoalNodeCard(node, depth, reward = state.rewardTitles[goalId], onOpen = { actions.onOpenGoal(goalId) })
     }
     if (depth < MAX_DEPTH) state.childrenOf(goalId).forEach { tree(it.goal.id, state, depth + 1, actions) }
 }

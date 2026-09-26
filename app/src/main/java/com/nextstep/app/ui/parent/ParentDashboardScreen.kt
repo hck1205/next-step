@@ -36,6 +36,7 @@ import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.GoalFocusCard
+import com.nextstep.app.ui.components.card.RewardDueCard
 import com.nextstep.app.ui.components.card.RoutineCard
 import com.nextstep.app.ui.components.card.WeekPlanCard
 import com.nextstep.app.ui.components.card.SectionTitle
@@ -96,6 +97,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             }
 
             item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
+            if (state.rewardsDue.isNotEmpty()) item { RewardDueCard(state.rewardsDue, onGive = { onEvent(ParentDashboardEvent.GiveReward(it)) }, onOpenGoal = actions.onOpenGoal) }
             if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
             if (state.goalFocus.isNotEmpty()) {
                 item { SectionTitle("목표 진행", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.GOAL_TREE) }) { Text("목표 전체") } }) }

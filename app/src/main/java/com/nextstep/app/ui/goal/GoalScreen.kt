@@ -40,6 +40,9 @@ import com.nextstep.app.ui.components.row.HistoryEventRow
 import com.nextstep.app.ui.goal.components.ChainCard
 import com.nextstep.app.ui.goal.components.EditGoalDialog
 import com.nextstep.app.ui.goal.components.GoalHeaderCard
+import com.nextstep.app.ui.goal.components.GoalRewardCard
+import com.nextstep.app.ui.components.dialog.PromiseRewardDialog
+import com.nextstep.app.domain.reward.RewardStatus
 import com.nextstep.app.ui.goal.components.LinkGoalDialog
 import com.nextstep.app.ui.goal.components.SubTaskRow
 
@@ -61,6 +64,7 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
     var addingNext by remember { mutableStateOf(false) }
     var linking by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf(false) }
+    var promising by remember { mutableStateOf(false) }
     val node = state.node
     val canCheck = caps.canCheckTask(state.stage)
     Scaffold(
@@ -84,6 +88,12 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
                 GoalHeaderCard(
                     node, canClose = caps.canCloseGoals, onAchieve = { onEvent(GoalEvent.Achieve) }, onReopen = { onEvent(GoalEvent.Reopen) },
                     onArchive = { onEvent(GoalEvent.Archive) }, onEdit = { editing = true },
+                )
+            }
+            if (state.reward != null || caps.canGiveRewards) item {
+                GoalRewardCard(
+                    state.reward, canGive = caps.canGiveRewards, achieved = node.isAchieved, onPromise = { promising = true },
+                    onGive = { state.reward?.let { onEvent(GoalEvent.GiveReward(it.reward.id)) } }, onCancel = { state.reward?.let { onEvent(GoalEvent.CancelReward(it.reward.id)) } },
                 )
             }
             item { ChainCard(state.chain, node.isAchieved, onOpen = actions.onOpenGoal, onChange = if (caps.canAssignTasks) ({ linking = true }) else null) }
@@ -156,6 +166,12 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
         )
     }
     if (linking) LinkGoalDialog(state.linkTargets, goal.leadsTo, onDismiss = { linking = false }, onSave = { onEvent(GoalEvent.Link(it)) })
+    if (promising) {
+        PromiseRewardDialog(
+            goals = emptyList(), levels = emptyList(), fixedGoal = goal, initialTitle = state.reward?.takeIf { it.status == RewardStatus.PROMISED }?.reward?.title.orEmpty(),
+            onDismiss = { promising = false }, onSave = { _, _, title -> onEvent(GoalEvent.PromiseReward(title)) },
+        )
+    }
     if (editing) EditGoalDialog(goal, state.today, onDismiss = { editing = false }, onSave = { t, w, d -> onEvent(GoalEvent.Edit(t, w, d)) })
 }
 

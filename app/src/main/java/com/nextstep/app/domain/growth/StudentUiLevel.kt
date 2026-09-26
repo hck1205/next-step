@@ -42,7 +42,7 @@ enum class StudentUiLevel(
 ) {
     SEED(
         "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY, KidMode.EARLY,
-        setOf(StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.WEEK, StudentHomeSection.YEAR),
+        setOf(StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.GAME, StudentHomeSection.WEEK, StudentHomeSection.YEAR),
     ),
     SPROUT(
         "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY, KidMode.EARLY,

@@ -59,6 +59,7 @@ class SettingsViewModel(
         if (gradeYear != student.gradeYear) members.setGradeYear(student.id, gradeYear)
         if (level != state.value.chosenStudentLevel) members.setUiLevel(student.id, level)
     }
+    fun setGamify(enabled: Boolean) = viewModelScope.launch { state.value.student?.let { members.setGamify(it.id, enabled) } }
     fun updateMyProfile(name: String, title: String) = viewModelScope.launch { state.value.me?.let { members.updateProfile(it.id, name, title) } }
 
     /** 화면 이벤트 단일 진입점. */
@@ -74,6 +75,7 @@ class SettingsViewModel(
             is SettingsEvent.SetStudentLevel -> setStudentLevel(event.level)
             is SettingsEvent.SetBirthDate -> setBirthDate(event.date)
             is SettingsEvent.SaveStudentYear -> saveStudentYear(event.birthDate, event.gradeYear, event.level)
+            is SettingsEvent.SetGamify -> setGamify(event.enabled)
             is SettingsEvent.SwitchChild -> switchChild(event.familyId)
             is SettingsEvent.AddChild -> addChild(event.name, event.birthDate)
             is SettingsEvent.LinkChild -> linkChild(event.code)

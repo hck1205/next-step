@@ -19,6 +19,7 @@ import com.nextstep.app.data.sync.mapper.SubjectMapper
 import com.nextstep.app.data.sync.mapper.TaskMapper
 import com.nextstep.app.data.sync.mapper.TopicMapper
 import com.nextstep.app.data.sync.mapper.WeekPlanMapper
+import com.nextstep.app.data.sync.mapper.RewardMapper
 
 /**
  * 가족 단위로 동기화하는 컬렉션 목록. 새 엔티티는 여기 한 줄만 추가하면 수신·전송 모두 붙습니다.
@@ -43,6 +44,7 @@ object SyncRegistry {
         SyncedCollection.of(ObservationMapper, db.observationDao()),
         SyncedCollection.of(ProjectLogMapper, db.projectLogDao()),
         SyncedCollection.of(WeekPlanMapper, db.weekPlanDao()),
+        SyncedCollection.of(RewardMapper, db.rewardDao()),
     )
 
     /** 최상위 공용 컬렉션(읽기 전용) 전부. 새 공용 데이터는 여기 한 줄. */

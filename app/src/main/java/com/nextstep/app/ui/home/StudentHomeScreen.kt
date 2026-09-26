@@ -39,6 +39,7 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.CurriculumCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.JourneyNowCard
@@ -131,6 +132,9 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                     StudentHomeSection.ROUTINE -> if (state.routines.isNotEmpty()) {
                         item { SectionTitle(StudentHomeSection.ROUTINE.label) }
                         item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, big = !level.showsNumbers) }
+                    }
+                    StudentHomeSection.GAME -> state.game?.let { g ->
+                        item { GameCard(g, state.nextReward, showsNumbers = level.showsNumbers, onOpen = { actions.onOpenRecords(ConcernSection.REWARDS) }) }
                     }
                     StudentHomeSection.WEEK -> if (state.week.isNotEmpty()) item { WeekCard(state.week, state.streak, words.weekTitle, showsNumbers = level.showsNumbers) }
                     StudentHomeSection.EVENTS -> {

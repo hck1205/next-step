@@ -15,5 +15,7 @@ sealed interface ParentDashboardEvent {
     data class SaveWeekPlan(val goals: List<String>, val minutes: Int) : ParentDashboardEvent
     data class ToggleWeekGoal(val planId: String, val index: Int) : ParentDashboardEvent
     data class ApproveWeek(val planId: String) : ParentDashboardEvent
+    /** 받을 차례가 된 보상을 줬다고 남깁니다. */
+    data class GiveReward(val id: String) : ParentDashboardEvent
     data class ReflectWeek(val week: LocalDate, val mood: Int, val good: String, val hard: String, val change: String) : ParentDashboardEvent
 }

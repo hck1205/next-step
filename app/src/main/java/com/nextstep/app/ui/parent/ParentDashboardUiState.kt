@@ -4,6 +4,7 @@ import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.goaltree.GoalNode
+import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.domain.growth.GrowthStage
@@ -44,6 +45,8 @@ data class ParentDashboardUiState(
     val routines: List<ProjectProgress> = emptyList(),
     /** 사람이 만든 목표 중 먼저 챙길 것(3개까지). */
     val goalFocus: List<GoalNode> = emptyList(),
+    /** 아이가 이뤄서 받을 차례가 된 보상(약속한 것만). */
+    val rewardsDue: List<RewardView> = emptyList(),
     /** 아이의 이번 주 계획(자기주도 한 바퀴)과 학부모가 할 수 있는 것. */
     val week: WeekStatus? = null,
     val weekAccess: WeekAccess = WeekAccess(),

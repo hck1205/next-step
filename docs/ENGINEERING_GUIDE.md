@@ -45,6 +45,8 @@ com.nextstep.app
 │   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
 │   ├── taskboard/          TaskSuggester(복습 목록 · 로드맵 · 시험 → 과목·단원별 추천), TaskBoard(과목별 줄)
 │   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
+│   ├── gamify/             Gamify(기록 → 경험치·레벨·배지·연속·이번 주 도전, 저장하는 점수 없음), XpSource, GameLevel, Badge, GameProfile, GameInputs
+│   ├── reward/             Rewards(보상 약속 → 받을 차례 → 받음 상태, 다음 보상, 약속할 레벨), RewardKind(목표·레벨), RewardStatus, RewardView
 │   ├── project/            ProjectCatalog(교육 프로젝트: 목표 → 단계 → 하루 루틴), ProjectPlanner(시작·일정·진행·속도·도착 예상), ProjectPlan/ProjectPhase/RoutineItem/ProjectProgress
 │   ├── year/               YearPlans(해마다 할 일을 분류별로), YearTask, YearArea(분류 = 올해 탭), YearTerm(1학기·2학기·1년 내내)
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계), ActivitySummary(활동 기록 요약)
@@ -70,6 +72,7 @@ com.nextstep.app
     ├── goal/               목표 한 개(route "goal/{goalId}"): 세부 할 일 주기 · 체크 · 달성 · 이어지는 목표 · 작은/다음 목표 · 기록
     ├── todo/               기록 › 목표·할 일 › 할 일: 과목별 줄 + 그 과목 추천(할 일로 · 목표에)
     ├── planhistory/        기록 › 목표·할 일 › 기록: 달성률 · 달성한 목표 · 타임라인
+    ├── rewards/            기록 › 목표·할 일 › 보상·배지: 나의 레벨 + 배지판 + 경험치 내역(게임 요소가 켜졌을 때) + 보상 약속·주기
     ├── selfdirection/      기록 › 공부 › 스스로: 사다리 + 제안 + 한 바퀴 + 이번 주 + 최근 4주 + 지난 주들
     ├── projects/           기록 › 교육 프로젝트 › 진행 중: 분류 칩 + 프로젝트 카드 + 오늘 루틴
     ├── projectcatalog/     기록 › 교육 프로젝트 › 새로 시작: 나이에 맞는 계획과 시작 단계 고르기

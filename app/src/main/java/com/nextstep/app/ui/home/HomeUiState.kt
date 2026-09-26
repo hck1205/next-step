@@ -8,6 +8,8 @@ import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.selfdirection.WeekAccess
+import com.nextstep.app.domain.gamify.GameProfile
+import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.domain.curriculum.TermCurriculum
@@ -60,6 +62,9 @@ data class HomeUiState(
     /** 나의 이번 주(자기주도 한 바퀴)와 이 사람이 할 수 있는 것. */
     val myWeek: WeekStatus? = null,
     val myWeekAccess: WeekAccess = WeekAccess(),
+    /** 나의 레벨(게임 요소). 학부모가 꺼 두면 null 이라 카드가 없습니다. [nextReward] 는 다음 보상 한 줄. */
+    val game: GameProfile? = null,
+    val nextReward: RewardView? = null,
     /** 아래 네 목록은 ViewModel 이 StudyQueues 로 한 번 계산합니다. */
     val roadmapFocus: List<RoadmapItemEntity> = emptyList(),
     val activeSubjects: List<SubjectProgress> = emptyList(),

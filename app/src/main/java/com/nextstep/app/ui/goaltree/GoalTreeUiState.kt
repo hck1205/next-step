@@ -12,6 +12,8 @@ data class GoalTreeUiState(
     val nodes: List<GoalNode> = emptyList(),
     val filter: GoalFilter = GoalFilter.ACTIVE,
     val area: GoalArea? = null,
+    /** 목표마다 아직 주지 않은 보상 이름(카드의 선물 한 줄). */
+    val rewardTitles: Map<String, String> = emptyMap(),
 ) {
     private val shown: List<GoalNode> get() = nodes.filter { it.goal.status == filter.status && (area == null || it.goal.area == area.name) }
     /** 거르개에 맞는 목표 중, 이어지는 목표가 같은 거르개 안에 없는 것. */

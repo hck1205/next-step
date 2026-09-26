@@ -52,6 +52,9 @@ import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.common.asUiState
+import com.nextstep.app.ui.common.gameInputs
+import com.nextstep.app.domain.gamify.Gamify
+import com.nextstep.app.domain.reward.Rewards
 
 class HomeViewModel(
     private val streams: FamilyDataStreams,
@@ -128,12 +131,19 @@ class HomeViewModel(
         SelfWeek(SelfDirection.week(stage, plans, sessions, day), WeekAccess.of(Capabilities.of(profile.role ?: Role.STUDENT, me), stage))
     }
 
-    val state: StateFlow<HomeUiState> = combine(enriched, streams.goals, streams.goalSteps, streams.projectLogs, selfWeek) { s, goals, steps, logs, w ->
+    private val planned = combine(enriched, streams.goals, streams.goalSteps, streams.projectLogs, selfWeek) { s, goals, steps, logs, w ->
         s.copy(
             myWeek = w.week, myWeekAccess = w.access,
             missionFocus = MissionPlanner.focus(goals, steps, s.today),
             routines = ProjectPlanner.progressAll(goals, steps, logs, s.today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
         )
+    }
+
+    /** 나의 레벨: 학부모가 게임 요소를 꺼 두면 계산하지 않습니다. 보상 한 줄은 레벨·목표에 걸린 다음 보상. */
+    val state: StateFlow<HomeUiState> = combine(planned, streams.members, streams.gameInputs(), streams.rewards) { s, all, input, rewards ->
+        if (all.firstOrNull { it.isStudent }?.gamify == false) return@combine s.copy(game = null, nextReward = null)
+        val profile = Gamify.profile(input, s.today)
+        s.copy(game = profile, nextReward = Rewards.next(Rewards.views(rewards, input.goals, profile.level.number)))
     }
         .asUiState(viewModelScope, HomeUiState())
 

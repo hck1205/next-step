@@ -82,6 +82,11 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     /** 목표를 달성으로 표시하거나 보관하기. 만든 사람이 아니어도 가족이면 누구나(멘토 포함). */
     val canCloseGoals: Boolean get() = true
 
+    /** 목표·레벨에 보상을 약속하고, 이뤘을 때 주기: 학부모와 멘토(멘토 겸하는 학부모 포함). 학생은 보기만. */
+    val canGiveRewards: Boolean get() = isParent || actsAsMentor
+    /** 게임 요소(경험치·레벨·배지·도전)를 켜고 끄기: 학부모. */
+    val canToggleGamification: Boolean get() = isParent
+
     /** 자기주도 단계를 한 칸 올리거나 내리는 것은 학부모. */
     val canChooseSelfDirection: Boolean get() = isParent
 

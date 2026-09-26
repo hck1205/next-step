@@ -1,5 +1,9 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.data.repository.RewardRepository
+import com.nextstep.app.domain.gamify.Gamify
+import com.nextstep.app.domain.reward.Rewards
+import com.nextstep.app.ui.common.gameInputs
 import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -47,6 +51,7 @@ class ParentDashboardViewModel(
     private val tasks: TaskRepository,
     private val projects: ProjectRepository,
     private val weekPlans: WeekPlanRepository,
+    private val rewards: RewardRepository,
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
@@ -59,7 +64,7 @@ class ParentDashboardViewModel(
 
     private val self = combine(streams.weekPlans, streams.myMember, streams.profile) { plans, me, profile -> Triple(plans, me, profile.role) }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(core, side, streams.syncStatus, streams.projectLogs, self) { c, x, sync, logs, (plans, me, role) ->
+    private val dashboard = combine(core, side, streams.syncStatus, streams.projectLogs, self) { c, x, sync, logs, (plans, me, role) ->
         val today = DateUtils.today()
         val ctx = StudentContext.of(x.members, today)
         val selfStage = SelfDirection.stageOf(ctx.student, today)
@@ -88,6 +93,12 @@ class ParentDashboardViewModel(
             weekAccess = WeekAccess.of(Capabilities.of(role ?: Role.PARENT, me), selfStage),
             routines = ProjectPlanner.progressAll(x.goals, x.goalSteps, logs, today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
         )
+    }
+
+    /** 받을 차례가 된 보상: 레벨 보상은 기록에서 계산한 지금 레벨로 판단합니다(게임 요소를 꺼도 약속은 그대로). */
+    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.gameInputs(), streams.rewards) { s, input, list ->
+        val level = Gamify.profile(input, s.today).level.number
+        s.copy(rewardsDue = Rewards.due(Rewards.views(list, input.goals, level)))
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
     /** 학부모가 자녀에게 할 일을 배정합니다. */
@@ -121,6 +132,7 @@ class ParentDashboardViewModel(
             is ParentDashboardEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(DateUtils.weekStart(DateUtils.today()), event.goals, event.minutes) }
             is ParentDashboardEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
             is ParentDashboardEvent.ApproveWeek -> viewModelScope.launch { weekPlans.approve(event.planId) }
+            is ParentDashboardEvent.GiveReward -> viewModelScope.launch { rewards.give(event.id) }
             is ParentDashboardEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }
         }
     }

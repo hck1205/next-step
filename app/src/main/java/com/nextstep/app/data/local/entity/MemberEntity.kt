@@ -34,6 +34,8 @@ data class MemberEntity(
     val seenUiLevel: String = "",
     /** 자기주도 단계(SelfDirectionStage 이름)를 학부모가 직접 고른 값. 비어 있으면 화면 단계에 맞춰 자동. */
     val selfDirection: String = "",
+    /** 게임 요소(경험치·레벨·배지·이번 주 도전)를 보일지. 학부모가 가족 탭에서 끌 수 있습니다. 학생 행에만 의미 있음. */
+    val gamify: Boolean = true,
     val joinedAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,

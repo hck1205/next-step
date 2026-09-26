@@ -19,7 +19,7 @@ data class StudentScreen(
         /** 카드 기본 순서. 올해 프로필의 lead 가 타이머 바로 뒤로 당겨집니다. */
         val DEFAULT_ORDER: List<StudentHomeSection> = listOf(
             StudentHomeSection.TIMER, StudentHomeSection.CURRICULUM, StudentHomeSection.MISSION, StudentHomeSection.JOURNEY,
-            StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.YEAR, StudentHomeSection.WEEK, StudentHomeSection.EVENTS, StudentHomeSection.EXAM,
+            StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.GAME, StudentHomeSection.YEAR, StudentHomeSection.WEEK, StudentHomeSection.EVENTS, StudentHomeSection.EXAM,
             StudentHomeSection.RECOMMENDATION, StudentHomeSection.SUBJECTS, StudentHomeSection.REVIEW,
             StudentHomeSection.PREVIEW, StudentHomeSection.ROADMAP, StudentHomeSection.PLANNER,
         )

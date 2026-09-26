@@ -9,13 +9,13 @@ object MemberMapper : EntityMapper<MemberEntity> {
     override fun toMap(entity: MemberEntity): Map<String, Any?> = with(entity) {
         mapOf(
             "id" to id, "familyId" to familyId, "role" to role, "name" to name, "title" to title, "subjectIds" to subjectIds,
-            "mentorEnabled" to mentorEnabled, "gradeYear" to gradeYear, "birthDate" to birthDate, "uiLevel" to uiLevel, "seenUiLevel" to seenUiLevel, "selfDirection" to selfDirection, "joinedAt" to joinedAt, "updatedAt" to updatedAt, "deleted" to deleted,
+            "mentorEnabled" to mentorEnabled, "gradeYear" to gradeYear, "birthDate" to birthDate, "uiLevel" to uiLevel, "seenUiLevel" to seenUiLevel, "selfDirection" to selfDirection, "gamify" to gamify, "joinedAt" to joinedAt, "updatedAt" to updatedAt, "deleted" to deleted,
         )
     }
 
     override fun fromMap(id: String, data: Map<String, Any?>): MemberEntity = MemberEntity(
         id = id, familyId = data.str("familyId"), role = data.str("role"), name = data.str("name"), title = data.str("title"),
-        subjectIds = data.str("subjectIds"), mentorEnabled = data.bool("mentorEnabled"), gradeYear = data.int("gradeYear"), birthDate = data.longOrNull("birthDate"), uiLevel = data.str("uiLevel"), seenUiLevel = data.str("seenUiLevel"), selfDirection = data.str("selfDirection"), joinedAt = data.long("joinedAt"),
+        subjectIds = data.str("subjectIds"), mentorEnabled = data.bool("mentorEnabled"), gradeYear = data.int("gradeYear"), birthDate = data.longOrNull("birthDate"), uiLevel = data.str("uiLevel"), seenUiLevel = data.str("seenUiLevel"), selfDirection = data.str("selfDirection"), gamify = data.bool("gamify", true), joinedAt = data.long("joinedAt"),
         updatedAt = data.long("updatedAt"), deleted = data.bool("deleted"), dirty = false,
     )
 }

@@ -33,6 +33,7 @@ enum class ConcernSection(
     TODO(Concern.PLAN, "할 일", "todo", StudentUiLevel.SEEDLING),
     ASSIGNMENTS(Concern.PLAN, "과제", "assignments", StudentUiLevel.STEM),
     PLAN_HISTORY(Concern.PLAN, "기록", "plan-history", StudentUiLevel.SEEDLING),
+    REWARDS(Concern.PLAN, "보상·배지", "rewards", StudentUiLevel.SEED),
     BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = setOf(HubAudience.PARENT, HubAudience.STUDENT)),
     ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED),
     TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING);

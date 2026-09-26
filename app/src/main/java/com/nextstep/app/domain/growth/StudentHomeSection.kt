@@ -9,6 +9,8 @@ enum class StudentHomeSection(val label: String) {
     TASKS("오늘 할 일"),
     MY_WEEK("나의 이번 주"),
     ROUTINE("오늘의 루틴"),
+    /** 레벨·이번 주 도전·배지. 학부모가 게임 요소를 끄면(MemberEntity.gamify) 보이지 않습니다. */
+    GAME("나의 레벨"),
     WEEK("이번 주 별"),
     YEAR("올해의 공부"),
     EVENTS("오늘 일정"),

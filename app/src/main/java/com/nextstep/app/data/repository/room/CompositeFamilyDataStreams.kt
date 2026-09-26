@@ -17,6 +17,7 @@ import com.nextstep.app.data.repository.SubjectRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.data.repository.RewardRepository
 
 /** 개별 저장소의 읽기 스트림을 한 곳에 모읍니다. 새 스트림은 여기와 인터페이스에만 추가합니다. */
 class CompositeFamilyDataStreams(
@@ -36,6 +37,7 @@ class CompositeFamilyDataStreams(
     growth: GrowthRepository,
     projects: ProjectRepository,
     weekPlans: WeekPlanRepository,
+    rewards: RewardRepository,
 ) : FamilyDataStreams {
     override val profile = onboarding.profile
     override val syncStatus = onboarding.syncStatus
@@ -58,4 +60,5 @@ class CompositeFamilyDataStreams(
     override val observations = growth.observations
     override val projectLogs = projects.logs
     override val weekPlans = weekPlans.plans
+    override val rewards = rewards.rewards
 }

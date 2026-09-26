@@ -7,6 +7,9 @@ import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.data.repository.RewardRepository
+import com.nextstep.app.domain.reward.RewardKind
+import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.goaltree.PlanHistory
@@ -24,11 +27,12 @@ class GoalViewModel(
     streams: FamilyDataStreams,
     private val goals: GoalRepository,
     private val tasks: TaskRepository,
+    private val rewards: RewardRepository,
     private val today: () -> LocalDate = { DateUtils.today() },
 ) : ViewModel() {
     private val goalId: String = checkNotNull(savedStateHandle.get<String>("goalId"))
 
-    val state: StateFlow<GoalUiState> = combine(streams.goals, streams.tasks, streams.subjects, streams.members) { all, allTasks, subjects, members ->
+    val state: StateFlow<GoalUiState> = combine(streams.goals, streams.tasks, streams.subjects, streams.members, streams.rewards) { all, allTasks, subjects, members, rewardList ->
         val day = today()
         val goal = all.firstOrNull { it.id == goalId && !it.deleted && GoalTree.isTreeGoal(it) }
             ?: return@combine GoalUiState(loaded = true, today = day)
@@ -41,6 +45,8 @@ class GoalViewModel(
             children = nodes.filter { it.goal.leadsTo == goalId && it.goal.status != GoalStatus.ARCHIVED },
             linkTargets = GoalTree.linkTargets(goal, all),
             history = PlanHistory.timeline(all.filter { it.id in family }, allTasks.filter { it.goalId in family }),
+            // 목표 보상만 보므로 레벨은 쓰지 않습니다.
+            reward = Rewards.forGoal(Rewards.views(rewardList, all, level = 0), goalId),
             subjects = subjects, stage = SelfDirection.stageOf(StudentContext.of(members, day).student, day), today = day,
         )
     }.asUiState(viewModelScope, GoalUiState())
@@ -57,6 +63,9 @@ class GoalViewModel(
             GoalEvent.Achieve -> viewModelScope.launch { goals.setGoalStatus(goalId, GoalStatus.DONE) }
             GoalEvent.Reopen -> viewModelScope.launch { goals.setGoalStatus(goalId, GoalStatus.ACTIVE) }
             GoalEvent.Archive -> viewModelScope.launch { goals.setGoalStatus(goalId, GoalStatus.ARCHIVED) }
+            is GoalEvent.PromiseReward -> viewModelScope.launch { rewards.promise(RewardKind.GOAL.name, goalId, event.title) }
+            is GoalEvent.GiveReward -> viewModelScope.launch { rewards.give(event.id) }
+            is GoalEvent.CancelReward -> viewModelScope.launch { rewards.cancel(event.id) }
             is GoalEvent.Link -> viewModelScope.launch { goals.link(goalId, event.leadsTo) }
             is GoalEvent.Edit -> viewModelScope.launch { goals.edit(goalId, event.title, event.why, event.target?.toEpochDay()) }
             is GoalEvent.AddChild -> viewModelScope.launch {

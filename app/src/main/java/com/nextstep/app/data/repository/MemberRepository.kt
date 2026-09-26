@@ -26,5 +26,7 @@ interface MemberRepository {
     suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel)
     /** 자기주도 단계를 직접 고릅니다. null 이면 화면 단계에 맞춰 자동. */
     suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?)
+    /** 게임 요소를 켜거나 끕니다(학생 행). */
+    suspend fun setGamify(memberId: String, enabled: Boolean)
     suspend fun remove(memberId: String)
 }

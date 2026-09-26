@@ -56,6 +56,8 @@ class RoomMemberRepository(
     override suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?) =
         modify(memberId) { it.copy(selfDirection = stage?.name.orEmpty()) }
 
+    override suspend fun setGamify(memberId: String, enabled: Boolean) = modify(memberId) { it.copy(gamify = enabled) }
+
     override suspend fun remove(memberId: String) = modify(memberId) { it.copy(deleted = true) }
 
     private suspend fun modify(id: String, change: (MemberEntity) -> MemberEntity) {

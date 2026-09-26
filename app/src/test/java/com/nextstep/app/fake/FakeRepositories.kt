@@ -16,6 +16,7 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
+import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
@@ -40,6 +41,7 @@ import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.StudySessionRepository
 import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.data.repository.RewardRepository
 import com.nextstep.app.data.sync.FamilyInfo
 import com.nextstep.app.domain.content.ContentClassification
 import com.nextstep.app.domain.planner.StudyPlan
@@ -133,6 +135,7 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun setUiLevel(memberId: String, level: StudentUiLevel?) { calls += "uiLevel:$memberId:${level?.name}" }
     override suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel) { calls += "seen:$memberId:${level.name}" }
     override suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?) { calls += "self:$memberId:${stage?.name}" }
+    override suspend fun setGamify(memberId: String, enabled: Boolean) { calls += "gamify:$memberId:$enabled" }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 
@@ -240,6 +243,22 @@ class FakeWeekPlanRepository(streams: FakeFamilyDataStreams? = null, var role: S
         val base = find(weekStart) ?: WeekPlanEntity(familyId = "fam", weekStart = weekStart.toEpochDay())
         upsert(base.copy(mood = mood, good = good, hard = hard, change = change, reflectedByRole = role, reflectedAt = 1L))
     }
+}
+
+/** [streams] 를 주면 쓰기가 그 파사드의 rewards 에도 보입니다. 약속한 사람은 [role]. */
+class FakeRewardRepository(streams: FakeFamilyDataStreams? = null, var role: String = "PARENT") : RewardRepository {
+    override val rewards: MutableStateFlow<List<RewardEntity>> = streams?.rewards ?: MutableStateFlow(emptyList())
+    val calls = mutableListOf<String>()
+    override suspend fun promise(kind: String, targetId: String, title: String) {
+        calls += "promise:$kind:$targetId:$title"
+        val open = rewards.value.firstOrNull { it.kind == kind && it.targetId == targetId && it.givenAt == null }
+        rewards.value = rewards.value.filter { it.id != open?.id } + (open?.copy(title = title) ?: RewardEntity(familyId = "fam", kind = kind, targetId = targetId, title = title, createdByRole = role))
+    }
+    override suspend fun give(id: String) {
+        calls += "give:$id"
+        rewards.value = rewards.value.map { if (it.id == id) it.copy(givenAt = 1L, givenByRole = role) else it }
+    }
+    override suspend fun cancel(id: String) { calls += "cancel:$id"; rewards.value = rewards.value.filter { it.id != id } }
 }
 
 class FakePeerCurriculumRepository : PeerCurriculumRepository {

@@ -47,6 +47,7 @@ import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
 import com.nextstep.app.ui.settings.components.InfoRow
 import com.nextstep.app.ui.settings.components.MembersCard
 import com.nextstep.app.ui.settings.components.MentorModeCard
+import com.nextstep.app.ui.settings.components.GamifyCard
 import com.nextstep.app.ui.settings.components.PairingCodeCard
 
 @Composable
@@ -119,6 +120,11 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
                 level = state.chosenStudentLevel ?: state.autoStudentLevel, chosen = state.chosenStudentLevel != null,
                 onEdit = { showEditYear = true },
             )
+
+            if (caps.canToggleGamification) {
+                SectionTitle("레벨·배지")
+                GamifyCard(enabled = state.student?.gamify ?: true, available = state.student != null, onChange = { onEvent(SettingsEvent.SetGamify(it)) })
+            }
 
             SectionTitle("연결된 구성원")
             MembersCard(state.members, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { confirmRemove = it })

@@ -48,4 +48,16 @@ class GoalTreeViewModelTest : ViewModelTestBase() {
         assertTrue(GoalTree.isTreeGoal(g)); assertEquals("big", g.leadsTo); assertEquals("MENTOR", g.createdByRole); assertEquals(today.plusDays(30).toEpochDay(), g.targetDate)
         job.cancel()
     }
+
+    @Test
+    fun cardsShowTheRewardWaitingOnEachGoal() = runTest {
+        streams.goals.value = listOf(tree("big"), tree("small", leadsTo = "big"))
+        streams.rewards.value = listOf(
+            com.nextstep.app.data.local.entity.RewardEntity(id = "r1", familyId = Fixtures.FAMILY, kind = "GOAL", targetId = "big", title = "나들이"),
+            com.nextstep.app.data.local.entity.RewardEntity(id = "r2", familyId = Fixtures.FAMILY, kind = "GOAL", targetId = "small", title = "받은 것", givenAt = 1L),
+        )
+        val vm = vm(); val job = subscribe(vm.state)
+        assertEquals(mapOf("big" to "나들이"), settle(vm.state).rewardTitles)
+        job.cancel()
+    }
 }

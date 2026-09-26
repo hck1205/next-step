@@ -42,6 +42,8 @@ import com.nextstep.app.ui.goaltree.GoalTreeActions
 import com.nextstep.app.ui.goaltree.GoalTreeScreen
 import com.nextstep.app.ui.planhistory.PlanHistoryActions
 import com.nextstep.app.ui.planhistory.PlanHistoryScreen
+import com.nextstep.app.ui.rewards.RewardsActions
+import com.nextstep.app.ui.rewards.RewardsScreen
 import com.nextstep.app.ui.todo.TodoActions
 import com.nextstep.app.ui.todo.TodoScreen
 import com.nextstep.app.ui.hub.components.ConcernTabs
@@ -131,6 +133,7 @@ private fun SectionContent(section: ConcernSection, caps: Capabilities, viewer: 
         ConcernSection.TODO -> TodoScreen(caps = caps, actions = TodoActions(onOpenGoal = actions.onOpenGoal, onOpenSubject = actions.onOpenSubject))
         ConcernSection.ASSIGNMENTS -> AssignmentsScreen()
         ConcernSection.PLAN_HISTORY -> PlanHistoryScreen(actions = PlanHistoryActions(onOpenGoal = actions.onOpenGoal))
+        ConcernSection.REWARDS -> RewardsScreen(caps = caps, showsNumbers = viewer.level?.showsNumbers ?: true, actions = RewardsActions(onOpenGoal = actions.onOpenGoal))
         ConcernSection.BODY -> GrowthScreen(caps = caps)
         ConcernSection.ACTIVITIES -> ActivitiesScreen(caps = caps, actions = ActivitiesActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.TALENT -> TalentScreen(caps = caps)

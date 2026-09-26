@@ -13,6 +13,10 @@ sealed interface GoalEvent {
     data object Achieve : GoalEvent
     data object Reopen : GoalEvent
     data object Archive : GoalEvent
+    /** 이 목표를 이루면 줄 보상 약속(같은 목표의 아직 안 준 약속은 바뀝니다) · 줬어요 · 취소. 학부모·멘토만. */
+    data class PromiseReward(val title: String) : GoalEvent
+    data class GiveReward(val id: String) : GoalEvent
+    data class CancelReward(val id: String) : GoalEvent
     data class Link(val leadsTo: String?) : GoalEvent
     data class Edit(val title: String, val why: String, val target: LocalDate?) : GoalEvent
     /** 이 목표로 이어지는 작은 목표 만들기. */

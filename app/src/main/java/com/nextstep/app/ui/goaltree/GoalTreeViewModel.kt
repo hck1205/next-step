@@ -6,6 +6,7 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +24,12 @@ class GoalTreeViewModel(
     private val filter = MutableStateFlow(GoalFilter.ACTIVE)
     private val area = MutableStateFlow<GoalArea?>(null)
 
-    val state: StateFlow<GoalTreeUiState> = combine(streams.goals, streams.tasks, filter, area) { all, tasks, f, a ->
-        GoalTreeUiState(loaded = true, nodes = GoalTree.nodes(all, tasks, today()), filter = f, area = a)
+    val state: StateFlow<GoalTreeUiState> = combine(streams.goals, streams.tasks, filter, area, streams.rewards) { all, tasks, f, a, rewards ->
+        GoalTreeUiState(
+            loaded = true, nodes = GoalTree.nodes(all, tasks, today()), filter = f, area = a,
+            // 목표 보상만 보므로 레벨은 쓰지 않습니다.
+            rewardTitles = Rewards.openByGoal(Rewards.views(rewards, all, level = 0)),
+        )
     }.asUiState(viewModelScope, GoalTreeUiState())
 
     fun onEvent(event: GoalTreeEvent) {

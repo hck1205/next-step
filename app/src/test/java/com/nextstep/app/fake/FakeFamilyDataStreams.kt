@@ -17,6 +17,7 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
+import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.prefs.RunningTimer
@@ -50,4 +51,5 @@ class FakeFamilyDataStreams(
     override val observations = MutableStateFlow<List<ObservationEntity>>(emptyList())
     override val projectLogs = MutableStateFlow<List<ProjectLogEntity>>(emptyList())
     override val weekPlans = MutableStateFlow<List<WeekPlanEntity>>(emptyList())
+    override val rewards = MutableStateFlow<List<RewardEntity>>(emptyList())
 }

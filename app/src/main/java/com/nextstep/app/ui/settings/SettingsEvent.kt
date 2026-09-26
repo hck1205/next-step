@@ -17,6 +17,8 @@ sealed interface SettingsEvent {
     data class SetStudentLevel(val level: StudentUiLevel?) : SettingsEvent
     /** "학년 고치기" 창에서 한 번에 저장. 바뀐 값만 씁니다. */
     data class SaveStudentYear(val birthDate: java.time.LocalDate?, val gradeYear: Int, val level: StudentUiLevel?) : SettingsEvent
+    /** 아이 화면의 레벨·배지(게임 요소) 켜고 끄기. 학부모만. */
+    data class SetGamify(val enabled: Boolean) : SettingsEvent
     /** 다자녀 */
     data class SwitchChild(val familyId: String) : SettingsEvent
     data class AddChild(val name: String, val birthDate: java.time.LocalDate?) : SettingsEvent

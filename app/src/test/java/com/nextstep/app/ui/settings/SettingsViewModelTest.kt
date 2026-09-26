@@ -106,4 +106,16 @@ class SettingsViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("grade:kid:5", "uiLevel:kid:STEM"), members.calls)
         job.cancel()
     }
+
+    @Test
+    fun gamifySwitchWritesToTheStudent() = runTest {
+        val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
+        vm.onEvent(SettingsEvent.SetGamify(false)); settle(vm.state)
+        assertTrue(members.calls.none { it.startsWith("gamify") }) // 학생 정보가 없으면 아무것도 하지 않음
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid"))
+        settle(vm.state)
+        vm.onEvent(SettingsEvent.SetGamify(false)); settle(vm.state)
+        assertEquals("gamify:kid:false", members.calls.last())
+        job.cancel()
+    }
 }

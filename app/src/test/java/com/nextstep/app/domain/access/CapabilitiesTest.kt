@@ -26,6 +26,12 @@ class CapabilitiesTest {
     }
 
     @Test
+    fun parentsAndMentorsGiveRewardsAndOnlyParentsToggleGames() {
+        assertTrue(parent.canGiveRewards); assertTrue(mentor.canGiveRewards); assertTrue(parentMentor.canGiveRewards); assertFalse(student.canGiveRewards)
+        assertTrue(parent.canToggleGamification); assertFalse(mentor.canToggleGamification); assertFalse(student.canToggleGamification)
+    }
+
+    @Test
     fun factoryTakesMentorFlagFromMemberUnlessRoleIsMentor() {
         assertFalse(Capabilities.of(Role.PARENT, null).actsAsMentor)
         assertFalse(Capabilities.of(Role.PARENT, Fixtures.member(Role.PARENT, "엄마")).actsAsMentor)
