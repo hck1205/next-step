@@ -103,7 +103,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             state.homeOrder.forEach { section ->
                 when (section) {
                     StudentHomeSection.TIMER -> item { TimerCard(state, words, big = !level.showsNumbers, goalMinutes = state.year?.dailyMinutes, onOpenTimer = actions.onOpenTimer) }
-                    StudentHomeSection.YEAR -> state.year?.let { y -> item { YearCard(y, onAdd = { onEvent(HomeEvent.AddStudyKind(it)) }, onOpenYear = actions.onOpenYear) } }
+                    StudentHomeSection.YEAR -> state.year?.let { y -> item { YearCard(y, aheadCount = state.yearAheadCount, aheadHeading = state.yearAheadHeading, onAdd = { onEvent(HomeEvent.AddStudyKind(it)) }, onOpenYear = actions.onOpenYear) } }
                     StudentHomeSection.CURRICULUM -> state.curriculum?.let { c -> item { CurriculumCard(curriculum = c, periodLabel = state.periodLabel ?: "이번 학기", onOpen = actions.onOpenCurriculum) } }
                     StudentHomeSection.MISSION -> if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
                     StudentHomeSection.JOURNEY -> if (state.hasBirthDate || state.journeyNow.isNotEmpty()) item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
@@ -131,7 +131,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                     }
                     StudentHomeSection.ROUTINE -> if (state.routines.isNotEmpty()) {
                         item { SectionTitle(StudentHomeSection.ROUTINE.label) }
-                        item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, big = !level.showsNumbers) }
+                        item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, big = !level.showsNumbers, compact = true) }
                     }
                     StudentHomeSection.GAME -> state.game?.let { g ->
                         item { GameCard(g, state.nextReward, showsNumbers = level.showsNumbers, onOpen = { actions.onOpenRecords(ConcernSection.REWARDS) }) }

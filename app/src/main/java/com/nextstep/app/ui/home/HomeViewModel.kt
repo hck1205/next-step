@@ -52,6 +52,8 @@ import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.common.asUiState
+import com.nextstep.app.domain.year.AheadPlans
+import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.ui.common.gameInputs
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.reward.Rewards
@@ -108,6 +110,8 @@ class HomeViewModel(
         s.copy(
             level = level,
             year = screen.year,
+            yearAheadCount = screen.year?.let { YearPlans.ahead(it.key).size } ?: 0,
+            yearAheadHeading = screen.year?.let { AheadPlans.heading(it.key) }.orEmpty(),
             taskRows = screen.taskRows,
             homeOrder = screen.homeOrder,
             levelUp = levelUp,

@@ -34,7 +34,7 @@ import com.nextstep.app.ui.components.card.AppCard
  * 한 줄의 + 를 누르면 그 분량이 오늘 할 일이 됩니다. 과목별로 잘게 나눈 올해 할 일은 "올해" 탭에 있습니다.
  */
 @Composable
-internal fun YearCard(year: YearProfile, onAdd: (StudyKind) -> Unit, onOpenYear: () -> Unit) {
+internal fun YearCard(year: YearProfile, aheadCount: Int, aheadHeading: String, onAdd: (StudyKind) -> Unit, onOpenYear: () -> Unit) {
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("${year.label} · 올해의 공부", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
@@ -53,6 +53,9 @@ internal fun YearCard(year: YearProfile, onAdd: (StudyKind) -> Unit, onOpenYear:
                 (if (year.dailyMinutes == 0) "앉아서 하는 공부 없이 놀이로" else "하루 ${year.dailyMinutes}분이면 충분해요") + " · " + year.subjects.joinToString(" · "),
                 style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2,
             )
+            if (aheadCount > 0) {
+                Text("여유가 있다면 · $aheadHeading ${aheadCount}가지", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
+            }
             TextButton(onClick = onOpenYear) { Text("올해 할 일 모두 보기") }
         }
     }

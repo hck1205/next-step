@@ -28,7 +28,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.yearplan.YearTaskView
 
 /**
- * 올해 할 일 한 줄: 동그라미 체크(누르면 완료/되돌리기) + 제목 + 방법 한 줄. 줄을 누르면 자세히.
+ * 올해 할 일 한 줄: 동그라미 체크(누르면 완료/되돌리기) + 제목 + 방법 한 줄 + 도달 기준("이만큼이면 충분" · 앞서 가기는 도착점). 줄을 누르면 자세히.
  * [minHeightDp] 는 화면 단계의 누름 영역, [showArea] 는 전체 탭에서 분류 이름을 붙일 때,
  * [showDoer] 면 제목 위에 누가 하는지(엄마·아빠가 · 같이 · 스스로)를 붙입니다.
  */
@@ -54,6 +54,13 @@ internal fun YearTaskRow(view: YearTaskView, minHeightDp: Int, showArea: Boolean
                     (if (showArea) "${view.task.area.label} · " else "") + view.task.how,
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2,
                 )
+                if (view.task.bar.isNotBlank() && !view.done) {
+                    Text(
+                        (if (view.task.isAhead) "→ " else "✓ ") + view.task.bar,
+                        style = MaterialTheme.typography.labelMedium, maxLines = 2,
+                        color = if (view.task.isAhead) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
     }

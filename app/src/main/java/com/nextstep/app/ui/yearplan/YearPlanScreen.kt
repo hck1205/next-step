@@ -42,6 +42,7 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.speech.rememberSpeaker
+import com.nextstep.app.ui.yearplan.components.AheadHeader
 import com.nextstep.app.ui.yearplan.components.YearTaskDialog
 import com.nextstep.app.ui.yearplan.components.YearTaskRow
 import com.nextstep.app.ui.yearplan.components.YearTrendCard
@@ -49,7 +50,8 @@ import com.nextstep.app.domain.year.YearDoer
 
 /**
  * "올해" 화면(학생은 하단 탭, 학부모·멘토는 여정에서): 올해(만 나이·학년) 해야 할 일을 분류 탭(전체 · 국어 · 수학 · 영어 · … · 생활)으로 잘게 나눠 보여 줍니다.
- * 탭 안은 지금 학기 → 1년 내내 → 다른 학기 순서이고, 각 줄은 체크 한 번으로 끝납니다. 학년은 여기서 고르지 않습니다(생년월일로 자동).
+ * 탭 안은 기본(지금 학기 → 1년 내내 → 다른 학기, 안 한 것이 먼저, 줄마다 "이만큼이면 충분" 기준)과 그 아래 앞서 가기(여유가 있을 때만)로 나뉘고,
+ * 각 줄은 체크 한 번으로 끝납니다. 진행 막대는 기본만 셉니다. 학년은 여기서 고르지 않습니다(생년월일로 자동).
  */
 @Composable
 fun YearPlanScreen(caps: Capabilities, actions: YearPlanActions, viewModel: YearPlanViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -86,9 +88,15 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
                         Text(year.theme, style = MaterialTheme.typography.titleMedium)
                         LinearProgressIndicator(progress = { if (state.total == 0) 0f else state.done.toFloat() / state.total }, modifier = Modifier.fillMaxWidth())
                         Text(
-                            if (numbers) "${state.done} / ${state.total} 끝냈어요 · 지금 ${state.currentTerm.label}" else "별 ${state.done}개 모았어요",
+                            if (numbers) "기본 ${state.done} / ${state.total} 끝냈어요 · 지금 ${state.currentTerm.label}" else "별 ${state.done}개 모았어요",
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                        if (state.aheadTotal > 0) {
+                            Text(
+                                "${state.aheadHeading}" + (if (numbers) " ${state.aheadDone} / ${state.aheadTotal}" else "") + " · 여유가 있을 때만",
+                                style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary,
+                            )
+                        }
                     }
                 }
                 if (state.mineCount > 0 && state.mineCount < state.allCount) {
@@ -116,6 +124,12 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
                             )
                         }
                         items(views, key = { "${tab.label}${it.task.key}" }) { v ->
+                            YearTaskRow(v, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showDoer = state.showsAllDoers || v.task.who != YearDoer.CHILD, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onOpen = { open = v })
+                        }
+                    }
+                    if (tab.ahead.isNotEmpty()) {
+                        item(key = "ahead-head-${tab.label}") { AheadHeader(state.aheadHeading, state.aheadNote) }
+                        items(tab.ahead, key = { "a${tab.label}${it.task.key}" }) { v ->
                             YearTaskRow(v, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showDoer = state.showsAllDoers || v.task.who != YearDoer.CHILD, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onOpen = { open = v })
                         }
                     }

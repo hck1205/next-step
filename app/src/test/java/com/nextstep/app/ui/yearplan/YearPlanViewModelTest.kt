@@ -6,6 +6,7 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.growth.YearProfiles
 import com.nextstep.app.domain.year.YearArea
 import com.nextstep.app.domain.year.YearPlans
+import com.nextstep.app.domain.year.AheadPlans
 import com.nextstep.app.domain.year.YearTerm
 import com.nextstep.app.domain.year.YearTrends
 import com.nextstep.app.domain.year.YearDoer
@@ -40,7 +41,9 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         val plan = YearPlans.forYear(yearKey)
         assertEquals(yearKey, s.year!!.key)
         assertEquals(YearTerm.SECOND, s.currentTerm)
-        assertEquals(plan.size, s.total)
+        assertEquals(YearPlans.base(yearKey).size, s.total) // 진행률은 기본만
+        assertEquals(YearPlans.ahead(yearKey).size, s.aheadTotal)
+        assertEquals(AheadPlans.heading(yearKey), s.aheadHeading)
         assertEquals(YearTrends.of(yearKey), s.trend)
         assertEquals(plan.any { it.who == YearDoer.PARENT }, s.showsAllDoers)
         assertEquals(listOf("전체") + YearPlans.areasOf(yearKey).map { it.label }, s.tabs.map { it.label })
@@ -48,6 +51,10 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         val order = s.tabs.first().sections.map { it.first }
         assertEquals(listOf(YearTerm.SECOND, YearTerm.ALL_YEAR, YearTerm.FIRST).filter { t -> plan.any { it.term == t } }, order)
         s.tabs.drop(1).forEach { tab -> assertTrue(tab.sections.flatMap { it.second }.all { it.task.area == tab.area }) }
+        // 기본 묶음에는 앞서 가기가 없고, 앞서 가기는 탭마다 따로 맨 아래
+        assertTrue(s.tabs.first().sections.flatMap { it.second }.none { it.task.isAhead })
+        assertEquals(YearPlans.ahead(yearKey).toSet(), s.tabs.first().ahead.map { it.task }.toSet())
+        s.tabs.drop(1).forEach { tab -> assertTrue(tab.ahead.all { it.task.area == tab.area && it.task.isAhead }) }
         job.cancel()
     }
 
@@ -116,7 +123,7 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         vm.onEvent(YearPlanEvent.SetMine(setOf(YearDoer.MENTOR)))
         val mentor = settle(vm.state)
         assertTrue(mentor.mineOnly)
-        assertEquals(YearPlans.forYear(yearKey).count { it.who == YearDoer.MENTOR }, mentor.total)
+        assertEquals(YearPlans.base(yearKey).count { it.who == YearDoer.MENTOR }, mentor.total)
         assertEquals(YearPlans.forYear(yearKey).size, mentor.allCount)
         vm.onEvent(YearPlanEvent.ShowMine(false))
         assertEquals(mentor.allCount, settle(vm.state).total)
@@ -126,6 +133,38 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         val infant = settle(vm.state)
         assertFalse(infant.mineOnly)
         assertEquals(infant.allCount, infant.total)
+        job.cancel()
+    }
+
+    @Test
+    fun doneAheadTasksCountSeparatelyAndUndoneComeFirst() = runTest {
+        val ahead = YearPlans.ahead(yearKey).first()
+        val base = YearPlans.base(yearKey).first()
+        streams.members.value = listOf(student)
+        streams.journeyItems.value = listOf(
+            Fixtures.journeyItem(ahead.storageId(yearKey), status = MilestoneStatus.DONE),
+            Fixtures.journeyItem(base.storageId(yearKey), status = MilestoneStatus.DONE),
+        )
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(1, s.done); assertEquals(1, s.aheadDone)
+        assertEquals(1, s.tabs.first().done) // 탭의 끝낸 수도 기본만
+        assertTrue(s.tabs.first().ahead.last().done) // 끝낸 것은 아래로
+        s.tabs.first().sections.forEach { (_, views) -> assertEquals(views.sortedBy { it.done }, views) }
+        job.cancel()
+    }
+
+    @Test
+    fun schoolYearShowsAheadAsAheadAndPreschoolAsPlay() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", gradeYear = 5))
+        val vm = vm(); val job = subscribe(vm.state)
+        val school = settle(vm.state)
+        assertEquals("e5", school.year!!.key)
+        assertEquals("앞서 가기", school.aheadHeading); assertTrue(school.aheadNote.contains("여유"))
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "하은", birthDate = today.minusYears(4).minusMonths(2)))
+        val preschool = settle(vm.state)
+        assertTrue(preschool.year!!.key.startsWith("a"))
+        assertEquals("더 해 보면 좋은 것", preschool.aheadHeading); assertTrue(preschool.aheadNote.contains("놀이"))
         job.cancel()
     }
 }

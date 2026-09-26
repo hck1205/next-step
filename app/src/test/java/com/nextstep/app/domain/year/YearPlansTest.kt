@@ -118,4 +118,46 @@ class YearPlansTest {
         // 인플루엔자 무료 접종은 만 13세까지: 고등학생 목록엔 무료 문구가 없어요.
         listOf("h1", "h2", "h3").forEach { key -> assertFalse(key, YearPlans.forYear(key).any { it.how.contains("만 13세 무료") }) }
     }
+
+    @Test
+    fun schoolStudyTasksSayWhenTheyAreEnough() {
+        val study = setOf(YearArea.KOREAN, YearArea.MATH, YearArea.ENGLISH, YearArea.SOCIETY, YearArea.SCIENCE, YearArea.READING, YearArea.EXAM)
+        listOf("e1", "e2", "e3", "e4", "e5", "e6", "m1", "m2", "m3", "h1", "h2", "h3").forEach { key ->
+            val base = YearPlans.base(key).filter { it.area in study && it.who != YearDoer.MENTOR && it.who != YearDoer.PARENT }
+            assertTrue(key, base.size >= 6)
+            assertTrue("$key 도달 기준 없음: " + base.filter { it.bar.isBlank() }.map { it.title }, base.all { it.bar.isNotBlank() })
+            assertTrue(key, YearPlans.base(key).none { it.isAhead })
+        }
+        // 초등 수학은 학기마다 단원이 잘게 나뉘어 있어요(2022 개정 단원 순서).
+        listOf("e1", "e2", "e3", "e4", "e5", "e6").forEach { key ->
+            val math = YearPlans.base(key).filter { it.area == YearArea.MATH }
+            assertTrue(key, math.count { it.term == YearTerm.FIRST } >= 3 && math.count { it.term == YearTerm.SECOND } >= 3)
+        }
+    }
+
+    @Test
+    fun aheadTasksSayWhereTheyLeadAndStayPlayfulBeforeSchool() {
+        YearProfiles.all.forEach { profile ->
+            val ahead = YearPlans.ahead(profile.key)
+            assertTrue(profile.key, ahead.size >= 2)
+            assertTrue(profile.key, ahead.all { it.isAhead && it.bar.isNotBlank() && it.why.isNotBlank() })
+            assertEquals(YearPlans.base(profile.key) + ahead, YearPlans.forYear(profile.key))
+            assertTrue(profile.key, ahead.none { it.who == YearDoer.MENTOR })
+        }
+        listOf("e1", "e2", "e3", "e4", "e5", "e6", "m1", "m2", "m3", "h1", "h2", "h3").forEach { key -> assertTrue(key, YearPlans.ahead(key).size >= 4) }
+        // 학령 전 앞서 가기는 놀이·대화만: 학습지·문제집·학원·선행이 없어요.
+        listOf("a0", "a1", "a2", "a3", "a4", "a5", "a6").forEach { key ->
+            val text = YearPlans.ahead(key).joinToString { it.title + it.how + it.bar + it.why }
+            listOf("학습지", "문제집", "학원", "선행").forEach { word -> assertFalse("$key $word", text.contains(word)) }
+        }
+        // 다음 학년 내용은 학년 말에만, 개념만 가볍게.
+        listOf("e5", "e6", "m1", "m2", "m3").forEach { key ->
+            val preview = YearPlans.ahead(key).filter { it.area == YearArea.MATH && (it.title.contains("맛보기") || it.title.contains("예습")) }
+            assertTrue(key, preview.isNotEmpty() && preview.all { it.term == YearTerm.SECOND && it.how.contains("겨울방학") })
+        }
+        assertEquals("더 해 보면 좋은 것", AheadPlans.heading("a4")); assertEquals("앞서 가기", AheadPlans.heading("e5"))
+        assertTrue(AheadPlans.note("a4").contains("놀이")); assertTrue(AheadPlans.note("m2").contains("여유"))
+        // 수면 권장 시간을 줄이는 줄은 없어요.
+        listOf("m1", "m2", "m3", "h1", "h2", "h3").forEach { key -> assertFalse(key, YearPlans.ahead(key).any { (it.how + it.bar).contains("7시간") }) }
+    }
 }

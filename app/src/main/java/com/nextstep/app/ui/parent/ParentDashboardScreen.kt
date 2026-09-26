@@ -119,7 +119,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             }
             if (state.routines.isNotEmpty()) {
                 item { SectionTitle("오늘의 루틴", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.PROJECTS) }) { Text("프로젝트") } }) }
-                item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(ParentDashboardEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject) }
+                item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(ParentDashboardEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, compact = true) }
             }
 
             item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("일정 전체") } }) }

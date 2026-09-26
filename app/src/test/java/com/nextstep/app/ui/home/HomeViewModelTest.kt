@@ -237,4 +237,14 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertNull(s.game); assertNull(s.nextReward)
         job.cancel()
     }
+
+    @Test
+    fun yearCardKnowsHowManyAheadTasksThereAre() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 5))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(com.nextstep.app.domain.year.YearPlans.ahead(s.year!!.key).size, s.yearAheadCount)
+        assertEquals("앞서 가기", s.yearAheadHeading)
+        job.cancel()
+    }
 }

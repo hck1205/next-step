@@ -74,6 +74,9 @@ data class HomeUiState(
     val level: StudentUiLevel = StudentUiLevel.TREE,
     /** 올해 프로필(만 나이·학년별 공부 종류와 양). 없으면 null. */
     val year: YearProfile? = null,
+    /** 올해의 앞서 가기 수와 묶음 이름(학령 전은 "더 해 보면 좋은 것"). 올해의 공부 카드의 한 줄. */
+    val yearAheadCount: Int = 0,
+    val yearAheadHeading: String = "",
     /** 할 일 줄 수와 카드 순서: 해마다 달라집니다(StudentScreen). */
     val taskRows: Int = StudentUiLevel.TREE.taskRows,
     val homeOrder: List<StudentHomeSection> = StudentScreen.homeOrder(null, StudentUiLevel.TREE),

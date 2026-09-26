@@ -13,8 +13,14 @@ data class YearPlanUiState(
     val level: StudentUiLevel = StudentUiLevel.TREE,
     val tabs: List<YearTab> = emptyList(),
     val currentTerm: YearTerm = YearTerm.FIRST,
+    /** 기본의 끝낸 수와 전체(진행률은 기본만). */
     val done: Int = 0,
     val total: Int = 0,
+    /** 앞서 가기의 끝낸 수와 전체, 묶음 이름·안내(학령 전은 "더 해 보면 좋은 것"). */
+    val aheadDone: Int = 0,
+    val aheadTotal: Int = 0,
+    val aheadHeading: String = "",
+    val aheadNote: String = "",
     val today: LocalDate = DateUtils.today(),
     /** 이 나이의 한국 교육열과 권장 기준(전체 탭 맨 위). */
     val trend: YearTrend? = null,

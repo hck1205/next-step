@@ -12,6 +12,7 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.year.YearArea
+import com.nextstep.app.domain.year.AheadPlans
 import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTask
 import com.nextstep.app.domain.year.YearTerm
@@ -48,14 +49,19 @@ class YearPlanViewModel(
         val showMine = onlyMine && mineViews.isNotEmpty()
         val views = if (showMine) mineViews else all
         val current = YearTerm.current(day)
+        val (ahead, base) = views.partition { it.task.isAhead }
         YearPlanUiState(
             year = year,
             level = screen.level,
             tabs = if (views.isEmpty()) emptyList() else listOf(tab(null, ALL_LABEL, views, current)) +
                 views.map { it.task.area }.distinct().sortedBy { it.ordinal }.map { area -> tab(area, area.label, views.filter { it.task.area == area }, current) },
             currentTerm = current,
-            done = views.count { it.done },
-            total = views.size,
+            done = base.count { it.done },
+            total = base.size,
+            aheadDone = ahead.count { it.done },
+            aheadTotal = ahead.size,
+            aheadHeading = year?.let { AheadPlans.heading(it.key) }.orEmpty(),
+            aheadNote = year?.let { AheadPlans.note(it.key) }.orEmpty(),
             today = day,
             trend = year?.let { YearTrends.of(it.key) },
             showsAllDoers = all.any { it.task.who == YearDoer.PARENT },
@@ -85,11 +91,14 @@ class YearPlanViewModel(
         }
     }
 
+    /** 기본은 때별로(안 한 것이 먼저), 앞서 가기는 따로 맨 아래(안 한 것이 먼저). */
     private fun tab(area: YearArea?, label: String, views: List<YearTaskView>, current: YearTerm): YearTab {
         val order = listOf(current, YearTerm.ALL_YEAR, if (current == YearTerm.FIRST) YearTerm.SECOND else YearTerm.FIRST)
+        val (ahead, base) = views.partition { it.task.isAhead }
         return YearTab(
-            area = area, label = label, done = views.count { it.done }, total = views.size,
-            sections = order.mapNotNull { term -> views.filter { it.task.term == term }.takeIf { it.isNotEmpty() }?.let { term to it } },
+            area = area, label = label, done = base.count { it.done }, total = base.size,
+            sections = order.mapNotNull { term -> base.filter { it.task.term == term }.sortedBy { it.done }.takeIf { it.isNotEmpty() }?.let { term to it } },
+            ahead = ahead.sortedBy { it.done },
         )
     }
 
