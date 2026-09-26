@@ -1,5 +1,11 @@
 package com.nextstep.app.ui.goal.components
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.SubdirectoryArrowRight
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +37,9 @@ internal fun ChainCard(chain: List<GoalNode>, achieved: Boolean, onOpen: (String
             chain.forEachIndexed { i, n ->
                 Column(Modifier.clickable { onOpen(n.goal.id) }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("→ ".repeat(i + 1) + n.goal.title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                        Spacer(Modifier.width((i * CHAIN_INDENT).dp))
+                        Icon(Icons.Default.SubdirectoryArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
+                        Text(n.goal.title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                     }
                     LabeledProgress(label = n.rate.asPercent(), ratio = n.rate, color = MaterialTheme.colorScheme.secondary)
                 }
@@ -41,3 +49,4 @@ internal fun ChainCard(chain: List<GoalNode>, achieved: Boolean, onOpen: (String
     }
 }
 
+private const val CHAIN_INDENT = 12

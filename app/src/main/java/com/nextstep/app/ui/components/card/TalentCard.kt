@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.components.card
 
+import com.nextstep.app.ui.components.icon.StarRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +33,8 @@ fun TalentCard(talent: Talent, subjects: List<SubjectEntity>) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("강점 신호 ${"★".repeat((talent.strength * 3).toInt().coerceIn(1, 3))}", style = MaterialTheme.typography.labelSmall, color = color)
+                    Text("강점 신호", style = MaterialTheme.typography.labelSmall, color = color)
+                    StarRow((talent.strength * 3).toInt().coerceIn(1, 3), tint = color, size = 12.dp)
                     if (subject != null) SubjectTag(subject)
                 }
                 Text(talent.title, style = MaterialTheme.typography.titleSmall)

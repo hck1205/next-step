@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.goaltree.components
 
+import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,8 +35,9 @@ internal fun GoalNodeCard(node: GoalNode, depth: Int, reward: String?, onOpen: (
     AppCard(modifier = Modifier.padding(start = (depth * INDENT).dp), onClick = onOpen) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                if (depth > 0) Icon(Icons.Default.SubdirectoryArrowRight, contentDescription = "작은 목표", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
                 Text(
-                    (if (depth > 0) "↳ " else "") + listOfNotNull(GoalArea.from(g.area).label, Assigner.of(g.createdByRole)?.goalLabel).joinToString(" · "),
+                    listOfNotNull(GoalArea.from(g.area).label, Assigner.of(g.createdByRole)?.goalLabel).joinToString(" · "),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f),
                 )
                 node.daysLeft?.takeIf { !node.isAchieved }?.let { DDayBadge(it) }

@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.activities.components
 
+import androidx.compose.foundation.layout.Arrangement
+import com.nextstep.app.ui.components.icon.StarRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
@@ -23,12 +25,13 @@ fun ActivityRow(activity: ActivityEntity, onEdit: (() -> Unit)?, onDelete: (() -
             Column(Modifier.weight(1f)) {
                 Text("${activity.type.label}${if (activity.isOngoing) " · 진행 중" else ""}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 Text(activity.title, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    listOfNotNull(
-                        dateRange(activity), activity.place.takeIf { it.isNotBlank() }, activity.rating.takeIf { it > 0 }?.let { "★".repeat(it) },
-                    ).joinToString(" · "),
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        listOfNotNull(dateRange(activity), activity.place.takeIf { it.isNotBlank() }).joinToString(" · "),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    if (activity.rating > 0) StarRow(activity.rating, tint = MaterialTheme.colorScheme.tertiary)
+                }
                 if (activity.note.isNotBlank()) Text(activity.note, style = MaterialTheme.typography.bodySmall)
             }
             if (onDelete != null) {

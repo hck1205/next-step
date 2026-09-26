@@ -1,5 +1,9 @@
 package com.nextstep.app.ui.goal
 
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -137,7 +141,10 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
             items(state.children, key = { "c-" + it.goal.id }) { c ->
                 AppCard(onClick = { actions.onOpenGoal(c.goal.id) }) {
                     Column {
-                        Text((if (c.isAchieved) "✓ " else "") + c.goal.title, style = MaterialTheme.typography.bodyLarge)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            if (c.isAchieved) Icon(Icons.Default.CheckCircle, contentDescription = "이뤘어요", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                            Text(c.goal.title, style = MaterialTheme.typography.bodyLarge)
+                        }
                         LabeledProgress(label = "${c.rate.asPercent()} · 할 일 ${c.doneTasks}/${c.totalTasks}", ratio = c.rate, color = MaterialTheme.colorScheme.secondary)
                     }
                 }

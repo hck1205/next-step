@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.yearplan.components
 
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,11 +57,14 @@ internal fun YearTaskRow(view: YearTaskView, minHeightDp: Int, showArea: Boolean
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2,
                 )
                 if (view.task.bar.isNotBlank() && !view.done) {
-                    Text(
-                        (if (view.task.isAhead) "→ " else "✓ ") + view.task.bar,
-                        style = MaterialTheme.typography.labelMedium, maxLines = 2,
-                        color = if (view.task.isAhead) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                    )
+                    val tint = if (view.task.isAhead) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(
+                            if (view.task.isAhead) Icons.AutoMirrored.Filled.ArrowForward else Icons.Outlined.CheckCircle,
+                            contentDescription = if (view.task.isAhead) "도착점" else "이만큼이면 충분", tint = tint, modifier = Modifier.size(14.dp),
+                        )
+                        Text(view.task.bar, style = MaterialTheme.typography.labelMedium, maxLines = 2, color = tint)
+                    }
                 }
             }
         }
