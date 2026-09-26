@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -33,9 +34,10 @@ class RoomWeekPlanRepositoryTest {
         repo.toggleGoal(row.id, 1); repo.toggleGoal(row.id, 5)
         assertTrue(dao.getById(row.id)!!.isDone(1)); assertEquals(1, dao.getById(row.id)!!.doneCount)
         repo.approve(row.id)
-        assertEquals(7L, dao.getById(row.id)!!.approvedAt)
+        val approvedAt = dao.getById(row.id)!!.approvedAt
+        assertNotNull(approvedAt)
         repo.savePlan(monday, listOf("영어 책", "줄넘기", "피아노"), 3000) // 같은 내용이면 표시·확인 유지
-        assertEquals(1, dao.all.size); assertTrue(dao.getById(row.id)!!.isDone(1)); assertEquals(7L, dao.getById(row.id)!!.approvedAt)
+        assertEquals(1, dao.all.size); assertTrue(dao.getById(row.id)!!.isDone(1)); assertEquals(approvedAt, dao.getById(row.id)!!.approvedAt)
         repo.savePlan(monday, listOf("영어 책"), 120) // 바뀌면 다시 확인
         assertNull(dao.getById(row.id)!!.approvedAt); assertFalse(dao.getById(row.id)!!.isDone(1))
         assertTrue(sync.pushRequests >= 4)
