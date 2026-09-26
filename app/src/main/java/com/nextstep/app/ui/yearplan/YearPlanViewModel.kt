@@ -12,6 +12,7 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.year.YearArea
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.year.AheadPlans
 import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTask
@@ -64,7 +65,8 @@ class YearPlanViewModel(
             aheadNote = year?.let { AheadPlans.note(it.key) }.orEmpty(),
             today = day,
             trend = year?.let { YearTrends.of(it.key) },
-            showsAllDoers = all.any { it.task.who == YearDoer.PARENT },
+            // 학령 전은 모든 줄에 "누가"를, 학교부터는 "스스로"가 아닌 줄에만(부모 몫은 해마다 있어서 그것으로 가르면 모든 줄에 붙음).
+            showsAllDoers = year?.level == StudentUiLevel.SEED,
             mineOnly = showMine,
             mineCount = mineViews.size,
             allCount = all.size,

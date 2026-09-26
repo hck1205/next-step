@@ -24,7 +24,7 @@ data class YearPlanUiState(
     val today: LocalDate = DateUtils.today(),
     /** 이 나이의 한국 교육열과 권장 기준(전체 탭 맨 위). */
     val trend: YearTrend? = null,
-    /** 부모가 하는 일이 있는 해(학령 전)는 모든 줄에 "누가"를 붙입니다. 그 뒤로는 "스스로"가 아닌 줄에만. */
+    /** 학령 전은 모든 줄에 "누가"를 붙입니다. 학교부터는 "스스로"가 아닌 줄에만. */
     val showsAllDoers: Boolean = false,
     /** 지금 "내 할 일"만 보는지(내 몫이 하나도 없으면 전체로 보여 주고 false). */
     val mineOnly: Boolean = false,

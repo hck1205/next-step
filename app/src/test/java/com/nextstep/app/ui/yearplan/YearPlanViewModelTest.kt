@@ -45,7 +45,7 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         assertEquals(YearPlans.ahead(yearKey).size, s.aheadTotal)
         assertEquals(AheadPlans.heading(yearKey), s.aheadHeading)
         assertEquals(YearTrends.of(yearKey), s.trend)
-        assertEquals(plan.any { it.who == YearDoer.PARENT }, s.showsAllDoers)
+        assertFalse(s.showsAllDoers) // 학교부터는 "스스로"가 아닌 줄에만 칩
         assertEquals(listOf("전체") + YearPlans.areasOf(yearKey).map { it.label }, s.tabs.map { it.label })
         assertNull(s.tabs.first().area)
         val order = s.tabs.first().sections.map { it.first }
