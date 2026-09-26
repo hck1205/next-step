@@ -5,6 +5,11 @@ import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.testing.Fixtures
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import com.nextstep.app.domain.gamify.GameLevel
+import com.nextstep.app.domain.gamify.GameProfile
+import com.nextstep.app.domain.gamify.GameStats
+import com.nextstep.app.domain.gamify.GameStyle
 import org.junit.Test
 
 class RewardsTest {
@@ -25,7 +30,27 @@ class RewardsTest {
         assertEquals(listOf("a"), Rewards.due(v).map { it.reward.id })
         assertEquals(RewardStatus.EARNED, Rewards.views(rewards, goals, level = 5).first { it.reward.id == "c" }.status)
         assertEquals("b", Rewards.forGoal(v, "g2")!!.reward.id); assertNull(Rewards.forGoal(v, "none"))
-        assertEquals(listOf(5, 6, 7, 8, 9), Rewards.levelChoices(4))
+    }
+
+    @Test
+    fun stickerBoardRewardsAreReachedByFilledBoards() {
+        val v = Rewards.views(listOf(reward("a", RewardKind.BOARD, "2"), reward("b", RewardKind.BOARD, "3")), emptyList(), level = 1, boards = 2)
+        assertEquals(listOf(RewardStatus.EARNED, RewardStatus.PROMISED), v.map { it.status })
+        assertEquals("스티커판 3장", v[1].target); assertEquals("스티커판 3장 채우면", v[1].condition)
+    }
+
+    @Test
+    fun whereRewardsCanBePromisedDependsOnAge() {
+        assertEquals(listOf(RewardKind.BOARD, RewardKind.GOAL), Rewards.kindsFor(GameStyle.STICKERS, gameOn = true))
+        assertEquals(listOf(RewardKind.GOAL, RewardKind.LEVEL), Rewards.kindsFor(GameStyle.LEVELS, gameOn = true))
+        assertEquals(listOf(RewardKind.GOAL), Rewards.kindsFor(GameStyle.GROWTH, gameOn = true)) // 청소년은 목표에만
+        GameStyle.entries.forEach { assertEquals(listOf(RewardKind.GOAL), Rewards.kindsFor(it, gameOn = false)) }
+        val goals = listOf(Fixtures.goal("영어 일기", trackId = "tree", id = "g1"))
+        val profile = GameProfile.EMPTY.copy(level = GameLevel.level(4), stats = GameStats(stickers = 25))
+        assertEquals(listOf("레벨 5", "레벨 6", "레벨 7", "레벨 8", "레벨 9"), Rewards.targets(GameStyle.LEVELS, true, profile, goals).filter { it.kind == RewardKind.LEVEL }.map { it.label })
+        assertEquals(listOf("3", "4", "5", "g1"), Rewards.targets(GameStyle.STICKERS, true, profile, goals).map { it.id })
+        assertEquals(listOf(RewardTarget(RewardKind.GOAL, "g1", "영어 일기")), Rewards.targets(GameStyle.GROWTH, true, profile, goals))
+        GameStyle.entries.forEach { assertEquals(4, Rewards.ideasFor(it).size); assertTrue(Rewards.hintFor(it).isNotBlank()) }
     }
 
     @Test

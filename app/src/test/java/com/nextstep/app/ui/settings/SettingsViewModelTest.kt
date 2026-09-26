@@ -112,8 +112,8 @@ class SettingsViewModelTest : ViewModelTestBase() {
         val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
         vm.onEvent(SettingsEvent.SetGamify(false)); settle(vm.state)
         assertTrue(members.calls.none { it.startsWith("gamify") }) // 학생 정보가 없으면 아무것도 하지 않음
-        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid"))
-        settle(vm.state)
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 8))
+        assertEquals(com.nextstep.app.domain.gamify.GameStyle.GROWTH, settle(vm.state).gameStyle) // 중2 = 성장 기록
         vm.onEvent(SettingsEvent.SetGamify(false)); settle(vm.state)
         assertEquals("gamify:kid:false", members.calls.last())
         job.cancel()

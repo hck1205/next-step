@@ -43,6 +43,8 @@ import com.nextstep.app.ui.goal.components.GoalHeaderCard
 import com.nextstep.app.ui.goal.components.GoalRewardCard
 import com.nextstep.app.ui.components.dialog.PromiseRewardDialog
 import com.nextstep.app.domain.reward.RewardStatus
+import com.nextstep.app.domain.reward.RewardKind
+import com.nextstep.app.domain.reward.RewardTarget
 import com.nextstep.app.ui.goal.components.LinkGoalDialog
 import com.nextstep.app.ui.goal.components.SubTaskRow
 
@@ -168,8 +170,9 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
     if (linking) LinkGoalDialog(state.linkTargets, goal.leadsTo, onDismiss = { linking = false }, onSave = { onEvent(GoalEvent.Link(it)) })
     if (promising) {
         PromiseRewardDialog(
-            goals = emptyList(), levels = emptyList(), fixedGoal = goal, initialTitle = state.reward?.takeIf { it.status == RewardStatus.PROMISED }?.reward?.title.orEmpty(),
-            onDismiss = { promising = false }, onSave = { _, _, title -> onEvent(GoalEvent.PromiseReward(title)) },
+            targets = listOf(RewardTarget(RewardKind.GOAL, goal.id, goal.title)), ideas = state.rewardIdeas, hint = state.rewardHint,
+            initialTitle = state.reward?.takeIf { it.status == RewardStatus.PROMISED }?.reward?.title.orEmpty(),
+            onDismiss = { promising = false }, onSave = { _, title -> onEvent(GoalEvent.PromiseReward(title)) },
         )
     }
     if (editing) EditGoalDialog(goal, state.today, onDismiss = { editing = false }, onSave = { t, w, d -> onEvent(GoalEvent.Edit(t, w, d)) })

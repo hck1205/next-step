@@ -37,8 +37,8 @@ import com.nextstep.app.ui.rewards.components.BadgeGrid
 import com.nextstep.app.ui.rewards.components.XpBreakdownCard
 
 /**
- * 기록 › 목표·할 일 › 보상·배지. 게임 요소가 켜져 있으면 레벨·이번 주 도전·배지판·경험치 내역,
- * 그 아래 보상(받을 차례 → 약속 → 받은 것). 학부모·멘토는 목표·레벨에 보상을 약속하고, 이루면 "줬어요"로 남깁니다.
+ * 기록 › 목표·할 일 › 보상·배지. 게임 요소가 켜져 있으면 나이에 맞춘 모양(스티커판 · 레벨 · 성장 기록)과 배지판·경험치 내역,
+ * 그 아래 보상(받을 차례 → 약속 → 받은 것). 학부모·멘토는 이 나이에 맞는 곳(목표 · 레벨 · 스티커판)에 보상을 약속하고, 이루면 "줬어요"로 남깁니다.
  * 둘 다 선택이라, 꺼 두거나 약속하지 않아도 다른 화면은 그대로입니다.
  */
 @Composable
@@ -59,18 +59,18 @@ internal fun RewardsContent(state: RewardsUiState, caps: Capabilities, showsNumb
         ) {
             if (state.gamify) {
                 item { GameCard(state.profile, state.nextReward, showsNumbers = showsNumbers) }
-                item { SectionTitle("배지 ${state.profile.earnedBadges.size}/${state.profile.badges.size}") }
+                item { SectionTitle("${state.style.badgeWord} ${state.profile.earnedBadges.size}/${state.profile.badges.size}") }
                 item { BadgeGrid(state.profile.badges, showsNumbers) }
-                if (showsNumbers) item { XpBreakdownCard(state.profile.lines, state.profile.xp) }
-            } else if (caps.canToggleGamification) {
-                item { AppCard { EmptyState("레벨·배지는 꺼져 있어요. 설정 › 레벨·배지에서 켤 수 있어요") } }
+                if (showsNumbers && state.style.showsLevel) item { XpBreakdownCard(state.profile.lines, state.profile.xp) }
+            } else if (caps.canToggleGamification(state.style)) {
+                item { AppCard { EmptyState("레벨·배지가 꺼져 있어요. 가족 탭 › 레벨·배지에서 켤 수 있어요") } }
             }
             item { SectionTitle("보상") }
             if (state.loaded && state.rewards.isEmpty()) {
                 item {
                     AppCard {
                         EmptyState(
-                            if (caps.canGiveRewards) "목표나 레벨에 작은 보상을 약속해 보세요. 보상은 꼭 하지 않아도 돼요."
+                            if (caps.canGiveRewards) "이룬 순간에 작은 보상을 약속해 보세요. 보상은 꼭 하지 않아도 돼요."
                             else "아직 약속된 보상이 없어요",
                         )
                     }
@@ -101,8 +101,8 @@ internal fun RewardsContent(state: RewardsUiState, caps: Capabilities, showsNumb
     }
     if (promising) {
         PromiseRewardDialog(
-            goals = state.goals, levels = state.levelChoices, onDismiss = { promising = false },
-            onSave = { kind, target, title -> onEvent(RewardsEvent.Promise(kind, target, title)) },
+            targets = state.targets, ideas = state.ideas, hint = state.hint, onDismiss = { promising = false },
+            onSave = { target, title -> onEvent(RewardsEvent.Promise(target.kind, target.id, title)) },
         )
     }
 }

@@ -139,11 +139,11 @@ class HomeViewModel(
         )
     }
 
-    /** 나의 레벨: 학부모가 게임 요소를 꺼 두면 계산하지 않습니다. 보상 한 줄은 레벨·목표에 걸린 다음 보상. */
+    /** 나의 스티커판·레벨·성장 기록: 모양은 화면 단계(나이)가 정하고, 학부모가 게임 요소를 꺼 두면 계산하지 않습니다. 보상 한 줄은 다음 보상. */
     val state: StateFlow<HomeUiState> = combine(planned, streams.members, streams.gameInputs(), streams.rewards) { s, all, input, rewards ->
         if (all.firstOrNull { it.isStudent }?.gamify == false) return@combine s.copy(game = null, nextReward = null)
-        val profile = Gamify.profile(input, s.today)
-        s.copy(game = profile, nextReward = Rewards.next(Rewards.views(rewards, input.goals, profile.level.number)))
+        val profile = Gamify.profile(input, s.today, style = s.level.game)
+        s.copy(game = profile, nextReward = Rewards.next(Rewards.views(rewards, input.goals, profile.level.number, profile.boards)))
     }
         .asUiState(viewModelScope, HomeUiState())
 

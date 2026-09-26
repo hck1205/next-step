@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.settings
 
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.prefs.LinkedChild
 import java.time.LocalDate
@@ -29,5 +30,7 @@ data class SettingsUiState(
     val yearLabel: String? = null,
 ) {
     val children: List<LinkedChild> get() = profile?.children.orEmpty()
+    /** 아이 나이에 맞춘 게임 모양(학부모가 고른 화면 단계가 있으면 그 단계). 성장 기록 모양이면 학생도 스스로 끌 수 있습니다. */
+    val gameStyle: GameStyle get() = (chosenStudentLevel ?: autoStudentLevel ?: StudentUiLevel.TREE).game
     val activeFamilyId: String? get() = profile?.familyId
 }

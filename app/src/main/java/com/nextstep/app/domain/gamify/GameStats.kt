@@ -11,7 +11,12 @@ data class GameStats(
     val reflections: Int = 0,
     val goals: Int = 0,
     val phases: Int = 0,
-    /** 오늘(오늘 아직이면 어제)까지 무언가 한 날이 이어진 수. */
+    /** 스티커 수: 끝낸 할 일 · 루틴 · 공부 기록 하나마다 한 장. */
+    val stickers: Int = 0,
+    /** 오늘(오늘 아직이면 어제)까지 무언가 한 날이 이어진 수. 성장 기록 모양은 하루 쉬어도 이어집니다. */
     val streak: Int = 0,
     val bestStreak: Int = 0,
-)
+) {
+    /** 다 채운 스티커판 수. */
+    val boards: Int get() = stickers / GameStyle.BOARD_SIZE
+}

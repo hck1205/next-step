@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.growth
 
 import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
@@ -13,6 +14,8 @@ import java.time.LocalDate
  * - 줄기(초5~6): 숫자 기록, 미리 보기(예습), 시험·목표, 이번 학기 배울 것, 여정 탭
  * - 가지(중1~3): 과목별 진도, 멘토 로드맵
  * - 나무(고1 이상): 여정 카드, 학습 계획 자동 배치
+ *
+ * 게임 모양([game])도 단계가 정합니다: 씨앗·새싹은 스티커판, 떡잎·줄기는 레벨·배지, 가지·나무는 성장 기록.
  *
  * 단계는 생년월일(없으면 학년)로 자동으로 정해지고, 학부모가 가족 탭에서 직접 고를 수도 있습니다([MemberEntity.uiLevel]).
  * 화면은 학년을 보지 않고 [shows]·[textScale] 같은 이 값만 읽습니다(역할 판단이 Capabilities 한 곳인 것과 같은 규칙).
@@ -37,31 +40,33 @@ enum class StudentUiLevel(
     val words: StudentWords,
     /** 아이가 직접 쓸 때의 도움 장치(스티커판·아이용 가족·그림 기록·읽어 주기·보이는 타이머). */
     val kid: KidMode,
+    /** 나이에 맞춘 게임 모양(스티커판 → 레벨·배지 → 성장 기록). */
+    val game: GameStyle,
     /** 이 단계에서 새로 열리는 카드. 앞 단계의 카드는 그대로 남습니다. */
     val opens: Set<StudentHomeSection>,
 ) {
     SEED(
-        "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY, KidMode.EARLY,
+        "씨앗", 0, 1.4f, 2, false, 72, false, 1, StudentWords.EARLY, KidMode.EARLY, GameStyle.STICKERS,
         setOf(StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK, StudentHomeSection.ROUTINE, StudentHomeSection.GAME, StudentHomeSection.WEEK, StudentHomeSection.YEAR),
     ),
     SPROUT(
-        "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY, KidMode.EARLY,
+        "새싹", 1, 1.3f, 2, false, 64, false, 2, StudentWords.EASY, KidMode.EARLY, GameStyle.STICKERS,
         setOf(StudentHomeSection.TIMER),
     ),
     SEEDLING(
-        "떡잎", 3, 1.2f, 3, false, 56, false, 3, StudentWords.EASY, KidMode.MIDDLE,
+        "떡잎", 3, 1.2f, 3, false, 56, false, 3, StudentWords.EASY, KidMode.MIDDLE, GameStyle.LEVELS,
         setOf(StudentHomeSection.EVENTS, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION),
     ),
     STEM(
-        "줄기", 5, 1.1f, 3, true, 52, true, 5, StudentWords.STANDARD, KidMode.NONE,
+        "줄기", 5, 1.1f, 3, true, 52, true, 5, StudentWords.STANDARD, KidMode.NONE, GameStyle.LEVELS,
         setOf(StudentHomeSection.PREVIEW, StudentHomeSection.MISSION, StudentHomeSection.EXAM, StudentHomeSection.CURRICULUM),
     ),
     BRANCH(
-        "가지", 7, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD, KidMode.NONE,
+        "가지", 7, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD, KidMode.NONE, GameStyle.GROWTH,
         setOf(StudentHomeSection.SUBJECTS, StudentHomeSection.ROADMAP),
     ),
     TREE(
-        "나무", 10, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD, KidMode.NONE,
+        "나무", 10, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD, KidMode.NONE, GameStyle.GROWTH,
         setOf(StudentHomeSection.JOURNEY, StudentHomeSection.PLANNER),
     );
 

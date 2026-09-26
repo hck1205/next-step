@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.access
 
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.hub.HubAudience
 import com.nextstep.app.domain.selfdirection.LoopStep
@@ -28,7 +29,10 @@ class CapabilitiesTest {
     @Test
     fun parentsAndMentorsGiveRewardsAndOnlyParentsToggleGames() {
         assertTrue(parent.canGiveRewards); assertTrue(mentor.canGiveRewards); assertTrue(parentMentor.canGiveRewards); assertFalse(student.canGiveRewards)
-        assertTrue(parent.canToggleGamification); assertFalse(mentor.canToggleGamification); assertFalse(student.canToggleGamification)
+        GameStyle.entries.forEach { assertTrue(parent.canToggleGamification(it)); assertFalse(mentor.canToggleGamification(it)) }
+        // 스스로 끌 수 있는 것은 성장 기록 모양(중등 이후)의 학생뿐
+        assertFalse(student.canToggleGamification(GameStyle.STICKERS)); assertFalse(student.canToggleGamification(GameStyle.LEVELS))
+        assertTrue(student.canToggleGamification(GameStyle.GROWTH))
     }
 
     @Test

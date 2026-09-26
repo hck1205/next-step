@@ -5,6 +5,8 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.goaltree.HistoryEvent
 import com.nextstep.app.domain.reward.RewardView
+import com.nextstep.app.domain.reward.Rewards
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
@@ -24,6 +26,11 @@ data class GoalUiState(
     val subjects: List<SubjectEntity> = emptyList(),
     /** 이 목표에 걸린 보상(아직 안 준 것이 먼저). 없으면 null. */
     val reward: RewardView? = null,
+    /** 아이 나이에 맞춘 게임 모양: 보상 약속 창의 예시·안내가 달라집니다. */
+    val gameStyle: GameStyle = GameStyle.LEVELS,
     val stage: SelfDirectionStage = SelfDirectionStage.OWN,
     val today: LocalDate = DateUtils.today(),
-)
+) {
+    val rewardIdeas: List<String> get() = Rewards.ideasFor(gameStyle)
+    val rewardHint: String get() = Rewards.hintFor(gameStyle)
+}

@@ -12,6 +12,7 @@ import com.nextstep.app.domain.reward.RewardKind
 import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.goaltree.GoalTree
+import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.goaltree.PlanHistory
 import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.time.DateUtils
@@ -36,6 +37,7 @@ class GoalViewModel(
         val day = today()
         val goal = all.firstOrNull { it.id == goalId && !it.deleted && GoalTree.isTreeGoal(it) }
             ?: return@combine GoalUiState(loaded = true, today = day)
+        val student = StudentContext.of(members, day).student
         val nodes = GoalTree.nodes(all, allTasks, day)
         val node = nodes.first { it.goal.id == goalId }
         val family = GoalTree.descendants(goalId, all) + goalId
@@ -47,7 +49,8 @@ class GoalViewModel(
             history = PlanHistory.timeline(all.filter { it.id in family }, allTasks.filter { it.goalId in family }),
             // 목표 보상만 보므로 레벨은 쓰지 않습니다.
             reward = Rewards.forGoal(Rewards.views(rewardList, all, level = 0), goalId),
-            subjects = subjects, stage = SelfDirection.stageOf(StudentContext.of(members, day).student, day), today = day,
+            subjects = subjects, stage = SelfDirection.stageOf(student, day), today = day,
+            gameStyle = StudentScreen.of(student, day).level.game,
         )
     }.asUiState(viewModelScope, GoalUiState())
 

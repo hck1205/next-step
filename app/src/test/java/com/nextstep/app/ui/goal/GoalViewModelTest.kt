@@ -90,6 +90,8 @@ class GoalViewModelTest : ViewModelTestBase() {
         seed()
         val vm = vm(); val job = subscribe(vm.state)
         assertNull(settle(vm.state).reward)
+        assertEquals(com.nextstep.app.domain.gamify.GameStyle.LEVELS, settle(vm.state).gameStyle) // 초5
+        assertEquals(4, settle(vm.state).rewardIdeas.size)
         vm.onEvent(GoalEvent.PromiseReward("보드게임")); vm.onEvent(GoalEvent.PromiseReward("영화 보기"))
         var s = settle(vm.state)
         assertEquals("영화 보기", s.reward!!.reward.title); assertEquals(RewardStatus.PROMISED, s.reward!!.status)

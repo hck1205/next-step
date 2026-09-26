@@ -2,6 +2,7 @@ package com.nextstep.app.domain.access
 
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.hub.HubAudience
 import com.nextstep.app.domain.selfdirection.LoopStep
 import com.nextstep.app.domain.selfdirection.Owner
@@ -84,8 +85,8 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
 
     /** 목표·레벨에 보상을 약속하고, 이뤘을 때 주기: 학부모와 멘토(멘토 겸하는 학부모 포함). 학생은 보기만. */
     val canGiveRewards: Boolean get() = isParent || actsAsMentor
-    /** 게임 요소(경험치·레벨·배지·도전)를 켜고 끄기: 학부모. */
-    val canToggleGamification: Boolean get() = isParent
+    /** 게임 요소(스티커판·레벨·배지·도전)를 켜고 끄기: 학부모, 그리고 성장 기록 모양(중등 이후)이면 학생 본인도. */
+    fun canToggleGamification(style: GameStyle): Boolean = isParent || (isStudent && style.studentCanTurnOff)
 
     /** 자기주도 단계를 한 칸 올리거나 내리는 것은 학부모. */
     val canChooseSelfDirection: Boolean get() = isParent

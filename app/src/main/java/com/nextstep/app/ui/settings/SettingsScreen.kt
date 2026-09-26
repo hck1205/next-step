@@ -121,9 +121,12 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
                 onEdit = { showEditYear = true },
             )
 
-            if (caps.canToggleGamification) {
+            if (caps.canToggleGamification(state.gameStyle)) {
                 SectionTitle("레벨·배지")
-                GamifyCard(enabled = state.student?.gamify ?: true, available = state.student != null, onChange = { onEvent(SettingsEvent.SetGamify(it)) })
+                GamifyCard(
+                    style = state.gameStyle, forStudent = caps.isStudent, enabled = state.student?.gamify ?: true, available = state.student != null,
+                    onChange = { onEvent(SettingsEvent.SetGamify(it)) },
+                )
             }
 
             SectionTitle("연결된 구성원")

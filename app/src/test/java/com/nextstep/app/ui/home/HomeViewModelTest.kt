@@ -3,6 +3,7 @@ package com.nextstep.app.ui.home
 import com.nextstep.app.fake.FakeMemberRepository
 import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
@@ -227,8 +228,11 @@ class HomeViewModelTest : ViewModelTestBase() {
         val vm = vm(); val job = subscribe(vm.state)
         var s = settle(vm.state)
         assertTrue(StudentHomeSection.GAME in s.homeOrder)
+        assertEquals(GameStyle.LEVELS, s.game!!.style) // 초5 = 레벨·배지
         assertEquals(4, s.game!!.xp) // 할 일 2 + 마감 덤 1 + 스스로 덤 1
         assertEquals("보드게임", s.nextReward!!.reward.title)
+        streams.members.value = listOf(kid.copy(gradeYear = 1)); s = settle(vm.state)
+        assertEquals(GameStyle.STICKERS, s.game!!.style); assertEquals(1, s.game!!.stickersThisWeek) // 초1 = 스티커판
         streams.members.value = listOf(kid.copy(gamify = false)); s = settle(vm.state)
         assertNull(s.game); assertNull(s.nextReward)
         job.cancel()

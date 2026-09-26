@@ -78,7 +78,43 @@ class GamifyTest {
         val c = Gamify.challenges(input, today, zone)
         assertEquals(listOf("할 일 끝내기", "무언가 한 날", "한 주 돌아보기"), c.map { it.label })
         assertEquals(2, c[0].done); assertEquals(Gamify.MIN_WEEK_TASKS, c[0].target)
-        assertEquals(2, c[1].done); assertEquals(Gamify.ACTIVE_DAYS_TARGET, c[1].target)
+        assertEquals(2, c[1].done); assertEquals(GameStyle.LEVELS.activeDaysTarget, c[1].target)
         assertTrue(c[2].complete)
+    }
+
+    @Test
+    fun youngChildrenFillStickerBoardsWithoutLevelsOrStreaks() {
+        val monday = LocalDate.of(2029, 5, 7)
+        // 지난주 스티커 9장 + 이번 주 3장(할 일 · 루틴 · 공부 하나씩) = 12장 → 한 판
+        val input = GameInputs(
+            tasks = (1..9).map { done("지난주$it", monday.minusDays(3), monday.minusDays(3)) } + done("이번 주", today, today),
+            logs = listOf(Fixtures.projectLog("p", "p1", "노래", 10, monday)),
+            sessions = listOf(Fixtures.session("kor", monday.plusDays(1), LocalTime.of(9, 0), 10)),
+        )
+        val p = Gamify.profile(input, today, zone, GameStyle.STICKERS)
+        assertEquals(12, p.stats.stickers); assertEquals(1, p.boards); assertEquals(3, p.stickersThisWeek)
+        assertEquals(listOf("이번 주 스티커판 채우기"), p.challenges.map { it.label }); assertEquals(GameStyle.BOARD_SIZE, p.challenges.single().target)
+        assertTrue(p.badges.map { it.badge }.containsAll(listOf(Badge.FIRST_BOARD, Badge.FIRST_TASK)))
+        assertTrue(p.badges.none { it.badge == Badge.STREAK_3 || it.badge == Badge.ON_TIME_10 }) // 어린 나이에 맞지 않는 배지는 없음
+        assertTrue(p.earnedBadges.any { it.badge == Badge.FIRST_BOARD })
+    }
+
+    @Test
+    fun teensKeepTheirStreakAfterOneRestDayAndChallengeTheirOwnPlan() {
+        val days = setOf(today, today.minusDays(2), today.minusDays(3), today.minusDays(5), today.minusDays(8))
+        assertEquals(1, Gamify.streak(days, today)) // 쉬는 날 없는 모양: 어제 쉬어서 끊김
+        assertEquals(4, Gamify.streak(days, today, restDays = 1)) // 하루씩 쉬어도 이어짐, 이틀 쉬면(6·7일 전) 끊김
+        assertEquals(3, Gamify.streak(days - today, today, restDays = 1)) // 오늘 아직이고 어제 쉬었어도 그저께부터 이어짐
+        assertEquals(2, Gamify.bestStreak(days)); assertEquals(4, Gamify.bestStreak(days, restDays = 1))
+        assertEquals(0, Gamify.streak(setOf(today.minusDays(3)), today, restDays = 1))
+        val monday = LocalDate.of(2029, 5, 7)
+        val noPlan = Gamify.challenges(GameInputs(), today, zone, GameStyle.GROWTH)
+        assertEquals(listOf("이번 주 계획 세우기", "무언가 한 날", "한 주 돌아보기"), noPlan.map { it.label })
+        assertEquals(GameStyle.GROWTH.activeDaysTarget, noPlan[1].target)
+        val plan = WeekPlanEntity(familyId = "f", weekStart = monday.toEpochDay(), goals = "수학 오답\n영어 단어\n운동", doneMask = 0b101)
+        val c = Gamify.challenges(GameInputs(plans = listOf(plan)), today, zone, GameStyle.GROWTH)
+        assertEquals("내 계획 지키기", c[0].label); assertEquals(2, c[0].done); assertEquals(3, c[0].target)
+        val p = Gamify.profile(GameInputs(plans = listOf(plan)), today, zone, GameStyle.GROWTH)
+        assertTrue(p.badges.any { it.badge == Badge.STUDY_100H }); assertTrue(p.badges.none { it.badge == Badge.FIRST_BOARD || it.badge == Badge.STUDY_10H })
     }
 }
