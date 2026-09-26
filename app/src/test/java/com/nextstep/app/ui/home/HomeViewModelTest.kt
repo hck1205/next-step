@@ -247,4 +247,17 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertEquals("앞서 가기", s.yearAheadHeading)
         job.cancel()
     }
+
+    @Test
+    fun todayCardsAreGroupedByConcernWithoutTheTimer() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 5))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertTrue(StudentHomeSection.TIMER in s.visibleSections)
+        assertTrue(s.todayGroups.none { g -> StudentHomeSection.TIMER in g.cards })
+        assertTrue(s.todayGroups.all { g -> g.cards.all { it.concern == g.concern } })
+        assertEquals(s.visibleSections - StudentHomeSection.TIMER, s.todayGroups.flatMap { it.cards }.sortedBy { s.visibleSections.indexOf(it) })
+        assertFalse(StudentHomeSection.ROUTINE in s.visibleSections) // 루틴이 없으면 카드도 없음
+        job.cancel()
+    }
 }

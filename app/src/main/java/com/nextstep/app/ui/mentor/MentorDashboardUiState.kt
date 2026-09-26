@@ -1,5 +1,8 @@
 package com.nextstep.app.ui.mentor
 
+import com.nextstep.app.domain.today.MentorTodayCard
+import com.nextstep.app.domain.today.TodayGroup
+import com.nextstep.app.domain.today.TodayLayout
 import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.stats.RoadmapSummary
@@ -41,4 +44,16 @@ data class MentorDashboardUiState(
     val activeFamilyId: String? = null,
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
+
+    /** 내용이 있는 카드(MentorTodayCard 순서)와 관심사로 묶은 것(오늘 화면의 관심사 칩·슬라이드). */
+    val visibleCards: List<MentorTodayCard> get() = MentorTodayCard.entries.filter(::hasContent)
+    val todayGroups: List<TodayGroup<MentorTodayCard>> get() = TodayLayout.group(visibleCards) { it.concern }
+
+    fun hasContent(card: MentorTodayCard): Boolean = when (card) {
+        MentorTodayCard.STAGE, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.STATS, MentorTodayCard.ROADMAP, MentorTodayCard.CONTENT -> true
+        MentorTodayCard.INSIGHTS -> insights.isNotEmpty()
+        MentorTodayCard.WEEK_CHART -> weeklyBySubject.isNotEmpty()
+        MentorTodayCard.PROGRESS -> progress.isNotEmpty()
+        MentorTodayCard.GRADES -> recentGrades.isNotEmpty()
+    }
 }

@@ -4,6 +4,9 @@ import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.goaltree.GoalNode
+import com.nextstep.app.domain.today.ParentTodayCard
+import com.nextstep.app.domain.today.TodayGroup
+import com.nextstep.app.domain.today.TodayLayout
 import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.selfdirection.WeekStatus
@@ -64,6 +67,22 @@ data class ParentDashboardUiState(
             else -> "$base\n챙길 것 ${pending}개가 있어요"
         }
     }
+    /** 상태 카드 아래 카드 중 내용이 있는 것(ParentTodayCard 순서). */
+    val visibleCards: List<ParentTodayCard> get() = ParentTodayCard.entries.filter(::hasContent)
+
+    /** 관심사로 묶은 카드(오늘 화면의 관심사 칩·슬라이드). */
+    val todayGroups: List<TodayGroup<ParentTodayCard>> get() = TodayLayout.group(visibleCards) { it.concern }
+
+    fun hasContent(card: ParentTodayCard): Boolean = when (card) {
+        ParentTodayCard.JOURNEY, ParentTodayCard.TODAY -> true
+        ParentTodayCard.REWARDS -> rewardsDue.isNotEmpty()
+        ParentTodayCard.GOALS -> goalFocus.isNotEmpty()
+        ParentTodayCard.WEEK -> week != null
+        ParentTodayCard.ROUTINE -> routines.isNotEmpty()
+        ParentTodayCard.MISSIONS -> missionFocus.isNotEmpty()
+        ParentTodayCard.EXAM -> upcomingExams.isNotEmpty()
+    }
+
     /** 상태 카드의 맥락 줄: 이번 주 · 구간. */
     val statusContext: String get() = listOfNotNull("이번 주", periodLabel ?: stage?.label).joinToString(" · ")
 }

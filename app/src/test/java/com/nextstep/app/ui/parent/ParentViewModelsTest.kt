@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.today.ParentTodayCard
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.time.DateUtils
@@ -124,6 +126,20 @@ class ParentViewModelsTest : ViewModelTestBase() {
         val s = settle(vm.state)
         assertEquals(listOf("b", "a"), s.goalFocus.map { it.goal.id })
         assertTrue(s.missionFocus.isEmpty())
+        job.cancel()
+    }
+
+    @Test
+    fun todayCardsGroupByConcernInCardOrder() = runTest {
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertTrue(s.visibleCards.containsAll(listOf(ParentTodayCard.JOURNEY, ParentTodayCard.TODAY)))
+        assertFalse(ParentTodayCard.ROUTINE in s.visibleCards); assertFalse(ParentTodayCard.REWARDS in s.visibleCards)
+        assertEquals(Concern.OVERVIEW, s.todayGroups.first().concern)
+        val (goal, steps) = ProjectPlanner.start(ProjectCatalog.byId.getValue("korean-reader"), 0, today, "PARENT")
+        streams.goals.value = listOf(goal); streams.goalSteps.value = steps
+        s = settle(vm.state)
+        assertEquals(listOf(ParentTodayCard.ROUTINE), s.todayGroups.single { it.concern == Concern.PROJECT }.cards)
         job.cancel()
     }
 }

@@ -44,6 +44,16 @@ import com.nextstep.app.ui.components.card.StatusCard
 import com.nextstep.app.ui.components.card.StatusTile
 import com.nextstep.app.ui.components.card.SyncStatusBadge
 import com.nextstep.app.domain.hub.ConcernSection
+import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.today.ParentTodayCard
+import com.nextstep.app.ui.components.layout.DetailSheet
+import com.nextstep.app.ui.components.layout.todayBoard
+import com.nextstep.app.ui.parent.components.ParentCardBody
+import com.nextstep.app.ui.parent.components.parentCardTitle
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.nextstep.app.ui.common.UiDefaults
 
 /**
@@ -59,6 +69,11 @@ fun ParentDashboardScreen(caps: Capabilities, actions: ParentDashboardActions, v
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabilities, actions: ParentDashboardActions, onEvent: (ParentDashboardEvent) -> Unit) {
+    var filter by rememberSaveable { mutableStateOf<Concern?>(null) }
+    var sheet by remember { mutableStateOf<ParentTodayCard?>(null) }
+    sheet?.let { card ->
+        DetailSheet(parentCardTitle(card, state).ifBlank { card.title }, onDismiss = { sheet = null }) { ParentCardBody(card, state, actions, onEvent, compact = false) }
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -96,41 +111,12 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
                 item { LinkCard("멘토 모드", "로드맵 큐레이팅, 과제 배정, 학급 진도 관리는 여기서 해요", onClick = actions.onOpenMentor, titleColor = MaterialTheme.colorScheme.tertiary) }
             }
 
-            item { SectionTitle("지금 챙길 것", action = { TextButton(onClick = actions.onOpenJourney) { Text("여정 전체") } }) }
-            if (state.rewardsDue.isNotEmpty()) item { RewardDueCard(state.rewardsDue, onGive = { onEvent(ParentDashboardEvent.GiveReward(it)) }, onOpenGoal = actions.onOpenGoal) }
-            if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
-            if (state.goalFocus.isNotEmpty()) {
-                item { SectionTitle("목표 진행", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.GOAL_TREE) }) { Text("목표 전체") } }) }
-                item { GoalFocusCard(state.goalFocus, onOpen = actions.onOpenGoal) }
-            }
-            item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
-            state.week?.let { week ->
-                item { SectionTitle("스스로 하는 힘", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.SELF) }) { Text("사다리") } }) }
-                item {
-                    WeekPlanCard(
-                        week = week, access = state.weekAccess,
-                        onSavePlan = { goals, minutes -> onEvent(ParentDashboardEvent.SaveWeekPlan(goals, minutes)) },
-                        onToggle = { id, i -> onEvent(ParentDashboardEvent.ToggleWeekGoal(id, i)) },
-                        onApprove = { onEvent(ParentDashboardEvent.ApproveWeek(it)) },
-                        onReflect = { w, mood, good, hard, change -> onEvent(ParentDashboardEvent.ReflectWeek(w, mood, good, hard, change)) },
-                        onOpen = { actions.onOpenRecords(ConcernSection.SELF) },
-                    )
-                }
-            }
-            if (state.routines.isNotEmpty()) {
-                item { SectionTitle("오늘의 루틴", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.PROJECTS) }) { Text("프로젝트") } }) }
-                item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(ParentDashboardEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, compact = true) }
-            }
-
-            item { SectionTitle("오늘의 ${state.studentName.ifBlank { "아이" }}", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("일정 전체") } }) }
-            if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") } }
-            items(state.pendingTasks.take(UiDefaults.MAX_ROWS), key = { "t" + it.id }) { t -> PendingTaskRow(t, state.subjects.firstOrNull { it.id == t.subjectId }) }
-            if (state.pendingTasks.size > UiDefaults.MAX_ROWS) item {
-                TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("할 일 ${state.pendingTasks.size - UiDefaults.MAX_ROWS}개 더 보기") }
-            }
-            items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
-            state.upcomingExams.firstOrNull()?.let { exam -> item { UpcomingExamCard(exam) } }
-
+            // 상태 카드 아래는 관심사 칩 → "전체"는 관심사마다 카드 슬라이드, 칩을 고르면 그 관심사만 크게. 펼치기는 자세히 시트로.
+            todayBoard(
+                groups = state.todayGroups, filter = filter, onFilter = { filter = it },
+                title = { parentCardTitle(it, state) }, key = { it.name }, onExpand = { sheet = it },
+                body = { card, compact -> ParentCardBody(card, state, actions, onEvent, compact) },
+            )
             item { Spacer(Modifier.height(8.dp)) }
         }
     }

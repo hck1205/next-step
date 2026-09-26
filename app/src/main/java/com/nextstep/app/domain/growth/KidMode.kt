@@ -8,6 +8,7 @@ package com.nextstep.app.domain.growth
  * - [pictureRecord]: + 가 입력 양식 대신 그림 타일 한 번 누르기("책 읽었어요")
  * - [readsAloud]: 할 일 옆 스피커를 누르면 소리로 읽어 줌(아직 글이 서툰 나이)
  * - [visualTimer]: 타이머가 숫자 대신 줄어드는 원(남은 시간이 눈에 보임)
+ * - [oneColumnToday]: 오늘 화면을 관심사 칩·옆으로 넘기는 슬라이드 없이 큰 카드 한 줄로(옆으로 넘기기가 아직 어려운 나이)
  */
 data class KidMode(
     val stickerMe: Boolean,
@@ -15,13 +16,14 @@ data class KidMode(
     val pictureRecord: Boolean,
     val readsAloud: Boolean,
     val visualTimer: Boolean,
+    val oneColumnToday: Boolean = false,
 ) {
     /** 켜진 도움 장치 수. 어린 단계일수록 많습니다. */
     val helpCount: Int get() = listOf(stickerMe, kidFamily, pictureRecord, readsAloud, visualTimer).count { it }
 
     companion object {
         /** 학령 전·초1~2: 전부 켬. */
-        val EARLY = KidMode(stickerMe = true, kidFamily = true, pictureRecord = true, readsAloud = true, visualTimer = true)
+        val EARLY = KidMode(stickerMe = true, kidFamily = true, pictureRecord = true, readsAloud = true, visualTimer = true, oneColumnToday = true)
         /** 초3~4: 기록 허브를 직접 쓰고 글도 읽지만, 가족·기록하기·타이머는 아직 쉽게. */
         val MIDDLE = KidMode(stickerMe = false, kidFamily = true, pictureRecord = true, readsAloud = false, visualTimer = true)
         /** 초5부터: 일반 화면. */

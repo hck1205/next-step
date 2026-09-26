@@ -40,6 +40,7 @@ com.nextstep.app
 │   ├── curriculum/         CurriculumCatalog(학기별 과목·단원), CurriculumRecommender(가족 진도·또래·영상 대조)
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
+│   ├── today/            TodayLayout(오늘 카드를 관심사로 묶기), TodayGroup, ParentTodayCard·MentorTodayCard(학부모·멘토 오늘 카드와 관심사)
 │   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), HubAudience·HubViewer(역할별 관심사 순서·보는 사람), ConcernDigests(한눈에 타일)
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
 │   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
@@ -57,6 +58,7 @@ com.nextstep.app
     │   ├── chart/          BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip, Legend
     │   ├── dialog/         *EditDialog, AssignTaskDialog, ConfirmDialog, TextInputDialog(한 줄·여러 줄·안내문)
     │   ├── input/          DateField, TimeField, OptionPicker, SubjectPicker, GradePicker, SegmentedRow
+    │   ├── layout/         todayBoard(오늘 화면 몸통: 관심사 칩 + 카드 슬라이드 + 칩별 목록), ConcernFilterRow, CardCarousel, TodayCardFrame, GroupHeader, DetailSheet(자세히 모달)
     │   └── row/            EventRow, TaskRow, AssignedByLabel, SessionRow, GoalStepRow
     ├── theme/
     ├── navigation/

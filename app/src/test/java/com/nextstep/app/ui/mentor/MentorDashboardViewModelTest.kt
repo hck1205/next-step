@@ -1,5 +1,7 @@
 package com.nextstep.app.ui.mentor
 
+import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
@@ -64,6 +66,20 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         settle(vm.state)
         assertEquals(listOf("subjects:me:a"), members.calls)
         assertEquals("MENTOR", tasks.saved.single().createdByRole); assertTrue(tasks.saved.last().deleted || tasks.saved.size == 1)
+        job.cancel()
+    }
+
+    @Test
+    fun todayCardsGroupByConcernAndHideEmptyOnes() = runTest {
+        streams.subjects.value = listOf(Fixtures.math)
+        streams.myMember.value = Fixtures.member(Role.MENTOR, "쌤", id = "me", subjectIds = "math")
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertFalse(MentorTodayCard.GRADES in s.visibleCards) // 성적이 없으면 카드도 없음
+        assertEquals(Concern.OVERVIEW, s.todayGroups.first().concern)
+        streams.grades.value = listOf(Fixtures.grade("math", 80.0, 1))
+        s = settle(vm.state)
+        assertEquals(listOf(MentorTodayCard.GRADES), s.todayGroups.single { it.concern == Concern.EXAMS }.cards)
         job.cancel()
     }
 }

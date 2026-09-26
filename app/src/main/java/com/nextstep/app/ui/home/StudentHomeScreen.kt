@@ -59,6 +59,13 @@ import com.nextstep.app.ui.home.components.RoadmapFocusRow
 import com.nextstep.app.ui.home.components.TimerCard
 import com.nextstep.app.ui.home.components.TopicSuggestionRow
 import com.nextstep.app.domain.hub.ConcernSection
+import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.ui.components.layout.DetailSheet
+import com.nextstep.app.ui.components.layout.TodayCardFrame
+import com.nextstep.app.ui.components.layout.todayBoard
+import com.nextstep.app.ui.home.components.HomeSectionBody
+import com.nextstep.app.ui.home.components.homeSectionTitle
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 fun StudentHomeScreen(actions: HomeActions, viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -71,6 +78,8 @@ fun StudentHomeScreen(actions: HomeActions, viewModel: HomeViewModel = viewModel
 internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (HomeEvent) -> Unit) {
     val context = LocalContext.current
     var showPlanner by remember { mutableStateOf(false) }
+    var filter by rememberSaveable { mutableStateOf<Concern?>(null) }
+    var sheet by remember { mutableStateOf<StudentHomeSection?>(null) }
     val level = state.level
     val words = level.words
     val speak = if (level.kid.readsAloud) rememberSpeaker() else null
@@ -99,89 +108,33 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             verticalArrangement = Arrangement.spacedBy(if (level.showsNumbers) 10.dp else 14.dp),
         ) {
             state.levelUp?.let { up -> item { LevelUpCard(up, state.newSections, onOk = { onEvent(HomeEvent.DismissLevelUp) }) } }
-            // 카드 순서는 올해 프로필이 정합니다(StudentScreen.homeOrder): 해마다 먼저 보여 줄 카드가 다릅니다.
-            state.homeOrder.forEach { section ->
-                when (section) {
-                    StudentHomeSection.TIMER -> item { TimerCard(state, words, big = !level.showsNumbers, goalMinutes = state.year?.dailyMinutes, onOpenTimer = actions.onOpenTimer) }
-                    StudentHomeSection.YEAR -> state.year?.let { y -> item { YearCard(y, aheadCount = state.yearAheadCount, aheadHeading = state.yearAheadHeading, onAdd = { onEvent(HomeEvent.AddStudyKind(it)) }, onOpenYear = actions.onOpenYear) } }
-                    StudentHomeSection.CURRICULUM -> state.curriculum?.let { c -> item { CurriculumCard(curriculum = c, periodLabel = state.periodLabel ?: "이번 학기", onOpen = actions.onOpenCurriculum) } }
-                    StudentHomeSection.MISSION -> if (state.missionFocus.isNotEmpty()) item { MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals) }
-                    StudentHomeSection.JOURNEY -> if (state.hasBirthDate || state.journeyNow.isNotEmpty()) item { JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney) }
-                    StudentHomeSection.TASKS -> {
-                        item { SectionTitle(words.tasksTitle, action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("전체") } }) }
-                        if (state.pendingTasks.isEmpty()) item { AppCard { EmptyState(words.allDone) } }
-                        else items(state.pendingTasks.take(state.taskRows), key = { "task" + it.id }) { task ->
-                            if (level.showsNumbers) TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
-                            else BigTaskRow(task, state.subjects, minHeightDp = level.touchTargetDp, onToggle = { onEvent(HomeEvent.ToggleTask(task)) }, onSpeak = speak)
-                        }
-                        if (state.pendingTasks.size > state.taskRows) item {
-                            TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) { Text("${state.pendingTasks.size - state.taskRows}개 더 보기") }
-                        }
-                    }
-                    StudentHomeSection.MY_WEEK -> state.myWeek?.let { week ->
-                        item {
-                            WeekPlanCard(
-                                week = week, access = state.myWeekAccess, big = !level.showsNumbers,
-                                onSavePlan = { goals, minutes -> onEvent(HomeEvent.SaveWeekPlan(goals, minutes)) },
-                                onToggle = { id, i -> onEvent(HomeEvent.ToggleWeekGoal(id, i)) }, onApprove = {},
-                                onReflect = { w, mood, good, hard, change -> onEvent(HomeEvent.ReflectWeek(w, mood, good, hard, change)) },
-                                onOpen = { actions.onOpenRecords(ConcernSection.SELF) },
-                            )
-                        }
-                    }
-                    StudentHomeSection.ROUTINE -> if (state.routines.isNotEmpty()) {
-                        item { SectionTitle(StudentHomeSection.ROUTINE.label) }
-                        item { RoutineCard(state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, big = !level.showsNumbers, compact = true) }
-                    }
-                    StudentHomeSection.GAME -> state.game?.let { g ->
-                        item { GameCard(g, state.nextReward, showsNumbers = level.showsNumbers, onOpen = { actions.onOpenRecords(ConcernSection.REWARDS) }) }
-                    }
-                    StudentHomeSection.WEEK -> if (state.week.isNotEmpty()) item { WeekCard(state.week, state.streak, words.weekTitle, showsNumbers = level.showsNumbers) }
-                    StudentHomeSection.EVENTS -> {
-                        item { SectionTitle("오늘 일정") }
-                        if (state.todayEvents.isEmpty()) item { AppCard { EmptyState("오늘은 등록된 일정이 없어요") } }
-                        else items(state.todayEvents.take(UiDefaults.MAX_ROWS), key = { "ev" + it.event.id + it.startAt }) { occ -> EventRow(occ, state.subjects) }
-                    }
-                    StudentHomeSection.EXAM -> state.nextExam?.let { exam -> item { UpcomingExamCard(exam) } }
-                    StudentHomeSection.RECOMMENDATION -> state.recommendations.firstOrNull()?.let { rec ->
-                        item { SectionTitle("추천 영상 1개", action = { TextButton(onClick = actions.onOpenContent) { Text("저장소") } }) }
-                        item { RecommendationCard(rec, onOpen = { ExternalLinks.open(context, rec.content.url) }, onWatched = { onEvent(HomeEvent.MarkContentWatched(rec.content.id)) }) }
-                    }
-                    StudentHomeSection.SUBJECTS -> if (state.activeSubjects.isNotEmpty()) {
-                        item { SectionTitle("지금 배우는 과목", action = { TextButton(onClick = { actions.onOpenRecords(ConcernSection.PROGRESS) }) { Text("진도 전체") } }) }
-                        item { ActiveSubjectsCard(state.activeSubjects.take(UiDefaults.MAX_ROWS), onOpenSubject = actions.onOpenSubject) }
-                    }
-                    StudentHomeSection.REVIEW -> if (state.reviewQueue.isNotEmpty()) {
-                        item { SectionTitle(words.reviewTitle) }
-                        items(state.reviewQueue.take(UiDefaults.MAX_ROWS), key = { "rv" + it.second.id }) { (subject, topic) ->
-                            TopicSuggestionRow(subject, topic, actionLabel = words.reviewDone,
-                                onAction = { onEvent(HomeEvent.MarkTopic(topic, TopicStatus.REVIEWED)) },
-                                onAddTask = { onEvent(HomeEvent.AddQuickTask(subject, topic, TaskType.REVIEW)) },
-                                onOpen = { actions.onOpenSubject(subject.id) })
-                        }
-                    }
-                    StudentHomeSection.PREVIEW -> if (state.previewQueue.isNotEmpty()) {
-                        item { SectionTitle(words.previewTitle) }
-                        items(state.previewQueue.take(UiDefaults.MAX_ROWS), key = { "pv" + it.second.id }) { (subject, topic) ->
-                            TopicSuggestionRow(subject, topic, actionLabel = words.previewDone,
-                                onAction = { onEvent(HomeEvent.MarkTopic(topic, TopicStatus.PREVIEWED)) },
-                                onAddTask = { onEvent(HomeEvent.AddQuickTask(subject, topic, TaskType.PREVIEW)) },
-                                onOpen = { actions.onOpenSubject(subject.id) })
-                        }
-                    }
-                    StudentHomeSection.ROADMAP -> if (state.roadmapFocus.isNotEmpty()) {
-                        item { SectionTitle("멘토 로드맵", action = { TextButton(onClick = actions.onOpenRoadmap) { Text("전체 보기") } }) }
-                        items(state.roadmapFocus, key = { "rm" + it.id }) { r ->
-                            RoadmapFocusRow(r, state.subjects.firstOrNull { it.id == r.subjectId }, onOpen = actions.onOpenRoadmap, onStatus = { onEvent(HomeEvent.SetRoadmapStatus(r.id, it)) })
-                        }
-                    }
-                    StudentHomeSection.PLANNER -> item { LinkCard("학습 계획 만들기", "밀린 복습, 멘토 로드맵, 다음 예습을 빈 시간에 자동으로 배치해요", onClick = { showPlanner = true }, actionLabel = "계획") }
+            val body: @Composable (StudentHomeSection, Boolean) -> Unit = { section, compact ->
+                HomeSectionBody(section, state, actions, onEvent, compact, onSpeak = speak, onOpenPlanner = { showPlanner = true })
+            }
+            // 타이머는 늘 맨 위. 나머지 카드는 올해 프로필 순서(StudentScreen.homeOrder)대로입니다. 학년으로 직접 분기하지 않습니다.
+            if (StudentHomeSection.TIMER in state.visibleSections && filter == null) item(key = "timer") { body(StudentHomeSection.TIMER, false) }
+            if (level.kid.oneColumnToday) {
+                // 아이 화면: 관심사 칩·슬라이드 없이 큰 카드 한 줄로.
+                state.visibleSections.filter { it != StudentHomeSection.TIMER }.forEach { section ->
+                    item(key = "one-${section.name}") { TodayCardFrame(homeSectionTitle(section, state), onExpand = null) { body(section, false) } }
                 }
+            } else {
+                // 관심사 칩 → "전체"는 관심사마다 카드 슬라이드, 칩을 고르면 그 관심사만 크게. 펼치기는 자세히 시트로.
+                todayBoard(
+                    groups = state.todayGroups, filter = filter, onFilter = { filter = it },
+                    title = { homeSectionTitle(it, state) }, key = { it.name }, onExpand = { sheet = it },
+                    body = body,
+                )
             }
             item { Spacer(Modifier.height(8.dp)) }
         }
     }
 
+    sheet?.let { section ->
+        DetailSheet(homeSectionTitle(section, state).ifBlank { section.label }, onDismiss = { sheet = null }) {
+            HomeSectionBody(section, state, actions, onEvent, compact = false, onSpeak = speak, onOpenPlanner = { sheet = null; showPlanner = true })
+        }
+    }
     if (showPlanner) {
         PlannerDialog(defaults = state.planDefaults, onDismiss = { showPlanner = false }) { onEvent(HomeEvent.GeneratePlan(it)) }
     }

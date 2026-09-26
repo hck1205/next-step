@@ -4,6 +4,8 @@ import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.growth.YearProfile
 import com.nextstep.app.domain.stats.DayMinutes
 import com.nextstep.app.domain.growth.StudentHomeSection
+import com.nextstep.app.domain.today.TodayGroup
+import com.nextstep.app.domain.today.TodayLayout
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.project.ProjectProgress
@@ -87,4 +89,29 @@ data class HomeUiState(
     /** 최근 7일 학습 시간(별 스티커·요일 점)과 연속 학습 일수. */
     val week: List<DayMinutes> = emptyList(),
     val streak: Int = 0,
-)
+) {
+    /** 오늘 보여 줄 카드(화면 단계가 연 것 중 내용이 있는 것, 올해 프로필 순서). */
+    val visibleSections: List<StudentHomeSection> get() = homeOrder.filter(::hasContent)
+
+    /** 타이머를 뺀 카드를 관심사로 묶은 것(오늘 화면의 관심사 칩·슬라이드). */
+    val todayGroups: List<TodayGroup<StudentHomeSection>>
+        get() = TodayLayout.group(visibleSections.filter { it != StudentHomeSection.TIMER }) { it.concern }
+
+    fun hasContent(section: StudentHomeSection): Boolean = when (section) {
+        StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.EVENTS, StudentHomeSection.PLANNER -> true
+        StudentHomeSection.YEAR -> year != null
+        StudentHomeSection.CURRICULUM -> curriculum != null
+        StudentHomeSection.MISSION -> missionFocus.isNotEmpty()
+        StudentHomeSection.JOURNEY -> hasBirthDate || journeyNow.isNotEmpty()
+        StudentHomeSection.MY_WEEK -> myWeek != null
+        StudentHomeSection.ROUTINE -> routines.isNotEmpty()
+        StudentHomeSection.GAME -> game != null
+        StudentHomeSection.WEEK -> week.isNotEmpty()
+        StudentHomeSection.EXAM -> nextExam != null
+        StudentHomeSection.RECOMMENDATION -> recommendations.isNotEmpty()
+        StudentHomeSection.SUBJECTS -> activeSubjects.isNotEmpty()
+        StudentHomeSection.REVIEW -> reviewQueue.isNotEmpty()
+        StudentHomeSection.PREVIEW -> previewQueue.isNotEmpty()
+        StudentHomeSection.ROADMAP -> roadmapFocus.isNotEmpty()
+    }
+}
