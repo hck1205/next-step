@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +39,7 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.row.GoalStepRow
 import com.nextstep.app.ui.journey.components.ActivityChips
@@ -101,8 +101,8 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun JourneyTopBar(studentName: String, actions: JourneyActions) {
-    TopAppBar(
-        title = { Text(if (studentName.isBlank()) "성장 여정" else "${studentName}의 성장 여정") },
+    CompactTopBar(
+        title = "성장 여정", caption = studentName.ifBlank { null },
         navigationIcon = { BackButton(actions.onBack) },
         actions = {
             // 자주 여는 "올해"만 보이게, 나머지 화면은 ⋮ 로. 설정은 하단 가족 탭이 맡습니다.

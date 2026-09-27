@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.mentor
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -10,10 +9,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,6 +35,7 @@ import com.nextstep.app.ui.components.input.ChildPicker
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.todayBoard
@@ -61,7 +61,8 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
         }
     }
 
-    Scaffold(topBar = { MentorTopBar(state, actions) }) { padding ->
+    val scroll = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(modifier = Modifier.nestedScroll(scroll.nestedScrollConnection), topBar = { MentorTopBar(state, actions, scroll) }) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = ScreenPadding.list,
@@ -89,17 +90,13 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
     }
 }
 
-/** 머리: 학생 · 내 구분, 오른쪽에 학생 고르기와 ⋮(영상 저장소). 학부모가 열었으면 뒤로 가기. */
+/** 머리 한 줄: 학생 이름 옆에 내 구분(예: 수학 멘토)·동기화, 오른쪽에 학생 고르기와 ⋮(영상 저장소). 학부모가 열었으면 뒤로 가기. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MentorTopBar(state: MentorDashboardUiState, actions: MentorDashboardActions) {
-    TopAppBar(
-        title = {
-            Column {
-                Text("${state.studentName.ifBlank { "학생" }} · ${state.me?.title?.ifBlank { null } ?: Role.MENTOR.label}", style = MaterialTheme.typography.titleLarge)
-                SyncStatusBadge(state.syncStatus)
-            }
-        },
+private fun MentorTopBar(state: MentorDashboardUiState, actions: MentorDashboardActions, scroll: TopAppBarScrollBehavior) {
+    CompactTopBar(
+        title = state.studentName.ifBlank { "학생" }, caption = state.me?.title?.ifBlank { null } ?: Role.MENTOR.label, scrollBehavior = scroll,
+        badge = { SyncStatusBadge(state.syncStatus) },
         navigationIcon = { BackButton(actions.onBack) },
         actions = {
             ChildPicker(state.students, state.activeFamilyId, onSelect = actions.onSwitchChild, onAdd = null)

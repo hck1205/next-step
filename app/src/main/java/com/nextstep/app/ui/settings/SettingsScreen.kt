@@ -12,7 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +27,7 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.settings.components.ChildrenCard
 import com.nextstep.app.ui.settings.components.GamifyCard
 import com.nextstep.app.ui.settings.components.MembersCard
@@ -54,8 +54,8 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
     val open: (SettingsDialog) -> Unit = { dialog = it }
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("가족") },
+            CompactTopBar(
+                title = "가족",
                 navigationIcon = { BackButton(actions.onBack) },
                 actions = { AppBarMenu(listOf(AppBarMenuItem("영상 저장소", Icons.Default.SmartDisplay, actions.onOpenContent))) },
             )

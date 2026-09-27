@@ -54,6 +54,7 @@ class DateUtilsTest {
         assertEquals("9/22", DateUtils.formatShortDate(d))
         assertEquals("2026년 9월", DateUtils.formatMonth(d))
         assertTrue(DateUtils.formatFullDate(d).startsWith("2026년 9월 22일"))
+        assertEquals("9월 22일 화", DateUtils.formatDay(d))
         assertEquals("월", DateUtils.dayOfWeekLabel(DayOfWeek.MONDAY))
     }
 }

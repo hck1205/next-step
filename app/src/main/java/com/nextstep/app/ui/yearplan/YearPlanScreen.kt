@@ -13,7 +13,6 @@ import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.speech.rememberSpeaker
 import com.nextstep.app.ui.yearplan.components.AheadHeader
@@ -63,8 +63,8 @@ internal fun YearPlanContent(state: YearPlanUiState, caps: Capabilities, actions
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(state.year?.let { "${it.label} · 올해 할 일" } ?: "올해 할 일") },
+            CompactTopBar(
+                title = "올해 할 일", caption = state.year?.label,
                 navigationIcon = { BackButton(actions.onBack) },
                 actions = { actions.onOpenJourney?.let { TextButton(onClick = it) { Text("여정") } } },
             )

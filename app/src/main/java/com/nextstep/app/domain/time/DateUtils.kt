@@ -34,6 +34,7 @@ object DateUtils {
     private val timeFmt = DateTimeFormatter.ofPattern("HH:mm")
     private val dateFmt = DateTimeFormatter.ofPattern("M월 d일", KO)
     private val fullDateFmt = DateTimeFormatter.ofPattern("yyyy년 M월 d일 (E)", KO)
+    private val dayFmt = DateTimeFormatter.ofPattern("M월 d일 E", KO)
     private val monthFmt = DateTimeFormatter.ofPattern("yyyy년 M월", KO)
     private val shortDateFmt = DateTimeFormatter.ofPattern("M/d", KO)
 
@@ -41,6 +42,9 @@ object DateUtils {
     fun formatTime(time: LocalTime): String = time.format(timeFmt)
     fun formatDate(date: LocalDate): String = date.format(dateFmt)
     fun formatFullDate(date: LocalDate): String = date.format(fullDateFmt)
+
+    /** 상단 바 제목 옆에 붙는 짧은 날짜(예: "4월 14일 화"). 연도는 뺍니다. */
+    fun formatDay(date: LocalDate): String = date.format(dayFmt)
     fun formatMonth(date: LocalDate): String = date.format(monthFmt)
     fun formatShortDate(date: LocalDate): String = date.format(shortDateFmt)
     fun dayOfWeekLabel(day: DayOfWeek): String = day.getDisplayName(TextStyle.SHORT, KO)

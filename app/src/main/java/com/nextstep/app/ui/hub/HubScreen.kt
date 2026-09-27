@@ -16,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateMapOf
@@ -34,6 +33,7 @@ import com.nextstep.app.ui.activities.ActivitiesScreen
 import com.nextstep.app.ui.assignments.AssignmentsScreen
 import com.nextstep.app.ui.calendar.CalendarScreen
 import com.nextstep.app.ui.components.input.SegmentedRow
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.LocalSectionAdd
 import com.nextstep.app.ui.components.layout.SectionAdd
 import com.nextstep.app.ui.content.ContentActions
@@ -103,8 +103,8 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (caps.isStudent) "나" else "기록") },
+            CompactTopBar(
+                title = if (caps.isStudent) "나" else "기록",
                 actions = {
                     currentAdd?.let { add ->
                         TextButton(onClick = add.onClick) {

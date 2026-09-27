@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -62,7 +64,11 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             if (StudentHomeSection.TIMER in state.visibleSections) body(StudentHomeSection.TIMER, false)
         }
     }
-    Scaffold(topBar = { HomeTopBar(state, menu = homeMenu(state, actions, onOpenPlanner = { showPlanner = true })) }) { padding ->
+    val scroll = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        modifier = Modifier.nestedScroll(scroll.nestedScrollConnection),
+        topBar = { HomeTopBar(state, menu = homeMenu(state, actions, onOpenPlanner = { showPlanner = true }), scrollBehavior = scroll) },
+    ) { padding ->
         // 카드는 화면 단계(level)가 연 것만 그립니다. 학년으로 직접 분기하지 않습니다.
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),

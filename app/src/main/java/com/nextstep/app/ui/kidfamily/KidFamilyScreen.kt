@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.kidfamily.components.ParentGateDialog
 
@@ -55,7 +55,7 @@ internal fun KidFamilyContent(state: KidFamilyUiState, actions: KidFamilyActions
         ParentGateDialog(gate, wrong = state.gateError, onAnswer = { onEvent(KidFamilyEvent.AnswerGate(it)) }, onDismiss = { onEvent(KidFamilyEvent.CloseGate) })
     }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("가족") }) }) { padding ->
+    Scaffold(topBar = { CompactTopBar(title = "가족") }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(16.dp)) {

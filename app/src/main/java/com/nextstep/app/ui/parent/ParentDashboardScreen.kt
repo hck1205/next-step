@@ -1,8 +1,6 @@
 package com.nextstep.app.ui.parent
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -12,18 +10,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,6 +35,7 @@ import com.nextstep.app.ui.components.card.SyncStatusBadge
 import com.nextstep.app.ui.components.input.ChildPicker
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.todayBoard
@@ -62,7 +60,8 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
     sheet?.let { card ->
         DetailSheet(parentCardTitle(card, state).ifBlank { card.title }, onDismiss = { sheet = null }) { ParentCardBody(card, state, actions, onEvent, compact = false) }
     }
-    Scaffold(topBar = { ParentTopBar(state, caps, actions) }) { padding ->
+    val scroll = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(modifier = Modifier.nestedScroll(scroll.nestedScrollConnection), topBar = { ParentTopBar(state, caps, actions, scroll) }) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = ScreenPadding.list,
@@ -80,20 +79,13 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
     }
 }
 
-/** 머리: "오늘" · 날짜·동기화, 오른쪽에 자녀 고르기와 ⋮(영상 저장소 · 멘토 화면). */
+/** 머리 한 줄: "오늘" 옆에 날짜·동기화, 오른쪽에 자녀 고르기와 ⋮(영상 저장소 · 멘토 화면). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ParentTopBar(state: ParentDashboardUiState, caps: Capabilities, actions: ParentDashboardActions) {
-    TopAppBar(
-        title = {
-            Column {
-                Text("오늘", style = MaterialTheme.typography.titleLarge)
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(DateUtils.formatFullDate(state.today), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    SyncStatusBadge(state.syncStatus)
-                }
-            }
-        },
+private fun ParentTopBar(state: ParentDashboardUiState, caps: Capabilities, actions: ParentDashboardActions, scroll: TopAppBarScrollBehavior) {
+    CompactTopBar(
+        title = "오늘", caption = DateUtils.formatDay(state.today), scrollBehavior = scroll,
+        badge = { SyncStatusBadge(state.syncStatus) },
         actions = {
             ChildPicker(state.children, state.activeFamilyId, onSelect = actions.onSwitchChild, onAdd = actions.onOpenSettings)
             AppBarMenu(

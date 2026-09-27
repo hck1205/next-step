@@ -17,7 +17,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,6 +31,7 @@ import com.nextstep.app.ui.components.card.BadgeGrid
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.row.RewardRow
 import com.nextstep.app.ui.kidme.components.StickerGrid
@@ -49,7 +49,7 @@ fun KidMeScreen(viewModel: KidMeViewModel = viewModel(factory = AppViewModelProv
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun KidMeContent(state: KidMeUiState) {
-    Scaffold(topBar = { TopAppBar(title = { Text(if (state.studentName.isBlank()) "내 스티커" else "${state.studentName}의 스티커") }) }) { padding ->
+    Scaffold(topBar = { CompactTopBar(title = "내 스티커", caption = state.studentName.ifBlank { null }) }) { padding ->
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             state.game?.let { g ->
                 item { GameCard(g, state.nextReward, showsNumbers = false) }
