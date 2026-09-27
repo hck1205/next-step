@@ -24,11 +24,12 @@ class InsightsViewModel(
     private val b = combine(streams.sessions, streams.tasks, streams.events) { s, t, e -> Triple(s, t, e) }
 
     val state: StateFlow<InsightsUiState> = combine(a, b) { (subjects, topics, grades), (sessions, tasks, events) ->
+        val scores = StudyStats.subjectScores(grades, subjects)
         InsightsUiState(
             subjects = subjects,
             insights = InsightEngine.analyze(subjects, topics, grades, sessions, tasks, events),
-            scores = StudyStats.subjectScores(grades, subjects),
-            progress = StudyStats.subjectProgress(topics, subjects),
+            scores = scores,
+            reviewRatios = StudyStats.subjectProgress(topics, subjects).filter { p -> scores.any { it.subject.id == p.subject.id } }.map { it.myRatio },
             daily14 = StudyStats.dailyMinutes(sessions, 14),
             weeklyBySubject = StudyStats.weeklyMinutesBySubject(sessions, subjects),
             byHour = StudyStats.minutesByHour(sessions),

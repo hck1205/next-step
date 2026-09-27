@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -54,10 +55,11 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
     var showAdd by remember { mutableStateOf(false) }
     var showMission by remember { mutableStateOf(false) }
     var expandedGoalId by remember { mutableStateOf<String?>(null) }
+    val toggle: (String) -> Unit = { id -> expandedGoalId = if (expandedGoalId == id) null else id }
     val goalCard: @Composable (GoalView) -> Unit = { view ->
         GoalCard(
             view = view, periodLabel = state::periodLabel, currentPeriodKey = state.currentPeriodKey,
-            expanded = expandedGoalId == view.goal.id, onToggle = { expandedGoalId = if (expandedGoalId == view.goal.id) null else view.goal.id },
+            expanded = expandedGoalId == view.goal.id, onToggle = { toggle(view.goal.id) },
             canManage = caps.canManageGoals,
             onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
             onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
@@ -69,13 +71,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
 
     Scaffold(
         // onBack 이 없으면 기록 탭의 섹션으로 들어간 것: 관심사·섹션 줄이 제목을 대신합니다.
-        topBar = {
-            if (actions.onBack != null) TopAppBar(
-                title = { Text(if (state.studentName.isBlank()) "목표" else "${state.studentName}의 목표") },
-                navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
-                actions = { TextButton(onClick = actions.onOpenJourney) { Text("타임라인") } },
-            )
-        },
+        topBar = { actions.onBack?.let { back -> GoalsTopBar(state.studentName, back, actions.onOpenJourney) } },
         floatingActionButton = {
             if (caps.canManageGoals && state.hasBirthDate) FloatingActionButton(onClick = { showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "목표 추가") }
         },
@@ -87,41 +83,17 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
         ) {
             if (!state.hasBirthDate) {
                 item { AppCard { EmptyState("타임라인에서 생년월일을 먼저 입력하면 학기별 단계를 만들 수 있어요") } }
-                return@LazyColumn
-            }
-            item {
-                AppCard {
-                    Text(
-                        state.currentPeriodLabel?.let { "지금은 $it. 목표는 한 번에 이룰 수 없으니 이 구간의 단계 하나에만 집중해요." } ?: "목표를 구간별 단계로 나눠 하나씩 진행해요.",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+            } else {
+                item {
+                    AppCard {
+                        Text(
+                            state.currentPeriodLabel?.let { "지금은 $it. 목표는 한 번에 이룰 수 없으니 이 구간의 단계 하나에만 집중해요." } ?: "목표를 구간별 단계로 나눠 하나씩 진행해요.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
                 }
-            }
-            if (state.missionKinds.isNotEmpty() || state.missions.isNotEmpty()) {
-                item { SectionTitle("시험·입시", action = if (caps.canManageGoals && state.missionKinds.isNotEmpty()) ({ TextButton(onClick = { showMission = true }) { Text("추가") } }) else null) }
-                if (state.missions.isEmpty()) item { AppCard { EmptyState("시험·수행평가 날짜를 넣으면 단계가 자동으로 나뉘어요") } }
-                items(state.missions, key = { "m-" + it.goal.id }) { view ->
-                    MissionCard(
-                        view = view, today = state.today, expanded = expandedGoalId == view.goal.id,
-                        onToggle = { expandedGoalId = if (expandedGoalId == view.goal.id) null else view.goal.id },
-                        canManage = caps.canManageGoals,
-                        onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
-                        onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
-                        onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
-                    )
-                }
-            }
-            if (state.active.isNotEmpty()) item { SectionTitle("진행 중인 목표 · ${state.active.size}") }
-            items(state.active, key = { it.goal.id }) { goalCard(it) }
-            if (state.availableTracks.isNotEmpty()) {
-                item { SectionTitle("시작할 수 있는 트랙 · ${state.availableTracks.size}") }
-                items(state.availableTracks, key = { "t-${it.id}" }) { track ->
-                    TrackCard(track = track, periodLabel = state::periodLabel, onStart = if (caps.canManageGoals) ({ onEvent(GoalsEvent.StartTrack(track.id)) }) else null)
-                }
-            }
-            if (state.finished.isNotEmpty()) {
-                item { SectionTitle("달성·보관 · ${state.finished.size}") }
-                items(state.finished, key = { it.goal.id }) { goalCard(it) }
+                missionSection(state, caps, onEvent, expandedGoalId, toggle, onAdd = { showMission = true })
+                goalSections(state, caps, onEvent, goalCard)
             }
         }
     }
@@ -136,4 +108,49 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
         onConfirm = { title, area, desc, steps -> onEvent(GoalsEvent.AddCustomGoal(title, area, desc, steps)); showAdd = false },
         onDismiss = { showAdd = false },
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GoalsTopBar(studentName: String, onBack: () -> Unit, onOpenJourney: () -> Unit) {
+    TopAppBar(
+        title = { Text(if (studentName.isBlank()) "목표" else "${studentName}의 목표") },
+        navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+        actions = { TextButton(onClick = onOpenJourney) { Text("타임라인") } },
+    )
+}
+
+/** 시험·입시 미션: 날짜를 넣으면 단계가 자동으로 나뉩니다. 고를 미션도 만든 미션도 없으면 숨깁니다. */
+private fun LazyListScope.missionSection(
+    state: GoalsUiState, caps: Capabilities, onEvent: (GoalsEvent) -> Unit, expandedGoalId: String?, onToggle: (String) -> Unit, onAdd: () -> Unit,
+) {
+    if (state.missionKinds.isEmpty() && state.missions.isEmpty()) return
+    item { SectionTitle("시험·입시", action = if (caps.canManageGoals && state.missionKinds.isNotEmpty()) ({ TextButton(onClick = onAdd) { Text("추가") } }) else null) }
+    if (state.missions.isEmpty()) item { AppCard { EmptyState("시험·수행평가 날짜를 넣으면 단계가 자동으로 나뉘어요") } }
+    items(state.missions, key = { "m-" + it.goal.id }) { view ->
+        MissionCard(
+            view = view, today = state.today, expanded = expandedGoalId == view.goal.id,
+            onToggle = { onToggle(view.goal.id) },
+            canManage = caps.canManageGoals,
+            onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
+            onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
+            onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
+        )
+    }
+}
+
+/** 진행 중인 목표 · 시작할 수 있는 트랙 · 달성·보관. */
+private fun LazyListScope.goalSections(state: GoalsUiState, caps: Capabilities, onEvent: (GoalsEvent) -> Unit, goalCard: @Composable (GoalView) -> Unit) {
+    if (state.active.isNotEmpty()) item { SectionTitle("진행 중인 목표 · ${state.active.size}") }
+    items(state.active, key = { it.goal.id }) { goalCard(it) }
+    if (state.availableTracks.isNotEmpty()) {
+        item { SectionTitle("시작할 수 있는 트랙 · ${state.availableTracks.size}") }
+        items(state.availableTracks, key = { "t-${it.id}" }) { track ->
+            TrackCard(track = track, periodLabel = state::periodLabel, onStart = if (caps.canManageGoals) ({ onEvent(GoalsEvent.StartTrack(track.id)) }) else null)
+        }
+    }
+    if (state.finished.isNotEmpty()) {
+        item { SectionTitle("달성·보관 · ${state.finished.size}") }
+        items(state.finished, key = { it.goal.id }) { goalCard(it) }
+    }
 }

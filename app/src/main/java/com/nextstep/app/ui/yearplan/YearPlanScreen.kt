@@ -1,30 +1,18 @@
 package com.nextstep.app.ui.yearplan
 
-import com.nextstep.app.domain.year.YearTerm
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.clickable
-import com.nextstep.app.ui.yearplan.components.YearTaskGroup
-import com.nextstep.app.domain.access.Capabilities
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -32,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,15 +31,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.year.YearTerm
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.speech.rememberSpeaker
 import com.nextstep.app.ui.yearplan.components.AheadHeader
+import com.nextstep.app.ui.yearplan.components.MineFilterRow
+import com.nextstep.app.ui.yearplan.components.TermHeader
+import com.nextstep.app.ui.yearplan.components.YearSummaryCard
 import com.nextstep.app.ui.yearplan.components.YearTaskDialog
-import com.nextstep.app.ui.yearplan.components.YearTaskRow
+import com.nextstep.app.ui.yearplan.components.YearTaskGroup
 import com.nextstep.app.ui.yearplan.components.YearTrendCard
-import com.nextstep.app.domain.year.YearDoer
 
 /**
  * "올해" 화면(학생은 하단 탭, 학부모·멘토는 여정에서): 올해(만 나이·학년) 해야 할 일을 분류 탭(전체 · 국어 · 수학 · 영어 · … · 생활)으로 잘게 나눠 보여 줍니다.
@@ -64,14 +57,11 @@ fun YearPlanScreen(caps: Capabilities, actions: YearPlanActions, viewModel: Year
     YearPlanContent(state = state, actions = actions, onEvent = viewModel::onEvent)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, onEvent: (YearPlanEvent) -> Unit) {
-    var tabIndex by rememberSaveable { mutableIntStateOf(0) }
     var open by remember { mutableStateOf<YearTaskView?>(null) }
-    var openTerms by rememberSaveable { mutableStateOf(setOf<String>()) }
     val speak = if (state.level.kid.readsAloud) rememberSpeaker() else null
-    val numbers = state.level.showsNumbers
     open?.let { v -> YearTaskDialog(v, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onAddToToday = { onEvent(YearPlanEvent.AddToToday(v.task)) }, onSpeak = speak, onDismiss = { open = null }) }
 
     Scaffold(
@@ -88,75 +78,70 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
             if (year == null || state.tabs.isEmpty()) {
                 AppCard(Modifier.padding(16.dp)) { EmptyState("가족 탭에서 생년월일을 넣으면 올해 할 일이 채워져요") }
             } else {
-                AppCard(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(year.theme, style = MaterialTheme.typography.titleMedium)
-                        LinearProgressIndicator(progress = { if (state.total == 0) 0f else state.done.toFloat() / state.total }, modifier = Modifier.fillMaxWidth())
-                        Text(
-                            if (numbers) "기본 ${state.done} / ${state.total} 끝냈어요 · 지금 ${state.currentTerm.label}" else "별 ${state.done}개 모았어요",
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        if (state.aheadTotal > 0) {
-                            Text(
-                                "${state.aheadHeading}" + (if (numbers) " ${state.aheadDone} / ${state.aheadTotal}" else "") + " · 여유가 있을 때만",
-                                style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary,
-                            )
-                        }
-                    }
-                }
-                if (state.mineCount > 0 && state.mineCount < state.allCount) {
-                    Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = state.mineOnly, onClick = { onEvent(YearPlanEvent.ShowMine(true)) }, label = { Text("내 할 일 ${state.mineCount}") })
-                        FilterChip(selected = !state.mineOnly, onClick = { onEvent(YearPlanEvent.ShowMine(false)) }, label = { Text("가족 전체 ${state.allCount}") })
-                    }
-                }
-                val selected = tabIndex.coerceIn(0, state.tabs.lastIndex)
-                ScrollableTabRow(selectedTabIndex = selected, edgePadding = 12.dp) {
-                    state.tabs.forEachIndexed { i, tab ->
-                        Tab(selected = i == selected, onClick = { tabIndex = i }, text = { Text(if (numbers) "${tab.label} ${tab.done}/${tab.total}" else tab.label) })
-                    }
-                }
-                val tab = state.tabs[selected]
-                LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    state.trend?.let { t -> if (tab.area == null) item(key = "trend") { YearTrendCard(t) } }
-                    tab.sections.forEach { (term, views) ->
-                        // 지금 학기와 1년 내내는 펼쳐 두고, 다른 학기는 접어 둡니다(누르면 펼침).
-                        val termKey = "${tab.label}:${term.name}"
-                        val folds = term != state.currentTerm && term != YearTerm.ALL_YEAR
-                        val expanded = !folds || termKey in openTerms
-                        stickyHeader(key = "t$termKey") {
-                            Row(
-                                Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
-                                    .then(if (folds) Modifier.clickable { openTerms = if (expanded) openTerms - termKey else openTerms + termKey } else Modifier)
-                                    .padding(vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    "${term.label} · ${term.months}" + if (term == state.currentTerm) " · 지금" else "",
-                                    style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f),
-                                    color = if (term == state.currentTerm) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                                )
-                                if (folds) Text(if (expanded) "접기" else "${views.size}개 · 펼치기", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                            }
-                        }
-                        if (expanded) item(key = "g$termKey") {
-                            YearTaskGroup(
-                                views, key = termKey, minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showsAllDoers = state.showsAllDoers,
-                                onToggle = { onEvent(YearPlanEvent.Toggle(it)) }, onOpen = { open = it },
-                            )
-                        }
-                    }
-                    if (tab.ahead.isNotEmpty()) {
-                        item(key = "ahead-head-${tab.label}") { AheadHeader(state.aheadHeading, state.aheadNote) }
-                        item(key = "ahead-${tab.label}") {
-                            YearTaskGroup(
-                                tab.ahead, key = "ahead:${tab.label}", minHeightDp = state.level.touchTargetDp, showArea = tab.area == null, showsAllDoers = state.showsAllDoers,
-                                onToggle = { onEvent(YearPlanEvent.Toggle(it)) }, onOpen = { open = it },
-                            )
-                        }
-                    }
-                }
+                YearBody(state, year.theme, onEvent, onOpen = { open = it })
             }
         }
     }
+}
+
+/** 요약 · 내 할 일 칩 · 분류 탭 · 탭 목록. */
+@Composable
+private fun YearBody(state: YearPlanUiState, theme: String, onEvent: (YearPlanEvent) -> Unit, onOpen: (YearTaskView) -> Unit) {
+    var tabIndex by rememberSaveable { mutableIntStateOf(0) }
+    var openTerms by rememberSaveable { mutableStateOf(setOf<String>()) }
+    YearSummaryCard(state, theme)
+    if (state.mineCount > 0 && state.mineCount < state.allCount) {
+        MineFilterRow(state.mineOnly, state.mineCount, state.allCount, onShowMine = { onEvent(YearPlanEvent.ShowMine(it)) })
+    }
+    val selected = tabIndex.coerceIn(0, state.tabs.lastIndex)
+    ScrollableTabRow(selectedTabIndex = selected, edgePadding = 12.dp) {
+        state.tabs.forEachIndexed { i, tab ->
+            Tab(selected = i == selected, onClick = { tabIndex = i }, text = { Text(if (state.level.showsNumbers) "${tab.label} ${tab.done}/${tab.total}" else tab.label) })
+        }
+    }
+    val lists = TabLists(
+        state, onToggle = { onEvent(YearPlanEvent.Toggle(it)) }, onOpen = onOpen,
+        openTerms = openTerms, onFold = { key -> openTerms = if (key in openTerms) openTerms - key else openTerms + key },
+    )
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        yearTab(state.tabs[selected], lists)
+    }
+}
+
+/** 탭 목록이 쓰는 상태와 콜백 묶음. */
+private class TabLists(
+    val state: YearPlanUiState,
+    val onToggle: (YearTaskView) -> Unit,
+    val onOpen: (YearTaskView) -> Unit,
+    val openTerms: Set<String>,
+    val onFold: (String) -> Unit,
+)
+
+/** 한 탭의 목록: (전체 탭이면) 추세 → 학기별 기본(다른 학기는 접힘) → 앞서 가기. */
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.yearTab(tab: YearTab, lists: TabLists) {
+    val state = lists.state
+    state.trend?.let { t -> if (tab.area == null) item(key = "trend") { YearTrendCard(t) } }
+    tab.sections.forEach { (term, views) ->
+        // 지금 학기와 1년 내내는 펼쳐 두고, 다른 학기는 접어 둡니다(누르면 펼침).
+        val termKey = "${tab.label}:${term.name}"
+        val folds = term != state.currentTerm && term != YearTerm.ALL_YEAR
+        val expanded = !folds || termKey in lists.openTerms
+        stickyHeader(key = "t$termKey") {
+            TermHeader(term, isCurrent = term == state.currentTerm, count = views.size, expanded = expanded, onFold = if (folds) ({ lists.onFold(termKey) }) else null)
+        }
+        if (expanded) item(key = "g$termKey") { TaskGroup(views, termKey, tab, lists) }
+    }
+    if (tab.ahead.isNotEmpty()) {
+        item(key = "ahead-head-${tab.label}") { AheadHeader(state.aheadHeading, state.aheadNote) }
+        item(key = "ahead-${tab.label}") { TaskGroup(tab.ahead, "ahead:${tab.label}", tab, lists) }
+    }
+}
+
+@Composable
+private fun TaskGroup(views: List<YearTaskView>, key: String, tab: YearTab, lists: TabLists) {
+    YearTaskGroup(
+        views, key = key, minHeightDp = lists.state.level.touchTargetDp, showArea = tab.area == null, showsAllDoers = lists.state.showsAllDoers,
+        onToggle = lists.onToggle, onOpen = lists.onOpen,
+    )
 }

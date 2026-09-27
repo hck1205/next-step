@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,6 +43,7 @@ import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.progress.components.TopicRow
 import com.nextstep.app.ui.progress.components.ProgressSummaryCard
 import com.nextstep.app.ui.progress.components.ClassProgressDialog
+import com.nextstep.app.ui.progress.components.QueueHintCard
 import com.nextstep.app.ui.components.dialog.TextInputDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -62,17 +64,7 @@ internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilitie
     val color = subject?.let { subjectColor(it.color) } ?: MaterialTheme.colorScheme.primary
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ColorDot(color, 12); Spacer(Modifier.width(8.dp)); Text(subject?.name ?: "")
-                    }
-                },
-                navigationIcon = { IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
-                actions = { if (caps.canEditSubjects) IconButton(onClick = { showEdit = true }) { Icon(Icons.Default.Edit, contentDescription = "과목 편집") } },
-            )
-        },
+        topBar = { SubjectTopBar(subject?.name.orEmpty(), color, onBack = actions.onBack, onEdit = if (caps.canEditSubjects) ({ showEdit = true }) else null) },
         floatingActionButton = { if (caps.canEditTopics) FloatingActionButton(onClick = { showAddTopics = true }) { Icon(Icons.Default.Add, contentDescription = "단원 추가") } },
     ) { padding ->
         LazyColumn(
@@ -83,14 +75,7 @@ internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilitie
             item { ProgressSummaryCard(state.topics, subject?.teacher, color, caps, onSetProgress = { showProgressPicker = true }) }
 
             if (state.reviewQueue.isNotEmpty() || state.previewQueue.isNotEmpty()) {
-                item {
-                    AppCard {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            if (state.reviewQueue.isNotEmpty()) Text("복습 필요: ${state.reviewQueue.joinToString { it.title }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
-                            if (state.previewQueue.isNotEmpty()) Text("예습 추천: ${state.previewQueue.take(PREVIEW_HINTS).joinToString { it.title }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                        }
-                    }
-                }
+                item { QueueHintCard(state.reviewQueue, state.previewQueue, PREVIEW_HINTS) }
             }
 
             item { SectionTitle("단원 목록") }
@@ -125,6 +110,23 @@ internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilitie
         ClassProgressDialog(state.topics, state.classIndex, onSelect = { onEvent(SubjectDetailEvent.SetClassProgress(it)) }, onDismiss = { showProgressPicker = false })
     }
 }
+
+/** 과목 색 점과 이름. 편집할 수 있으면([onEdit]) 연필. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SubjectTopBar(name: String, color: Color, onBack: () -> Unit, onEdit: (() -> Unit)?) {
+    TopAppBar(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ColorDot(color, TITLE_DOT); Spacer(Modifier.width(8.dp)); Text(name)
+            }
+        },
+        navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+        actions = { if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "과목 편집") } },
+    )
+}
+
+private const val TITLE_DOT = 12
 
 /** 예습 추천 문장에 넣는 단원 수. */
 private const val PREVIEW_HINTS = 2

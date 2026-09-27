@@ -22,6 +22,7 @@ class InsightsViewModelTest : ViewModelTestBase() {
         val today = DateUtils.today()
         streams.subjects.value = listOf(Fixtures.math, Fixtures.english)
         streams.grades.value = listOf(Fixtures.grade("math", 55.0, 1), Fixtures.grade("eng", 95.0, 1))
+        streams.topics.value = Fixtures.topics("math", 4, covered = 4, reviewed = 2)
         streams.sessions.value = (0 until 10).map { Fixtures.session("eng", today.minusDays(it.toLong()), LocalTime.of(7, 0), 30) }
         val vm = InsightsViewModel(streams, tasks); val job = subscribe(vm.state)
         val s = settle(vm.state)
@@ -29,6 +30,7 @@ class InsightsViewModelTest : ViewModelTestBase() {
         assertTrue(s.talents.any { it.title == "꾸준함" })
         assertEquals(14, s.daily14.size); assertEquals(300, s.totalMinutes); assertEquals(300, s.byHour[7])
         assertEquals(2, s.scores.size)
+        assertTrue(0.5f in s.reviewRatios) // 수학 4단원 중 2단원 복습: 레이더에 겹쳐 그릴 값
         job.cancel()
     }
 

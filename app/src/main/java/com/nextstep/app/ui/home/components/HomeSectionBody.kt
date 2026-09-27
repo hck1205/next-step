@@ -7,10 +7,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.content.ContentRecommendation
 import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.hub.ConcernSection
+import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.card.AppCard
@@ -49,26 +53,8 @@ internal fun HomeSectionBody(
         StudentHomeSection.CURRICULUM -> state.curriculum?.let { c -> CurriculumCard(curriculum = c, periodLabel = state.periodLabel ?: "이번 학기", onOpen = actions.onOpenCurriculum) }
         StudentHomeSection.MISSION -> MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals)
         StudentHomeSection.JOURNEY -> JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney)
-        StudentHomeSection.TASKS -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            val shown = if (compact) state.taskRows else FULL_ROWS
-            if (state.pendingTasks.isEmpty()) AppCard { EmptyState(words.allDone) }
-            else state.pendingTasks.take(shown).forEach { task ->
-                if (level.showsNumbers) TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
-                else BigTaskRow(task, state.subjects, minHeightDp = level.touchTargetDp, onToggle = { onEvent(HomeEvent.ToggleTask(task)) }, onSpeak = onSpeak)
-            }
-            TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) {
-                Text(if (state.pendingTasks.size > shown) "${state.pendingTasks.size - shown}개 더 · 전체 보기" else "전체 보기")
-            }
-        }
-        StudentHomeSection.MY_WEEK -> state.myWeek?.let { week ->
-            WeekPlanCard(
-                week = week, access = state.myWeekAccess, big = !level.showsNumbers,
-                onSavePlan = { goals, minutes -> onEvent(HomeEvent.SaveWeekPlan(goals, minutes)) },
-                onToggle = { id, i -> onEvent(HomeEvent.ToggleWeekGoal(id, i)) }, onApprove = {},
-                onReflect = { w, mood, good, hard, change -> onEvent(HomeEvent.ReflectWeek(w, mood, good, hard, change)) },
-                onOpen = { actions.onOpenRecords(ConcernSection.SELF) },
-            )
-        }
+        StudentHomeSection.TASKS -> TodayTasks(state, shown = if (compact) state.taskRows else FULL_ROWS, onEvent, onSpeak, onOpenAll = { actions.onOpenRecords(ConcernSection.CALENDAR) })
+        StudentHomeSection.MY_WEEK -> state.myWeek?.let { week -> MyWeek(week, state, onEvent, onOpen = { actions.onOpenRecords(ConcernSection.SELF) }) }
         StudentHomeSection.ROUTINE -> RoutineCard(
             state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject,
             big = !level.showsNumbers, compact = compact,
@@ -82,40 +68,80 @@ internal fun HomeSectionBody(
             else state.todayEvents.take(rows).forEach { occ -> EventRow(occ, state.subjects) }
         }
         StudentHomeSection.EXAM -> state.nextExam?.let { UpcomingExamCard(it) }
-        StudentHomeSection.RECOMMENDATION -> state.recommendations.firstOrNull()?.let { rec ->
-            val context = LocalContext.current
-            Column {
-                RecommendationCard(rec, onOpen = { ExternalLinks.open(context, rec.content.url) }, onWatched = { onEvent(HomeEvent.MarkContentWatched(rec.content.id)) })
-                TextButton(onClick = actions.onOpenContent) { Text("영상 저장소") }
-            }
-        }
+        StudentHomeSection.RECOMMENDATION -> state.recommendations.firstOrNull()?.let { rec -> Recommendation(rec, onEvent, onOpenLibrary = actions.onOpenContent) }
         StudentHomeSection.SUBJECTS -> Column {
             ActiveSubjectsCard(state.activeSubjects.take(rows), onOpenSubject = actions.onOpenSubject)
             TextButton(onClick = { actions.onOpenRecords(ConcernSection.PROGRESS) }) { Text("진도 전체") }
         }
-        StudentHomeSection.REVIEW -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            state.reviewQueue.take(rows).forEach { (subject, topic) ->
-                TopicSuggestionRow(subject, topic, actionLabel = words.reviewDone,
-                    onAction = { onEvent(HomeEvent.MarkTopic(topic, TopicStatus.REVIEWED)) },
-                    onAddTask = { onEvent(HomeEvent.AddQuickTask(subject, topic, TaskType.REVIEW)) },
-                    onOpen = { actions.onOpenSubject(subject.id) })
-            }
-        }
-        StudentHomeSection.PREVIEW -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            state.previewQueue.take(rows).forEach { (subject, topic) ->
-                TopicSuggestionRow(subject, topic, actionLabel = words.previewDone,
-                    onAction = { onEvent(HomeEvent.MarkTopic(topic, TopicStatus.PREVIEWED)) },
-                    onAddTask = { onEvent(HomeEvent.AddQuickTask(subject, topic, TaskType.PREVIEW)) },
-                    onOpen = { actions.onOpenSubject(subject.id) })
-            }
-        }
-        StudentHomeSection.ROADMAP -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            state.roadmapFocus.take(rows).forEach { r ->
-                RoadmapFocusRow(r, state.subjects.firstOrNull { it.id == r.subjectId }, onOpen = actions.onOpenRoadmap, onStatus = { onEvent(HomeEvent.SetRoadmapStatus(r.id, it)) })
-            }
-            TextButton(onClick = actions.onOpenRoadmap) { Text("전체 보기") }
-        }
+        StudentHomeSection.REVIEW -> TopicQueue(state.reviewQueue.take(rows), words.reviewDone, TopicStatus.REVIEWED, TaskType.REVIEW, onEvent, actions.onOpenSubject)
+        StudentHomeSection.PREVIEW -> TopicQueue(state.previewQueue.take(rows), words.previewDone, TopicStatus.PREVIEWED, TaskType.PREVIEW, onEvent, actions.onOpenSubject)
+        StudentHomeSection.ROADMAP -> RoadmapFocus(state, rows, onEvent, actions.onOpenRoadmap)
         StudentHomeSection.PLANNER -> LinkCard("학습 계획 만들기", "밀린 복습, 멘토 로드맵, 다음 예습을 빈 시간에 자동으로 배치해요", onClick = onOpenPlanner, actionLabel = "계획")
+    }
+}
+
+/** 오늘 할 일: 숫자를 보는 나이는 한 줄, 어린 나이는 큰 줄(읽어 주기). 아래에 남은 수와 전체 보기. */
+@Composable
+private fun TodayTasks(state: HomeUiState, shown: Int, onEvent: (HomeEvent) -> Unit, onSpeak: ((String) -> Unit)?, onOpenAll: () -> Unit) {
+    val level = state.level
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (state.pendingTasks.isEmpty()) AppCard { EmptyState(level.words.allDone) }
+        else state.pendingTasks.take(shown).forEach { task ->
+            if (level.showsNumbers) TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
+            else BigTaskRow(task, state.subjects, minHeightDp = level.touchTargetDp, onToggle = { onEvent(HomeEvent.ToggleTask(task)) }, onSpeak = onSpeak)
+        }
+        TextButton(onClick = onOpenAll) {
+            Text(if (state.pendingTasks.size > shown) "${state.pendingTasks.size - shown}개 더 · 전체 보기" else "전체 보기")
+        }
+    }
+}
+
+/** 나의 이번 주. 학생 화면이라 확인(승인) 버튼은 쓰지 않습니다. */
+@Composable
+private fun MyWeek(week: WeekStatus, state: HomeUiState, onEvent: (HomeEvent) -> Unit, onOpen: () -> Unit) {
+    WeekPlanCard(
+        week = week, access = state.myWeekAccess, big = !state.level.showsNumbers,
+        onSavePlan = { goals, minutes -> onEvent(HomeEvent.SaveWeekPlan(goals, minutes)) },
+        onToggle = { id, i -> onEvent(HomeEvent.ToggleWeekGoal(id, i)) }, onApprove = {},
+        onReflect = { w, mood, good, hard, change -> onEvent(HomeEvent.ReflectWeek(w, mood, good, hard, change)) },
+        onOpen = onOpen,
+    )
+}
+
+@Composable
+private fun Recommendation(rec: ContentRecommendation, onEvent: (HomeEvent) -> Unit, onOpenLibrary: () -> Unit) {
+    val context = LocalContext.current
+    Column {
+        RecommendationCard(rec, onOpen = { ExternalLinks.open(context, rec.content.url) }, onWatched = { onEvent(HomeEvent.MarkContentWatched(rec.content.id)) })
+        TextButton(onClick = onOpenLibrary) { Text("영상 저장소") }
+    }
+}
+
+/** 다시 보기(복습)·미리 보기(예습) 줄. 끝냈다고 표시하거나 할 일로 넣습니다. */
+@Composable
+private fun TopicQueue(
+    queue: List<Pair<SubjectEntity, TopicEntity>>, actionLabel: String, doneStatus: TopicStatus, taskType: TaskType,
+    onEvent: (HomeEvent) -> Unit, onOpenSubject: (String) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        queue.forEach { (subject, topic) ->
+            TopicSuggestionRow(
+                subject, topic, actionLabel = actionLabel,
+                onAction = { onEvent(HomeEvent.MarkTopic(topic, doneStatus)) },
+                onAddTask = { onEvent(HomeEvent.AddQuickTask(subject, topic, taskType)) },
+                onOpen = { onOpenSubject(subject.id) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun RoadmapFocus(state: HomeUiState, rows: Int, onEvent: (HomeEvent) -> Unit, onOpenRoadmap: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        state.roadmapFocus.take(rows).forEach { r ->
+            RoadmapFocusRow(r, state.subjects.firstOrNull { it.id == r.subjectId }, onOpen = onOpenRoadmap, onStatus = { onEvent(HomeEvent.SetRoadmapStatus(r.id, it)) })
+        }
+        TextButton(onClick = onOpenRoadmap) { Text("전체 보기") }
     }
 }
 

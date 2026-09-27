@@ -77,25 +77,32 @@ internal fun TopicRow(
                     }
                 }
             }
-            if (expanded && caps.canMarkTopicStatus) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
-                    TopicStatus.entries.forEach { s ->
-                        FilterChip(selected = topic.status == s, onClick = { onStatus(s) }, label = { Text(s.label, style = MaterialTheme.typography.labelSmall) })
-                    }
-                }
-                Spacer(Modifier.height(4.dp))
-                Text("이해도 ${topic.confidence}%  (슬라이더를 놓으면 저장)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                var conf by remember(topic.confidence) { mutableStateOf(topic.confidence.toFloat()) }
-                Slider(
-                    value = conf,
-                    onValueChange = { conf = it },
-                    onValueChangeFinished = { onConfidence(conf.toInt()) },
-                    valueRange = 0f..100f,
-                    steps = 9,
-                )
-            }
+            if (expanded && caps.canMarkTopicStatus) TopicStatusEditor(topic, onStatus, onConfidence)
         }
     }
     if (rename) TextInputDialog("단원 이름 변경", "단원명", topic.title, onConfirm = onRename, onDismiss = { rename = false })
     if (confirmDelete) ConfirmDialog("단원 삭제", "'${topic.title}' 단원을 삭제할까요?", "삭제", onConfirm = onDelete, onDismiss = { confirmDelete = false })
 }
+
+/** 펼친 단원: 진도 단계 칩과 이해도 슬라이더(놓을 때 저장). */
+@Composable
+private fun TopicStatusEditor(topic: TopicEntity, onStatus: (TopicStatus) -> Unit, onConfidence: (Int) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
+        TopicStatus.entries.forEach { s ->
+            FilterChip(selected = topic.status == s, onClick = { onStatus(s) }, label = { Text(s.label, style = MaterialTheme.typography.labelSmall) })
+        }
+    }
+    Spacer(Modifier.height(4.dp))
+    Text("이해도 ${topic.confidence}%  (슬라이더를 놓으면 저장)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    var conf by remember(topic.confidence) { mutableStateOf(topic.confidence.toFloat()) }
+    Slider(
+        value = conf,
+        onValueChange = { conf = it },
+        onValueChangeFinished = { onConfidence(conf.toInt()) },
+        valueRange = 0f..MAX_CONFIDENCE,
+        steps = CONFIDENCE_STEPS,
+    )
+}
+
+private const val MAX_CONFIDENCE = 100f
+private const val CONFIDENCE_STEPS = 9

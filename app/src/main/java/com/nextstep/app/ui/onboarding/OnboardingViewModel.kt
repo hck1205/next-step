@@ -31,9 +31,9 @@ class OnboardingViewModel(
         val s = _state.value
         val role = s.role ?: return
         if (s.name.isBlank()) { _state.update { it.copy(error = "이름을 입력해 주세요") }; return }
-        val parentCreates = role == Role.PARENT && s.createAsParent
+        val parentCreates = s.parentCreates
         if (parentCreates && s.childName.isBlank()) { _state.update { it.copy(error = "자녀 이름을 입력해 주세요") }; return }
-        if (role != Role.STUDENT && !parentCreates && s.code.length < 6) { _state.update { it.copy(error = "6자리 연결 코드를 입력해 주세요") }; return }
+        if (s.joinsWithCode && s.code.length < CODE_LENGTH) { _state.update { it.copy(error = "6자리 연결 코드를 입력해 주세요") }; return }
         _state.update { it.copy(loading = true, error = null) }
         viewModelScope.launch {
             val result = when {
@@ -63,4 +63,8 @@ class OnboardingViewModel(
         }
     }
 
+    private companion object {
+        /** 연결 코드 자리 수. */
+        const val CODE_LENGTH = 6
+    }
 }

@@ -45,6 +45,7 @@ com.nextstep.app
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
 │   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
 │   ├── taskboard/          TaskSuggester(복습 목록 · 로드맵 · 시험 → 과목·단원별 추천), TaskBoard(과목별 줄)
+│   ├── task/               TaskDrafts: 새 할 일의 제목·종류·마감·메모를 정하는 한 곳(ViewModel 은 저장만)
 │   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
 │   ├── gamify/             Gamify(기록 → 경험치·레벨·배지·연속·이번 주 도전·스티커, 저장하는 점수 없음), GameStyle(나이별 모양: 스티커판·레벨·성장 기록), XpSource, GameLevel, Badge, GameProfile, GameInputs
 │   ├── reward/             Rewards(보상 약속 → 받을 차례 → 받음 상태, 다음 보상, 나이별 걸 곳·예시), RewardKind(목표·레벨·스티커판), RewardTarget, RewardStatus, RewardView
@@ -113,6 +114,8 @@ com.nextstep.app
 - `XxxActions`: 화면 밖으로 나가는 콜백 묶음(내비게이션). 화면 시그니처는 `XxxScreen(caps, actions, viewModel)`.
 - `XxxScreen` 은 상태를 수집하고 `XxxContent(state, caps, actions, on...)` 을 호출한다. `XxxContent` 는 stateless 라 프리뷰·테스트가 가능하다.
 - 60줄이 넘는 섹션은 `components/` 로 뺀다. 컴포넌트는 엔티티 대신 필요한 값과 콜백만 받는 것을 우선한다.
+- 창(다이얼로그)이 둘 이상이면 불리언 여러 개 대신 `components/XxxDialog`(열린 창 하나: enum 또는 sealed) + `XxxDialogs(dialog, state, …, onDismiss)` 로 모은다. `XxxContent` 는 `var dialog` 하나와 `XxxDialogs(...)` 한 줄만 갖는다(`GoalDialogs`, `SettingsDialogs`, `CalendarDialogs`, `JourneyDialogs`).
+- 긴 LazyColumn 은 `private fun LazyListScope.xxxSection(...)` 으로 나눠 `XxxContent` 에는 섹션 순서만 남긴다.
 - 역할 분기는 `caps.canXxx` 만 쓴다. `role == Role.X` 를 화면에서 쓰지 않는다.
 
 ### ui.components
@@ -171,7 +174,7 @@ CI 명령: `./gradlew :app:assembleDebug :app:testDebugUnitTest`. 빨간 상태�
 ## 6. 상수·공통·성능 규칙
 
 - **리터럴은 관심사별 object 로.** 화면 상수는 `ui/common/UiDefaults`, 동기화 상수는 `FirestoreSyncManager.companion`, 도메인 임계값은 그 도메인 object(`BalanceStats`, `GrowthStats`, `AptitudeEngine`)의 `private const val`. 코드 본문에 `5_000`, `3`, `"STUDENT"` 같은 숫자·문자열을 직접 쓰지 않는다. 역할 문자열은 `Role.X.name`, 엔티티 판정은 `member.isStudent`, `task.isStudentMade` 같은 프로퍼티로.
-- **공통은 한 곳에.** 외부 링크는 `ExternalLinks.open`, 숫자 표기는 `Double.oneDecimal()`(domain 은 `Double.compact()`)·`Float.asPercent()`·`ratio()`, 학생의 시간 맥락은 `StudentContext.of(members, today)`, 권한은 `Capabilities.of(role, me)`, 학생 화면의 학년별 차이는 `StudentUiLevel.of(student)`(화면은 `level.shows(...)`·`level.words` 만 읽는다). 같은 계산이 두 ViewModel 에 나타나면 domain 으로 올린다(`RoadmapStats`, `CheerStats`, `MentorScope` 가 그 예). 같은 카드·다이얼로그가 두 화면에 나타나면 `ui/components` 로 올린다(`LinkCard`, `UpcomingExamCard`, `NoteRow`, `TextInputDialog`, `AssignTaskDialog`).
+- **공통은 한 곳에.** 외부 링크는 `ExternalLinks.open`, 숫자 표기는 `Double.oneDecimal()`(domain 은 `Double.compact()`)·`Float.asPercent()`·`ratio()`, 학생의 시간 맥락은 `StudentContext.of(members, today)`, 권한은 `Capabilities.of(role, me)`, 학생 화면의 학년별 차이는 `StudentUiLevel.of(student)`(화면은 `level.shows(...)`·`level.words` 만 읽는다). 같은 계산이 두 ViewModel 에 나타나면 domain 으로 올린다(`RoadmapStats`, `CheerStats`, `MentorScope` 가 그 예). 새 할 일(`TaskEntity`)은 ViewModel 에서 직접 만들지 않고 `TaskDrafts` 로 만든다(제목 짓는 법·마감 규칙이 한 곳). 같은 카드·다이얼로그가 두 화면에 나타나면 `ui/components` 로 올린다(`LinkCard`, `UpcomingExamCard`, `NoteRow`, `TextInputDialog`, `AssignTaskDialog`, `SubjectRadarCard`).
 - **화면 파일은 목차만.** `XxxContent` 는 섹션 순서와 다이얼로그 스위치만 갖고, 카드·행·다이얼로그는 `<feature>/components/` 의 `internal` 컴포저블로 뺀다. 화면에서 `java.time.LocalDate.now()` 대신 `DateUtils.today()`, `role == ...` 대신 `caps.canXxx` 를 쓴다.
 - **상태 흐름은 `asUiState`.** `combine(...).asUiState(viewModelScope, XxxUiState())`. 계산은 Default 디스패처에서, 같은 값은 재발행하지 않고, 구독이 끊겨도 5초 유지한다.
 - **파생 값은 ViewModel 에서 한 번.** UiState 의 `get()` 프로퍼티는 O(1) 수준만 허용한다(필터·정렬·그룹은 금지). 묶음·정렬은 `JourneySections.apply` 처럼 상태를 만들 때 계산해 필드로 넣는다. 여러 화면이 쓰는 계산(예습·복습 대기열, 평균)은 `domain/stats` 의 순수 함수로 올리고, 화면이 쓰지 않는 필드는 UiState 에 두지 않는다.

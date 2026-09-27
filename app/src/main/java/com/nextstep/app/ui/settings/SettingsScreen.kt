@@ -1,28 +1,16 @@
 package com.nextstep.app.ui.settings
 
-import com.nextstep.app.ui.settings.components.StudentYearCard
-import com.nextstep.app.ui.settings.components.StudentYearDialog
-import com.nextstep.app.ui.settings.components.RelationPicker
-import com.nextstep.app.ui.settings.components.ChildrenCard
-import com.nextstep.app.ui.settings.components.AddChildDialog
-import com.nextstep.app.ui.components.dialog.TextInputDialog
-import com.nextstep.app.data.model.GuardianRelation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,17 +26,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.components.card.SubjectTag
-import com.nextstep.app.ui.components.dialog.ConfirmDialog
-import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
-import com.nextstep.app.ui.settings.components.InfoRow
+import com.nextstep.app.ui.settings.components.ChildrenCard
+import com.nextstep.app.ui.settings.components.GamifyCard
 import com.nextstep.app.ui.settings.components.MembersCard
 import com.nextstep.app.ui.settings.components.MentorModeCard
-import com.nextstep.app.ui.settings.components.GamifyCard
+import com.nextstep.app.ui.settings.components.MyInfoCard
+import com.nextstep.app.ui.settings.components.MySubjectsCard
 import com.nextstep.app.ui.settings.components.PairingCodeCard
+import com.nextstep.app.ui.settings.components.SettingsDialog
+import com.nextstep.app.ui.settings.components.SettingsDialogs
+import com.nextstep.app.ui.settings.components.SignOutSection
+import com.nextstep.app.ui.settings.components.StudentYearCard
 
 @Composable
 fun SettingsScreen(caps: Capabilities, actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -56,17 +46,12 @@ fun SettingsScreen(caps: Capabilities, actions: SettingsActions, viewModel: Sett
     SettingsContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
 }
 
+/** 가족 탭: 자녀·내 정보·역할별 설정·구성원·연결 코드·계정. 위에서부터 자주 보는 순서. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions: SettingsActions, onEvent: (SettingsEvent) -> Unit) {
-    var confirmSignOut by remember { mutableStateOf(false) }
-    var confirmRemove by remember { mutableStateOf<String?>(null) }
-    var showSubjects by remember { mutableStateOf(false) }
-    var showAddChild by remember { mutableStateOf(false) }
-    var showLinkChild by remember { mutableStateOf(false) }
-    var showEditYear by remember { mutableStateOf(false) }
-    val profile = state.profile
-
+    var dialog by remember { mutableStateOf<SettingsDialog?>(null) }
+    val open: (SettingsDialog) -> Unit = { dialog = it }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -77,89 +62,58 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             LinkCard("콘텐츠 저장소", "좋은 유튜브 강의를 등록해 두면 아이 진도에 맞춰 추천돼요", onClick = actions.onOpenContent)
-
-            if (caps.canLinkChildren) {
-                SectionTitle(if (caps.isParent) "자녀" else "맡은 학생")
-                ChildrenCard(
-                    children = state.children, activeFamilyId = state.activeFamilyId, error = state.childError,
-                    onSelect = { onEvent(SettingsEvent.SwitchChild(it)) },
-                    onAdd = if (caps.canAddChildren) ({ showAddChild = true }) else null,
-                    onLink = { showLinkChild = true },
-                )
-            }
-
-            SectionTitle("내 정보")
-            AppCard {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    InfoRow("역할", state.me?.roleLabel ?: profile?.role?.label ?: "-")
-                    InfoRow("이름", profile?.displayName ?: "-")
-                    InfoRow("학생", profile?.studentName ?: "-")
-                    if (caps.isParent) state.me?.let { me ->
-                        RelationPicker(GuardianRelation.fromLabel(me.title), onSelect = { onEvent(SettingsEvent.UpdateMyProfile(me.name, it?.label.orEmpty())) })
-                    }
-                }
-            }
-
-            if (caps.canToggleMentorMode) {
-                SectionTitle("학부모 겸 멘토")
-                MentorModeCard(enabled = state.me?.mentorEnabled == true, available = state.me != null, onChange = { onEvent(SettingsEvent.SetMentorEnabled(it)) })
-            }
-            if (caps.actsAsMentor) {
-                SectionTitle("담당 과목", action = { TextButton(onClick = { showSubjects = true }) { Text("변경") } })
-                AppCard {
-                    val mine = state.me?.subjectIdList ?: emptyList()
-                    if (mine.isEmpty()) Text("전 과목 담당", style = MaterialTheme.typography.bodyMedium)
-                    else Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { state.subjects.filter { it.id in mine }.forEach { SubjectTag(it) } }
-                }
-            }
-
-            // 학년은 한 번 정하면 1년을 가므로 요약만 보이고, 바꾸려면 "고치기"로 창을 엽니다.
-            SectionTitle("자녀 학년")
-            StudentYearCard(
-                yearLabel = state.yearLabel, birthDate = state.birthDate, ageLabel = state.ageLabel,
-                level = state.chosenStudentLevel ?: state.autoStudentLevel, chosen = state.chosenStudentLevel != null,
-                onEdit = { showEditYear = true },
-            )
-
-            if (caps.canToggleGamification(state.gameStyle)) {
-                SectionTitle("레벨·배지")
-                GamifyCard(
-                    style = state.gameStyle, forStudent = caps.isStudent, enabled = state.student?.gamify ?: true, available = state.student != null,
-                    onChange = { onEvent(SettingsEvent.SetGamify(it)) },
-                )
-            }
-
+            FamilySection(state, caps, onEvent, open)
+            RoleSection(state, caps, onEvent, open)
             SectionTitle("연결된 구성원")
-            MembersCard(state.members, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { confirmRemove = it })
-
+            MembersCard(state.members, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { open(SettingsDialog.RemoveMember(it)) })
             SectionTitle("연결 코드")
-            PairingCodeCard(code = profile?.pairingCode, isStudent = caps.isStudent, syncStatus = state.syncStatus, syncAvailable = state.syncAvailable, onRequestSync = { onEvent(SettingsEvent.RequestSync) })
-
+            PairingCodeCard(code = state.profile?.pairingCode, isStudent = caps.isStudent, syncStatus = state.syncStatus, syncAvailable = state.syncAvailable, onRequestSync = { onEvent(SettingsEvent.RequestSync) })
             SectionTitle("계정")
-            Button(onClick = { confirmSignOut = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) { Text("이 기기에서 연결 해제") }
-            Text(
-                "연결 해제하면 이 기기의 역할·가족 정보가 초기화되고 온보딩 화면으로 돌아갑니다. 서버에 동기화된 데이터는 유지됩니다.",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            SignOutSection(onSignOut = { open(SettingsDialog.SignOut) })
         }
     }
+    SettingsDialogs(dialog, state, caps, onEvent, onDismiss = { dialog = null })
+}
 
-    if (confirmSignOut) {
-        ConfirmDialog("연결 해제", "정말 이 기기에서 연결을 해제할까요?", confirmLabel = "해제", onConfirm = { onEvent(SettingsEvent.SignOut) }, onDismiss = { confirmSignOut = false })
+/** 자녀(맡은 학생) 목록과 내 정보. */
+@Composable
+private fun FamilySection(state: SettingsUiState, caps: Capabilities, onEvent: (SettingsEvent) -> Unit, open: (SettingsDialog) -> Unit) {
+    if (caps.canLinkChildren) {
+        SectionTitle(if (caps.isParent) "자녀" else "맡은 학생")
+        ChildrenCard(
+            children = state.children, activeFamilyId = state.activeFamilyId, error = state.childError,
+            onSelect = { onEvent(SettingsEvent.SwitchChild(it)) },
+            onAdd = if (caps.canAddChildren) ({ open(SettingsDialog.AddChild) }) else null,
+            onLink = { open(SettingsDialog.LinkChild) },
+        )
     }
-    confirmRemove?.let { id ->
-        val name = state.members.firstOrNull { it.id == id }?.name ?: ""
-        ConfirmDialog("연결 끊기", "'$name' 님을 구성원 목록에서 제거할까요? 상대 기기에서는 다시 코드를 입력해야 연결됩니다.", confirmLabel = "제거", onConfirm = { onEvent(SettingsEvent.RemoveMember(id)) }, onDismiss = { confirmRemove = null })
+    SectionTitle("내 정보")
+    MyInfoCard(state.profile, state.me, showsRelation = caps.isParent, onRelation = { me, label -> onEvent(SettingsEvent.UpdateMyProfile(me.name, label)) })
+}
+
+/** 역할에 따라 보이는 설정: 학부모 겸 멘토 · 담당 과목 · 자녀 학년 · 레벨·배지. */
+@Composable
+private fun RoleSection(state: SettingsUiState, caps: Capabilities, onEvent: (SettingsEvent) -> Unit, open: (SettingsDialog) -> Unit) {
+    if (caps.canToggleMentorMode) {
+        SectionTitle("학부모 겸 멘토")
+        MentorModeCard(enabled = state.me?.mentorEnabled == true, available = state.me != null, onChange = { onEvent(SettingsEvent.SetMentorEnabled(it)) })
     }
-    if (showAddChild) AddChildDialog(onConfirm = { name, birth -> onEvent(SettingsEvent.AddChild(name, birth)) }, onDismiss = { showAddChild = false })
-    if (showEditYear) StudentYearDialog(
-        birthDate = state.birthDate, ageLabel = state.ageLabel, gradeYear = state.student?.gradeYear ?: 0,
-        auto = state.autoStudentLevel, chosen = state.chosenStudentLevel, canChooseLevel = caps.canChooseStudentScreen,
-        onSave = { birth, grade, level -> onEvent(SettingsEvent.SaveStudentYear(birth, grade, level)); showEditYear = false },
-        onDismiss = { showEditYear = false },
+    if (caps.actsAsMentor) {
+        SectionTitle("담당 과목", action = { TextButton(onClick = { open(SettingsDialog.Subjects) }) { Text("변경") } })
+        MySubjectsCard(state.subjects, state.me?.subjectIdList ?: emptyList())
+    }
+    // 학년은 한 번 정하면 1년을 가므로 요약만 보이고, 바꾸려면 "고치기"로 창을 엽니다.
+    SectionTitle("자녀 학년")
+    StudentYearCard(
+        yearLabel = state.yearLabel, birthDate = state.birthDate, ageLabel = state.ageLabel,
+        level = state.chosenStudentLevel ?: state.autoStudentLevel, chosen = state.chosenStudentLevel != null,
+        onEdit = { open(SettingsDialog.EditYear) },
     )
-    if (showLinkChild) TextInputDialog(title = "코드로 연결", label = "연결 코드 6자리", confirmLabel = "연결", onConfirm = { onEvent(SettingsEvent.LinkChild(it)) }, onDismiss = { showLinkChild = false })
-    if (showSubjects) {
-        SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = { showSubjects = false }) { onEvent(SettingsEvent.SetMySubjects(it)) }
+    if (caps.canToggleGamification(state.gameStyle)) {
+        SectionTitle("레벨·배지")
+        GamifyCard(
+            style = state.gameStyle, forStudent = caps.isStudent, enabled = state.student?.gamify ?: true, available = state.student != null,
+            onChange = { onEvent(SettingsEvent.SetGamify(it)) },
+        )
     }
 }
