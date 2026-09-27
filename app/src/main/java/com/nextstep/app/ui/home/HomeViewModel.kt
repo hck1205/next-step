@@ -1,62 +1,40 @@
 package com.nextstep.app.ui.home
 
-import com.nextstep.app.domain.task.TaskDrafts
-import com.nextstep.app.domain.growth.StudyKind
-import com.nextstep.app.domain.growth.StudentScreen
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import com.nextstep.app.domain.growth.StudentUiLevel
-import com.nextstep.app.data.repository.MemberRepository
-import com.nextstep.app.data.repository.ProjectRepository
-import com.nextstep.app.data.repository.WeekPlanRepository
-import com.nextstep.app.domain.access.Capabilities
-import com.nextstep.app.domain.selfdirection.SelfDirection
-import com.nextstep.app.domain.selfdirection.WeekAccess
-import com.nextstep.app.domain.selfdirection.WeekStatus
-import com.nextstep.app.domain.project.ProjectPlanner
-import com.nextstep.app.domain.project.ProjectProgress
-import com.nextstep.app.domain.project.RoutineItem
-import com.nextstep.app.ui.common.UiDefaults
-import com.nextstep.app.domain.stats.StudyQueues
-import com.nextstep.app.domain.mission.MissionPlanner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.MemberRepository
+import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.TopicRepository
-import com.nextstep.app.domain.content.ContentRecommender
+import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.growth.StudyKind
 import com.nextstep.app.domain.planner.PlanOptions
 import com.nextstep.app.domain.planner.StudyPlan
 import com.nextstep.app.domain.planner.StudyPlanner
-import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.project.RoutineItem
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
-import com.nextstep.app.domain.growth.GrowthGuide
-import com.nextstep.app.domain.curriculum.CurriculumCatalog
-import com.nextstep.app.domain.journey.JourneyPlanner
-import com.nextstep.app.domain.family.StudentContext
-import com.nextstep.app.data.model.GradeLevel
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.ui.common.asUiState
-import com.nextstep.app.domain.year.AheadPlans
-import com.nextstep.app.domain.year.YearPlans
-import com.nextstep.app.ui.common.gameInputs
-import com.nextstep.app.domain.gamify.Gamify
-import com.nextstep.app.domain.reward.Rewards
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val streams: FamilyDataStreams,
@@ -70,86 +48,9 @@ class HomeViewModel(
     private val weekPlans: WeekPlanRepository,
 ) : ViewModel() {
 
-    private val base = combine(streams.profile, streams.subjects, streams.events, streams.tasks, streams.sessions) { profile, subjects, events, tasks, sessions ->
-        HomeUiState(
-            displayName = profile.displayName,
-            subjects = subjects,
-            todayEvents = StudyStats.eventsOn(DateUtils.today(), events),
-            pendingTasks = StudyStats.pendingTasks(tasks),
-            todayMinutes = StudyStats.todayMinutes(sessions),
-            weekMinutes = StudyStats.weekMinutes(sessions),
-            weekGoalMinutes = subjects.sumOf { it.weeklyGoalMinutes },
-            week = StudyStats.dailyMinutes(sessions, DAYS_IN_WEEK),
-            streak = StudyStats.studyStreak(sessions),
-            nextExam = StudyStats.upcomingExams(events, tasks).firstOrNull(),
-            events = events,
-            loaded = true,
-        )
-    }
-
     private val lastPlan = MutableStateFlow<StudyPlan?>(null)
 
-    private val withProgress = combine(base, streams.topics, streams.runningTimer, streams.roadmap, lastPlan) { s, topics, timer, roadmap, plan ->
-        val progress = StudyStats.subjectProgress(topics, s.subjects)
-        s.copy(
-            progress = progress, runningTimer = timer, roadmap = roadmap, lastPlan = plan,
-            roadmapFocus = StudyQueues.roadmapFocus(roadmap, UiDefaults.MAX_ROWS), activeSubjects = StudyQueues.activeSubjects(progress),
-            previewQueue = StudyQueues.previewQueue(progress), reviewQueue = StudyQueues.reviewQueue(progress),
-        )
-    }
-
-    private val enriched = combine(withProgress, streams.contents, streams.grades, streams.members, streams.journeyItems) { s, contents, grades, members, journey ->
-        val exams = StudyStats.upcomingExams(s.events, emptyList())
-        val today = DateUtils.today()
-        val ctx = StudentContext.of(members, today)
-        val stage = ctx.stage
-        val screen = StudentScreen.of(ctx.student, today)
-        val level = screen.level
-        val seen = StudentUiLevel.fromName(ctx.student?.seenUiLevel)
-        val levelUp = level.takeIf { seen != null && it > seen }
-        s.copy(
-            level = level,
-            year = screen.year,
-            yearAheadCount = screen.year?.let { YearPlans.ahead(it.key).size } ?: 0,
-            yearAheadHeading = screen.year?.let { AheadPlans.heading(it.key) }.orEmpty(),
-            taskRows = screen.taskRows,
-            homeOrder = screen.homeOrder,
-            levelUp = levelUp,
-            newSections = if (levelUp != null && seen != null) level.newSince(seen) else emptyList(),
-            studentId = ctx.student?.id,
-            curriculum = CurriculumCatalog.forPeriod(ctx.currentPeriodKey),
-            periodLabel = ctx.currentPeriod?.label,
-            journeyNow = JourneyPlanner.actionable(JourneyPlanner.build(ctx.birthDate, journey, today), today),
-            hasBirthDate = ctx.hasBirthDate,
-            today = today,
-            stage = stage,
-            planDefaults = GrowthGuide.defaultPlanOptions(stage, screen.year),
-            recommendations = ContentRecommender.recommend(contents, s.subjects, s.progress, StudyStats.subjectScores(grades, s.subjects), exams, gradeLevel = stage?.gradeLevel ?: GradeLevel.ALL, limit = 3),
-        )
-    }
-
-    /** 나의 이번 주: 자기주도 단계가 누가 계획·점검·돌아보기를 하는지 정합니다. */
-    private val selfWeek = combine(streams.profile, streams.members, streams.myMember, streams.weekPlans, streams.sessions) { profile, all, me, plans, sessions ->
-        val day = DateUtils.today()
-        val stage = SelfDirection.stageOf(StudentContext.of(all, day).student, day)
-        SelfWeek(SelfDirection.week(stage, plans, sessions, day), WeekAccess.of(Capabilities.of(profile.role ?: Role.STUDENT, me), stage))
-    }
-
-    private val planned = combine(enriched, streams.goals, streams.goalSteps, streams.projectLogs, selfWeek) { s, goals, steps, logs, w ->
-        s.copy(
-            myWeek = w.week, myWeekAccess = w.access,
-            missionFocus = MissionPlanner.focus(goals, steps, s.today),
-            routines = ProjectPlanner.progressAll(goals, steps, logs, s.today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
-        )
-    }
-
-    /** 나의 스티커판·레벨·성장 기록: 모양은 화면 단계(나이)가 정하고, 학부모가 게임 요소를 꺼 두면 계산하지 않습니다. 보상 한 줄은 다음 보상. */
-    val state: StateFlow<HomeUiState> = combine(planned, streams.members, streams.gameInputs(), streams.rewards) { s, all, input, rewards ->
-        if (all.firstOrNull { it.isStudent }?.gamify == false) return@combine s.copy(game = null, nextReward = null)
-        val profile = Gamify.profile(input, s.today, style = s.level.game)
-        s.copy(game = profile, nextReward = Rewards.next(Rewards.views(rewards, input.goals, profile.level.number, profile.boards)))
-    }
-        .asUiState(viewModelScope, HomeUiState())
+    val state: StateFlow<HomeUiState> = HomeStateFlow.of(streams, lastPlan).asUiState(viewModelScope, HomeUiState())
 
     init {
         // 처음 여는 학생 기기: 지금 단계를 확인한 것으로 조용히 남겨, 다음 학년에 올라갈 때만 "새 화면" 카드가 뜨게 합니다.
@@ -210,11 +111,5 @@ class HomeViewModel(
             is HomeEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
             is HomeEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }
         }
-    }
-
-    private data class SelfWeek(val week: WeekStatus, val access: WeekAccess)
-
-    private companion object {
-        const val DAYS_IN_WEEK = 7
     }
 }
