@@ -11,6 +11,5 @@ data class TalentUiState(
     val today: LocalDate = DateUtils.today(),
     val signals: List<AptitudeSignal> = emptyList(),
     val byDomain: List<Pair<AptitudeDomain, List<ObservationEntity>>> = emptyList(),
-    val observationCount: Int = 0,
     val loaded: Boolean = false,
 )

@@ -12,7 +12,6 @@ import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.stats.SubjectProgress
-import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.domain.today.TodayGroup
 import com.nextstep.app.domain.today.TodayLayout
@@ -28,15 +27,11 @@ data class MentorDashboardUiState(
     /** 담당 과목 (미지정이면 전 과목). */
     val subjects: List<SubjectEntity> = emptyList(),
     val otherMentors: List<MemberEntity> = emptyList(),
-    val weekMinutes: Int = 0,
     val weeklyBySubject: List<SubjectMinutes> = emptyList(),
     val progress: List<SubjectProgress> = emptyList(),
-    val scores: List<SubjectScore> = emptyList(),
     val recentGrades: List<GradeEntity> = emptyList(),
     val myTasks: List<TaskEntity> = emptyList(),
     val insights: List<Insight> = emptyList(),
-    /** 담당 과목 평균 점수의 평균. 성적이 없으면 null. */
-    val averageScore: Double? = null,
     val roadmap: RoadmapSummary = RoadmapSummary(),
     val stage: GrowthStage? = null,
     val mentorTip: String? = null,

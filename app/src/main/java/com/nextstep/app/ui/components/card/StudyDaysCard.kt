@@ -1,9 +1,9 @@
 package com.nextstep.app.ui.components.card
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.DayMinutes
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.chart.ChartHeights
 import com.nextstep.app.ui.components.chart.ColumnChart
 
 /** 요일별 공부 시간(최근 7일, 오늘이 맨 끝). 하루 목표가 있으면 목표선. */
@@ -17,10 +17,8 @@ fun StudyDaysCard(days: List<DayMinutes>, dailyGoal: Int, compact: Boolean) {
             goal = dailyGoal.takeIf { it > 0 },
             goalLabel = "하루 목표 ${dailyGoal}분",
             format = { "${it}분" },
-            height = if (compact) COMPACT_DP.dp else FULL_DP.dp,
+            height = ChartHeights.column(compact),
         )
     }
 }
 
-private const val COMPACT_DP = 120
-private const val FULL_DP = 150

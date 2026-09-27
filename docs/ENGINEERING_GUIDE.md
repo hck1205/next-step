@@ -57,7 +57,7 @@ com.nextstep.app
     ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), AppDispatchers, Formatters, ExternalLinks
     ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나. 관심사별 하위 패키지:
     │   ├── card/           AppCard, LinkCard(다른 화면으로), StatusCard, StatTile, StageCard, JourneyNowCard, UpcomingExamCard, InsightCard, TalentCard, SectionTitle, EmptyState …
-    │   ├── chart/          ChartPalette(검증한 차트 색), ColumnChart, HeatCalendar, BulletBars, ShareBar, StatTile·StatGrid, Sparkline, MiniBars, MeterBar, ScoreMultiples, ChartLegend + BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip, Legend
+    │   ├── chart/          ChartPalette(검증한 차트 색), ChartHeights(차트 높이 한 곳), ColumnChart, HeatCalendar, BulletBars, ShareBar, StatTile·StatGrid, Sparkline, MiniBars, MeterBar, ScoreMultiples, ChartLegend(범례는 이것 하나) + BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip
     │   ├── dialog/         *EditDialog, AssignTaskDialog, ConfirmDialog, TextInputDialog(한 줄·여러 줄·안내문)
     │   ├── input/          DateField, TimeField, OptionPicker, SubjectPicker, GradePicker, SegmentedRow
     │   ├── layout/         todayBoard(오늘 화면 몸통: 관심사 칩 + 카드 슬라이드 + 칩별 목록), ConcernFilterRow, CardCarousel, TodayCardFrame, GroupHeader, DetailSheet(자세히 모달)

@@ -17,13 +17,13 @@ import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.RewardDueCard
 import com.nextstep.app.ui.components.card.RoutineCard
+import com.nextstep.app.ui.components.card.ScoreTrendCard
 import com.nextstep.app.ui.components.card.StudyDaysCard
 import com.nextstep.app.ui.components.card.SubjectTimeCard
 import com.nextstep.app.ui.components.card.UpcomingExamCard
 import com.nextstep.app.ui.components.card.WeekPlanCard
 import com.nextstep.app.ui.components.card.WeekRatesCard
 import com.nextstep.app.ui.components.chart.HeatCalendar
-import com.nextstep.app.ui.components.chart.ScoreMultiples
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.parent.ParentDashboardActions
 import com.nextstep.app.ui.parent.ParentDashboardEvent
@@ -65,7 +65,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
         ParentTodayCard.HEAT -> AppCard { HeatCalendar(state.trends.heat, state.today, compact = compact) }
         ParentTodayCard.DAYS -> StudyDaysCard(state.trends.daily, state.trends.dailyGoal, compact)
         ParentTodayCard.SUBJECT_TIME -> SubjectTimeCard(state.trends.bySubject)
-        ParentTodayCard.SCORES -> AppCard { ScoreMultiples(state.trends.scores, lineHeight = if (compact) COMPACT_LINE_DP.dp else FULL_LINE_DP.dp) }
+        ParentTodayCard.SCORES -> ScoreTrendCard(state.trends.scores, compact)
         ParentTodayCard.EXAM -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             state.upcomingExams.take(if (compact) 1 else rows).forEach { UpcomingExamCard(it) }
         }
@@ -82,5 +82,3 @@ internal fun parentCardTitle(card: ParentTodayCard, state: ParentDashboardUiStat
 }
 
 private const val FULL_ROWS = 10
-private const val COMPACT_LINE_DP = 26
-private const val FULL_LINE_DP = 40

@@ -48,7 +48,6 @@ internal object HomeStateFlow {
                 pendingTasks = StudyStats.pendingTasks(tasks),
                 todayMinutes = StudyStats.todayMinutes(sessions),
                 weekMinutes = StudyStats.weekMinutes(sessions),
-                weekGoalMinutes = subjects.sumOf { it.weeklyGoalMinutes },
                 week = StudyStats.dailyMinutes(sessions, DAYS_IN_WEEK),
                 streak = StudyStats.studyStreak(sessions),
                 nextExam = StudyStats.upcomingExams(events, tasks).firstOrNull(),

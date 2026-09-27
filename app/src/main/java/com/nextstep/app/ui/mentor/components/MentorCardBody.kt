@@ -10,15 +10,14 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.ui.common.UiDefaults
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.InsightCard
 import com.nextstep.app.ui.components.card.LinkCard
+import com.nextstep.app.ui.components.card.ScoreTrendCard
 import com.nextstep.app.ui.components.card.StageCard
 import com.nextstep.app.ui.components.card.StudyWeeksCard
 import com.nextstep.app.ui.components.card.SubjectTimeCard
 import com.nextstep.app.ui.components.card.SubmissionsCard
-import com.nextstep.app.ui.components.chart.ScoreMultiples
 import com.nextstep.app.ui.mentor.MentorDashboardActions
 import com.nextstep.app.ui.mentor.MentorDashboardEvent
 import com.nextstep.app.ui.mentor.MentorDashboardUiState
@@ -54,7 +53,7 @@ internal fun MentorCardBody(
         MentorTodayCard.SUBMISSIONS -> SubmissionsCard(state.trends.submissions)
         MentorTodayCard.STUDY_WEEKS -> StudyWeeksCard(state.trends.rolling, state.subjects.sumOf { it.weeklyGoalMinutes }, DateUtils.today(), compact)
         MentorTodayCard.WEEK_CHART -> SubjectTimeCard(state.weeklyBySubject)
-        MentorTodayCard.SCORES -> AppCard { ScoreMultiples(state.trends.scores, lineHeight = if (compact) COMPACT_LINE_DP.dp else FULL_LINE_DP.dp) }
+        MentorTodayCard.SCORES -> ScoreTrendCard(state.trends.scores, compact)
         MentorTodayCard.PROGRESS -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.progress.take(if (compact) 2 else rows).forEach { p -> MentorProgressCard(p, onOpen = { actions.onOpenSubject(p.subject.id) }) }
         }
@@ -84,5 +83,3 @@ internal fun mentorCardTitle(card: MentorTodayCard): String = when (card) {
 }
 
 private const val FULL_ROWS = 10
-private const val COMPACT_LINE_DP = 26
-private const val FULL_LINE_DP = 40

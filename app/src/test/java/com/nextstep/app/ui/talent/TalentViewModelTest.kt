@@ -31,7 +31,6 @@ class TalentViewModelTest : ViewModelTestBase() {
         assertEquals(AptitudeDomain.MUSIC, s.signals.first().domain)
         assertEquals(listOf(AptitudeDomain.MUSIC, AptitudeDomain.ART), s.byDomain.map { it.first })
         assertEquals(listOf("박자를 맞춘다", "따라 부른다"), s.byDomain.first().second.map { it.text })
-        assertEquals(3, s.observationCount)
         job.cancel()
     }
 

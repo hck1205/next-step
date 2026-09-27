@@ -18,7 +18,6 @@ import com.nextstep.app.domain.insight.InsightEngine
 import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.mentor.MentorScope
 import com.nextstep.app.domain.stats.RoadmapStats
-import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.task.TaskDrafts
@@ -62,13 +61,9 @@ class MentorDashboardViewModel(
         val sessions = scope.own(d.sessions) { it.subjectId }
         val topics = scope.own(d.topics) { it.subjectId }
         val scopedTasks = scope.ownOrGeneral(d.tasks) { it.subjectId }
-        val scores = StudyStats.subjectScores(grades, s.subjects)
         s.copy(
-            weekMinutes = StudyStats.weekMinutes(sessions),
             weeklyBySubject = StudyStats.weeklyMinutesBySubject(sessions, s.subjects).filter { it.subject != null },
             progress = StudyStats.subjectProgress(topics, s.subjects),
-            scores = scores,
-            averageScore = ScoreStats.overallAverage(scores),
             recentGrades = grades.take(UiDefaults.MAX_RECENT_RECORDS),
             myTasks = scopedTasks.filter { !it.done && AssignmentStats.isAssignment(it) },
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, scopedTasks, d.events).take(UiDefaults.MAX_INSIGHTS),

@@ -40,7 +40,6 @@ data class HomeUiState(
     val pendingTasks: List<TaskEntity> = emptyList(),
     val todayMinutes: Int = 0,
     val weekMinutes: Int = 0,
-    val weekGoalMinutes: Int = 0,
     val runningTimer: RunningTimer? = null,
     val progress: List<SubjectProgress> = emptyList(),
     val nextExam: UpcomingExam? = null,

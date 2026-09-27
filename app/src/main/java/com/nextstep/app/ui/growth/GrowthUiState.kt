@@ -12,6 +12,5 @@ data class GrowthUiState(
     val byYear: List<Pair<Int, List<GrowthRecordEntity>>> = emptyList(),
     /** 키 추이(오래된 것부터, 최근 [GrowthViewModel.TREND_POINTS]개): 차트 라벨과 값. */
     val heightTrend: List<Pair<String, Double>> = emptyList(),
-    val recordCount: Int = 0,
     val loaded: Boolean = false,
 )

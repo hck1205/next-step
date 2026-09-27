@@ -45,7 +45,7 @@ fun ColumnChart(
     max: Int? = null,
     format: (Int) -> String = { it.toString() },
     tickFormat: (Int) -> String = format,
-    height: Dp = 140.dp,
+    height: Dp = ChartHeights.column(compact = false),
 ) {
     if (values.isEmpty()) return
     val palette = ChartPalette.current()

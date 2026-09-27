@@ -17,7 +17,6 @@ import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.common.UiDefaults
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.CurriculumCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.GameCard
@@ -25,9 +24,9 @@ import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.RoutineCard
+import com.nextstep.app.ui.components.card.ScoreTrendCard
 import com.nextstep.app.ui.components.card.UpcomingExamCard
 import com.nextstep.app.ui.components.card.WeekPlanCard
-import com.nextstep.app.ui.components.chart.ScoreMultiples
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.components.row.TaskRow
 import com.nextstep.app.ui.home.HomeActions
@@ -65,7 +64,7 @@ internal fun HomeSectionBody(
         }
         StudentHomeSection.WEEK -> WeekCard(state.week, state.streak, words.weekTitle, showsNumbers = level.showsNumbers)
         StudentHomeSection.STUDY_FLOW -> StudyFlowCard(state.studyHeat, state.week, state.year?.dailyMinutes ?: 0, state.today, compact)
-        StudentHomeSection.MY_SCORES -> AppCard { ScoreMultiples(state.scoreSeries, lineHeight = if (compact) COMPACT_LINE_DP.dp else FULL_LINE_DP.dp) }
+        StudentHomeSection.MY_SCORES -> ScoreTrendCard(state.scoreSeries, compact)
         StudentHomeSection.EVENTS -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             if (state.todayEvents.isEmpty()) EmptyCard("오늘은 등록된 일정이 없어요")
             else state.todayEvents.take(rows).forEach { occ -> EventRow(occ, state.subjects) }
@@ -163,5 +162,3 @@ internal fun homeSectionTitle(section: StudentHomeSection, state: HomeUiState): 
 }
 
 private const val FULL_ROWS = 10
-private const val COMPACT_LINE_DP = 26
-private const val FULL_LINE_DP = 40

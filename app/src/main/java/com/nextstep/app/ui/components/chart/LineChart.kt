@@ -70,7 +70,7 @@ fun LineChart(series: List<LineSeries>, xLabels: List<String>, modifier: Modifie
         }
         if (series.size > 1) {
             Spacer(Modifier.height(4.dp))
-            Legend(series.map { it.name to it.color })
+            ChartLegend(series.map { LegendKey(it.name, it.color, line = true) })
         }
     }
 }

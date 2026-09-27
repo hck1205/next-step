@@ -43,17 +43,17 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("수학"), s.subjects.map { it.name }); assertFalse(s.needsSubjectSetup)
         assertEquals(listOf("다른쌤"), s.otherMentors.map { it.name })
         assertNull(s.stage)
-        assertEquals(30, s.weekMinutes); assertEquals(1, s.scores.size)
+        assertEquals(30, s.trends.recent); assertEquals(1, s.trends.scores.size)
         assertEquals(listOf("내 과제"), s.myTasks.map { it.title })
         assertEquals(1, s.roadmap.inProgress); assertEquals(1, s.roadmap.done); assertEquals(1, s.roadmap.overdue); assertEquals(2, s.roadmap.total)
-        assertEquals(80.0, s.averageScore!!, 0.001)
+        assertEquals(80, s.trends.scoreAverage)
         // 차트 값도 담당 과목으로 좁혀짐: 수학 공부 30분, 수학 과제 하나(기한 전)
         assertEquals(30, s.trends.recent); assertEquals(Submissions(done = 0, pending = 1, late = 0), s.trends.submissions)
         assertTrue(MentorTodayCard.SUBMISSIONS in s.visibleCards); assertTrue(MentorTodayCard.STUDY_WEEKS in s.visibleCards)
 
         streams.myMember.value = me.copy(subjectIds = "")
         val all = settle(vm.state)
-        assertTrue(all.needsSubjectSetup); assertEquals(2, all.subjects.size); assertEquals(60, all.weekMinutes)
+        assertTrue(all.needsSubjectSetup); assertEquals(2, all.subjects.size); assertEquals(60, all.trends.recent)
         job.cancel()
     }
 

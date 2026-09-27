@@ -118,7 +118,7 @@ class HomeViewModelTest : ViewModelTestBase() {
         streams.roadmap.value = listOf(Fixtures.roadmap("끝", status = RoadmapStatus.DONE), Fixtures.roadmap("진행", status = RoadmapStatus.IN_PROGRESS), Fixtures.roadmap("예정"))
         val vm = vm(); val job = subscribe(vm.state)
         val s = settle(vm.state)
-        assertEquals(30, s.todayMinutes); assertEquals(180, s.weekGoalMinutes)
+        assertEquals(30, s.todayMinutes)
         assertEquals(listOf("오늘"), s.pendingTasks.map { it.title })
         assertEquals("기말", s.nextExam!!.title)
         assertEquals(2, s.reviewQueue.size); assertEquals("단원 2", s.previewQueue.single().second.title)

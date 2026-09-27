@@ -27,7 +27,6 @@ class TalentViewModel(
             today = day,
             signals = AptitudeEngine.signals(activities, observations, day),
             byDomain = observations.groupBy { it.domain }.toList().sortedByDescending { it.second.size },
-            observationCount = observations.size,
             loaded = true,
         )
     }.asUiState(viewModelScope, TalentUiState())

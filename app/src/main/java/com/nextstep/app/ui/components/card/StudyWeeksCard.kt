@@ -1,8 +1,8 @@
 package com.nextstep.app.ui.components.card
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.chart.ChartHeights
 import com.nextstep.app.ui.components.chart.ColumnChart
 import java.time.LocalDate
 
@@ -19,11 +19,9 @@ fun StudyWeeksCard(rolling: List<Int>, weeklyGoal: Int, today: LocalDate, compac
             goalLabel = "주 목표 ${DateUtils.formatMinutes(weeklyGoal)}",
             format = DateUtils::formatMinutes,
             tickFormat = { "${it}분" },
-            height = if (compact) COMPACT_DP.dp else FULL_DP.dp,
+            height = ChartHeights.column(compact),
         )
     }
 }
 
 private const val DAYS_IN_WEEK = 7L
-private const val COMPACT_DP = 120
-private const val FULL_DP = 150

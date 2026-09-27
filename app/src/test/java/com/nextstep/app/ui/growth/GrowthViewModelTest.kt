@@ -29,7 +29,6 @@ class GrowthViewModelTest : ViewModelTestBase() {
         val s = settle(vm.state)
         assertEquals(listOf(2029, 2028), s.byYear.map { it.first })
         assertEquals(listOf("c", "w", "b"), s.byYear.first().second.map { it.id })
-        assertEquals(4, s.recordCount)
         assertEquals(listOf("28.3" to 124.0, "29.3" to 127.0, "29.9" to 130.0), s.heightTrend)
         assertEquals(130.0, s.summary!!.heightCm!!, 0.0); assertTrue(s.summary!!.signals.any { it.title.contains("시력 검진") })
         job.cancel()
