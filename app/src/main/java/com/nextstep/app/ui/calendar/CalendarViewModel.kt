@@ -11,6 +11,7 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.entry.EventDraft
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
@@ -64,10 +65,7 @@ class CalendarViewModel(
 
     fun saveTask(existing: TaskEntity?, title: String, subjectId: String?, type: TaskType, due: LocalDate, role: String) {
         viewModelScope.launch {
-            val task = (existing ?: TaskEntity(familyId = "", title = title, dueDate = due.toEpochDay(), createdByRole = role)).copy(
-                title = title, subjectId = subjectId, type = type, dueDate = due.toEpochDay(),
-            )
-            tasks.save(task)
+            tasks.save(existing?.let { TaskDrafts.edited(it, title, subjectId, type, due) } ?: TaskDrafts.written(title, subjectId, type, due, role))
         }
     }
 

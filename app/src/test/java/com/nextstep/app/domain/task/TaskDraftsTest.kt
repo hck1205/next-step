@@ -7,6 +7,8 @@ import com.nextstep.app.domain.curriculum.CurriculumUnit
 import com.nextstep.app.domain.growth.StudyKind
 import com.nextstep.app.domain.growth.StudyKindType
 import com.nextstep.app.domain.insight.InsightAction
+import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.mission.MissionKind
 import com.nextstep.app.domain.taskboard.SuggestionSource
 import com.nextstep.app.domain.taskboard.TaskSuggestion
 import com.nextstep.app.domain.year.YearArea
@@ -60,5 +62,38 @@ class TaskDraftsTest {
         assertEquals("단어 30개", w.title); assertNull(w.subjectId); assertEquals(Role.MENTOR.name, w.createdByRole)
         val c = TaskDrafts.forCurriculum(CurriculumUnit("수학", "약수와 배수"), "math", TaskType.PREVIEW, today, Role.STUDENT.name)
         assertEquals("수학 · 약수와 배수", c.title); assertEquals("이번 학기 커리큘럼", c.note)
+    }
+
+    @Test
+    fun editKeepsWhoGaveItAndWhetherItIsDone() {
+        val old = TaskDrafts.written("익힘책", "math", TaskType.HOMEWORK, today, Role.PARENT.name).copy(done = true)
+        val t = TaskDrafts.edited(old, "익힘책 2쪽", null, TaskType.REVIEW, today.plusDays(1))
+        assertEquals(old.id, t.id); assertEquals(Role.PARENT.name, t.createdByRole); assertTrue(t.done)
+        assertEquals("익힘책 2쪽", t.title); assertNull(t.subjectId); assertEquals(today.plusDays(1).toEpochDay(), t.dueDate)
+    }
+
+    @Test
+    fun goalStepTaskUsesStepDateThenPeriodEndThenAWeek() {
+        val step = Fixtures.step("g", "g3s1", "나눗셈 개념").copy(detail = "곱셈과의 관계")
+        val period = PeriodCalendar.periods(LocalDate.of(2017, 5, 15)).first { it.key == "g3s1" }
+        val inTerm = period.start.plusDays(10)
+        val t = TaskDrafts.forGoalStep(step, Fixtures.goal("초등 수학"), period, inTerm, Role.PARENT.name)
+        assertEquals(period.end.toEpochDay(), t.dueDate); assertEquals(TaskType.OTHER, t.type)
+        assertEquals("초등 수학 · 곱셈과의 관계", t.note); assertEquals(Role.PARENT.name, t.createdByRole); assertEquals("", t.familyId)
+        val later = period.end.plusDays(30)
+        assertEquals(later.plusDays(7).toEpochDay(), TaskDrafts.forGoalStep(step, null, period, later, "STUDENT").dueDate)
+        assertEquals("곱셈과의 관계", TaskDrafts.forGoalStep(step, null, null, later, "STUDENT").note)
+        val dated = step.copy(dueDate = today.plusDays(4).toEpochDay())
+        assertEquals(today.plusDays(4).toEpochDay(), TaskDrafts.forGoalStep(dated, null, null, today, "STUDENT").dueDate)
+        assertEquals(today.plusDays(6).toEpochDay(), TaskDrafts.forGoalStep(dated, null, null, today.plusDays(6), "STUDENT").dueDate) // 단계 날짜가 지났으면 오늘
+    }
+
+    @Test
+    fun examMissionStepsBecomeExamPrepWhereverTheyAreSent() {
+        val exam = Fixtures.goal("중간고사", trackId = MissionKind.EXAM.trackId)
+        val club = Fixtures.goal("동아리", trackId = MissionKind.CLUB.trackId)
+        val step = Fixtures.step("g", "g8s1", "오답 노트")
+        assertEquals(TaskType.EXAM_PREP, TaskDrafts.forGoalStep(step, exam, null, today, "STUDENT").type)
+        assertEquals(TaskType.OTHER, TaskDrafts.forGoalStep(step, club, null, today, "STUDENT").type)
     }
 }

@@ -1,6 +1,8 @@
 package com.nextstep.app.domain.growth
 
 import com.nextstep.app.data.model.ActivityType
+import com.nextstep.app.data.model.Role
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -23,5 +25,12 @@ class KidModeTest {
         KidRecord.entries.forEach { assertTrue(it.label.endsWith("요")); assertTrue(it.title.isNotBlank()) }
         assertEquals(ActivityType.VOLUNTEER, KidRecord.HELP.type)
         assertTrue(KidRecord.MUSIC.title.contains("피아노")) // 소질 신호가 음악으로 알아보도록
+    }
+
+    @Test
+    fun kidRecordIsTodaysActivityByTheStudent() {
+        val a = KidRecord.READ.activityOn(LocalDate.of(2026, 9, 1))
+        assertEquals("책 읽기", a.title); assertEquals(ActivityType.HOBBY, a.type)
+        assertEquals(LocalDate.of(2026, 9, 1).toEpochDay(), a.date); assertEquals(Role.STUDENT.name, a.createdByRole)
     }
 }

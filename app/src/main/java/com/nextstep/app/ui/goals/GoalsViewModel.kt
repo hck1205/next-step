@@ -6,7 +6,6 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.TaskRepository
@@ -19,6 +18,7 @@ import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.mission.MissionKind
 import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
@@ -83,18 +83,15 @@ class GoalsViewModel(
             val track = GoalTrackCatalog.byId[trackId] ?: return@launch
             val s = state.value
             if (s.goals.any { it.goal.trackId == trackId }) return@launch
-            val goal = GoalEntity(familyId = "", trackId = track.id, title = track.title, area = track.area.name, description = track.description)
-            goals.add(goal, GoalPlanner.stepsFor(track, s.periods, goal.id, ""))
+            val (goal, steps) = GoalPlanner.fromTrack(track, s.periods)
+            goals.add(goal, steps)
         }
     }
 
     fun addCustomGoal(title: String, area: GoalArea, description: String, stepsByPeriod: List<Pair<String, String>>) {
         viewModelScope.launch {
             if (title.isBlank()) return@launch
-            val goal = GoalEntity(familyId = "", title = title, area = area.name, description = description)
-            val steps = stepsByPeriod.filter { it.second.isNotBlank() }.mapIndexed { i, (periodKey, stepTitle) ->
-                GoalStepEntity(familyId = "", goalId = goal.id, periodKey = periodKey, orderIndex = i, title = stepTitle)
-            }
+            val (goal, steps) = GoalPlanner.custom(title, area, description, stepsByPeriod)
             goals.add(goal, steps)
         }
     }
@@ -102,7 +99,7 @@ class GoalsViewModel(
     fun addStep(goalId: String, periodKey: String, title: String) {
         viewModelScope.launch {
             val order = state.value.goals.firstOrNull { it.goal.id == goalId }?.steps?.size ?: 0
-            goals.addStep(GoalStepEntity(familyId = "", goalId = goalId, periodKey = periodKey, orderIndex = order, title = title))
+            goals.addStep(GoalPlanner.step(goalId, periodKey, order, title))
         }
     }
 
@@ -115,14 +112,13 @@ class GoalsViewModel(
         }
     }
 
-    /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감 규칙은 GoalPlanner.taskFor 참고. */
+    /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감·종류 규칙은 TaskDrafts.forGoalStep 참고. */
     fun sendStepToTasks(step: GoalStepEntity, createdByRole: String) {
         viewModelScope.launch {
             if (step.taskId != null) return@launch
             val s = state.value
-            val view = s.goals.firstOrNull { it.goal.id == step.goalId }
-            val type = if (view?.kind?.isExam == true) TaskType.EXAM_PREP else TaskType.OTHER
-            val task = GoalPlanner.taskFor(step, view?.goal?.title ?: "", s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole, type)
+            val goal = s.goals.firstOrNull { it.goal.id == step.goalId }?.goal
+            val task = TaskDrafts.forGoalStep(step, goal, s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
             tasks.save(task)
             goals.setStepTask(step.id, task.id)
         }

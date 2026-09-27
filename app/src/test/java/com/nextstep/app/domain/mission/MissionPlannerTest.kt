@@ -2,9 +2,7 @@ package com.nextstep.app.domain.mission
 
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
-import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.PeriodCalendar
 import com.nextstep.app.testing.Fixtures
 import java.time.LocalDate
@@ -67,14 +65,5 @@ class MissionPlannerTest {
         val g = Fixtures.goal("끝", id = "g").copy(targetDate = today.toEpochDay())
         val s = listOf(Fixtures.step("g", "g5s1", "a", status = MilestoneStatus.DONE), Fixtures.step("g", "g5s1", "b", id = "b", order = 1, status = MilestoneStatus.SKIPPED))
         assertTrue(MissionPlanner.focus(listOf(g), s, today).isEmpty())
-    }
-
-    @Test
-    fun taskForUsesStepDueDateAndGivenType() {
-        val step = Fixtures.step("g", "g5s1", "오답 노트").copy(dueDate = today.plusDays(4).toEpochDay())
-        val task = GoalPlanner.taskFor(step, "중간고사", null, today, "STUDENT", TaskType.EXAM_PREP)
-        assertEquals(today.plusDays(4).toEpochDay(), task.dueDate); assertEquals(TaskType.EXAM_PREP, task.type)
-        val late = GoalPlanner.taskFor(step.copy(dueDate = today.minusDays(2).toEpochDay()), "중간고사", null, today, "STUDENT")
-        assertEquals(today.toEpochDay(), late.dueDate); assertEquals(TaskType.OTHER, late.type)
     }
 }

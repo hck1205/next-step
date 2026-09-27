@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.task
 
 import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
@@ -10,6 +11,8 @@ import com.nextstep.app.domain.curriculum.CurriculumUnit
 import com.nextstep.app.domain.growth.StudyKind
 import com.nextstep.app.domain.growth.StudyKindType
 import com.nextstep.app.domain.insight.InsightAction
+import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.taskboard.TaskSuggestion
 import com.nextstep.app.domain.year.YearArea
 import com.nextstep.app.domain.year.YearTask
@@ -24,6 +27,10 @@ object TaskDrafts {
     /** 사람이 직접 쓴 할 일(기록하기, 학부모·멘토의 할 일 주기). */
     fun written(title: String, subjectId: String?, type: TaskType, due: LocalDate, byRole: String): TaskEntity =
         TaskEntity(familyId = "", subjectId = subjectId, title = title, type = type, dueDate = due.toEpochDay(), createdByRole = byRole)
+
+    /** 이미 있는 할 일을 고친 것. 누가 줬는지·끝냈는지·목표는 그대로 둡니다. */
+    fun edited(existing: TaskEntity, title: String, subjectId: String?, type: TaskType, due: LocalDate): TaskEntity =
+        existing.copy(title = title, subjectId = subjectId, type = type, dueDate = due.toEpochDay())
 
     /** 단원 하나의 예습·복습·숙제. 제목은 "과목 단원 종류"(예: "수학 분수 복습"). */
     fun forTopic(subject: SubjectEntity, topic: TopicEntity, type: TaskType, due: LocalDate, byRole: String): TaskEntity = TaskEntity(
@@ -65,5 +72,20 @@ object TaskDrafts {
         createdByRole = byRole, note = CURRICULUM_NOTE,
     )
 
+    /**
+     * 목표의 단계 하나를 할 일로. 시험 미션의 단계면 시험 준비, 아니면 기타. 마감은 단계 날짜(지났으면 오늘),
+     * 없으면 단계 구간의 끝, 구간이 지났거나 없으면 오늘 + [STEP_FALLBACK_DAYS]일. 메모에 목표 제목과 단계 설명이 남습니다.
+     */
+    fun forGoalStep(step: GoalStepEntity, goal: GoalEntity?, period: JourneyPeriod?, today: LocalDate, byRole: String): TaskEntity {
+        val stepDue = step.dueDate?.let { LocalDate.ofEpochDay(it) }?.let { if (it.isBefore(today)) today else it }
+        val due = stepDue ?: period?.end?.takeIf { !it.isBefore(today) } ?: today.plusDays(STEP_FALLBACK_DAYS)
+        val isExam = goal?.let { MissionPlanner.kindOf(it) }?.isExam == true
+        return TaskEntity(
+            familyId = "", title = step.title, type = if (isExam) TaskType.EXAM_PREP else TaskType.OTHER, dueDate = due.toEpochDay(),
+            createdByRole = byRole, note = listOf(goal?.title.orEmpty(), step.detail).filter { it.isNotBlank() }.joinToString(" · "),
+        )
+    }
+
     private const val CURRICULUM_NOTE = "이번 학기 커리큘럼"
+    private const val STEP_FALLBACK_DAYS = 7L
 }

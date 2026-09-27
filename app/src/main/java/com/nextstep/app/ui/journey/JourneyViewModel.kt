@@ -16,10 +16,10 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.journey.MilestoneCategory
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
@@ -115,12 +115,12 @@ class JourneyViewModel(
 
     fun setStepStatus(step: GoalStepEntity, status: MilestoneStatus) { viewModelScope.launch { goals.setStepStatus(step.id, status) } }
 
-    /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감 규칙은 GoalPlanner.taskFor 참고. */
+    /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감·종류 규칙은 TaskDrafts.forGoalStep 참고. */
     fun sendStepToTasks(step: GoalStepEntity, createdByRole: String) {
         viewModelScope.launch {
             if (step.taskId != null) return@launch
             val s = state.value
-            val task = GoalPlanner.taskFor(step, s.goals.firstOrNull { it.id == step.goalId }?.title ?: "", s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
+            val task = TaskDrafts.forGoalStep(step, s.goals.firstOrNull { it.id == step.goalId }, s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
             tasks.save(task)
             goals.setStepTask(step.id, task.id)
         }

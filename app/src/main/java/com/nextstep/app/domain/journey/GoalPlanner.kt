@@ -2,10 +2,7 @@ package com.nextstep.app.domain.journey
 
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
-import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.data.model.TaskType
-import java.time.LocalDate
 
 /**
  * 목표를 구간별 단계로 쪼개고, 진행률과 "이번 구간에 할 단계"를 계산합니다. 순수 함수입니다.
@@ -51,19 +48,20 @@ object GoalPlanner {
     fun stepsOf(goal: GoalEntity, steps: List<GoalStepEntity>): List<GoalStepEntity> =
         steps.filter { it.goalId == goal.id && !it.deleted }.sortedBy { it.orderIndex }
 
-    /**
-     * 단계를 할 일로 바꿉니다. 마감은 단계에 날짜가 있으면 그 날(지났으면 오늘), 없으면 단계 구간의 끝이고,
-     * 구간이 이미 지났거나 없으면 오늘 + [FALLBACK_DUE_DAYS]일입니다.
-     * 메모에 목표 제목과 단계 설명을 남겨 할 일 목록에서도 맥락이 보이게 합니다.
-     */
-    fun taskFor(step: GoalStepEntity, goalTitle: String, period: JourneyPeriod?, today: LocalDate, createdByRole: String, type: TaskType = TaskType.OTHER): TaskEntity {
-        val stepDue = step.dueDate?.let { LocalDate.ofEpochDay(it) }?.let { if (it.isBefore(today)) today else it }
-        val due = stepDue ?: period?.end?.takeIf { !it.isBefore(today) } ?: today.plusDays(FALLBACK_DUE_DAYS)
-        return TaskEntity(
-            familyId = "", title = step.title, type = type, dueDate = due.toEpochDay(), createdByRole = createdByRole,
-            note = listOf(goalTitle, step.detail).filter { it.isNotBlank() }.joinToString(" · "),
-        )
+    /** 추천 트랙으로 시작하는 목표와, 아이의 달력에 맞춘 단계들. */
+    fun fromTrack(track: GoalTrack, periods: List<JourneyPeriod>): Pair<GoalEntity, List<GoalStepEntity>> {
+        val goal = GoalEntity(familyId = "", trackId = track.id, title = track.title, area = track.area.name, description = track.description)
+        return goal to stepsFor(track, periods, goal.id, "")
     }
 
-    private const val FALLBACK_DUE_DAYS = 7L
+    /** 사람이 직접 만든 목표. [stepsByPeriod] 은 (구간 key, 단계 제목) 이고 빈 제목은 건너뜁니다. */
+    fun custom(title: String, area: GoalArea, description: String, stepsByPeriod: List<Pair<String, String>>): Pair<GoalEntity, List<GoalStepEntity>> {
+        val goal = GoalEntity(familyId = "", title = title.trim(), area = area.name, description = description.trim())
+        val steps = stepsByPeriod.filter { it.second.isNotBlank() }.mapIndexed { i, (periodKey, stepTitle) -> step(goal.id, periodKey, i, stepTitle) }
+        return goal to steps
+    }
+
+    /** 목표에 더하는 단계 하나. [order] 는 목표의 단계 수(맨 뒤에 붙음). */
+    fun step(goalId: String, periodKey: String, order: Int, title: String): GoalStepEntity =
+        GoalStepEntity(familyId = "", goalId = goalId, periodKey = periodKey, orderIndex = order, title = title.trim())
 }

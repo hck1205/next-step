@@ -3,7 +3,6 @@ package com.nextstep.app.ui.quickadd
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.ActivityRepository
 import com.nextstep.app.data.repository.EventRepository
@@ -64,7 +63,7 @@ class QuickAddViewModel(
     /** 아이용 그림 타일: 오늘 날짜의 활동 하나를 학생이 남긴 것으로 저장합니다. */
     fun kidRecord(record: KidRecord) {
         viewModelScope.launch {
-            activities.save(ActivityEntity(familyId = "", type = record.type, title = record.title, date = today().toEpochDay(), createdByRole = Role.STUDENT.name))
+            activities.save(record.activityOn(today()))
             message.value = "${record.label}! 스티커를 받았어요"
         }
     }

@@ -45,14 +45,14 @@ com.nextstep.app
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
 │   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
 │   ├── taskboard/          TaskSuggester(복습 목록 · 로드맵 · 시험 → 과목·단원별 추천), TaskBoard(과목별 줄)
-│   ├── task/               TaskDrafts: 새 할 일의 제목·종류·마감·메모를 정하는 한 곳(ViewModel 은 저장만)
+│   ├── task/               TaskDrafts: 새 할 일의 제목·종류·마감·메모를 정하는 한 곳(고치기 `edited`, 목표 단계 → 할 일 `forGoalStep` 포함, ViewModel 은 저장만)
 │   ├── entry/              EventDraft·GradeDraft: 일정·성적 입력창의 값 한 벌 → 엔티티(새로·고치기, 글자 다듬기·종료 시각 규칙)
 │   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
 │   ├── gamify/             Gamify(기록 → 경험치·레벨·배지·연속·이번 주 도전·스티커, 저장하는 점수 없음), GameStyle(나이별 모양: 스티커판·레벨·성장 기록), XpSource, GameLevel, Badge, GameProfile, GameInputs
 │   ├── reward/             Rewards(보상 약속 → 받을 차례 → 받음 상태, 다음 보상, 나이별 걸 곳·예시), RewardKind(목표·레벨·스티커판), RewardTarget, RewardStatus, RewardView
 │   ├── project/            ProjectCatalog(교육 프로젝트: 목표 → 단계 → 하루 루틴), ProjectPlanner(시작·일정·진행·속도·도착 예상), ProjectPlan/ProjectPhase/RoutineItem/ProjectProgress
 │   ├── year/               YearPlans(해마다 할 일을 분류별로), YearTask, YearArea(분류 = 올해 탭), YearTerm(1학기·2학기·1년 내내)
-│   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계), ActivitySummary(활동 기록 요약)
+│   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계, 트랙·직접 만든 목표와 단계 만들기), ActivitySummary(활동 기록 요약)
 └── ui/
     ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), AppDispatchers, Formatters, ExternalLinks
     ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나. 관심사별 하위 패키지:

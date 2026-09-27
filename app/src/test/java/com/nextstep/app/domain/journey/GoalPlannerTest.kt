@@ -1,7 +1,6 @@
 package com.nextstep.app.domain.journey
 
 import com.nextstep.app.data.model.MilestoneStatus
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.testing.Fixtures
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
@@ -63,14 +62,13 @@ class GoalPlannerTest {
     }
 
     @Test
-    fun taskForUsesPeriodEndOrFallbackAndKeepsContextInNote() {
-        val step = Fixtures.step("g", "g3s1", "나눗셈 개념").copy(detail = "곱셈과의 관계")
-        val g3s1 = periods.first { it.key == "g3s1" }
-        val task = GoalPlanner.taskFor(step, "초등 수학", g3s1, g3s1.start.plusDays(10), "PARENT")
-        assertEquals(g3s1.end.toEpochDay(), task.dueDate); assertEquals("나눗셈 개념", task.title); assertEquals(TaskType.OTHER, task.type)
-        assertEquals("초등 수학 · 곱셈과의 관계", task.note); assertEquals("PARENT", task.createdByRole); assertEquals("", task.familyId)
-        val today = g3s1.end.plusDays(30)
-        assertEquals(today.plusDays(7).toEpochDay(), GoalPlanner.taskFor(step, "", g3s1, today, "STUDENT").dueDate)
-        assertEquals(today.plusDays(7).toEpochDay(), GoalPlanner.taskFor(step, "", null, today, "STUDENT").dueDate)
+    fun trackCustomAndAddedStepsBecomeGoalWithOrderedSteps() {
+        val (goal, steps) = GoalPlanner.fromTrack(track, periods)
+        assertEquals(track.id, goal.trackId); assertEquals(track.title, goal.title); assertEquals(12, steps.size)
+        assertTrue(steps.all { it.goalId == goal.id && it.familyId == "" })
+        val (mine, mySteps) = GoalPlanner.custom(" 줄넘기 100개 ", GoalArea.entries.first(), "", listOf("g3s1" to "50개", "g3s2" to " ", "g4s1" to "100개"))
+        assertEquals("줄넘기 100개", mine.title); assertEquals(listOf("50개", "100개"), mySteps.map { it.title }); assertEquals(listOf(0, 1), mySteps.map { it.orderIndex })
+        val added = GoalPlanner.step(mine.id, "g4s2", 2, " 이중 뛰기 ")
+        assertEquals("이중 뛰기", added.title); assertEquals(2, added.orderIndex); assertEquals("g4s2", added.periodKey)
     }
 }
