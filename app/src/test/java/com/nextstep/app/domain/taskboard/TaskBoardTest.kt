@@ -2,17 +2,16 @@ package com.nextstep.app.domain.taskboard
 
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
-import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewReason
 import com.nextstep.app.domain.stats.UpcomingExam
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class TaskBoardTest {
     private val today = LocalDate.of(2029, 5, 10)

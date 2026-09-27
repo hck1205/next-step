@@ -3,10 +3,10 @@ package com.nextstep.app.domain.insight
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalTime
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalTime
 
 class TalentEngineTest {
     private val subjects = listOf(Fixtures.math, Fixtures.english)

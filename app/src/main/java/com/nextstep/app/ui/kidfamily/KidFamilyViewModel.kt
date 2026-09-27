@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.access.ParentGate
 import com.nextstep.app.ui.common.asUiState
+import kotlin.random.Random
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlin.random.Random
 
 /**
  * 아이용 가족 탭: 나를 뺀 가족 얼굴과, 설정 앞의 어른 확인.

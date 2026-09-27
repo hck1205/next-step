@@ -2,6 +2,7 @@ package com.nextstep.app.ui.components.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GoalEntity
@@ -24,8 +26,6 @@ import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
-import androidx.compose.foundation.layout.Row
-import androidx.compose.ui.Alignment
 import java.time.LocalDate
 
 /**

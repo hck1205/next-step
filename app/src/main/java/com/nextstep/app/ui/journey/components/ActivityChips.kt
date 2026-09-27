@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.ui.components.card.AppCard
 
 /** 구간에 기록된 활동을 한 줄 칩으로. 눌러 활동 화면으로 갑니다. */
 @Composable

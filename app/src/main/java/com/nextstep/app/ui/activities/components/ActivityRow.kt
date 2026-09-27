@@ -1,9 +1,9 @@
 package com.nextstep.app.ui.activities.components
 
 import androidx.compose.foundation.layout.Arrangement
-import com.nextstep.app.ui.components.icon.StarRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -11,10 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.width
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.icon.StarRow
 import java.time.LocalDate
 
 /** 활동 기록 한 줄: 종류·제목·기간·장소·소감. 정책 없이 콜백만 올립니다. */

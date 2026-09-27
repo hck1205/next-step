@@ -1,15 +1,15 @@
 package com.nextstep.app.ui.journey
 
-import com.nextstep.app.domain.curriculum.TermCurriculum
-import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
+import com.nextstep.app.domain.curriculum.TermCurriculum
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.JourneyPhase
 import com.nextstep.app.domain.journey.MilestoneCategory
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
 data class JourneyUiState(

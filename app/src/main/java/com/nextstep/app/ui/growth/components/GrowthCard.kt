@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.common.oneDecimal
+import com.nextstep.app.ui.components.card.AppCard
 
 /** 신체 섹션 맨 위 요약: 최근 키·몸무게·시력, 속도, 확인할 신호. 기록 목록은 [GrowthRecordRow] 가 연도별로 그립니다. */
 @Composable

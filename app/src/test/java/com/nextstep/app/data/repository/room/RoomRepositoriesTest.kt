@@ -1,12 +1,12 @@
 package com.nextstep.app.data.repository.room
 
-import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.ContentScope
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.remote.VideoMetadata
-import com.nextstep.app.testing.FakeMetadataFetcher
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.planner.StudyPlan
 import com.nextstep.app.fake.dao.FakeContentDao
 import com.nextstep.app.fake.dao.FakeEventDao
@@ -15,11 +15,13 @@ import com.nextstep.app.fake.dao.FakeRoadmapDao
 import com.nextstep.app.fake.dao.FakeSubjectDao
 import com.nextstep.app.fake.dao.FakeTaskDao
 import com.nextstep.app.fake.dao.FakeTopicDao
-import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.testing.FakeFamilyScope
+import com.nextstep.app.testing.FakeMetadataFetcher
 import com.nextstep.app.testing.FakeTimeSource
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.testing.RecordingSyncManager
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -27,8 +29,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 /** Room 구현체의 비즈니스 규칙. DAO 는 메모리 Fake 라 Android 없이 돕니다. */
 class RoomRepositoriesTest {

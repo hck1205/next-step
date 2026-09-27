@@ -1,35 +1,35 @@
 package com.nextstep.app.ui.home
 
-import com.nextstep.app.domain.growth.StudentScreen
-import com.nextstep.app.domain.growth.YearProfile
-import com.nextstep.app.domain.stats.DayMinutes
-import com.nextstep.app.domain.growth.StudentHomeSection
-import com.nextstep.app.domain.today.TodayGroup
-import com.nextstep.app.domain.today.TodayLayout
-import com.nextstep.app.domain.growth.StudentUiLevel
-import com.nextstep.app.domain.mission.MissionFocus
-import com.nextstep.app.domain.project.ProjectProgress
-import com.nextstep.app.domain.selfdirection.WeekAccess
-import com.nextstep.app.domain.gamify.GameProfile
-import com.nextstep.app.domain.reward.RewardView
-import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.data.local.entity.EventEntity
-import com.nextstep.app.domain.curriculum.TermCurriculum
-import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.domain.journey.JourneyItem
-import com.nextstep.app.domain.time.DateUtils
-import java.time.LocalDate
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.domain.content.ContentRecommendation
+import com.nextstep.app.domain.curriculum.TermCurriculum
+import com.nextstep.app.domain.gamify.GameProfile
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.growth.StudentHomeSection
+import com.nextstep.app.domain.growth.StudentScreen
+import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.growth.YearProfile
+import com.nextstep.app.domain.journey.JourneyItem
+import com.nextstep.app.domain.mission.MissionFocus
+import com.nextstep.app.domain.planner.PlanOptions
 import com.nextstep.app.domain.planner.StudyPlan
+import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.reward.RewardView
+import com.nextstep.app.domain.selfdirection.WeekAccess
+import com.nextstep.app.domain.selfdirection.WeekStatus
+import com.nextstep.app.domain.stats.DayMinutes
 import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.UpcomingExam
-import com.nextstep.app.domain.planner.PlanOptions
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.today.TodayGroup
+import com.nextstep.app.domain.today.TodayLayout
+import java.time.LocalDate
 
 data class HomeUiState(
     val displayName: String = "",

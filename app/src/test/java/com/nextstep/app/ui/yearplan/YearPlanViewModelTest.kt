@@ -4,24 +4,24 @@ import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.growth.YearProfiles
-import com.nextstep.app.domain.year.YearArea
-import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.AheadPlans
+import com.nextstep.app.domain.year.YearArea
+import com.nextstep.app.domain.year.YearDoer
+import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTerm
 import com.nextstep.app.domain.year.YearTrends
-import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeJourneyRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class YearPlanViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.STUDENT)

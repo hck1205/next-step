@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.selfdirection.SelfDirectionReport
 import com.nextstep.app.domain.selfdirection.WeekEvidence
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.common.asPercent
+import com.nextstep.app.ui.components.card.AppCard
 
 /** 최근 4주 흔적: 주마다 계획(스스로 ✓ · 어른이 ○ · 없음 −), 돌아보기, 목표 끝낸 수, 계획 대비 시간. 비교 대상은 아이 자신뿐입니다. */
 @Composable

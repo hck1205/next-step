@@ -1,30 +1,30 @@
 package com.nextstep.app.ui.goals
 
-import com.nextstep.app.data.model.TaskType
-import com.nextstep.app.domain.journey.JourneyPeriod
-import com.nextstep.app.domain.mission.MissionKind
-import com.nextstep.app.domain.mission.MissionPlanner
-import com.nextstep.app.domain.project.ProjectPlanner
-import com.nextstep.app.domain.goaltree.GoalTree
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
+import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.GoalTrackCatalog
-import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.domain.mission.MissionKind
+import com.nextstep.app.domain.mission.MissionPlanner
+import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import com.nextstep.app.ui.common.asUiState
 
 /**
  * 장기 목표를 구간(학기)별 단계로 쪼개 하나씩 진행합니다. 트랙(카탈로그)에서 시작하거나 직접 만들고,

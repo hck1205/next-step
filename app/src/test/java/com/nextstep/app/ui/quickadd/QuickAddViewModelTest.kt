@@ -1,13 +1,13 @@
 package com.nextstep.app.ui.quickadd
 
 import com.nextstep.app.data.model.ActivityType
-import com.nextstep.app.domain.growth.KidRecord
-import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.growth.KidRecord
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.fake.FakeActivityRepository
 import com.nextstep.app.fake.FakeEventRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
@@ -15,13 +15,13 @@ import com.nextstep.app.fake.FakeGradeRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class QuickAddViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)

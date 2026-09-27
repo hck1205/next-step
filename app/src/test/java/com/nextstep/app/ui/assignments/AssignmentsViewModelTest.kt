@@ -4,10 +4,10 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class AssignmentsViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.MENTOR)

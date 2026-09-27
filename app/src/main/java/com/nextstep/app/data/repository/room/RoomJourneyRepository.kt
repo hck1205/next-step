@@ -8,8 +8,8 @@ import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.TimeSource
 import com.nextstep.app.data.repository.scopedList
 import com.nextstep.app.data.sync.SyncManager
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
 
 class RoomJourneyRepository(
     private val dao: JourneyDao,

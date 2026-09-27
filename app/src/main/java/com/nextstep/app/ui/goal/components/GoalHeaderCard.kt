@@ -13,11 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.model.GoalStatus
-import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.goaltree.Assigner
-import com.nextstep.app.ui.common.asPercent
+import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.DDayBadge
 import com.nextstep.app.ui.components.card.LabeledProgress

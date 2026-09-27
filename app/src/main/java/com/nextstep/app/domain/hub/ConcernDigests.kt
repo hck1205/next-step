@@ -1,13 +1,13 @@
 package com.nextstep.app.domain.hub
 
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.domain.goaltree.GoalNode
+import com.nextstep.app.domain.goaltree.WeekRate
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.insight.AptitudeSignal
 import com.nextstep.app.domain.mission.MissionFocus
-import com.nextstep.app.data.model.GoalStatus
-import com.nextstep.app.domain.goaltree.GoalNode
-import com.nextstep.app.domain.goaltree.WeekRate
 import com.nextstep.app.domain.project.ProjectPace
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.stats.ReviewItem

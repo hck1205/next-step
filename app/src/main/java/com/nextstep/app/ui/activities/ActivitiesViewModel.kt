@@ -6,15 +6,15 @@ import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.data.repository.ActivityRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
-import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import com.nextstep.app.ui.common.asUiState
 
 /** 활동 기록(취미·동아리·현장학습·체험). 구간별로 묶어 보여 주고 저장·삭제합니다. */
 class ActivitiesViewModel(

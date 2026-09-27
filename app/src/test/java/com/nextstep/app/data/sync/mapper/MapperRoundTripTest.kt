@@ -1,16 +1,16 @@
 package com.nextstep.app.data.sync.mapper
 
+import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.Syncable
 import com.nextstep.app.data.local.entity.WeekPlanEntity
-import com.nextstep.app.data.local.entity.RewardEntity
+import com.nextstep.app.data.model.ActivityType
+import com.nextstep.app.data.model.AptitudeDomain
 import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
-import com.nextstep.app.data.model.GradeLevel
-import com.nextstep.app.data.model.ActivityType
-import com.nextstep.app.data.model.AptitudeDomain
 import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.Role
@@ -18,13 +18,13 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.sync.EntityMapper
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 /** 모든 매퍼: toMap → fromMap 이 원본과 같아야 합니다(dirty 는 수신 시 항상 false). */
 class MapperRoundTripTest {

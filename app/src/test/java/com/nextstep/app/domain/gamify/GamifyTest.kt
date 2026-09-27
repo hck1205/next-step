@@ -6,13 +6,13 @@ import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
 
 class GamifyTest {
     private val zone = ZoneId.systemDefault()

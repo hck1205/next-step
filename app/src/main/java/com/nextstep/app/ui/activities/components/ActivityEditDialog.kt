@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.activities.components
 
-import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,18 +14,19 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.model.ActivityType
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 /** 활동 기록 추가·수정. 종류·제목·날짜(기간)·장소·별점·소감을 받습니다. */
 @Composable

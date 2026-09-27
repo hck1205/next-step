@@ -6,13 +6,13 @@ import com.nextstep.app.testing.FakeFamilyScope
 import com.nextstep.app.testing.FakeTimeSource
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.testing.RecordingSyncManager
+import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class RoomJourneyRepositoryTest {
     private val dao = FakeJourneyDao()

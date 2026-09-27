@@ -5,12 +5,12 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.testing.Fixtures
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class StudyPlannerTest {
     private val subjects = listOf(Fixtures.math, Fixtures.english)

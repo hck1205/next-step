@@ -1,9 +1,5 @@
 package com.nextstep.app.ui.yearplan.components
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,11 +7,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,7 +28,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-
 import com.nextstep.app.ui.yearplan.YearTaskView
 
 /**

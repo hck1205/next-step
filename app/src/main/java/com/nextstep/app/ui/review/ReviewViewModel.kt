@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.review
 
-import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.model.TaskType
@@ -11,12 +10,13 @@ import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewPlanner
 import com.nextstep.app.domain.stats.ReviewReason
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 배울 것 › 복습. 목록은 ReviewPlanner 가 고르고, 여기서는 이유별로 묶어 둡니다. */
 class ReviewViewModel(

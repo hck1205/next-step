@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.components.card
 
-import com.nextstep.app.ui.components.icon.StarRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.domain.insight.Talent
+import com.nextstep.app.ui.components.icon.StarRow
 
 @Composable
 fun TalentCard(talent: Talent, subjects: List<SubjectEntity>) {

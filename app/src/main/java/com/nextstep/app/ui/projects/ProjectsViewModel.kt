@@ -8,11 +8,11 @@ import com.nextstep.app.domain.project.ProjectCategory
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 기록 › 교육 프로젝트 › 진행 중: 분류별로 나눈 프로젝트와 오늘 루틴 체크. */
 class ProjectsViewModel(

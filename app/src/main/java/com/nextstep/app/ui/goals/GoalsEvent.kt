@@ -1,11 +1,11 @@
 package com.nextstep.app.ui.goals
 
-import com.nextstep.app.domain.mission.MissionKind
-import java.time.LocalDate
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.mission.MissionKind
+import java.time.LocalDate
 
 /** Goals 화면의 사용자 의도. Content 는 이 이벤트만 내보내고 ViewModel 이 처리합니다. */
 sealed interface GoalsEvent {

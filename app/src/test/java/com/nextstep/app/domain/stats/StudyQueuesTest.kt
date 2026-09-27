@@ -3,9 +3,9 @@ package com.nextstep.app.domain.stats
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class StudyQueuesTest {
     private val math = StudyStats.subjectProgress(Fixtures.topics("math", 5, covered = 3, reviewed = 0), listOf(Fixtures.math))

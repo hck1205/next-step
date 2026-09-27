@@ -9,11 +9,11 @@ import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 기록 › 목표·할 일 › 목표. 목표 트리를 계산하고 새 목표를 만듭니다(학생·학부모·멘토 누구나). */
 class GoalTreeViewModel(

@@ -1,19 +1,19 @@
 package com.nextstep.app.ui.grades
 
-import com.nextstep.app.domain.stats.ScoreStats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GradeRepository
+import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.ui.common.asUiState
 
 class GradesViewModel(
     private val streams: FamilyDataStreams,

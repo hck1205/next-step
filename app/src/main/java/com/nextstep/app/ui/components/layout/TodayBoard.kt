@@ -1,11 +1,11 @@
 package com.nextstep.app.ui.components.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.domain.today.TodayGroup
 import com.nextstep.app.domain.today.TodayLayout

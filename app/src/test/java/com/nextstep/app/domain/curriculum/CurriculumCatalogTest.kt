@@ -1,11 +1,11 @@
 package com.nextstep.app.domain.curriculum
 
 import com.nextstep.app.domain.journey.PeriodCalendar
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class CurriculumCatalogTest {
     private val calendarKeys = PeriodCalendar.periods(LocalDate.of(2015, 5, 1)).filter { it.isSchoolTerm }.map { it.key }

@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.mentor
 
-import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.EventEntity
@@ -9,7 +8,6 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
@@ -17,10 +15,12 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.mentor.MentorScope
 import com.nextstep.app.domain.stats.RoadmapStats
 import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.asUiState

@@ -1,8 +1,5 @@
 package com.nextstep.app.data.repository.room
 
-import com.nextstep.app.domain.growth.StudentUiLevel
-import com.nextstep.app.domain.selfdirection.SelfDirectionStage
-import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.repository.FamilyScope
@@ -10,6 +7,9 @@ import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.TimeSource
 import com.nextstep.app.data.repository.scopedList
 import com.nextstep.app.data.sync.SyncManager
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged

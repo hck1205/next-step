@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.curriculum
 
-import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.SubjectEntity
@@ -21,13 +20,14 @@ import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.PeriodCalendar
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import com.nextstep.app.ui.common.asUiState
 
 /**
  * 학기별 교과 커리큘럼: 카탈로그를 가족 과목·단원·진도, 또래 통계, 콘텐츠 저장소와 대조해 보여 주고,

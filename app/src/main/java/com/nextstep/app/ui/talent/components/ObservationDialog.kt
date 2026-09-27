@@ -10,16 +10,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.model.AptitudeDomain
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 /** 소질 관찰 메모: 영역, 본 장면 한 줄, 강도(1~3). */
 @Composable

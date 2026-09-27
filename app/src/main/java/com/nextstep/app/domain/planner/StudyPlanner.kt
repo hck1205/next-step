@@ -6,13 +6,13 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.SubjectProgress
+import com.nextstep.app.domain.time.DateUtils
 import java.time.DayOfWeek
 import java.time.LocalDate
-import com.nextstep.app.domain.stats.SubjectProgress
-import com.nextstep.app.domain.stats.StudyStats
-import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.data.model.Role
 
 /**
  * 커리큘럼 스케줄링: 밀린 복습 → 멘토 로드맵 진행 항목 → 다음 예습 순서로 큐를 만들고,

@@ -1,10 +1,10 @@
 package com.nextstep.app.ui.activities
 
-import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
 data class ActivitiesUiState(

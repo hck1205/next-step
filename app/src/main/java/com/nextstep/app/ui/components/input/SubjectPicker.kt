@@ -13,16 +13,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.components.card.ColorDot
+import com.nextstep.app.ui.components.card.subjectColor
 
 /** 과목 선택 드롭다운. allowNone 이면 "과목 없음" 항목을 포함합니다. */
 @Composable

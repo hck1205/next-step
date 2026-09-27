@@ -1,12 +1,12 @@
 package com.nextstep.app.data.remote
 
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 /**
  * 유튜브 oEmbed 엔드포인트로 제목·채널·썸네일을 가져옵니다. API 키가 필요 없고 공개 영상이면 동작합니다.

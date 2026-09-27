@@ -1,8 +1,8 @@
 package com.nextstep.app.ui.navigation
 
-import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.prefs.UserProfile
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.fake.FakeMemberRepository
 import com.nextstep.app.fake.FakeOnboardingRepository
 import com.nextstep.app.testing.Fixtures

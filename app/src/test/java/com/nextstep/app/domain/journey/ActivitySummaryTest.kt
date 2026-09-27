@@ -2,11 +2,11 @@ package com.nextstep.app.domain.journey
 
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class ActivitySummaryTest {
     private val periods = PeriodCalendar.periods(LocalDate.of(2020, 5, 15))

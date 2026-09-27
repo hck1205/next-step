@@ -1,7 +1,7 @@
 package com.nextstep.app.ui.settings
 
-import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeMemberRepository
 import com.nextstep.app.fake.FakeOnboardingRepository

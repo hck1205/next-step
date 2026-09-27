@@ -7,11 +7,11 @@ import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.PeriodCalendar
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class MissionPlannerTest {
     private val periods = PeriodCalendar.periods(LocalDate.of(2015, 7, 3)) // 2026-03 초5

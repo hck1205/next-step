@@ -1,7 +1,7 @@
 package com.nextstep.app.domain.access
 
-import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.hub.HubAudience
 import com.nextstep.app.domain.selfdirection.LoopStep
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage

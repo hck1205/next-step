@@ -18,8 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.components.card.ColorDot
+import com.nextstep.app.ui.components.card.subjectColor
 
 /** 담당 과목 다중 선택. 아무것도 고르지 않으면 전 과목 담당. */
 @Composable

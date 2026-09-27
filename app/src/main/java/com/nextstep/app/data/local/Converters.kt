@@ -4,8 +4,8 @@ import androidx.room.TypeConverter
 import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.EventType
-import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.ExamType
+import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus

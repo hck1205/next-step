@@ -12,16 +12,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.ui.components.input.OptionPicker
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 /**
  * 직접 만드는 목표. 제목·영역·설명과, 지금 구간부터 [MAX_STEP_PERIODS]개 구간에 하나씩 단계 제목을 받습니다(비워 두면 생략).

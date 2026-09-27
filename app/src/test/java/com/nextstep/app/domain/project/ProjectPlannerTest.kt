@@ -5,12 +5,12 @@ import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class ProjectPlannerTest {
     private val english = ProjectCatalog.byId.getValue("english-reader")

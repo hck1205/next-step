@@ -11,8 +11,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,14 +22,12 @@ import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.domain.time.DateUtils
-import java.time.LocalDate
-import java.time.LocalTime
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.nextstep.app.ui.components.input.DateField
-import com.nextstep.app.ui.components.input.TimeField
 import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.components.input.SubjectPicker
+import com.nextstep.app.ui.components.input.TimeField
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Composable
 fun EventEditDialog(

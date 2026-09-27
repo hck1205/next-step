@@ -1,8 +1,8 @@
 package com.nextstep.app.ui.onboarding
 
-import com.nextstep.app.data.model.GuardianRelation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.model.GuardianRelation
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.repository.OnboardingRepository
 import kotlinx.coroutines.flow.MutableStateFlow

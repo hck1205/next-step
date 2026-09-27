@@ -9,8 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GoalStepEntity
@@ -18,12 +20,10 @@ import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.row.GoalStepRow
 import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.dialog.TextInputDialog
+import com.nextstep.app.ui.components.row.GoalStepRow
 import com.nextstep.app.ui.goals.GoalView
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 /**
  * 목표 카드. 접힌 상태에서는 진행률과 이번 구간의 단계만, 펼치면 구간별 전체 단계와 관리 버튼을 보여 줍니다.

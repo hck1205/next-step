@@ -1,11 +1,11 @@
 package com.nextstep.app.ui.navigation
 
-import com.nextstep.app.domain.growth.StudentScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.growth.StudentScreen
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine

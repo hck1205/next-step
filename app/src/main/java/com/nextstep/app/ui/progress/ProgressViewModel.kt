@@ -6,10 +6,10 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.SubjectRepository
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.ui.common.asUiState
 
 class ProgressViewModel(
     private val streams: FamilyDataStreams,

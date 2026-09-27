@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.yearplan
 
-import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.model.MilestoneStatus
@@ -8,20 +7,21 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.growth.StudentScreen
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.domain.year.YearArea
 import com.nextstep.app.domain.year.AheadPlans
+import com.nextstep.app.domain.year.YearArea
+import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTask
 import com.nextstep.app.domain.year.YearTerm
 import com.nextstep.app.domain.year.YearTrends
-import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /**
  * "올해" 탭: 올해(만 나이·학년) 할 일을 분류별 탭으로 나누고, 완료 표시는 여정 저장소에 "year:" 키로 남깁니다(동기화됨).

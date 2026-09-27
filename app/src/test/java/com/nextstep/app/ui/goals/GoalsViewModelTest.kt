@@ -5,21 +5,21 @@ import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.journey.GoalTrackCatalog
 import com.nextstep.app.domain.mission.MissionKind
 import com.nextstep.app.domain.project.ProjectCatalog
 import com.nextstep.app.domain.project.ProjectPlanner
-import com.nextstep.app.domain.journey.GoalTrackCatalog
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGoalRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class GoalsViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)

@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 import com.nextstep.app.data.local.entity.TaskEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao : SyncDao<TaskEntity> {

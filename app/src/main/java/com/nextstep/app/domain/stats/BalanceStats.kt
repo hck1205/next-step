@@ -1,13 +1,13 @@
 package com.nextstep.app.domain.stats
 
-import com.nextstep.app.domain.growth.YearProfile
-import com.nextstep.app.data.model.EventType
-import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.model.EventType
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.growth.YearProfile
 import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.journey.JourneyPeriod
 import java.time.LocalDate

@@ -4,6 +4,7 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import kotlin.random.Random
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -11,7 +12,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.random.Random
 
 class KidFamilyViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.STUDENT)

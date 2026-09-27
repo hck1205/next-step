@@ -1,11 +1,11 @@
 package com.nextstep.app.domain.journey
 
 import com.nextstep.app.domain.growth.GrowthStage
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class PeriodCalendarTest {
     private val born = LocalDate.of(2024, 5, 15)

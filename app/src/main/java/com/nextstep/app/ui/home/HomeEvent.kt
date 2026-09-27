@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.home
 
-import com.nextstep.app.domain.growth.StudyKind
 import androidx.lifecycle.ViewModel
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
@@ -8,6 +7,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.growth.StudyKind
 import com.nextstep.app.domain.planner.PlanOptions
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.project.RoutineItem

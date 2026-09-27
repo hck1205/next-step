@@ -5,14 +5,14 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.insight.InsightAction
+import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.insight.InsightKind
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.time.DateUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import com.nextstep.app.domain.stats.StudyStats
-import com.nextstep.app.domain.insight.InsightKind
-import com.nextstep.app.domain.insight.InsightAction
-import com.nextstep.app.domain.insight.InsightEngine
-import com.nextstep.app.domain.time.DateUtils
 
 class InsightEngineTest {
     private val family = "fam"

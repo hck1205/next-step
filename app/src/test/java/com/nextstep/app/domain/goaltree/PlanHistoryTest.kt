@@ -4,11 +4,11 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class PlanHistoryTest {
     private val utc = ZoneOffset.UTC

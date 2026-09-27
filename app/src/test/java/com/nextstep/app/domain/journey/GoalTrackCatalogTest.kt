@@ -1,9 +1,9 @@
 package com.nextstep.app.domain.journey
 
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class GoalTrackCatalogTest {
     private val validKeys = PeriodCalendar.periods(LocalDate.of(2024, 5, 15)).map { it.key }

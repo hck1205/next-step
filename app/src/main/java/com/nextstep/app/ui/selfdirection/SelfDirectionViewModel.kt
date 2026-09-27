@@ -10,10 +10,10 @@ import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 기록 › 공부 › 스스로. 자기주도 단계·흔적·제안을 계산하고, 주간 계획·돌아보기·단계 바꾸기를 저장합니다. */
 class SelfDirectionViewModel(

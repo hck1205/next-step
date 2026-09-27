@@ -7,15 +7,15 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.StudySessionRepository
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import com.nextstep.app.ui.common.asUiState
 
 class TimerViewModel(
     private val streams: FamilyDataStreams,

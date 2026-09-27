@@ -1,25 +1,25 @@
 package com.nextstep.app.domain.hub
 
 import com.nextstep.app.data.model.AptitudeDomain
+import com.nextstep.app.domain.goaltree.GoalTree
+import com.nextstep.app.domain.goaltree.WeekRate
 import com.nextstep.app.domain.health.GrowthSignal
 import com.nextstep.app.domain.health.GrowthSignalLevel
 import com.nextstep.app.domain.health.GrowthSummary
 import com.nextstep.app.domain.insight.AptitudeSignal
-import com.nextstep.app.domain.goaltree.GoalTree
-import com.nextstep.app.domain.goaltree.WeekRate
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewReason
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class ConcernDigestsTest {
     private fun focus(title: String, daysLeft: Int, overdue: Int = 0) =

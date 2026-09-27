@@ -1,25 +1,25 @@
 package com.nextstep.app.ui.parent
 
-import com.nextstep.app.data.prefs.LinkedChild
-import com.nextstep.app.domain.mission.MissionFocus
-import com.nextstep.app.domain.project.ProjectProgress
-import com.nextstep.app.domain.goaltree.GoalNode
-import com.nextstep.app.domain.today.ParentTodayCard
-import com.nextstep.app.domain.today.TodayGroup
-import com.nextstep.app.domain.today.TodayLayout
-import com.nextstep.app.domain.reward.RewardView
-import com.nextstep.app.domain.selfdirection.WeekAccess
-import com.nextstep.app.domain.selfdirection.WeekStatus
-import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.domain.journey.JourneyItem
-import com.nextstep.app.domain.stats.BalanceReport
-import com.nextstep.app.domain.stats.EventOccurrence
-import com.nextstep.app.domain.time.DateUtils
-import java.time.LocalDate
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
+import com.nextstep.app.data.prefs.LinkedChild
+import com.nextstep.app.domain.goaltree.GoalNode
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.journey.JourneyItem
+import com.nextstep.app.domain.mission.MissionFocus
+import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.reward.RewardView
+import com.nextstep.app.domain.selfdirection.WeekAccess
+import com.nextstep.app.domain.selfdirection.WeekStatus
+import com.nextstep.app.domain.stats.BalanceReport
+import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.stats.UpcomingExam
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.today.ParentTodayCard
+import com.nextstep.app.domain.today.TodayGroup
+import com.nextstep.app.domain.today.TodayLayout
+import java.time.LocalDate
 
 /** 학부모 첫 화면 상태. 단순한 홈이 보여 주는 값만 둡니다. */
 data class ParentDashboardUiState(

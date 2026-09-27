@@ -3,11 +3,11 @@ package com.nextstep.app.domain.insight
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.data.model.AptitudeDomain
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class AptitudeEngineTest {
     private val today = LocalDate.of(2029, 10, 10)

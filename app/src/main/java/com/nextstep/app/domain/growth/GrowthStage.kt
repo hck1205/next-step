@@ -1,8 +1,8 @@
 package com.nextstep.app.domain.growth
 
-import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 

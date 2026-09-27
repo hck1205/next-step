@@ -1,8 +1,5 @@
 package com.nextstep.app.ui.quickadd
 
-import com.nextstep.app.domain.task.TaskDrafts
-import com.nextstep.app.data.model.Role
-import com.nextstep.app.domain.growth.KidRecord
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
@@ -10,20 +7,23 @@ import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.ActivityRepository
 import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.growth.KidRecord
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalTime
-import com.nextstep.app.ui.common.asUiState
 
 /** 모든 쓰기의 단일 입구. 각 저장소에 한 번 쓰고 한 줄 메시지를 남깁니다. */
 class QuickAddViewModel(

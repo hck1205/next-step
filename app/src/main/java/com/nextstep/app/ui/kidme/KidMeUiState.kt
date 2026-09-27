@@ -1,10 +1,10 @@
 package com.nextstep.app.ui.kidme
 
 import com.nextstep.app.data.local.entity.ActivityEntity
-import com.nextstep.app.domain.stats.StickerBoard
 import com.nextstep.app.domain.gamify.GameProfile
 import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.domain.reward.Rewards
+import com.nextstep.app.domain.stats.StickerBoard
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 

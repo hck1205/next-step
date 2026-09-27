@@ -1,7 +1,7 @@
 package com.nextstep.app.domain.health
 
-import com.nextstep.app.domain.text.compact
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.domain.text.compact
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 

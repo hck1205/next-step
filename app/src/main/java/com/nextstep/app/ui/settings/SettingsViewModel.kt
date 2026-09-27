@@ -1,20 +1,20 @@
 package com.nextstep.app.ui.settings
 
-import com.nextstep.app.domain.growth.StudentUiLevel
-import com.nextstep.app.domain.growth.YearProfiles
-import kotlinx.coroutines.flow.MutableStateFlow
-import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.domain.time.DateUtils
-import java.time.LocalDate
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.growth.YearProfiles
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.ui.common.asUiState
 
 class SettingsViewModel(
     private val streams: FamilyDataStreams,

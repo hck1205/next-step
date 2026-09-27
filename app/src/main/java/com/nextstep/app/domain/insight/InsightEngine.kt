@@ -8,9 +8,9 @@ import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.SubjectScore
-import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.text.compact
 import com.nextstep.app.domain.time.DateUtils
 

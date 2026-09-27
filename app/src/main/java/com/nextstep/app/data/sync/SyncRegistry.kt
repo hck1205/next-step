@@ -13,13 +13,13 @@ import com.nextstep.app.data.sync.mapper.MemberMapper
 import com.nextstep.app.data.sync.mapper.ObservationMapper
 import com.nextstep.app.data.sync.mapper.PeerTopicMapper
 import com.nextstep.app.data.sync.mapper.ProjectLogMapper
+import com.nextstep.app.data.sync.mapper.RewardMapper
 import com.nextstep.app.data.sync.mapper.RoadmapItemMapper
 import com.nextstep.app.data.sync.mapper.StudySessionMapper
 import com.nextstep.app.data.sync.mapper.SubjectMapper
 import com.nextstep.app.data.sync.mapper.TaskMapper
 import com.nextstep.app.data.sync.mapper.TopicMapper
 import com.nextstep.app.data.sync.mapper.WeekPlanMapper
-import com.nextstep.app.data.sync.mapper.RewardMapper
 
 /**
  * 가족 단위로 동기화하는 컬렉션 목록. 새 엔티티는 여기 한 줄만 추가하면 수신·전송 모두 붙습니다.

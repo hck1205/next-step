@@ -1,15 +1,15 @@
 package com.nextstep.app.domain.stats
 
-import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.TopicStatus
-import java.time.LocalDate
 import com.nextstep.app.domain.time.DateUtils
+import java.time.LocalDate
 
 /** 화면과 인사이트 엔진이 공유하는 순수 계산 함수 모음. */
 object StudyStats {

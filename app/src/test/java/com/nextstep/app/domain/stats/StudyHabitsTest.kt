@@ -1,11 +1,11 @@
 package com.nextstep.app.domain.stats
 
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class StudyHabitsTest {
     private val today = LocalDate.of(2029, 10, 10)

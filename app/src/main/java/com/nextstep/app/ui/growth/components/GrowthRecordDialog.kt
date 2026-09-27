@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.growth.components
 
-import com.nextstep.app.domain.time.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,16 +13,17 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.input.DateField
 import java.time.LocalDate
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 /** 성장 기록 입력: 날짜, 키, 몸무게, 좌·우 시력, 메모. 아는 값만 넣습니다. */
 @Composable

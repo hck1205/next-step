@@ -1,17 +1,17 @@
 package com.nextstep.app.domain.stats
 
-import com.nextstep.app.domain.growth.YearProfiles
-import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ActivityType
+import com.nextstep.app.data.model.EventType
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.growth.YearProfiles
 import com.nextstep.app.domain.journey.PeriodCalendar
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalTime
 
 class BalanceStatsTest {
     private val today = DateUtils.today()

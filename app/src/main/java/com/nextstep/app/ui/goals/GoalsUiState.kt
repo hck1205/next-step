@@ -1,9 +1,9 @@
 package com.nextstep.app.ui.goals
 
-import com.nextstep.app.domain.mission.MissionKind
-import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.journey.GoalTrack
 import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.domain.mission.MissionKind
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
 data class GoalsUiState(

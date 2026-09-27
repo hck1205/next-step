@@ -1,20 +1,20 @@
 package com.nextstep.app.ui.mentor
 
-import com.nextstep.app.domain.today.MentorTodayCard
-import com.nextstep.app.domain.today.TodayGroup
-import com.nextstep.app.domain.today.TodayLayout
-import com.nextstep.app.data.prefs.LinkedChild
-import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
+import com.nextstep.app.data.prefs.LinkedChild
+import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.Insight
+import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.SubjectScore
+import com.nextstep.app.domain.today.MentorTodayCard
+import com.nextstep.app.domain.today.TodayGroup
+import com.nextstep.app.domain.today.TodayLayout
 
 /**
  * 멘토 대시보드 상태. 멘토가 담당 과목을 지정했으면 모든 지표를 그 과목으로 좁혀 보여줍니다.

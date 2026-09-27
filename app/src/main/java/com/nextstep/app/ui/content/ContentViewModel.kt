@@ -8,13 +8,13 @@ import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.content.ContentRecommender
+import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.domain.growth.GrowthStage
-import com.nextstep.app.ui.common.asUiState
 
 class ContentViewModel(
     private val streams: FamilyDataStreams,

@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.goaltree
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,6 +32,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.dialog.AddTreeGoalDialog
 import com.nextstep.app.ui.components.input.SegmentedRow
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.goaltree.components.GoalNodeCard
 
 /**

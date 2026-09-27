@@ -3,12 +3,12 @@ package com.nextstep.app.domain.family
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class StudentContextTest {
     private val today = LocalDate.of(2029, 10, 10)

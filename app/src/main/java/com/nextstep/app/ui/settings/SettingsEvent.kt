@@ -1,7 +1,7 @@
 package com.nextstep.app.ui.settings
 
-import com.nextstep.app.domain.growth.StudentUiLevel
 import androidx.lifecycle.ViewModel
+import com.nextstep.app.domain.growth.StudentUiLevel
 
 /** Settings 화면의 사용자 의도. Content 는 이 이벤트만 내보내고 ViewModel 이 처리합니다. */
 sealed interface SettingsEvent {

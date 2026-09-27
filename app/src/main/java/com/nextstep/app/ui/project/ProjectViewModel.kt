@@ -11,11 +11,11 @@ import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 교육 프로젝트 한 개: 목표·속도·도착 예상, 오늘 루틴, 통과 기준, 단계 일정. 목표 id 는 내비게이션 인자 "goalId". */
 class ProjectViewModel(

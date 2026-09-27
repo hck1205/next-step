@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.ui.common.oneDecimal
 import com.nextstep.app.ui.components.card.StatTile
-import androidx.compose.ui.unit.dp
 
 /** 전체 평균 · 가장 높은 과목 · 보완할 과목 세 칸. */
 @Composable

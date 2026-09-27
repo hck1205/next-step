@@ -5,14 +5,14 @@ import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeStudySessionRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class TimerViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams()

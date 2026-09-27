@@ -1,8 +1,8 @@
 package com.nextstep.app.domain.journey
 
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class DueRuleTest {
     private val born = LocalDate.of(2024, 5, 15)

@@ -9,16 +9,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 /** 직접 추가하는 이정표 입력 대화상자. 제목·설명·종류·마감일·준비 시작 시점(개월)을 받습니다. */
 @Composable

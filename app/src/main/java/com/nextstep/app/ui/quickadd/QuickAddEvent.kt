@@ -1,10 +1,10 @@
 package com.nextstep.app.ui.quickadd
 
-import com.nextstep.app.domain.growth.KidRecord
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.growth.KidRecord
 import java.time.LocalDate
 import java.time.LocalTime
 

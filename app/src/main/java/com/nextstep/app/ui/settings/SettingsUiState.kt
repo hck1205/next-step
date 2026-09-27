@@ -1,13 +1,13 @@
 package com.nextstep.app.ui.settings
 
-import com.nextstep.app.domain.gamify.GameStyle
-import com.nextstep.app.domain.growth.StudentUiLevel
-import com.nextstep.app.data.prefs.LinkedChild
-import java.time.LocalDate
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.SyncStatus
+import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.data.prefs.UserProfile
+import com.nextstep.app.domain.gamify.GameStyle
+import com.nextstep.app.domain.growth.StudentUiLevel
+import java.time.LocalDate
 
 data class SettingsUiState(
     val profile: UserProfile? = null,

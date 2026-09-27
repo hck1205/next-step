@@ -8,9 +8,9 @@ import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.goaltree.PlanHistory
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import java.time.LocalDate
 
 /** 기록 › 목표·할 일 › 기록. 읽기만 합니다. */
 class PlanHistoryViewModel(

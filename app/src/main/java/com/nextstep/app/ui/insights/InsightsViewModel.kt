@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.insights
 
-import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
@@ -9,11 +8,12 @@ import com.nextstep.app.domain.insight.InsightAction
 import com.nextstep.app.domain.insight.InsightEngine
 import com.nextstep.app.domain.insight.TalentEngine
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.ui.common.asUiState
 
 class InsightsViewModel(
     private val streams: FamilyDataStreams,

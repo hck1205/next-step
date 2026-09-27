@@ -4,13 +4,13 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class SelfDirectionTest {
     private val tuesday = LocalDate.of(2029, 3, 6)

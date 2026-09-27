@@ -11,13 +11,13 @@ import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.ProjectRepository
+import com.nextstep.app.data.repository.RewardRepository
 import com.nextstep.app.data.repository.RoadmapRepository
 import com.nextstep.app.data.repository.StudySessionRepository
 import com.nextstep.app.data.repository.SubjectRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
-import com.nextstep.app.data.repository.RewardRepository
 
 /** 개별 저장소의 읽기 스트림을 한 곳에 모읍니다. 새 스트림은 여기와 인터페이스에만 추가합니다. */
 class CompositeFamilyDataStreams(

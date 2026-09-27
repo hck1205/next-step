@@ -5,9 +5,9 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.domain.stats.UpcomingExam
-import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.time.DateUtils
 
 /**

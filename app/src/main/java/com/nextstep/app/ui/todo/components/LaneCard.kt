@@ -23,10 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.domain.goaltree.Assigner
-import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.domain.taskboard.SubjectLane
 import com.nextstep.app.domain.taskboard.TaskSuggestion
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.SubjectTag
 

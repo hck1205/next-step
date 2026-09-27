@@ -3,8 +3,8 @@ package com.nextstep.app.domain.journey
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.TaskEntity
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.MilestoneStatus
+import com.nextstep.app.data.model.TaskType
 import java.time.LocalDate
 
 /**

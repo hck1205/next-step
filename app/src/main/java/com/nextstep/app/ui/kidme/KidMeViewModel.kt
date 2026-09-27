@@ -3,17 +3,17 @@ package com.nextstep.app.ui.kidme
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
-import com.nextstep.app.domain.stats.StickerStats
-import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.common.asUiState
-import com.nextstep.app.ui.common.gameInputs
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.reward.RewardStatus
 import com.nextstep.app.domain.reward.Rewards
+import com.nextstep.app.domain.stats.StickerStats
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import com.nextstep.app.ui.common.gameInputs
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import java.time.LocalDate
 
 /** 아이용 "나" 탭(스티커판). 숫자 비교 없이 모은 스티커와 한 것만 보여 줍니다. */
 class KidMeViewModel(

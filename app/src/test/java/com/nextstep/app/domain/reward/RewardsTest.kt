@@ -2,14 +2,14 @@ package com.nextstep.app.domain.reward
 
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.model.GoalStatus
-import com.nextstep.app.testing.Fixtures
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import com.nextstep.app.domain.gamify.GameLevel
 import com.nextstep.app.domain.gamify.GameProfile
 import com.nextstep.app.domain.gamify.GameStats
 import com.nextstep.app.domain.gamify.GameStyle
+import com.nextstep.app.testing.Fixtures
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RewardsTest {

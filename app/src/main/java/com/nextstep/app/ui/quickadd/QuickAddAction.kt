@@ -1,8 +1,8 @@
 package com.nextstep.app.ui.quickadd
 
+import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.growth.StudentUiLevel
-import com.nextstep.app.domain.access.Capabilities
 
 /** 기록하기 시트의 항목. 역할별로 5개 이하만 보입니다. */
 enum class QuickAddAction(val title: String, val subtitle: String) {

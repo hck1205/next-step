@@ -12,12 +12,12 @@ import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.sync.FamilyInfo
 import com.nextstep.app.data.sync.SyncManager
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.util.Locale
 import kotlin.random.Random
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 
 class RoomOnboardingRepository(
     private val prefs: UserPreferencesStore,

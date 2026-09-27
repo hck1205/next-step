@@ -1,10 +1,10 @@
 package com.nextstep.app.domain.mission
 
 import com.nextstep.app.data.local.entity.GoalEntity
-import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
+import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.PeriodCalendar

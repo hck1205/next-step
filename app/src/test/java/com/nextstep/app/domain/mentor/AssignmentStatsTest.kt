@@ -1,9 +1,9 @@
 package com.nextstep.app.domain.mentor
 
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class AssignmentStatsTest {
     private val today = LocalDate.of(2029, 10, 10)

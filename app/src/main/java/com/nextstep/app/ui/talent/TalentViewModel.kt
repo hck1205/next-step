@@ -8,10 +8,10 @@ import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.domain.insight.AptitudeEngine
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 활동·재능 › 재능: 소질 신호(활동 + 관찰)와 영역별 관찰 메모 전체. */
 class TalentViewModel(

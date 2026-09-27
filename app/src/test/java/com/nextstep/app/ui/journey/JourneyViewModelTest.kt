@@ -13,13 +13,13 @@ import com.nextstep.app.fake.FakeMemberRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class JourneyViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)

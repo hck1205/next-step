@@ -1,36 +1,36 @@
 package com.nextstep.app.ui.home
 
-import com.nextstep.app.fake.FakeMemberRepository
-import com.nextstep.app.domain.growth.StudentHomeSection
-import com.nextstep.app.domain.growth.StudentUiLevel
-import com.nextstep.app.domain.gamify.GameStyle
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.gamify.GameStyle
+import com.nextstep.app.domain.growth.StudentHomeSection
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.planner.PlanOptions
+import com.nextstep.app.domain.project.ProjectCatalog
+import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.fake.FakeContentRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
+import com.nextstep.app.fake.FakeMemberRepository
 import com.nextstep.app.fake.FakeProjectRepository
-import com.nextstep.app.fake.FakeWeekPlanRepository
-import com.nextstep.app.domain.selfdirection.SelfDirectionStage
-import com.nextstep.app.domain.project.ProjectCatalog
-import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.fake.FakeRoadmapRepository
 import com.nextstep.app.fake.FakeStudyPlanRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.fake.FakeTopicRepository
+import com.nextstep.app.fake.FakeWeekPlanRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalTime
 
 class HomeViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams()

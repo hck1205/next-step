@@ -1,7 +1,5 @@
 package com.nextstep.app.ui.progress
 
-import com.nextstep.app.domain.task.TaskDrafts
-import com.nextstep.app.domain.stats.StudyQueues
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,11 +11,13 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.SubjectRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.TopicRepository
+import com.nextstep.app.domain.stats.StudyQueues
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import com.nextstep.app.ui.common.asUiState
 
 class SubjectDetailViewModel(
     savedStateHandle: SavedStateHandle,

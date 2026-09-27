@@ -6,21 +6,21 @@ import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
-import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.RewardRepository
-import com.nextstep.app.domain.reward.RewardKind
-import com.nextstep.app.domain.reward.Rewards
+import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.goaltree.GoalTree
-import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.goaltree.PlanHistory
+import com.nextstep.app.domain.growth.StudentScreen
+import com.nextstep.app.domain.reward.RewardKind
+import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 목표 한 개(route "goal/{goalId}"): 세부 할 일 주기 · 체크 · 달성 · 이어지는 목표 바꾸기 · 작은 목표와 다음 목표 만들기. */
 class GoalViewModel(

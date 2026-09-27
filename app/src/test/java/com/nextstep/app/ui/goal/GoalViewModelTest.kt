@@ -7,20 +7,20 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.goaltree.HistoryKind
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.reward.RewardStatus
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGoalRepository
-import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.fake.FakeRewardRepository
-import com.nextstep.app.domain.reward.RewardStatus
+import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class GoalViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)

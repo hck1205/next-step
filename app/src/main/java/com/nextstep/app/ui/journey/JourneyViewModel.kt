@@ -1,32 +1,32 @@
 package com.nextstep.app.ui.journey
 
-import com.nextstep.app.data.local.entity.GoalEntity
-import com.nextstep.app.data.local.entity.JourneyItemEntity
-import com.nextstep.app.data.local.entity.MemberEntity
-import com.nextstep.app.data.prefs.UserProfile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.MilestoneStatus
+import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.curriculum.CurriculumCatalog
+import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.GoalPlanner
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.journey.MilestoneCategory
-import com.nextstep.app.domain.family.StudentContext
-import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import com.nextstep.app.ui.common.asUiState
 
 /**
  * 구간(학기)별 여정 타임라인. 생년월일 + 카탈로그 + 저장된 이정표 상태 + 목표 단계를 합쳐 보여 주고,

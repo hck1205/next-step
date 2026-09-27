@@ -2,8 +2,8 @@ package com.nextstep.app.data.repository
 
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.model.MilestoneStatus
-import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
 
 /** 여정 이정표의 저장 상태. 카탈로그 항목은 templateId 로, 직접 추가 항목은 id 로 다룹니다. */
 interface JourneyRepository {

@@ -1,7 +1,7 @@
 package com.nextstep.app.ui.quickadd
 
-import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
 data class QuickAddUiState(

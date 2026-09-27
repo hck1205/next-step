@@ -2,11 +2,11 @@ package com.nextstep.app.ui.goal
 
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.goaltree.HistoryEvent
 import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.domain.reward.Rewards
-import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate

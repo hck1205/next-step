@@ -1,11 +1,11 @@
 package com.nextstep.app.domain.journey
 
 import com.nextstep.app.domain.growth.GrowthStage
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class MilestoneCatalogTest {
     @Test

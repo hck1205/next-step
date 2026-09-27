@@ -2,10 +2,10 @@ package com.nextstep.app.domain.stats
 
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class RoadmapStatsTest {
     private val today = LocalDate.of(2029, 10, 1)

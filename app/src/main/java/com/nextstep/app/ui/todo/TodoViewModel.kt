@@ -1,29 +1,29 @@
 package com.nextstep.app.ui.todo
 
-import com.nextstep.app.domain.task.TaskDrafts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.selfdirection.SelfDirection
+import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewPlanner
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.taskboard.TaskBoard
 import com.nextstep.app.domain.taskboard.TaskSuggester
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /**
  * 기록 › 목표·할 일 › 할 일. 할 일을 과목별로 정리하고, 흩어진 근거(복습 목록 · 로드맵 · 다가오는 시험)에서 나온 추천을

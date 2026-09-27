@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.goaltree.components
 
-import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.SubdirectoryArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,11 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.goaltree.Assigner
 import com.nextstep.app.domain.goaltree.GoalAttention
-import com.nextstep.app.ui.common.asPercent
+import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.DDayBadge
 import com.nextstep.app.ui.components.card.LabeledProgress

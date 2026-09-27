@@ -15,8 +15,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -25,8 +27,6 @@ import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.content.ContentEvent
 import com.nextstep.app.ui.content.ContentUiState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 @Composable
 internal fun AddContentDialog(state: ContentUiState, onEvent: (ContentEvent) -> Unit, subjectKeys: List<String>, onDismiss: () -> Unit) {

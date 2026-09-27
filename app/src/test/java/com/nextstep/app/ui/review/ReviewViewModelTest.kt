@@ -9,10 +9,10 @@ import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.fake.FakeTopicRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class ReviewViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.STUDENT)

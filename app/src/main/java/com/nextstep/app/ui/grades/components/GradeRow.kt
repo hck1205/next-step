@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.oneDecimal
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.SubjectTag
-import com.nextstep.app.ui.common.oneDecimal
 
 @Composable
 internal fun GradeRow(g: GradeEntity, subjects: List<SubjectEntity>, onClick: () -> Unit) {

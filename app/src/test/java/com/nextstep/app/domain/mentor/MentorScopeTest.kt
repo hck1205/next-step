@@ -2,9 +2,9 @@ package com.nextstep.app.domain.mentor
 
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 class MentorScopeTest {
     private val all = listOf(Fixtures.math, Fixtures.english)

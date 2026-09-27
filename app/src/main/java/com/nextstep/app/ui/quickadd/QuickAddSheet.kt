@@ -1,7 +1,5 @@
 package com.nextstep.app.ui.quickadd
 
-import com.nextstep.app.ui.quickadd.components.KidRecordGrid
-import com.nextstep.app.domain.growth.StudentUiLevel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,8 +21,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -33,13 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.activities.components.ActivityEditDialog
 import com.nextstep.app.ui.components.dialog.EventEditDialog
 import com.nextstep.app.ui.components.dialog.GradeEditDialog
 import com.nextstep.app.ui.components.dialog.TaskEditDialog
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.quickadd.components.KidRecordGrid
 
 /**
  * 기록하기 시트. 모든 탭의 + 버튼이 여는 유일한 쓰기 입구입니다. 항목을 고르면 대화상자 하나로 끝나고, 저장 후 한 줄 토스트가 뜹니다.

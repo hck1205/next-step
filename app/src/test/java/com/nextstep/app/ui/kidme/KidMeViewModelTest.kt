@@ -1,19 +1,19 @@
 package com.nextstep.app.ui.kidme
 
+import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.gamify.Badge
+import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import com.nextstep.app.data.local.entity.RewardEntity
-import com.nextstep.app.domain.gamify.Badge
-import com.nextstep.app.domain.gamify.GameStyle
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class KidMeViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.STUDENT)

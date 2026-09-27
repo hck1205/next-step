@@ -12,10 +12,10 @@ import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import com.nextstep.app.ui.common.gameInputs
+import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 기록 › 목표·할 일 › 보상·배지. 아이 나이에 맞춘 모양으로 스티커판·레벨·배지를 기록에서 계산하고, 보상을 약속·주기·취소합니다. */
 class RewardsViewModel(

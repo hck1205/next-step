@@ -1,11 +1,11 @@
 package com.nextstep.app.domain.time
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class DateUtilsTest {
     @Test

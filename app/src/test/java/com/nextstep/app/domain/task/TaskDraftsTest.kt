@@ -14,11 +14,11 @@ import com.nextstep.app.domain.year.YearDoer
 import com.nextstep.app.domain.year.YearTask
 import com.nextstep.app.domain.year.YearTerm
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class TaskDraftsTest {
     private val today = LocalDate.of(2026, 9, 24)

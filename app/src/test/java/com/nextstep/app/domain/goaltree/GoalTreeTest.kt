@@ -7,13 +7,13 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class GoalTreeTest {
     private val utc = ZoneOffset.UTC

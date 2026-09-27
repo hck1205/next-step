@@ -11,11 +11,11 @@ import com.nextstep.app.domain.project.ProjectCategory
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 /** 기록 › 교육 프로젝트 › 새로 시작: 나이에 맞는 프로젝트와 시작 단계를 추천하고, 고른 단계부터 일정을 만들어 저장합니다. */
 class ProjectCatalogViewModel(

@@ -5,11 +5,11 @@ import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeRoadmapRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
 
 class RoadmapViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams()

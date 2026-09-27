@@ -10,13 +10,13 @@ import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeRewardRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.ZoneId
 
 class RewardsViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)

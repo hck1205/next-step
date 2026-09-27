@@ -2,11 +2,11 @@ package com.nextstep.app.domain.growth
 
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class StudentScreenTest {
     private val today = LocalDate.of(2026, 9, 24)

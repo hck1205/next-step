@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.card.LabeledProgress
+import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.journey.JourneyEvent
 import com.nextstep.app.ui.journey.JourneyUiState
 

@@ -6,6 +6,7 @@ import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGradeRepository
 import com.nextstep.app.testing.MainDispatcherRule
+import java.time.LocalDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -15,7 +16,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GradesViewModelTest {

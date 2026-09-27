@@ -1,12 +1,12 @@
 package com.nextstep.app.domain.mission
 
 import com.nextstep.app.domain.growth.GrowthStage
+import java.time.DayOfWeek
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 class MissionCatalogTest {
     @Test

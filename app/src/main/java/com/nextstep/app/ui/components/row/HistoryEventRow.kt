@@ -15,9 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.goaltree.Assigner
 import com.nextstep.app.domain.goaltree.HistoryEvent
 import com.nextstep.app.domain.goaltree.HistoryKind
-import com.nextstep.app.domain.goaltree.Assigner
 import com.nextstep.app.domain.time.DateUtils
 
 /** 기록 한 줄: 날짜 · 무엇이(목표 시작 · 할 일 끝 · 목표 달성) · 어느 목표의 일인지 · 달성이 어느 목표로 이어졌는지. */
