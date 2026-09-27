@@ -6,13 +6,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,44 +30,46 @@ import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.hub.HubViewer
 import com.nextstep.app.ui.activities.ActivitiesActions
-import com.nextstep.app.ui.assignments.AssignmentsScreen
-import com.nextstep.app.ui.review.ReviewScreen
-import com.nextstep.app.ui.habits.HabitsScreen
 import com.nextstep.app.ui.activities.ActivitiesScreen
+import com.nextstep.app.ui.assignments.AssignmentsScreen
 import com.nextstep.app.ui.calendar.CalendarScreen
 import com.nextstep.app.ui.components.input.SegmentedRow
+import com.nextstep.app.ui.components.layout.LocalSectionAdd
+import com.nextstep.app.ui.components.layout.SectionAdd
 import com.nextstep.app.ui.content.ContentActions
 import com.nextstep.app.ui.content.ContentLibraryScreen
 import com.nextstep.app.ui.curriculum.CurriculumActions
 import com.nextstep.app.ui.curriculum.CurriculumScreen
 import com.nextstep.app.ui.goals.GoalsActions
 import com.nextstep.app.ui.goals.GoalsScreen
-import com.nextstep.app.ui.grades.GradesScreen
-import com.nextstep.app.ui.growth.GrowthScreen
 import com.nextstep.app.ui.goaltree.GoalTreeActions
 import com.nextstep.app.ui.goaltree.GoalTreeScreen
-import com.nextstep.app.ui.planhistory.PlanHistoryActions
-import com.nextstep.app.ui.planhistory.PlanHistoryScreen
-import com.nextstep.app.ui.rewards.RewardsActions
-import com.nextstep.app.ui.rewards.RewardsScreen
-import com.nextstep.app.ui.todo.TodoActions
-import com.nextstep.app.ui.todo.TodoScreen
+import com.nextstep.app.ui.grades.GradesScreen
+import com.nextstep.app.ui.growth.GrowthScreen
+import com.nextstep.app.ui.habits.HabitsScreen
 import com.nextstep.app.ui.hub.components.ConcernTabs
 import com.nextstep.app.ui.insights.InsightsActions
 import com.nextstep.app.ui.insights.InsightsScreen
 import com.nextstep.app.ui.overview.OverviewActions
 import com.nextstep.app.ui.overview.OverviewScreen
+import com.nextstep.app.ui.planhistory.PlanHistoryActions
+import com.nextstep.app.ui.planhistory.PlanHistoryScreen
 import com.nextstep.app.ui.progress.ProgressActions
 import com.nextstep.app.ui.progress.ProgressScreen
 import com.nextstep.app.ui.projectcatalog.ProjectCatalogActions
 import com.nextstep.app.ui.projectcatalog.ProjectCatalogScreen
 import com.nextstep.app.ui.projects.ProjectsActions
 import com.nextstep.app.ui.projects.ProjectsScreen
+import com.nextstep.app.ui.review.ReviewScreen
+import com.nextstep.app.ui.rewards.RewardsActions
+import com.nextstep.app.ui.rewards.RewardsScreen
 import com.nextstep.app.ui.roadmap.RoadmapActions
 import com.nextstep.app.ui.roadmap.RoadmapScreen
 import com.nextstep.app.ui.selfdirection.SelfDirectionActions
 import com.nextstep.app.ui.selfdirection.SelfDirectionScreen
 import com.nextstep.app.ui.talent.TalentScreen
+import com.nextstep.app.ui.todo.TodoActions
+import com.nextstep.app.ui.todo.TodoScreen
 import kotlinx.coroutines.launch
 
 /**
@@ -87,14 +95,35 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
         }
     }
     val openConcern: (Concern) -> Unit = { concern -> concerns.indexOf(concern).takeIf { it >= 0 }?.let { page -> scope.launch { pager.animateScrollToPage(page) } } }
+    val sectionOf: (Concern) -> ConcernSection = { concern ->
+        val sections = ConcernSection.sectionsOf(concern, viewer)
+        chosen[concern]?.takeIf { it in sections } ?: sections.first()
+    }
+    // 섹션마다 올린 "만들기". 보고 있는 섹션의 것만 상단 바 오른쪽에 보입니다(본문 속 + 버튼 대신).
+    val adds = remember { mutableStateMapOf<ConcernSection, SectionAdd>() }
+    val currentAdd = concerns.getOrNull(pager.currentPage)?.let { adds[sectionOf(it)] }
 
-    Scaffold(topBar = { TopAppBar(title = { Text(if (caps.isStudent) "나" else "기록") }) }) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(if (caps.isStudent) "나" else "기록") },
+                actions = {
+                    currentAdd?.let { add ->
+                        TextButton(onClick = add.onClick) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Text(add.label)
+                        }
+                    }
+                },
+            )
+        },
+    ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             ConcernTabs(concerns, selected = pager.currentPage, onSelect = { page -> scope.launch { pager.animateScrollToPage(page) } })
             HorizontalPager(state = pager, modifier = Modifier.fillMaxSize(), key = { concerns[it].name }) { page ->
                 val concern = concerns[page]
                 val sections = ConcernSection.sectionsOf(concern, viewer)
-                val section = chosen[concern]?.takeIf { it in sections } ?: sections.first()
+                val section = sectionOf(concern)
                 Column(Modifier.fillMaxSize()) {
                     if (sections.size > 1) {
                         SegmentedRow(
@@ -102,7 +131,10 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
                         )
                     }
-                    Box(Modifier.fillMaxSize()) { SectionContent(section, caps, viewer, concerns, actions, open, openConcern) }
+                    val register: (SectionAdd?) -> Unit = remember(section) { { add -> if (add == null) adds.remove(section) else adds.put(section, add) } }
+                    CompositionLocalProvider(LocalSectionAdd provides register) {
+                        Box(Modifier.fillMaxSize()) { SectionContent(section, caps, viewer, concerns, actions, open, openConcern) }
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.rewards
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,8 @@ fun RewardsScreen(caps: Capabilities, showsNumbers: Boolean, actions: RewardsAct
 @Composable
 internal fun RewardsContent(state: RewardsUiState, caps: Capabilities, showsNumbers: Boolean, actions: RewardsActions, onEvent: (RewardsEvent) -> Unit) {
     var promising by remember { mutableStateOf(false) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (caps.canGiveRewards && state.canPromise) "보상 약속" else null) { promising = true }
     val open: (RewardView) -> (() -> Unit)? = { v -> if (v.kind == RewardKind.GOAL) ({ actions.onOpenGoal(v.reward.targetId) }) else null }
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
@@ -92,7 +95,7 @@ internal fun RewardsContent(state: RewardsUiState, caps: Capabilities, showsNumb
                 }
             }
         }
-        if (caps.canGiveRewards && state.canPromise) {
+        if (!hosted && caps.canGiveRewards && state.canPromise) {
             ExtendedFloatingActionButton(
                 onClick = { promising = true }, icon = { Icon(Icons.Default.CardGiftcard, contentDescription = null) }, text = { Text("보상 약속하기") },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 96.dp),

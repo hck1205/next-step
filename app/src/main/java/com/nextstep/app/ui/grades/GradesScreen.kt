@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.grades
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,10 +46,12 @@ fun GradesScreen(caps: Capabilities, viewModel: GradesViewModel = viewModel(fact
 internal fun GradesContent(state: GradesUiState, caps: Capabilities, onEvent: (GradesEvent) -> Unit) {
     var showEdit by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<GradeEntity?>(null) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (state.subjects.isNotEmpty() && caps.canEditGrades) "성적 추가" else null) { editing = null; showEdit = true }
 
     Scaffold(
         floatingActionButton = {
-            if (state.subjects.isNotEmpty() && caps.canEditGrades) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "성적 추가") }
+            if (!hosted && state.subjects.isNotEmpty() && caps.canEditGrades) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "성적 추가") }
         },
     ) { padding ->
         LazyColumn(

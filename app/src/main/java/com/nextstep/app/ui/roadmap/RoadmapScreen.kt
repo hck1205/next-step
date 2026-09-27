@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.roadmap
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +57,8 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
     var showEdit by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<RoadmapItemEntity?>(null) }
     var showDone by remember { mutableStateOf(false) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (caps.canEditRoadmap) "항목 추가" else null) { editing = null; showEdit = true }
     val row: @Composable (RoadmapItemEntity) -> Unit = { item ->
         RoadmapRow(item, state.subjects, caps, linked = state.contentOf(item),
             onStatus = { onEvent(RoadmapEvent.SetStatus(item.id, it)) },
@@ -73,7 +76,7 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
             )
         },
         floatingActionButton = {
-            if (caps.canEditRoadmap) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "로드맵 항목 추가") }
+            if (!hosted && caps.canEditRoadmap) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "로드맵 항목 추가") }
         },
     ) { padding ->
         LazyColumn(

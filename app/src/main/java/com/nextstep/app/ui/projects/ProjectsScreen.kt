@@ -70,6 +70,5 @@ internal fun ProjectsContent(state: ProjectsUiState, actions: ProjectsActions, o
                 )
             }
         }
-        actions.onBrowse?.let { browse -> item { TextButton(onClick = browse) { Text("다른 프로젝트 고르기") } } }
     }
 }

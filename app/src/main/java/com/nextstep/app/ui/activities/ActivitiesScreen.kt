@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.activities
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,6 +53,8 @@ fun ActivitiesScreen(caps: Capabilities, actions: ActivitiesActions, viewModel: 
 internal fun ActivitiesContent(state: ActivitiesUiState, caps: Capabilities, actions: ActivitiesActions, onEvent: (ActivitiesEvent) -> Unit) {
     var editing by remember { mutableStateOf<ActivityEntity?>(null) }
     var showEdit by remember { mutableStateOf(false) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (caps.canRecordActivities) "활동 추가" else null) { editing = null; showEdit = true }
 
     Scaffold(
         // onBack 이 없으면 기록 탭의 섹션으로 들어간 것: 관심사·섹션 줄이 제목을 대신합니다.
@@ -63,7 +66,7 @@ internal fun ActivitiesContent(state: ActivitiesUiState, caps: Capabilities, act
             )
         },
         floatingActionButton = {
-            if (caps.canRecordActivities) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "활동 추가") }
+            if (!hosted && caps.canRecordActivities) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "활동 추가") }
         },
     ) { padding ->
         LazyColumn(

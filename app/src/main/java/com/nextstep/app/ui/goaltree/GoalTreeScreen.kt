@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.goaltree
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -48,6 +49,8 @@ fun GoalTreeScreen(caps: Capabilities, actions: GoalTreeActions, viewModel: Goal
 @Composable
 internal fun GoalTreeContent(state: GoalTreeUiState, caps: Capabilities, actions: GoalTreeActions, onEvent: (GoalTreeEvent) -> Unit) {
     var adding by remember { mutableStateOf(false) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (caps.canAssignTasks) "목표 만들기" else null) { adding = true }
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier.fillMaxSize(),
@@ -80,7 +83,7 @@ internal fun GoalTreeContent(state: GoalTreeUiState, caps: Capabilities, actions
             }
             state.roots.forEach { root -> tree(root.goal.id, state, 0, actions) }
         }
-        if (caps.canAssignTasks) {
+        if (!hosted && caps.canAssignTasks) {
             ExtendedFloatingActionButton(
                 onClick = { adding = true }, icon = { Icon(Icons.Default.Add, contentDescription = null) }, text = { Text("목표 만들기") },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 96.dp),

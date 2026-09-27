@@ -44,7 +44,8 @@
 
 - 슬라이드의 줄인 카드에는 "전체 보기" 같은 이동 버튼을 넣지 않는다(타일의 "자세히"가 맡고, 자세히 시트에서만 보인다).
 - 내용 없이 다른 화면으로 가는 카드(바로가기: `StudentHomeSection.shortcut`, `MentorTodayCard.shortcut`)는 카드로 놓지 않고 ⋮ 메뉴 항목이 된다.
-- 코드 대응: ⋮ 메뉴 `ui/components/layout/AppBarMenu`, 자녀 고르기 `ui/components/input/ChildPicker`, 칩 아래 머리 카드 `todayBoard(lead = …)`.
+- **기록 탭:** 관심사 줄 · 섹션 줄이 머리에 붙어 있고, 보고 있는 섹션의 "만들기"(목표 만들기 · 성적 추가 · 활동 추가 · 일정 추가 · 보상 약속 …)는 상단 바 오른쪽 한 자리에 올라간다. 섹션 본문에는 + 버튼을 띄우지 않는다(가운데 기록하기와 + 가 둘이 되지 않게). 같은 기록 탭의 다른 섹션으로 가는 링크(예: 진도 → 로드맵, 프로젝트 → 다른 프로젝트 고르기)도 본문에 두지 않는다. 섹션 안의 거르기(진행 중 · 달성 · 보관, 분류 칩)는 그 섹션 내용의 맨 위.
+- 코드 대응: ⋮ 메뉴 `ui/components/layout/AppBarMenu`, 자녀 고르기 `ui/components/input/ChildPicker`, 칩 아래 머리 카드 `todayBoard(lead = …)`. 섹션의 만들기를 머리로 올리는 것은 `hostedSectionAdd(label) { … }`(기록 탭 밖에서 따로 열면 섹션이 스스로 + 를 그림).
 
 ## 3. 화면별 규칙
 

@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.goals
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,6 +56,8 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
     var showAdd by remember { mutableStateOf(false) }
     var showMission by remember { mutableStateOf(false) }
     var expandedGoalId by remember { mutableStateOf<String?>(null) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (caps.canManageGoals && state.hasBirthDate) "목표 추가" else null) { showAdd = true }
     val toggle: (String) -> Unit = { id -> expandedGoalId = if (expandedGoalId == id) null else id }
     val goalCard: @Composable (GoalView) -> Unit = { view ->
         GoalCard(
@@ -73,7 +76,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
         // onBack 이 없으면 기록 탭의 섹션으로 들어간 것: 관심사·섹션 줄이 제목을 대신합니다.
         topBar = { actions.onBack?.let { back -> GoalsTopBar(state.studentName, back, actions.onOpenJourney) } },
         floatingActionButton = {
-            if (caps.canManageGoals && state.hasBirthDate) FloatingActionButton(onClick = { showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "목표 추가") }
+            if (!hosted && caps.canManageGoals && state.hasBirthDate) FloatingActionButton(onClick = { showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "목표 추가") }
         },
     ) { padding ->
         LazyColumn(

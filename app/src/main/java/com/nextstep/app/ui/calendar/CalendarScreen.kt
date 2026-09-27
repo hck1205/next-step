@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.calendar
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,9 +47,11 @@ fun CalendarScreen(caps: Capabilities, viewModel: CalendarViewModel = viewModel(
 internal fun CalendarContent(state: CalendarUiState, caps: Capabilities, onEvent: (CalendarEvent) -> Unit) {
     var dialog by remember { mutableStateOf<CalendarDialog?>(null) }
     val open: (CalendarDialog) -> Unit = { dialog = it }
+    // 기록 탭 안에서는 "일정 추가"가 상단 바로(할 일은 가운데 기록하기로), 따로 열었을 때만 + 메뉴를 그립니다.
+    val hosted = hostedSectionAdd("일정 추가") { open(CalendarDialog.EditEvent(null)) }
     Scaffold(
         floatingActionButton = {
-            AddMenuFab(
+            if (!hosted) AddMenuFab(
                 taskLabel = if (caps.canCreateTasks) (if (caps.isStudent) "할 일 추가" else "과제 배정") else null,
                 onAddEvent = { open(CalendarDialog.EditEvent(null)) }, onAddTask = { open(CalendarDialog.EditTask(null)) },
             )

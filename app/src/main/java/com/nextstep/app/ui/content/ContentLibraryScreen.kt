@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.content
 
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,6 +55,8 @@ fun ContentLibraryScreen(caps: Capabilities, actions: ContentActions, viewModel:
 internal fun ContentContent(state: ContentUiState, caps: Capabilities, actions: ContentActions, onEvent: (ContentEvent) -> Unit) {
     var showAdd by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<ContentEntity?>(null) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd("링크 등록") { onEvent(ContentEvent.ResetAdd); showAdd = true }
     val context = LocalContext.current
     val open: (ContentEntity) -> Unit = { c -> ExternalLinks.open(context, c.url) }
 
@@ -65,7 +68,7 @@ internal fun ContentContent(state: ContentUiState, caps: Capabilities, actions: 
                 navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
             )
         },
-        floatingActionButton = { FloatingActionButton(onClick = { onEvent(ContentEvent.ResetAdd); showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "링크 등록") } },
+        floatingActionButton = { if (!hosted) FloatingActionButton(onClick = { onEvent(ContentEvent.ResetAdd); showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "링크 등록") } },
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
