@@ -27,8 +27,8 @@ class GrowthViewModel(
             today = day,
             summary = GrowthStats.summarize(records, day),
             byYear = records.groupBy { DateUtils.fromEpochDay(it.date).year }.toList(),
-            heightTrend = records.filter { it.heightCm != null }.take(TREND_POINTS).reversed()
-                .map { DateUtils.fromEpochDay(it.date).let { d -> "${d.year % CENTURY}.${d.monthValue}" } to it.heightCm!! },
+            heightTrend = records.mapNotNull { r -> r.heightCm?.let { h -> DateUtils.fromEpochDay(r.date).let { d -> "${d.year % CENTURY}.${d.monthValue}" } to h } }
+                .take(TREND_POINTS).reversed(),
             recordCount = records.size,
             loaded = true,
         )

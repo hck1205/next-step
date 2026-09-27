@@ -53,7 +53,7 @@ internal fun MentorCardBody(
         MentorTodayCard.STATS -> MentorStatsRow(state.weekMinutes, state.myTasks.size, state.averageScore)
         MentorTodayCard.WEEK_CHART -> AppCard {
             BarChart(
-                items = state.weeklyBySubject.map { w -> BarItem(w.subject!!.name, w.minutes.toFloat(), subjectColor(w.subject.color), goal = w.goalMinutes.toFloat().takeIf { it > 0 }) },
+                items = state.weeklyBySubject.mapNotNull { w -> w.subject?.let { s -> BarItem(s.name, w.minutes.toFloat(), subjectColor(s.color), goal = w.goalMinutes.toFloat().takeIf { it > 0 }) } },
                 valueFormatter = { DateUtils.formatMinutes(it.toInt()) },
             )
         }

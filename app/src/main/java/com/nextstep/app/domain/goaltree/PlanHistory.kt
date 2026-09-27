@@ -57,11 +57,13 @@ object PlanHistory {
         val byId = goals.associateBy { it.id }
         val day = { millis: Long -> DateUtils.toLocalDate(millis, zone) }
         val started = tree.map { HistoryEvent(day(it.createdAt), HistoryKind.GOAL_STARTED, it.title, it.createdByRole) }
-        val achieved = tree.filter { it.status == GoalStatus.DONE && it.doneAt != null }.map {
-            HistoryEvent(day(it.doneAt!!), HistoryKind.GOAL_ACHIEVED, it.title, it.createdByRole, leadsToTitle = it.leadsTo?.let { id -> byId[id]?.title })
+        val achieved = tree.filter { it.status == GoalStatus.DONE }.mapNotNull {
+            val doneAt = it.doneAt ?: return@mapNotNull null
+            HistoryEvent(day(doneAt), HistoryKind.GOAL_ACHIEVED, it.title, it.createdByRole, leadsToTitle = it.leadsTo?.let { id -> byId[id]?.title })
         }
-        val done = tasks.filter { !it.deleted && it.done && it.doneAt != null }.map {
-            HistoryEvent(day(it.doneAt!!), HistoryKind.TASK_DONE, it.title, it.createdByRole, goalTitle = it.goalId?.let { id -> byId[id]?.title })
+        val done = tasks.filter { !it.deleted && it.done }.mapNotNull {
+            val doneAt = it.doneAt ?: return@mapNotNull null
+            HistoryEvent(day(doneAt), HistoryKind.TASK_DONE, it.title, it.createdByRole, goalTitle = it.goalId?.let { id -> byId[id]?.title })
         }
         return (started + achieved + done).sortedWith(compareByDescending<HistoryEvent> { it.date }.thenByDescending { it.kind.ordinal }).take(limit)
     }

@@ -9,6 +9,7 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
@@ -68,7 +69,7 @@ class MentorDashboardViewModel(
             scores = scores,
             averageScore = ScoreStats.overallAverage(scores),
             recentGrades = grades.take(UiDefaults.MAX_RECENT_RECORDS),
-            myTasks = scopedTasks.filter { !it.done && it.createdByRole == Role.MENTOR.name },
+            myTasks = scopedTasks.filter { !it.done && AssignmentStats.isAssignment(it) },
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, scopedTasks, d.events).take(UiDefaults.MAX_INSIGHTS),
             roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
         )

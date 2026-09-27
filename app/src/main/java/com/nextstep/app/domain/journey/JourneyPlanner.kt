@@ -15,7 +15,7 @@ object JourneyPlanner {
      * @param stored 저장된 상태·직접 추가 항목.
      */
     fun build(birthDate: LocalDate?, stored: List<JourneyItemEntity>, today: LocalDate): List<JourneyItem> {
-        val overrides = stored.filter { it.templateId != null && !it.deleted }.associateBy { it.templateId!! }
+        val overrides = stored.filter { !it.deleted }.mapNotNull { item -> item.templateId?.let { it to item } }.toMap()
         val fromCatalog = if (birthDate == null) emptyList() else MilestoneCatalog.templates.map { t ->
             val saved = overrides[t.id]
             val due = saved?.dueDate?.let { LocalDate.ofEpochDay(it) } ?: t.due.dueDate(birthDate)

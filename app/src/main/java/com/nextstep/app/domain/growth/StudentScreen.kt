@@ -32,12 +32,13 @@ data class StudentScreen(
             val year = student?.let { YearProfiles.of(it, today) }
             val chosen = StudentUiLevel.fromName(student?.uiLevel)
             val level = chosen ?: year?.level ?: StudentUiLevel.TREE
-            val followYear = chosen == null && year != null
+            // 학부모가 단계를 직접 고르지 않았으면 올해 프로필의 글씨·줄 수를 따릅니다.
+            val followed = year?.takeIf { chosen == null }
             return StudentScreen(
                 level = level,
                 year = year,
-                textScale = if (followYear) year!!.textScale else level.textScale,
-                taskRows = if (followYear) year!!.taskRows else level.taskRows,
+                textScale = followed?.textScale ?: level.textScale,
+                taskRows = followed?.taskRows ?: level.taskRows,
                 homeOrder = homeOrder(year, level),
             )
         }

@@ -31,7 +31,7 @@ object GrowthStats {
         val visionLeft = live.lastOrNull { it.visionLeft != null }?.visionLeft
         val visionRight = live.lastOrNull { it.visionRight != null }?.visionRight
         val velocity = velocity(heights)
-        val weightDelta = weights.takeLast(2).takeIf { it.size == 2 }?.let { (a, b) -> b.weightKg!! - a.weightKg!! }
+        val weightDelta = weights.takeLast(2).takeIf { it.size == 2 }?.let { (a, b) -> a.weightKg?.let { wa -> b.weightKg?.minus(wa) } }
         val bmi = if (height != null && weight != null && height > 0) weight / ((height / 100) * (height / 100)) else null
         return GrowthSummary(
             latestDate = LocalDate.ofEpochDay(latest.date), heightCm = height, weightKg = weight, visionLeft = visionLeft, visionRight = visionRight,
@@ -46,7 +46,9 @@ object GrowthStats {
         val (a, b) = pair
         val days = b.date - a.date
         if (days < MIN_DAYS_FOR_VELOCITY) return null
-        return (b.heightCm!! - a.heightCm!!) / days * DAYS_PER_YEAR
+        val from = a.heightCm ?: return null
+        val to = b.heightCm ?: return null
+        return (to - from) / days * DAYS_PER_YEAR
     }
 
     private fun signals(live: List<GrowthRecordEntity>, velocity: Double?, today: LocalDate): List<GrowthSignal> {
@@ -54,7 +56,7 @@ object GrowthStats {
         val visions = live.filter { it.visionLeft != null || it.visionRight != null }
         val latestVision = visions.lastOrNull()
         if (latestVision != null) {
-            val worst = listOfNotNull(latestVision.visionLeft, latestVision.visionRight).minOrNull()!!
+            val worst = listOfNotNull(latestVision.visionLeft, latestVision.visionRight).min()
             val previous = visions.dropLast(1).lastOrNull()
             val prevWorst = previous?.let { listOfNotNull(it.visionLeft, it.visionRight).minOrNull() }
             when {

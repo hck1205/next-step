@@ -126,7 +126,7 @@ object YearProfiles {
         grade: Int, theme: String, subjects: List<String>, dailyMinutes: Int, sessionMinutes: Int, sessionsPerDay: Int, days: Int,
         textScale: Float, taskRows: Int, lead: List<StudentHomeSection>, vararg kinds: StudyKind,
     ) = YearProfile(
-        key = schoolKey(grade), label = GrowthStage.fromGradeYear(grade)!!.gradeLabel(grade), level = StudentUiLevel.forGrade(grade), theme = theme,
+        key = schoolKey(grade), label = GrowthStage.fromGradeYear(grade)?.gradeLabel(grade).orEmpty(), level = StudentUiLevel.forGrade(grade), theme = theme,
         subjects = subjects, kinds = kinds.toList(), dailyMinutes = dailyMinutes, sessionMinutes = sessionMinutes, sessionsPerDay = sessionsPerDay,
         studyDaysPerWeek = days, textScale = textScale, taskRows = taskRows, lead = lead,
     )

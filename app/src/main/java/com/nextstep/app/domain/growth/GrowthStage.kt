@@ -90,6 +90,6 @@ enum class GrowthStage(
         }
 
         /** 온보딩·설정에서 고를 수 있는 학년 목록과 표기 (학령기 + 대학·대학원). */
-        fun gradeOptions(): List<Pair<Int, String>> = (MIN_GRADE..MAX_GRADE).map { y -> y to fromGradeYear(y)!!.gradeLabel(y) }
+        fun gradeOptions(): List<Pair<Int, String>> = (MIN_GRADE..MAX_GRADE).mapNotNull { y -> fromGradeYear(y)?.let { y to it.gradeLabel(y) } }
     }
 }

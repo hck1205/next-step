@@ -75,7 +75,7 @@ object Gamify {
         val reflected = plan?.isReflected == true
         val first = if (style == GameStyle.GROWTH) {
             val goals = plan?.goalList.orEmpty()
-            if (goals.isEmpty()) WeekChallenge("이번 주 계획 세우기", 0, 1) else WeekChallenge("내 계획 지키기", plan!!.doneCount, goals.size)
+            if (plan == null || goals.isEmpty()) WeekChallenge("이번 주 계획 세우기", 0, 1) else WeekChallenge("내 계획 지키기", plan.doneCount, goals.size)
         } else {
             val live = input.tasks.filter { !it.deleted }
             val due = live.count { it.dueDate in week }
