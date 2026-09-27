@@ -38,9 +38,11 @@ class InsightsViewModel(
         )
     }.asUiState(viewModelScope, InsightsUiState())
 
-    fun applyAction(action: InsightAction, createdByRole: String) = viewModelScope.launch {
-        when (action) {
-            is InsightAction.CreateTask -> tasks.save(TaskDrafts.forInsight(action, createdByRole, DateUtils.today()))
+    fun applyAction(action: InsightAction, createdByRole: String) {
+        viewModelScope.launch {
+            when (action) {
+                is InsightAction.CreateTask -> tasks.save(TaskDrafts.forInsight(action, createdByRole, DateUtils.today()))
+            }
         }
     }
 

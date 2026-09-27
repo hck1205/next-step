@@ -56,7 +56,7 @@ internal fun NavGraphBuilder.detailRoutes(caps: Capabilities, studentScreen: Stu
 
 /** 멘토 첫 화면의 이동. 멘토 본인은 오늘 탭([onBack] 없음), 학부모는 오늘 화면에서 열어 뒤로 갑니다. */
 internal fun mentorActions(nav: AppNav, onBack: (() -> Unit)?, onSwitchChild: (String) -> Unit) = MentorDashboardActions(
-    onOpenSettings = nav.to(Routes.FAMILY), onOpenSubject = nav.openSubject, onOpenRoadmap = nav.to(Routes.ROADMAP),
+    onOpenSubject = nav.openSubject, onOpenRoadmap = nav.to(Routes.ROADMAP),
     onOpenContent = nav.to(Routes.CONTENT), onBack = onBack, onOpenJourney = nav.to(Routes.JOURNEY), onSwitchChild = onSwitchChild,
 )
 

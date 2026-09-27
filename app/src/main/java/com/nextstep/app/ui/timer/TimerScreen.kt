@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.timer
 
-import com.nextstep.app.ui.timer.components.KidTimerCard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,12 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -25,8 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -37,14 +34,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
-import com.nextstep.app.ui.components.dialog.ManualSessionDialog
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.components.row.SessionRow
-import com.nextstep.app.ui.components.input.SubjectPicker
 import com.nextstep.app.ui.components.card.SubjectTag
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.components.dialog.ManualSessionDialog
+import com.nextstep.app.ui.components.input.SubjectPicker
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.row.SessionRow
+import com.nextstep.app.ui.timer.components.KidTimerCard
 
 @Composable
 fun TimerScreen(actions: TimerActions, visualMinutes: Int? = null, viewModel: TimerViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -61,7 +58,7 @@ internal fun TimerContent(state: TimerUiState, actions: TimerActions, visualMinu
         topBar = {
             TopAppBar(
                 title = { Text("학습 타이머") },
-                navigationIcon = { IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { BackButton(actions.onBack) },
                 actions = { if (visualMinutes == null) TextButton(onClick = { showManual = true }) { Text("직접 기록") } },
             )
         },
@@ -103,7 +100,7 @@ internal fun TimerContent(state: TimerUiState, actions: TimerActions, visualMinu
                 }
             }
             item { SectionTitle("오늘 기록 · 총 ${DateUtils.formatMinutes(state.todayMinutes)}") }
-            if (state.todaySessions.isEmpty()) item { AppCard { EmptyState("아직 오늘 기록이 없어요") } }
+            if (state.todaySessions.isEmpty()) item { EmptyCard("아직 오늘 기록이 없어요") }
             else items(state.todaySessions, key = { it.id }) { s -> SessionRow(s, state.subjects, onDelete = { onEvent(TimerEvent.Delete(s.id)) }) }
         }
     }

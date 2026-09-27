@@ -72,13 +72,17 @@ class YearPlanViewModel(
         )
     }.asUiState(viewModelScope, YearPlanUiState())
 
-    fun toggle(view: YearTaskView) = viewModelScope.launch {
-        val year = state.value.year ?: return@launch
-        journey.setTemplateStatus(view.task.storageId(year.key), if (view.done) MilestoneStatus.UPCOMING else MilestoneStatus.DONE, view.task.term.endDate(today()))
+    fun toggle(view: YearTaskView) {
+        viewModelScope.launch {
+            val year = state.value.year ?: return@launch
+            journey.setTemplateStatus(view.task.storageId(year.key), if (view.done) MilestoneStatus.UPCOMING else MilestoneStatus.DONE, view.task.term.endDate(today()))
+        }
     }
 
-    fun addToToday(task: YearTask) = viewModelScope.launch {
-        tasks.save(TaskDrafts.forYearTask(task, today()))
+    fun addToToday(task: YearTask) {
+        viewModelScope.launch {
+            tasks.save(TaskDrafts.forYearTask(task, today()))
+        }
     }
 
     /** 화면 이벤트 단일 진입점. */

@@ -105,8 +105,10 @@ class ParentDashboardViewModel(
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
     /** 학부모가 자녀에게 할 일을 배정합니다. */
-    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) = viewModelScope.launch {
-        tasks.save(TaskDrafts.written(title, subjectId, type, due, createdByRole))
+    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) {
+        viewModelScope.launch {
+            tasks.save(TaskDrafts.written(title, subjectId, type, due, createdByRole))
+        }
     }
 
     private data class Core(
@@ -125,7 +127,7 @@ class ParentDashboardViewModel(
         val goalSteps: List<GoalStepEntity>,
     )
 
-    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch { projects.toggleRoutine(progress, item, DateUtils.today()) }
+    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) { viewModelScope.launch { projects.toggleRoutine(progress, item, DateUtils.today()) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: ParentDashboardEvent) {

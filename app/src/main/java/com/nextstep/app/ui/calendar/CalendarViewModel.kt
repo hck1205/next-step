@@ -56,26 +56,30 @@ class CalendarViewModel(
     fun select(date: LocalDate) { selected.value = date; month.value = YearMonth.from(date) }
     fun today() = select(DateUtils.today())
 
-    fun saveEvent(existing: EventEntity?, title: String, subjectId: String?, type: EventType, date: LocalDate, start: LocalTime, end: LocalTime, repeatWeekly: Boolean, location: String, memo: String) = viewModelScope.launch {
-        val startMs = DateUtils.toMillis(date, start)
-        val endMs = DateUtils.toMillis(date, if (end.isAfter(start)) end else start.plusHours(1))
-        val event = (existing ?: EventEntity(familyId = "", title = title, startAt = startMs, endAt = endMs)).copy(
-            title = title, subjectId = subjectId, type = type, startAt = startMs, endAt = endMs, repeatWeekly = repeatWeekly, location = location, memo = memo,
-        )
-        events.save(event)
+    fun saveEvent(existing: EventEntity?, title: String, subjectId: String?, type: EventType, date: LocalDate, start: LocalTime, end: LocalTime, repeatWeekly: Boolean, location: String, memo: String) {
+        viewModelScope.launch {
+            val startMs = DateUtils.toMillis(date, start)
+            val endMs = DateUtils.toMillis(date, if (end.isAfter(start)) end else start.plusHours(1))
+            val event = (existing ?: EventEntity(familyId = "", title = title, startAt = startMs, endAt = endMs)).copy(
+                title = title, subjectId = subjectId, type = type, startAt = startMs, endAt = endMs, repeatWeekly = repeatWeekly, location = location, memo = memo,
+            )
+            events.save(event)
+        }
     }
 
-    fun deleteEvent(id: String) = viewModelScope.launch { events.delete(id) }
+    fun deleteEvent(id: String) { viewModelScope.launch { events.delete(id) } }
 
-    fun saveTask(existing: TaskEntity?, title: String, subjectId: String?, type: TaskType, due: LocalDate, role: String) = viewModelScope.launch {
-        val task = (existing ?: TaskEntity(familyId = "", title = title, dueDate = due.toEpochDay(), createdByRole = role)).copy(
-            title = title, subjectId = subjectId, type = type, dueDate = due.toEpochDay(),
-        )
-        tasks.save(task)
+    fun saveTask(existing: TaskEntity?, title: String, subjectId: String?, type: TaskType, due: LocalDate, role: String) {
+        viewModelScope.launch {
+            val task = (existing ?: TaskEntity(familyId = "", title = title, dueDate = due.toEpochDay(), createdByRole = role)).copy(
+                title = title, subjectId = subjectId, type = type, dueDate = due.toEpochDay(),
+            )
+            tasks.save(task)
+        }
     }
 
-    fun toggleTask(task: TaskEntity) = viewModelScope.launch { tasks.setDone(task.id, !task.done) }
-    fun deleteTask(id: String) = viewModelScope.launch { tasks.delete(id) }
+    fun toggleTask(task: TaskEntity) { viewModelScope.launch { tasks.setDone(task.id, !task.done) } }
+    fun deleteTask(id: String) { viewModelScope.launch { tasks.delete(id) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: CalendarEvent) {

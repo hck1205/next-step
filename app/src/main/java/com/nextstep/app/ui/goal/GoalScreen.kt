@@ -5,14 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,8 +26,9 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.BackButton
 import com.nextstep.app.ui.components.row.HistoryEventRow
 import com.nextstep.app.ui.goal.components.ChainCard
 import com.nextstep.app.ui.goal.components.ChildGoalCard
@@ -61,7 +58,7 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
         topBar = {
             TopAppBar(
                 title = { Text(state.node?.goal?.title ?: "목표", maxLines = 1) },
-                navigationIcon = { IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { BackButton(actions.onBack) },
             )
         },
     ) { padding ->
@@ -72,7 +69,7 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
         ) {
             val node = state.node
             if (node == null) {
-                if (state.loaded) item { AppCard { EmptyState("이 목표를 찾을 수 없어요") } }
+                if (state.loaded) item { EmptyCard("이 목표를 찾을 수 없어요") }
             } else {
                 goalTop(node, state, caps, actions, onEvent, open)
                 goalTasks(node, state, caps, onEvent, open)

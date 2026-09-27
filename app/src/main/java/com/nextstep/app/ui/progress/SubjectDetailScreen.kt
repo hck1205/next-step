@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.progress
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -24,8 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,19 +34,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.ColorDot
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.components.dialog.SubjectEditDialog
 import com.nextstep.app.ui.components.card.subjectColor
-import com.nextstep.app.ui.progress.components.TopicRow
-import com.nextstep.app.ui.progress.components.ProgressSummaryCard
-import com.nextstep.app.ui.progress.components.ClassProgressDialog
-import com.nextstep.app.ui.progress.components.QueueHintCard
+import com.nextstep.app.ui.components.dialog.SubjectEditDialog
 import com.nextstep.app.ui.components.dialog.TextInputDialog
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.progress.components.ClassProgressDialog
+import com.nextstep.app.ui.progress.components.ProgressSummaryCard
+import com.nextstep.app.ui.progress.components.QueueHintCard
+import com.nextstep.app.ui.progress.components.TopicRow
 
 @Composable
 fun SubjectDetailScreen(caps: Capabilities, actions: SubjectDetailActions, viewModel: SubjectDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -79,7 +77,7 @@ internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilitie
             }
 
             item { SectionTitle("단원 목록") }
-            if (state.topics.isEmpty()) item { AppCard { EmptyState("단원을 추가하세요 (여러 개는 줄바꿈으로 구분)") } }
+            if (state.topics.isEmpty()) item { EmptyCard("단원을 추가하세요 (여러 개는 줄바꿈으로 구분)") }
             items(state.topics, key = { it.id }) { topic ->
                 TopicRow(
                     topic = topic,
@@ -121,7 +119,7 @@ private fun SubjectTopBar(name: String, color: Color, onBack: () -> Unit, onEdit
                 ColorDot(color, TITLE_DOT); Spacer(Modifier.width(8.dp)); Text(name)
             }
         },
-        navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+        navigationIcon = { BackButton(onBack) },
         actions = { if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "과목 편집") } },
     )
 }

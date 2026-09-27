@@ -46,9 +46,11 @@ class SelfDirectionViewModel(
     }
 
     /** 기본 단계와 같은 단계를 고르면 "자동"으로 되돌립니다. */
-    private fun setStage(stage: SelfDirectionStage?) = viewModelScope.launch {
-        val s = state.value
-        val id = s.studentId ?: return@launch
-        members.setSelfDirection(id, stage?.takeIf { it != s.report?.defaultStage })
+    private fun setStage(stage: SelfDirectionStage?) {
+        viewModelScope.launch {
+            val s = state.value
+            val id = s.studentId ?: return@launch
+            members.setSelfDirection(id, stage?.takeIf { it != s.report?.defaultStage })
+        }
     }
 }

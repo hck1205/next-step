@@ -19,14 +19,16 @@ class ProgressViewModel(
         ProgressUiState(subjects, StudyStats.subjectProgress(topics, subjects, queueSize = 2))
     }.asUiState(viewModelScope, ProgressUiState())
 
-    fun addSubject(name: String, color: Long, goalMinutes: Int, teacher: String) = viewModelScope.launch {
-        subjects.save(
-            SubjectEntity(familyId = "", name = name, color = color, weeklyGoalMinutes = goalMinutes, teacher = teacher, orderIndex = state.value.subjects.size),
-        )
+    fun addSubject(name: String, color: Long, goalMinutes: Int, teacher: String) {
+        viewModelScope.launch {
+            subjects.save(
+                SubjectEntity(familyId = "", name = name, color = color, weeklyGoalMinutes = goalMinutes, teacher = teacher, orderIndex = state.value.subjects.size),
+            )
+        }
     }
 
-    fun updateSubject(subject: SubjectEntity) = viewModelScope.launch { subjects.save(subject) }
-    fun deleteSubject(id: String) = viewModelScope.launch { subjects.delete(id) }
+    fun updateSubject(subject: SubjectEntity) { viewModelScope.launch { subjects.save(subject) } }
+    fun deleteSubject(id: String) { viewModelScope.launch { subjects.delete(id) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: ProgressEvent) {

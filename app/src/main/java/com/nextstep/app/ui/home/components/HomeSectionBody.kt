@@ -17,9 +17,8 @@ import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.common.UiDefaults
-import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.CurriculumCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.LinkCard
@@ -64,7 +63,7 @@ internal fun HomeSectionBody(
         }
         StudentHomeSection.WEEK -> WeekCard(state.week, state.streak, words.weekTitle, showsNumbers = level.showsNumbers)
         StudentHomeSection.EVENTS -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (state.todayEvents.isEmpty()) AppCard { EmptyState("오늘은 등록된 일정이 없어요") }
+            if (state.todayEvents.isEmpty()) EmptyCard("오늘은 등록된 일정이 없어요")
             else state.todayEvents.take(rows).forEach { occ -> EventRow(occ, state.subjects) }
         }
         StudentHomeSection.EXAM -> state.nextExam?.let { UpcomingExamCard(it) }
@@ -85,7 +84,7 @@ internal fun HomeSectionBody(
 private fun TodayTasks(state: HomeUiState, shown: Int, onEvent: (HomeEvent) -> Unit, onSpeak: ((String) -> Unit)?, onOpenAll: (() -> Unit)?) {
     val level = state.level
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        if (state.pendingTasks.isEmpty()) AppCard { EmptyState(level.words.allDone) }
+        if (state.pendingTasks.isEmpty()) EmptyCard(level.words.allDone)
         else state.pendingTasks.take(shown).forEach { task ->
             if (level.showsNumbers) TaskRow(task, state.subjects, onToggle = { onEvent(HomeEvent.ToggleTask(task)) })
             else BigTaskRow(task, state.subjects, minHeightDp = level.touchTargetDp, onToggle = { onEvent(HomeEvent.ToggleTask(task)) }, onSpeak = onSpeak)

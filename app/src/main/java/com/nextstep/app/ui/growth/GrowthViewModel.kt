@@ -34,8 +34,8 @@ class GrowthViewModel(
         )
     }.asUiState(viewModelScope, GrowthUiState())
 
-    fun save(record: GrowthRecordEntity) = viewModelScope.launch { growth.saveRecord(record) }
-    fun delete(id: String) = viewModelScope.launch { growth.deleteRecord(id) }
+    fun save(record: GrowthRecordEntity) { viewModelScope.launch { growth.saveRecord(record) } }
+    fun delete(id: String) { viewModelScope.launch { growth.deleteRecord(id) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: GrowthEvent) {

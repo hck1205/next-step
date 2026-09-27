@@ -23,13 +23,15 @@ class RoadmapViewModel(
         RoadmapUiState.derive(subjects, items, StudyStats.subjectProgress(topics, subjects), topics, profile.studentName, contents)
     }.asUiState(viewModelScope, RoadmapUiState())
 
-    fun save(existing: RoadmapItemEntity?, subjectId: String?, title: String, description: String, resource: String, targetDate: LocalDate?, contentId: String?) = viewModelScope.launch {
-        val base = existing ?: RoadmapItemEntity(familyId = "", title = title, orderIndex = state.value.items.size)
-        roadmap.save(base.copy(subjectId = subjectId, title = title, description = description, resource = resource, targetDate = targetDate?.toEpochDay(), contentId = contentId))
+    fun save(existing: RoadmapItemEntity?, subjectId: String?, title: String, description: String, resource: String, targetDate: LocalDate?, contentId: String?) {
+        viewModelScope.launch {
+            val base = existing ?: RoadmapItemEntity(familyId = "", title = title, orderIndex = state.value.items.size)
+            roadmap.save(base.copy(subjectId = subjectId, title = title, description = description, resource = resource, targetDate = targetDate?.toEpochDay(), contentId = contentId))
+        }
     }
 
-    fun setStatus(id: String, status: RoadmapStatus) = viewModelScope.launch { roadmap.setStatus(id, status) }
-    fun delete(id: String) = viewModelScope.launch { roadmap.delete(id) }
+    fun setStatus(id: String, status: RoadmapStatus) { viewModelScope.launch { roadmap.setStatus(id, status) } }
+    fun delete(id: String) { viewModelScope.launch { roadmap.delete(id) } }
 
     /** 추천 항목을 로드맵에 바로 추가. */
     fun addSuggestion(subject: SubjectEntity, title: String) = save(null, subject.id, title, "", "", DateUtils.today().plusDays(7), null)

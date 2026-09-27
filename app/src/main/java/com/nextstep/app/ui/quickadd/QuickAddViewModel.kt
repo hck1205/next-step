@@ -40,30 +40,38 @@ class QuickAddViewModel(
         QuickAddUiState(subjects = subjects, today = today(), savedMessage = msg)
     }.asUiState(viewModelScope, QuickAddUiState())
 
-    fun saveActivity(activity: ActivityEntity) = viewModelScope.launch { activities.save(activity); message.value = "활동을 기록했어요" }
+    fun saveActivity(activity: ActivityEntity) { viewModelScope.launch { activities.save(activity); message.value = "활동을 기록했어요" } }
 
-    fun saveTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) = viewModelScope.launch {
-        if (title.isBlank()) return@launch
-        tasks.save(TaskDrafts.written(title.trim(), subjectId, type, due, createdByRole))
-        message.value = "할 일을 추가했어요"
+    fun saveTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) {
+        viewModelScope.launch {
+            if (title.isBlank()) return@launch
+            tasks.save(TaskDrafts.written(title.trim(), subjectId, type, due, createdByRole))
+            message.value = "할 일을 추가했어요"
+        }
     }
 
-    fun saveGrade(subjectId: String, title: String, examType: ExamType, score: Double, maxScore: Double, classAverage: Double?, date: LocalDate, memo: String) = viewModelScope.launch {
-        grades.save(GradeEntity(familyId = "", subjectId = subjectId, title = title, examType = examType, score = score, maxScore = maxScore, classAverage = classAverage, date = date.toEpochDay(), memo = memo))
-        message.value = "성적을 입력했어요"
+    fun saveGrade(subjectId: String, title: String, examType: ExamType, score: Double, maxScore: Double, classAverage: Double?, date: LocalDate, memo: String) {
+        viewModelScope.launch {
+            grades.save(GradeEntity(familyId = "", subjectId = subjectId, title = title, examType = examType, score = score, maxScore = maxScore, classAverage = classAverage, date = date.toEpochDay(), memo = memo))
+            message.value = "성적을 입력했어요"
+        }
     }
 
-    fun saveEvent(title: String, subjectId: String?, type: EventType, date: LocalDate, start: LocalTime, end: LocalTime, repeatWeekly: Boolean, location: String, memo: String) = viewModelScope.launch {
-        val startMs = DateUtils.toMillis(date, start)
-        val endMs = DateUtils.toMillis(date, if (end.isAfter(start)) end else start.plusHours(1))
-        events.save(EventEntity(familyId = "", subjectId = subjectId, title = title, type = type, startAt = startMs, endAt = endMs, repeatWeekly = repeatWeekly, location = location, memo = memo))
-        message.value = "일정을 추가했어요"
+    fun saveEvent(title: String, subjectId: String?, type: EventType, date: LocalDate, start: LocalTime, end: LocalTime, repeatWeekly: Boolean, location: String, memo: String) {
+        viewModelScope.launch {
+            val startMs = DateUtils.toMillis(date, start)
+            val endMs = DateUtils.toMillis(date, if (end.isAfter(start)) end else start.plusHours(1))
+            events.save(EventEntity(familyId = "", subjectId = subjectId, title = title, type = type, startAt = startMs, endAt = endMs, repeatWeekly = repeatWeekly, location = location, memo = memo))
+            message.value = "일정을 추가했어요"
+        }
     }
 
     /** 아이용 그림 타일: 오늘 날짜의 활동 하나를 학생이 남긴 것으로 저장합니다. */
-    fun kidRecord(record: KidRecord) = viewModelScope.launch {
-        activities.save(ActivityEntity(familyId = "", type = record.type, title = record.title, date = today().toEpochDay(), createdByRole = Role.STUDENT.name))
-        message.value = "${record.label}! 스티커를 받았어요"
+    fun kidRecord(record: KidRecord) {
+        viewModelScope.launch {
+            activities.save(ActivityEntity(familyId = "", type = record.type, title = record.title, date = today().toEpochDay(), createdByRole = Role.STUDENT.name))
+            message.value = "${record.label}! 스티커를 받았어요"
+        }
     }
 
     fun clearMessage() { message.value = null }

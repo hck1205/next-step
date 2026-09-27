@@ -9,8 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.today.ParentTodayCard
 import com.nextstep.app.ui.common.UiDefaults
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.GoalFocusCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
@@ -35,7 +34,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
             if (!compact) TextButton(onClick = { actions.onOpenRecords(ConcernSection.GOAL_TREE) }) { Text("목표 전체") }
         }
         ParentTodayCard.TODAY -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") }
+            if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) EmptyCard("오늘은 잡힌 할 일과 일정이 없어요")
             state.pendingTasks.take(rows).forEach { t -> PendingTaskRow(t, state.subjects.firstOrNull { it.id == t.subjectId }) }
             state.todayEvents.take(rows).forEach { occ -> EventRow(occ, state.subjects) }
             if (!compact) TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) {

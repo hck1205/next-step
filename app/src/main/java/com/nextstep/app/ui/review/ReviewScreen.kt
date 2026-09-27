@@ -21,7 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.review.components.ReviewRow
 
 /** 배울 것 › 복습: 과목별 남은 단원 한 줄 → 이유별 목록(이해도 낮음 → 점수 내려간 과목 → 수업 뒤 → 다음 수업 예습). */
@@ -45,7 +45,7 @@ internal fun ReviewContent(state: ReviewUiState, caps: Capabilities, onEvent: (R
                 }
             }
         }
-        if (state.loaded && state.total == 0) item { AppCard { EmptyState("수업한 단원을 진도에 표시하면 복습할 단원이 여기에 모여요.") } }
+        if (state.loaded && state.total == 0) item { EmptyCard("수업한 단원을 진도에 표시하면 복습할 단원이 여기에 모여요.") }
         state.sections.forEach { (reason, rows) ->
             stickyHeader(key = "r${reason.name}") {
                 Text(

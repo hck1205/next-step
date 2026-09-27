@@ -25,6 +25,4 @@ object Routes {
     const val PROJECT = "project/{goalId}"
     fun project(goalId: String) = "project/$goalId"
     fun records(section: ConcernSection = ConcernSection.OVERVIEW) = "records/${section.route}"
-    private const val RECORDS_PREFIX = "records/"
-    fun isRecords(route: String?) = route?.startsWith(RECORDS_PREFIX) == true
 }

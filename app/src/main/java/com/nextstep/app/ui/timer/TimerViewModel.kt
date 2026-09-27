@@ -45,25 +45,29 @@ class TimerViewModel(
 
     fun selectSubject(id: String?) { selected.value = id }
 
-    fun start() = viewModelScope.launch {
-        lastSaved.value = null
-        sessions.startTimer(state.value.selectedSubjectId)
+    fun start() {
+        viewModelScope.launch {
+            lastSaved.value = null
+            sessions.startTimer(state.value.selectedSubjectId)
+        }
     }
 
-    fun stop() = viewModelScope.launch { lastSaved.value = sessions.stopTimer() }
+    fun stop() { viewModelScope.launch { lastSaved.value = sessions.stopTimer() } }
 
-    fun cancel() = viewModelScope.launch { sessions.cancelTimer() }
+    fun cancel() { viewModelScope.launch { sessions.cancelTimer() } }
 
     /** 타이머 없이 직접 기록. */
-    fun addManual(subjectId: String?, date: LocalDate, start: LocalTime, minutes: Int, note: String) = viewModelScope.launch {
-        if (minutes <= 0) return@launch
-        val startMs = DateUtils.toMillis(date, start)
-        sessions.save(
-            StudySessionEntity(familyId = "", subjectId = subjectId, startAt = startMs, endAt = startMs + minutes * 60_000L, durationMinutes = minutes, note = note),
-        )
+    fun addManual(subjectId: String?, date: LocalDate, start: LocalTime, minutes: Int, note: String) {
+        viewModelScope.launch {
+            if (minutes <= 0) return@launch
+            val startMs = DateUtils.toMillis(date, start)
+            sessions.save(
+                StudySessionEntity(familyId = "", subjectId = subjectId, startAt = startMs, endAt = startMs + minutes * 60_000L, durationMinutes = minutes, note = note),
+            )
+        }
     }
 
-    fun delete(id: String) = viewModelScope.launch { sessions.delete(id) }
+    fun delete(id: String) { viewModelScope.launch { sessions.delete(id) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: TimerEvent) {

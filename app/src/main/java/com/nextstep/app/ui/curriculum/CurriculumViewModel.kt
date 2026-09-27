@@ -70,25 +70,29 @@ class CurriculumViewModel(
     fun thisPeriod() { selectedKey.value = null }
 
     /** 과목의 미등록 단원을 가족 과목·단원으로 복사합니다. 과목이 없으면 팔레트 색으로 새로 만듭니다. */
-    fun importSubject(subjectName: String) = viewModelScope.launch {
-        val plan = state.value.plan ?: return@launch
-        val sp = plan.subjects.firstOrNull { it.subject == subjectName } ?: return@launch
-        val titles = sp.notRegistered.map { it.title }
-        if (titles.isEmpty()) return@launch
-        val subjectId = sp.familySubject?.id ?: SubjectEntity(familyId = "", name = subjectName, color = SubjectPalette.colorFor(subjectName), orderIndex = plan.subjects.indexOf(sp)).also { subjects.save(it) }.id
-        topics.add(subjectId, titles)
+    fun importSubject(subjectName: String) {
+        viewModelScope.launch {
+            val plan = state.value.plan ?: return@launch
+            val sp = plan.subjects.firstOrNull { it.subject == subjectName } ?: return@launch
+            val titles = sp.notRegistered.map { it.title }
+            if (titles.isEmpty()) return@launch
+            val subjectId = sp.familySubject?.id ?: SubjectEntity(familyId = "", name = subjectName, color = SubjectPalette.colorFor(subjectName), orderIndex = plan.subjects.indexOf(sp)).also { subjects.save(it) }.id
+            topics.add(subjectId, titles)
+        }
     }
 
-    fun addTask(unit: CurriculumUnit, createdByRole: String) = viewModelScope.launch {
-        val s = state.value
-        val status = s.plan?.subjects?.flatMap { it.units }?.firstOrNull { it.unit == unit }?.status
-        val type = if (status == UnitStatus.IN_CLASS) TaskType.REVIEW else TaskType.PREVIEW
-        val subjectId = s.plan?.subjects?.firstOrNull { it.subject == unit.subject }?.familySubject?.id
-        val due = s.selected?.end?.takeIf { !it.isBefore(today()) } ?: today().plusDays(DEFAULT_DUE_DAYS)
-        tasks.save(TaskDrafts.forCurriculum(unit, subjectId, type, due, createdByRole))
+    fun addTask(unit: CurriculumUnit, createdByRole: String) {
+        viewModelScope.launch {
+            val s = state.value
+            val status = s.plan?.subjects?.flatMap { it.units }?.firstOrNull { it.unit == unit }?.status
+            val type = if (status == UnitStatus.IN_CLASS) TaskType.REVIEW else TaskType.PREVIEW
+            val subjectId = s.plan?.subjects?.firstOrNull { it.subject == unit.subject }?.familySubject?.id
+            val due = s.selected?.end?.takeIf { !it.isBefore(today()) } ?: today().plusDays(DEFAULT_DUE_DAYS)
+            tasks.save(TaskDrafts.forCurriculum(unit, subjectId, type, due, createdByRole))
+        }
     }
 
-    fun markWatched(contentId: String) = viewModelScope.launch { contents.setWatched(contentId, true) }
+    fun markWatched(contentId: String) { viewModelScope.launch { contents.setWatched(contentId, true) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: CurriculumEvent) {

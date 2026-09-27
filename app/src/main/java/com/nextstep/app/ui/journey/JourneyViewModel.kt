@@ -75,45 +75,55 @@ class JourneyViewModel(
         JourneySections.apply(s.copy(filter = f, showCompleted = c, showPast = p))
     }.asUiState(viewModelScope, JourneyUiState())
 
-    fun setStatus(item: JourneyItem, status: MilestoneStatus) = viewModelScope.launch {
-        val templateId = item.templateId
-        if (templateId != null) journey.setTemplateStatus(templateId, status, item.dueDate)
-        else item.entityId?.let { journey.setStatus(it, status) }
+    fun setStatus(item: JourneyItem, status: MilestoneStatus) {
+        viewModelScope.launch {
+            val templateId = item.templateId
+            if (templateId != null) journey.setTemplateStatus(templateId, status, item.dueDate)
+            else item.entityId?.let { journey.setStatus(it, status) }
+        }
     }
 
-    fun setNote(item: JourneyItem, note: String) = viewModelScope.launch {
-        val templateId = item.templateId
-        if (templateId != null) journey.setTemplateNote(templateId, note, item.dueDate)
-        else item.entityId?.let { journey.setNote(it, note) }
+    fun setNote(item: JourneyItem, note: String) {
+        viewModelScope.launch {
+            val templateId = item.templateId
+            if (templateId != null) journey.setTemplateNote(templateId, note, item.dueDate)
+            else item.entityId?.let { journey.setNote(it, note) }
+        }
     }
 
-    fun setDueDate(item: JourneyItem, dueDate: LocalDate) = viewModelScope.launch {
-        val templateId = item.templateId
-        if (templateId != null) journey.setTemplateDueDate(templateId, dueDate)
-        else item.entityId?.let { journey.setDueDate(it, dueDate) }
+    fun setDueDate(item: JourneyItem, dueDate: LocalDate) {
+        viewModelScope.launch {
+            val templateId = item.templateId
+            if (templateId != null) journey.setTemplateDueDate(templateId, dueDate)
+            else item.entityId?.let { journey.setDueDate(it, dueDate) }
+        }
     }
 
-    fun addCustom(title: String, description: String, category: MilestoneCategory, dueDate: LocalDate, leadMonths: Int) = viewModelScope.launch {
-        journey.addCustom(title, description, category.name, dueDate, leadMonths, priority = 2)
+    fun addCustom(title: String, description: String, category: MilestoneCategory, dueDate: LocalDate, leadMonths: Int) {
+        viewModelScope.launch {
+            journey.addCustom(title, description, category.name, dueDate, leadMonths, priority = 2)
+        }
     }
 
-    fun deleteCustom(item: JourneyItem) = viewModelScope.launch { item.entityId?.takeIf { item.isCustom }?.let { journey.delete(it) } }
+    fun deleteCustom(item: JourneyItem) { viewModelScope.launch { item.entityId?.takeIf { item.isCustom }?.let { journey.delete(it) } } }
 
     fun setFilter(category: MilestoneCategory?) { filter.value = category }
     fun showCompleted(show: Boolean) { showCompleted.value = show }
     fun showPast(show: Boolean) { showPast.value = show }
 
-    fun setBirthDate(date: LocalDate) = viewModelScope.launch { state.value.studentMemberId?.let { members.setBirthDate(it, date) } }
+    fun setBirthDate(date: LocalDate) { viewModelScope.launch { state.value.studentMemberId?.let { members.setBirthDate(it, date) } } }
 
-    fun setStepStatus(step: GoalStepEntity, status: MilestoneStatus) = viewModelScope.launch { goals.setStepStatus(step.id, status) }
+    fun setStepStatus(step: GoalStepEntity, status: MilestoneStatus) { viewModelScope.launch { goals.setStepStatus(step.id, status) } }
 
     /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감 규칙은 GoalPlanner.taskFor 참고. */
-    fun sendStepToTasks(step: GoalStepEntity, createdByRole: String) = viewModelScope.launch {
-        if (step.taskId != null) return@launch
-        val s = state.value
-        val task = GoalPlanner.taskFor(step, s.goals.firstOrNull { it.id == step.goalId }?.title ?: "", s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
-        tasks.save(task)
-        goals.setStepTask(step.id, task.id)
+    fun sendStepToTasks(step: GoalStepEntity, createdByRole: String) {
+        viewModelScope.launch {
+            if (step.taskId != null) return@launch
+            val s = state.value
+            val task = GoalPlanner.taskFor(step, s.goals.firstOrNull { it.id == step.goalId }?.title ?: "", s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
+            tasks.save(task)
+            goals.setStepTask(step.id, task.id)
+        }
     }
 
     private data class Base(

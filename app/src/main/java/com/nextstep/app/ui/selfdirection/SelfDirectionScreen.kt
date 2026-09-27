@@ -27,13 +27,13 @@ import com.nextstep.app.ui.selfdirection.components.SuggestionCard
  * 이번 주 계획, 최근 4주 흔적, 한 칸 맡길 준비가 됐는지(제안), 지난 주들의 계획과 돌아보기를 보여 줍니다.
  */
 @Composable
-fun SelfDirectionScreen(caps: Capabilities, actions: SelfDirectionActions, viewModel: SelfDirectionViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun SelfDirectionScreen(caps: Capabilities, viewModel: SelfDirectionViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    SelfDirectionContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
+    SelfDirectionContent(state = state, caps = caps, onEvent = viewModel::onEvent)
 }
 
 @Composable
-internal fun SelfDirectionContent(state: SelfDirectionUiState, caps: Capabilities, actions: SelfDirectionActions, onEvent: (SelfDirectionEvent) -> Unit) {
+internal fun SelfDirectionContent(state: SelfDirectionUiState, caps: Capabilities, onEvent: (SelfDirectionEvent) -> Unit) {
     val report = state.report ?: return
     val access = WeekAccess.of(caps, report.stage)
     LazyColumn(

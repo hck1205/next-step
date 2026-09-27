@@ -11,12 +11,10 @@ val Amber = Color(0xFFF59E0B)
 val AmberLight = Color(0xFFFEF3C7)
 val Rose = Color(0xFFF43F5E)
 val RoseLight = Color(0xFFFFE4E6)
-val Sky = Color(0xFF0EA5E9)
 val Slate50 = Color(0xFFF8FAFC)
 val Slate100 = Color(0xFFF1F5F9)
 val Slate200 = Color(0xFFE2E8F0)
 val Slate500 = Color(0xFF64748B)
-val Slate700 = Color(0xFF334155)
 val Slate900 = Color(0xFF0F172A)
 
 /** 과목 색상 선택지. */

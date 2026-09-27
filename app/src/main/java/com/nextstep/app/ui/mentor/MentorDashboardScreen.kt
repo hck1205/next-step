@@ -9,11 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +36,7 @@ import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
 import com.nextstep.app.ui.components.input.ChildPicker
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
+import com.nextstep.app.ui.components.layout.BackButton
 import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.components.layout.todayBoard
 import com.nextstep.app.ui.mentor.components.MentorCardBody
@@ -102,7 +100,7 @@ private fun MentorTopBar(state: MentorDashboardUiState, actions: MentorDashboard
                 SyncStatusBadge(state.syncStatus)
             }
         },
-        navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+        navigationIcon = { BackButton(actions.onBack) },
         actions = {
             ChildPicker(state.students, state.activeFamilyId, onSelect = actions.onSwitchChild, onAdd = null)
             AppBarMenu(listOf(AppBarMenuItem(MentorTodayCard.CONTENT.title, Icons.Default.SmartDisplay, actions.onOpenContent)))

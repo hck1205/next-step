@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.goals
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,20 +8,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,15 +29,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.goals.components.AddGoalDialog
 import com.nextstep.app.ui.goals.components.AddMissionDialog
-import com.nextstep.app.ui.goals.components.MissionCard
 import com.nextstep.app.ui.goals.components.GoalCard
+import com.nextstep.app.ui.goals.components.MissionCard
 import com.nextstep.app.ui.goals.components.TrackCard
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 /**
  * 목표 화면. 장기 목표를 구간(학기)별 단계로 쪼개 하나씩 진행합니다.
@@ -85,7 +84,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             if (!state.hasBirthDate) {
-                item { AppCard { EmptyState("타임라인에서 생년월일을 먼저 입력하면 학기별 단계를 만들 수 있어요") } }
+                item { EmptyCard("타임라인에서 생년월일을 먼저 입력하면 학기별 단계를 만들 수 있어요") }
             } else {
                 item {
                     AppCard {
@@ -118,7 +117,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
 private fun GoalsTopBar(studentName: String, onBack: () -> Unit, onOpenJourney: () -> Unit) {
     TopAppBar(
         title = { Text(if (studentName.isBlank()) "목표" else "${studentName}의 목표") },
-        navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+        navigationIcon = { BackButton(onBack) },
         actions = { TextButton(onClick = onOpenJourney) { Text("타임라인") } },
     )
 }
@@ -129,7 +128,7 @@ private fun LazyListScope.missionSection(
 ) {
     if (state.missionKinds.isEmpty() && state.missions.isEmpty()) return
     item { SectionTitle("시험·입시", action = if (caps.canManageGoals && state.missionKinds.isNotEmpty()) ({ TextButton(onClick = onAdd) { Text("추가") } }) else null) }
-    if (state.missions.isEmpty()) item { AppCard { EmptyState("시험·수행평가 날짜를 넣으면 단계가 자동으로 나뉘어요") } }
+    if (state.missions.isEmpty()) item { EmptyCard("시험·수행평가 날짜를 넣으면 단계가 자동으로 나뉘어요") }
     items(state.missions, key = { "m-" + it.goal.id }) { view ->
         MissionCard(
             view = view, today = state.today, expanded = expandedGoalId == view.goal.id,

@@ -45,32 +45,36 @@ class ContentViewModel(
     // ---- 등록 흐름: URL 입력 → 메타데이터·자동 분류 → 사용자가 확인·수정 → 저장
     fun setUrl(url: String) { add.value = add.value.copy(url = url, error = null) }
 
-    fun analyze() = viewModelScope.launch {
-        val url = add.value.url.trim()
-        if (url.isBlank()) return@launch
-        add.value = add.value.copy(loading = true, error = null)
-        contents.prepare(url)
-            .onSuccess { add.value = add.value.copy(loading = false, draft = it) }
-            .onFailure { add.value = add.value.copy(loading = false, error = it.message ?: "링크를 분석하지 못했어요") }
+    fun analyze() {
+        viewModelScope.launch {
+            val url = add.value.url.trim()
+            if (url.isBlank()) return@launch
+            add.value = add.value.copy(loading = true, error = null)
+            contents.prepare(url)
+                .onSuccess { add.value = add.value.copy(loading = false, draft = it) }
+                .onFailure { add.value = add.value.copy(loading = false, error = it.message ?: "링크를 분석하지 못했어요") }
+        }
     }
 
     fun resetAdd() { add.value = AddContentState() }
 
-    fun save(title: String, channel: String, subjectKey: String, level: GradeLevel, type: ContentType, keywords: String, summary: String, durationMinutes: Int) = viewModelScope.launch {
-        val d = add.value.draft ?: return@launch
-        contents.save(
-            ContentEntity(
-                familyId = "", url = d.url, videoId = d.videoId, title = title.trim(), channel = channel.trim(), thumbnailUrl = d.thumbnailUrl,
-                subjectKey = subjectKey.trim(), gradeLevel = level, contentType = type, keywords = keywords, summary = summary.trim(), durationMinutes = durationMinutes,
-            ),
-        )
-        add.value = AddContentState()
+    fun save(title: String, channel: String, subjectKey: String, level: GradeLevel, type: ContentType, keywords: String, summary: String, durationMinutes: Int) {
+        viewModelScope.launch {
+            val d = add.value.draft ?: return@launch
+            contents.save(
+                ContentEntity(
+                    familyId = "", url = d.url, videoId = d.videoId, title = title.trim(), channel = channel.trim(), thumbnailUrl = d.thumbnailUrl,
+                    subjectKey = subjectKey.trim(), gradeLevel = level, contentType = type, keywords = keywords, summary = summary.trim(), durationMinutes = durationMinutes,
+                ),
+            )
+            add.value = AddContentState()
+        }
     }
 
-    fun update(content: ContentEntity) = viewModelScope.launch { contents.save(content) }
-    fun rate(id: String, stars: Int) = viewModelScope.launch { contents.rate(id, stars) }
-    fun setWatched(id: String, watched: Boolean) = viewModelScope.launch { contents.setWatched(id, watched) }
-    fun delete(id: String) = viewModelScope.launch { contents.delete(id) }
+    fun update(content: ContentEntity) { viewModelScope.launch { contents.save(content) } }
+    fun rate(id: String, stars: Int) { viewModelScope.launch { contents.rate(id, stars) } }
+    fun setWatched(id: String, watched: Boolean) { viewModelScope.launch { contents.setWatched(id, watched) } }
+    fun delete(id: String) { viewModelScope.launch { contents.delete(id) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: ContentEvent) {

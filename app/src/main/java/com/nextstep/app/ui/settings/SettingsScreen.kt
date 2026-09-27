@@ -7,11 +7,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,6 +27,7 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
+import com.nextstep.app.ui.components.layout.BackButton
 import com.nextstep.app.ui.settings.components.ChildrenCard
 import com.nextstep.app.ui.settings.components.GamifyCard
 import com.nextstep.app.ui.settings.components.MembersCard
@@ -58,7 +56,7 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
         topBar = {
             TopAppBar(
                 title = { Text("가족") },
-                navigationIcon = { actions.onBack?.let { back -> IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } } },
+                navigationIcon = { BackButton(actions.onBack) },
                 actions = { AppBarMenu(listOf(AppBarMenuItem("영상 저장소", Icons.Default.SmartDisplay, actions.onOpenContent))) },
             )
         },

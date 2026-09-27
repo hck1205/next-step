@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.content
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,18 +7,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -29,17 +28,16 @@ import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.components.card.AdBanner
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.content.components.AddContentDialog
 import com.nextstep.app.ui.content.components.ContentFilterBar
 import com.nextstep.app.ui.content.components.ContentRow
 import com.nextstep.app.ui.content.components.EditContentDialog
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import com.nextstep.app.ui.common.ExternalLinks
 
 /**
  * 교육 콘텐츠 저장소. 유튜브 링크를 등록하면 자동 분류되고, 학생의 진도·약점에 맞춰 추천됩니다.
@@ -65,7 +63,7 @@ internal fun ContentContent(state: ContentUiState, caps: Capabilities, actions: 
         topBar = {
             if (actions.onBack != null) TopAppBar(
                 title = { Text("콘텐츠 저장소") },
-                navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { BackButton(actions.onBack) },
             )
         },
         floatingActionButton = { if (!hosted) FloatingActionButton(onClick = { onEvent(ContentEvent.ResetAdd); showAdd = true }) { Icon(Icons.Default.Add, contentDescription = "링크 등록") } },
@@ -87,7 +85,7 @@ internal fun ContentContent(state: ContentUiState, caps: Capabilities, actions: 
                 ContentFilterBar(state.filter, state.subjectKeys, showHideWatched = caps.isStudent, onEvent = onEvent)
             }
 
-            if (state.filtered.isEmpty()) item { AppCard { EmptyState(if (state.all.isEmpty()) "첫 유튜브 링크를 등록해 보세요. 제목을 읽어 과목·학년·유형을 자동으로 분류해요." else "조건에 맞는 콘텐츠가 없어요") } }
+            if (state.filtered.isEmpty()) item { EmptyCard(if (state.all.isEmpty()) "첫 유튜브 링크를 등록해 보세요. 제목을 읽어 과목·학년·유형을 자동으로 분류해요." else "조건에 맞는 콘텐츠가 없어요") }
             items(state.filtered, key = { it.id }) { c ->
                 ContentRow(c, reason = null, caps = caps, onOpen = { open(c) }, onRate = { onEvent(ContentEvent.Rate(c.id, it)) }, onWatched = { onEvent(ContentEvent.SetWatched(c.id, it)) }, onEdit = { editing = c })
             }

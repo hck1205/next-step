@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.grades
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +14,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,14 +25,15 @@ import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
-import com.nextstep.app.ui.components.dialog.GradeEditDialog
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.SubjectRadarCard
-import com.nextstep.app.ui.grades.components.GradeStatsRow
-import com.nextstep.app.ui.grades.components.SubjectFilterRow
+import com.nextstep.app.ui.components.dialog.GradeEditDialog
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.grades.components.GradeRow
+import com.nextstep.app.ui.grades.components.GradeStatsRow
 import com.nextstep.app.ui.grades.components.GradeTrendChart
+import com.nextstep.app.ui.grades.components.SubjectFilterRow
 
 @Composable
 fun GradesScreen(caps: Capabilities, viewModel: GradesViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -72,7 +72,7 @@ internal fun GradesContent(state: GradesUiState, caps: Capabilities, onEvent: (G
                 SectionTitle("성적 목록")
                 SubjectFilterRow(state.subjects, state.filterSubjectId, onSelect = { onEvent(GradesEvent.SetFilter(it)) })
             }
-            if (state.filtered.isEmpty()) item { AppCard { EmptyState(if (state.subjects.isEmpty()) "진도 탭에서 과목을 먼저 추가하세요" else "성적을 추가하면 추이와 강점 분석이 표시돼요") } }
+            if (state.filtered.isEmpty()) item { EmptyCard(if (state.subjects.isEmpty()) "진도 탭에서 과목을 먼저 추가하세요" else "성적을 추가하면 추이와 강점 분석이 표시돼요") }
             items(state.filtered, key = { it.id }) { g ->
                 GradeRow(g, state.subjects, onClick = { if (caps.canEditGrades) { editing = g; showEdit = true } })
             }

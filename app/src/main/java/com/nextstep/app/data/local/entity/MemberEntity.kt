@@ -47,5 +47,4 @@ data class MemberEntity(
     val roleLabel: String get() = if (isParent && title.isNotBlank()) title else Role.labelOf(role)
     val isMentor: Boolean get() = role == Role.MENTOR.name
     val subjectIdList: List<String> get() = subjectIds.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-    fun covers(subjectId: String?): Boolean = subjectIdList.isEmpty() || (subjectId != null && subjectId in subjectIdList)
 }

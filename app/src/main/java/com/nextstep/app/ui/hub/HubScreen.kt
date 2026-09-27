@@ -48,7 +48,6 @@ import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.growth.GrowthScreen
 import com.nextstep.app.ui.habits.HabitsScreen
 import com.nextstep.app.ui.hub.components.ConcernTabs
-import com.nextstep.app.ui.insights.InsightsActions
 import com.nextstep.app.ui.insights.InsightsScreen
 import com.nextstep.app.ui.overview.OverviewActions
 import com.nextstep.app.ui.overview.OverviewScreen
@@ -65,7 +64,6 @@ import com.nextstep.app.ui.rewards.RewardsActions
 import com.nextstep.app.ui.rewards.RewardsScreen
 import com.nextstep.app.ui.roadmap.RoadmapActions
 import com.nextstep.app.ui.roadmap.RoadmapScreen
-import com.nextstep.app.ui.selfdirection.SelfDirectionActions
 import com.nextstep.app.ui.selfdirection.SelfDirectionScreen
 import com.nextstep.app.ui.talent.TalentScreen
 import com.nextstep.app.ui.todo.TodoActions
@@ -146,9 +144,9 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
 private fun SectionContent(section: ConcernSection, caps: Capabilities, viewer: HubViewer, concerns: List<Concern>, actions: HubActions, open: (ConcernSection) -> Unit, openConcern: (Concern) -> Unit) {
     when (section) {
         ConcernSection.OVERVIEW -> OverviewScreen(concerns = concerns, actions = OverviewActions(onOpenConcern = openConcern))
-        ConcernSection.SELF -> SelfDirectionScreen(caps = caps, actions = SelfDirectionActions(onOpenProjects = { open(ConcernSection.PROJECTS) }))
-        ConcernSection.PROGRESS -> ProgressScreen(caps = caps, actions = ProgressActions(onOpenSubject = actions.onOpenSubject, onOpenRoadmap = { open(ConcernSection.ROADMAP) }))
-        ConcernSection.TIME -> InsightsScreen(caps = caps, actions = InsightsActions())
+        ConcernSection.SELF -> SelfDirectionScreen(caps = caps)
+        ConcernSection.PROGRESS -> ProgressScreen(caps = caps, actions = ProgressActions(onOpenSubject = actions.onOpenSubject))
+        ConcernSection.TIME -> InsightsScreen(caps = caps)
         ConcernSection.HABITS -> HabitsScreen()
         ConcernSection.CALENDAR -> CalendarScreen(caps = caps)
         ConcernSection.CURRICULUM -> CurriculumScreen(caps = caps, actions = CurriculumActions(onOpenSubject = actions.onOpenSubject, onOpenContent = { open(ConcernSection.CONTENT) }))

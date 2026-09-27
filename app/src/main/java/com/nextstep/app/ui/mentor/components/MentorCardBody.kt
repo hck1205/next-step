@@ -11,7 +11,7 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.InsightCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.StageCard
@@ -44,7 +44,7 @@ internal fun MentorCardBody(
             }
         }
         MentorTodayCard.TASKS -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (state.myTasks.isEmpty()) AppCard { EmptyState("미완료 과제가 없어요") }
+            if (state.myTasks.isEmpty()) EmptyCard("미완료 과제가 없어요")
             state.myTasks.take(rows).forEach { t ->
                 MentorTaskRow(t, state.allSubjects.firstOrNull { it.id == t.subjectId }, onCancel = { onEvent(MentorDashboardEvent.DeleteTask(t.id)) })
             }

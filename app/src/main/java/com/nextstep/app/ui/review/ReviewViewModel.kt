@@ -36,13 +36,17 @@ class ReviewViewModel(
         )
     }.asUiState(viewModelScope, ReviewUiState())
 
-    fun addTask(item: ReviewItem, byRole: String) = viewModelScope.launch {
-        val type = if (item.reason == ReviewReason.NEXT_CLASS) TaskType.PREVIEW else TaskType.REVIEW
-        tasks.save(TaskDrafts.forTopic(item.subject, item.topic, type, today(), byRole))
+    fun addTask(item: ReviewItem, byRole: String) {
+        viewModelScope.launch {
+            val type = if (item.reason == ReviewReason.NEXT_CLASS) TaskType.PREVIEW else TaskType.REVIEW
+            tasks.save(TaskDrafts.forTopic(item.subject, item.topic, type, today(), byRole))
+        }
     }
 
-    fun markDone(item: ReviewItem) = viewModelScope.launch {
-        topics.setStatus(item.topic.id, if (item.reason == ReviewReason.NEXT_CLASS) TopicStatus.PREVIEWED else TopicStatus.REVIEWED)
+    fun markDone(item: ReviewItem) {
+        viewModelScope.launch {
+            topics.setStatus(item.topic.id, if (item.reason == ReviewReason.NEXT_CLASS) TopicStatus.PREVIEWED else TopicStatus.REVIEWED)
+        }
     }
 
     /** 화면 이벤트 단일 진입점. */

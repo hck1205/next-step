@@ -26,7 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.dialog.SubjectEditDialog
 import com.nextstep.app.ui.components.layout.hostedSectionAdd
@@ -65,7 +65,7 @@ internal fun ProgressContent(state: ProgressUiState, caps: Capabilities, actions
             }
             // 로드맵은 같은 기록 탭의 배울 것 › 로드맵에 있어 여기서 다시 잇지 않습니다(본문에는 내용만).
             item { SectionTitle(if (caps.isStudent) "내 커리큘럼" else "과목별 진도") }
-            if (state.progress.isEmpty()) item { AppCard { EmptyState(if (caps.canEditSubjects) "과목을 추가하고 단원을 등록해 보세요" else "아직 등록된 과목이 없어요") } }
+            if (state.progress.isEmpty()) item { EmptyCard(if (caps.canEditSubjects) "과목을 추가하고 단원을 등록해 보세요" else "아직 등록된 과목이 없어요") }
             items(state.progress, key = { it.subject.id }) { p -> SubjectProgressCard(p, onClick = { actions.onOpenSubject(p.subject.id) }) }
         }
     }

@@ -31,14 +31,14 @@ import com.nextstep.app.ui.insights.components.StudyDaysCard
 import com.nextstep.app.ui.insights.components.SubjectShareCard
 
 @Composable
-fun InsightsScreen(caps: Capabilities, actions: InsightsActions, viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun InsightsScreen(caps: Capabilities, viewModel: InsightsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    InsightsContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
+    InsightsContent(state = state, caps = caps, onEvent = viewModel::onEvent)
 }
 
 /** 분석: (학부모) 재능 발견 → 강점·보완점·제안 → 과목 균형 · 2주 시간 · 과목 배분 · 시간대. */
 @Composable
-internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, actions: InsightsActions, onEvent: (InsightsEvent) -> Unit) {
+internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, onEvent: (InsightsEvent) -> Unit) {
     // 기록 탭의 세그먼트로 들어가므로 상단 바는 기록 화면이 그립니다.
     Scaffold { padding ->
         LazyColumn(

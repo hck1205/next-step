@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.activities
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,12 +7,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,9 +31,10 @@ import com.nextstep.app.ui.activities.components.ActivityEditDialog
 import com.nextstep.app.ui.activities.components.ActivityRow
 import com.nextstep.app.ui.activities.components.ActivitySummaryCard
 import com.nextstep.app.ui.activities.components.ActivityTypeFilterRow
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 
 /**
  * 활동 기록. 취미·동아리·현장학습·체험·봉사·대회·여행을 구간(학기)별로 남깁니다.
@@ -61,7 +59,7 @@ internal fun ActivitiesContent(state: ActivitiesUiState, caps: Capabilities, act
         topBar = {
             if (actions.onBack != null) TopAppBar(
                 title = { Text(if (state.studentName.isBlank()) "활동 기록" else "${state.studentName}의 활동 기록") },
-                navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { BackButton(actions.onBack) },
                 actions = { TextButton(onClick = actions.onOpenJourney) { Text("타임라인") } },
             )
         },
@@ -76,7 +74,7 @@ internal fun ActivitiesContent(state: ActivitiesUiState, caps: Capabilities, act
         ) {
             item { ActivitySummaryCard(state.activities.size, state.currentPeriodCount, state.ongoing.size, state.countByType) }
             item { ActivityTypeFilterRow(state.filter, onSelect = { onEvent(ActivitiesEvent.SetFilter(it)) }) }
-            if (state.loaded && state.filtered.isEmpty()) item { AppCard { EmptyState("기록된 활동이 없어요") } }
+            if (state.loaded && state.filtered.isEmpty()) item { EmptyCard("기록된 활동이 없어요") }
             state.sections.forEach { (label, group) ->
                 item { SectionTitle("$label · ${group.size}") }
                 items(group, key = { it.id }) { activity ->

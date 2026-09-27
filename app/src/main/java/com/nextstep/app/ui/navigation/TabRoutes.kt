@@ -44,7 +44,7 @@ internal fun NavGraphBuilder.tabRoutes(caps: Capabilities, studentScreen: Studen
         JourneyScreen(
             caps = caps,
             actions = JourneyActions(
-                onBack = null, onOpenSettings = nav.to(Routes.FAMILY), onOpenGoals = nav.to(Routes.GOALS), onOpenActivities = nav.to(Routes.ACTIVITIES),
+                onBack = null, onOpenGoals = nav.to(Routes.GOALS), onOpenActivities = nav.to(Routes.ACTIVITIES),
                 onOpenCurriculum = nav.to(Routes.CURRICULUM), onOpenYear = if (caps.isStudent) null else nav.to(Routes.YEAR),
             ),
         )
@@ -71,8 +71,8 @@ private fun NavGraphBuilder.todayRoute(caps: Capabilities, nav: AppNav, onSwitch
             Role.PARENT -> ParentDashboardScreen(
                 caps = caps,
                 actions = ParentDashboardActions(
-                    onOpenSettings = nav.to(Routes.FAMILY), onOpenSubject = nav.openSubject, onOpenRecords = nav.openRecords,
-                    onOpenMentor = nav.to(Routes.MENTOR_HOME), onOpenRoadmap = nav.to(Routes.ROADMAP), onOpenContent = nav.to(Routes.CONTENT),
+                    onOpenSettings = nav.to(Routes.FAMILY), onOpenRecords = nav.openRecords,
+                    onOpenMentor = nav.to(Routes.MENTOR_HOME), onOpenContent = nav.to(Routes.CONTENT),
                     onOpenJourney = nav.to(Routes.JOURNEY), onOpenGoals = nav.to(Routes.GOALS),
                     onSwitchChild = onSwitchChild, onOpenProject = nav.openProject, onOpenGoal = nav.openGoal,
                 ),
@@ -80,7 +80,7 @@ private fun NavGraphBuilder.todayRoute(caps: Capabilities, nav: AppNav, onSwitch
             Role.MENTOR -> MentorDashboardScreen(actions = mentorActions(nav, onBack = null, onSwitchChild = onSwitchChild))
             Role.STUDENT -> StudentHomeScreen(
                 actions = HomeActions(
-                    onOpenTimer = nav.to(Routes.TIMER), onOpenSettings = nav.to(Routes.FAMILY), onOpenSubject = nav.openSubject,
+                    onOpenTimer = nav.to(Routes.TIMER), onOpenSubject = nav.openSubject,
                     onOpenRoadmap = nav.to(Routes.ROADMAP), onOpenContent = nav.to(Routes.CONTENT), onOpenJourney = nav.to(Routes.JOURNEY),
                     onOpenRecords = nav.openRecords, onOpenCurriculum = nav.to(Routes.CURRICULUM), onOpenGoals = nav.to(Routes.GOALS),
                     onOpenYear = nav.to(Routes.YEAR), onOpenProject = nav.openProject,

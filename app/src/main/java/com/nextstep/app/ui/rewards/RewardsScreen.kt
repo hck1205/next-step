@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.rewards
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,12 +28,14 @@ import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.BadgeGrid
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.dialog.PromiseRewardDialog
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.components.row.RewardRow
-import com.nextstep.app.ui.components.card.BadgeGrid
 import com.nextstep.app.ui.rewards.components.XpBreakdownCard
 
 /**
@@ -66,7 +67,7 @@ internal fun RewardsContent(state: RewardsUiState, caps: Capabilities, showsNumb
                 item { BadgeGrid(state.profile.badges, showsNumbers) }
                 if (showsNumbers && state.style.showsLevel) item { XpBreakdownCard(state.profile.lines, state.profile.xp) }
             } else if (caps.canToggleGamification(state.style)) {
-                item { AppCard { EmptyState("레벨·배지가 꺼져 있어요. 가족 탭 › 레벨·배지에서 켤 수 있어요") } }
+                item { EmptyCard("레벨·배지가 꺼져 있어요. 가족 탭 › 레벨·배지에서 켤 수 있어요") }
             }
             item { SectionTitle("보상") }
             if (state.loaded && state.rewards.isEmpty()) {

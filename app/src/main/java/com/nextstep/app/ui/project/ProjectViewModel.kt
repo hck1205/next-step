@@ -48,14 +48,16 @@ class ProjectViewModel(
     }
 
     /** 지금 단계를 통과로, 다음 단계를 진행 중으로. 다음이 없으면 프로젝트를 달성으로 닫습니다. */
-    private fun passCheckpoint() = viewModelScope.launch {
-        val p = state.value.progress ?: return@launch
-        val current = p.current ?: return@launch
-        val steps = streams.goalSteps.first().filter { it.goalId == goalId && !it.deleted }
-        val byKey = steps.associateBy { ProjectPlanner.phaseKeyOf(it) }
-        byKey[current.key]?.let { goals.setStepStatus(it.id, MilestoneStatus.DONE) }
-        val next = p.next
-        if (next == null) goals.setGoalStatus(goalId, GoalStatus.DONE)
-        else byKey[next.key]?.let { goals.setStepStatus(it.id, MilestoneStatus.IN_PROGRESS) }
+    private fun passCheckpoint() {
+        viewModelScope.launch {
+            val p = state.value.progress ?: return@launch
+            val current = p.current ?: return@launch
+            val steps = streams.goalSteps.first().filter { it.goalId == goalId && !it.deleted }
+            val byKey = steps.associateBy { ProjectPlanner.phaseKeyOf(it) }
+            byKey[current.key]?.let { goals.setStepStatus(it.id, MilestoneStatus.DONE) }
+            val next = p.next
+            if (next == null) goals.setGoalStatus(goalId, GoalStatus.DONE)
+            else byKey[next.key]?.let { goals.setStepStatus(it.id, MilestoneStatus.IN_PROGRESS) }
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.roadmap
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,12 +7,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,9 +29,10 @@ import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.common.ExternalLinks
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.roadmap.components.DoneToggleRow
 import com.nextstep.app.ui.roadmap.components.RoadmapEditDialog
 import com.nextstep.app.ui.roadmap.components.RoadmapRow
@@ -71,7 +69,7 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
         topBar = {
             if (actions.onBack != null) TopAppBar(
                 title = { Text(if (caps.isStudent) "내 학습 로드맵" else "${state.studentName.ifBlank { "학생" }} 학습 로드맵") },
-                navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { BackButton(actions.onBack) },
                 actions = { TextButton(onClick = actions.onOpenContent) { Text("콘텐츠") } },
             )
         },
@@ -92,7 +90,7 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
             }
 
             item { SectionTitle("진행 중 · 예정") }
-            if (state.active.isEmpty()) item { AppCard { EmptyState(if (caps.canEditRoadmap) "첫 로드맵 항목을 추가해 보세요" else "아직 제안된 로드맵이 없어요") } }
+            if (state.active.isEmpty()) item { EmptyCard(if (caps.canEditRoadmap) "첫 로드맵 항목을 추가해 보세요" else "아직 제안된 로드맵이 없어요") }
             items(state.active, key = { it.id }) { row(it) }
 
             if (state.done.isNotEmpty()) {

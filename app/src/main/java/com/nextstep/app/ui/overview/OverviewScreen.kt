@@ -15,11 +15,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.overview.components.BalanceCard
 import com.nextstep.app.ui.overview.components.AttentionLegend
+import com.nextstep.app.ui.overview.components.BalanceCard
 import com.nextstep.app.ui.overview.components.ConcernTile
 
 /**
@@ -38,7 +37,7 @@ internal fun OverviewContent(state: OverviewUiState, concerns: List<Concern>, ac
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
             val b = state.balance
-            if (b != null) BalanceCard(b, state.yearLabel ?: state.stage?.label) else AppCard { EmptyState("기록이 쌓이면 균형을 보여 드려요") }
+            if (b != null) BalanceCard(b, state.yearLabel ?: state.stage?.label) else EmptyCard("기록이 쌓이면 균형을 보여 드려요")
         }
         if (tiles.isNotEmpty()) item {
             SectionTitle("관심사별", action = if (tiles.any { it.attention }) ({ AttentionLegend() }) else null)

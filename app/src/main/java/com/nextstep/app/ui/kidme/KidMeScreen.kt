@@ -29,10 +29,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
-import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.BadgeGrid
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.GameCard
+import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.row.RewardRow
 import com.nextstep.app.ui.kidme.components.StickerGrid
 
@@ -62,7 +62,7 @@ internal fun KidMeContent(state: KidMeUiState) {
             }
             val board = state.board
             if (board == null) {
-                item { AppCard { EmptyState("공부하거나 활동하면 스티커가 생겨요") } }
+                item { EmptyCard("공부하거나 활동하면 스티커가 생겨요") }
                 return@LazyColumn
             }
             item {

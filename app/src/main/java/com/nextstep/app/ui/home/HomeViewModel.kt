@@ -61,38 +61,44 @@ class HomeViewModel(
         }
     }
 
-    fun dismissLevelUp() = viewModelScope.launch {
-        val s = state.value
-        s.studentId?.let { members.markUiLevelSeen(it, s.level) }
+    fun dismissLevelUp() {
+        viewModelScope.launch {
+            val s = state.value
+            s.studentId?.let { members.markUiLevelSeen(it, s.level) }
+        }
     }
 
-    fun markContentWatched(id: String) = viewModelScope.launch { contents.setWatched(id, true) }
+    fun markContentWatched(id: String) { viewModelScope.launch { contents.setWatched(id, true) } }
 
     /** 커리큘럼 스케줄링: 복습·로드맵·예습을 앞으로 며칠간의 자습 일정과 할 일로 배치합니다. */
-    fun generatePlan(options: PlanOptions) = viewModelScope.launch {
-        val s = state.value
-        val queue = StudyPlanner.buildQueue(s.progress, s.roadmap, s.subjects)
-        val plan = StudyPlanner.generate(queue, s.events, options)
-        plans.apply(plan)
-        lastPlan.value = plan
+    fun generatePlan(options: PlanOptions) {
+        viewModelScope.launch {
+            val s = state.value
+            val queue = StudyPlanner.buildQueue(s.progress, s.roadmap, s.subjects)
+            val plan = StudyPlanner.generate(queue, s.events, options)
+            plans.apply(plan)
+            lastPlan.value = plan
+        }
     }
 
     fun dismissPlanResult() { lastPlan.value = null }
 
-    fun setRoadmapStatus(id: String, status: RoadmapStatus) = viewModelScope.launch { roadmap.setStatus(id, status) }
+    fun setRoadmapStatus(id: String, status: RoadmapStatus) { viewModelScope.launch { roadmap.setStatus(id, status) } }
 
-    fun toggleTask(task: TaskEntity) = viewModelScope.launch { tasks.setDone(task.id, !task.done) }
+    fun toggleTask(task: TaskEntity) { viewModelScope.launch { tasks.setDone(task.id, !task.done) } }
 
-    fun markTopic(topic: TopicEntity, status: TopicStatus) = viewModelScope.launch { topics.setStatus(topic.id, status) }
+    fun markTopic(topic: TopicEntity, status: TopicStatus) { viewModelScope.launch { topics.setStatus(topic.id, status) } }
 
-    fun addQuickTask(subject: SubjectEntity, topic: TopicEntity, type: TaskType) = viewModelScope.launch {
-        tasks.save(TaskDrafts.forTopic(subject, topic, type, DateUtils.today(), Role.STUDENT.name))
+    fun addQuickTask(subject: SubjectEntity, topic: TopicEntity, type: TaskType) {
+        viewModelScope.launch {
+            tasks.save(TaskDrafts.forTopic(subject, topic, type, DateUtils.today(), Role.STUDENT.name))
+        }
     }
 
     /** 올해의 공부 한 가지를 그 분량의 오늘 할 일로 만듭니다. 시험 준비는 시험 준비 종류로. */
-    fun addStudyKind(kind: StudyKind) = viewModelScope.launch { tasks.save(TaskDrafts.forStudyKind(kind, DateUtils.today())) }
+    fun addStudyKind(kind: StudyKind) { viewModelScope.launch { tasks.save(TaskDrafts.forStudyKind(kind, DateUtils.today())) } }
 
-    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) = viewModelScope.launch { projects.toggleRoutine(progress, item, state.value.today) }
+    fun toggleRoutine(progress: ProjectProgress, item: RoutineItem) { viewModelScope.launch { projects.toggleRoutine(progress, item, state.value.today) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: HomeEvent) {

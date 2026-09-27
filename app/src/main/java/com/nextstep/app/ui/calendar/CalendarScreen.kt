@@ -1,6 +1,5 @@
 package com.nextstep.app.ui.calendar
 
-import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,9 +29,9 @@ import com.nextstep.app.ui.calendar.components.CalendarDialog
 import com.nextstep.app.ui.calendar.components.CalendarDialogs
 import com.nextstep.app.ui.calendar.components.CalendarEventRow
 import com.nextstep.app.ui.calendar.components.MonthGrid
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.components.row.SessionRow
 import com.nextstep.app.ui.components.row.TaskRow
 
@@ -77,7 +76,7 @@ internal fun CalendarContent(state: CalendarUiState, caps: Capabilities, onEvent
 
 /** 고른 날의 일정(누르면 고치기) · 할 일(만들 수 있으면 누르면 고치기) · 학습 기록. */
 private fun LazyListScope.dayDetails(state: CalendarUiState, caps: Capabilities, onEvent: (CalendarEvent) -> Unit, open: (CalendarDialog) -> Unit) {
-    if (state.dayEvents.isEmpty()) item { AppCard { EmptyState("일정이 없어요") } }
+    if (state.dayEvents.isEmpty()) item { EmptyCard("일정이 없어요") }
     items(state.dayEvents, key = { "e" + it.event.id + it.startAt }) { occ ->
         CalendarEventRow(occ, state.subjects, onClick = { open(CalendarDialog.EditEvent(occ.event)) })
     }

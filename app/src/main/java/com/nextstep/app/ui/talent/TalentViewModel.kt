@@ -32,8 +32,8 @@ class TalentViewModel(
         )
     }.asUiState(viewModelScope, TalentUiState())
 
-    fun observe(observation: ObservationEntity) = viewModelScope.launch { growth.addObservation(observation) }
-    fun delete(id: String) = viewModelScope.launch { growth.deleteObservation(id) }
+    fun observe(observation: ObservationEntity) { viewModelScope.launch { growth.addObservation(observation) } }
+    fun delete(id: String) { viewModelScope.launch { growth.deleteObservation(id) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: TalentEvent) {

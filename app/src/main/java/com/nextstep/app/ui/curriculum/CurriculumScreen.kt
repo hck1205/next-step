@@ -6,17 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -24,15 +21,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.common.ExternalLinks
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.BackButton
 import com.nextstep.app.ui.curriculum.components.BulletCard
 import com.nextstep.app.ui.curriculum.components.PeriodNavRow
 import com.nextstep.app.ui.curriculum.components.SubjectPlanCard
 import com.nextstep.app.ui.curriculum.components.TermOverviewCard
-import androidx.compose.runtime.getValue
-import com.nextstep.app.ui.common.ExternalLinks
 
 /**
  * 학기별 교과 커리큘럼. "이 시기 학교에서 이걸 배운다"를 기준선으로 가족의 진도와 대조하고,
@@ -54,7 +50,7 @@ internal fun CurriculumContent(state: CurriculumUiState, caps: Capabilities, act
         topBar = {
             if (actions.onBack != null) TopAppBar(
                 title = { Text(state.selected?.let { "${it.label} 커리큘럼" } ?: "교과 커리큘럼") },
-                navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+                navigationIcon = { BackButton(actions.onBack) },
                 actions = { TextButton(onClick = actions.onOpenContent) { Text("저장소") } },
             )
         },
@@ -72,7 +68,7 @@ internal fun CurriculumContent(state: CurriculumUiState, caps: Capabilities, act
             }
             val plan = state.plan
             if (state.loaded && plan == null) {
-                item { AppCard { EmptyState(if (state.periods.isEmpty()) "가족 탭에서 자녀의 생년월일이나 학년을 입력하면 학기 커리큘럼이 보여요" else "이 구간에는 교과 커리큘럼이 없어요 (초1~고3)") } }
+                item { EmptyCard(if (state.periods.isEmpty()) "가족 탭에서 자녀의 생년월일이나 학년을 입력하면 학기 커리큘럼이 보여요" else "이 구간에는 교과 커리큘럼이 없어요 (초1~고3)") }
                 return@LazyColumn
             }
             if (plan == null) return@LazyColumn

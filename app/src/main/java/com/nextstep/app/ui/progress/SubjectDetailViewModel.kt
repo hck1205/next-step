@@ -32,25 +32,29 @@ class SubjectDetailViewModel(
         SubjectDetailUiState(s, t, all, StudyQueues.classIndex(t), StudyQueues.previewTopics(t), StudyQueues.reviewTopics(t))
     }.asUiState(viewModelScope, SubjectDetailUiState())
 
-    fun addTopics(raw: String) = viewModelScope.launch {
-        val titles = raw.split("\n", ",").map { it.trim() }.filter { it.isNotEmpty() }
-        if (titles.isNotEmpty()) topics.add(subjectId, titles)
+    fun addTopics(raw: String) {
+        viewModelScope.launch {
+            val titles = raw.split("\n", ",").map { it.trim() }.filter { it.isNotEmpty() }
+            if (titles.isNotEmpty()) topics.add(subjectId, titles)
+        }
     }
 
-    fun setStatus(topic: TopicEntity, status: TopicStatus) = viewModelScope.launch { topics.setStatus(topic.id, status) }
-    fun setConfidence(topic: TopicEntity, value: Int) = viewModelScope.launch { topics.update(topic.copy(confidence = value)) }
-    fun rename(topic: TopicEntity, title: String) = viewModelScope.launch { topics.update(topic.copy(title = title)) }
-    fun delete(topic: TopicEntity) = viewModelScope.launch { topics.delete(topic.id) }
+    fun setStatus(topic: TopicEntity, status: TopicStatus) { viewModelScope.launch { topics.setStatus(topic.id, status) } }
+    fun setConfidence(topic: TopicEntity, value: Int) { viewModelScope.launch { topics.update(topic.copy(confidence = value)) } }
+    fun rename(topic: TopicEntity, title: String) { viewModelScope.launch { topics.update(topic.copy(title = title)) } }
+    fun delete(topic: TopicEntity) { viewModelScope.launch { topics.delete(topic.id) } }
 
     /** 학급 진도를 이 단원까지로 설정. */
-    fun setClassProgress(upToOrderIndex: Int) = viewModelScope.launch { topics.setClassProgress(subjectId, upToOrderIndex) }
+    fun setClassProgress(upToOrderIndex: Int) { viewModelScope.launch { topics.setClassProgress(subjectId, upToOrderIndex) } }
 
-    fun addTask(topic: TopicEntity, type: TaskType, createdByRole: String) = viewModelScope.launch {
-        val subject = state.value.subject ?: return@launch
-        tasks.save(TaskDrafts.forTopic(subject, topic, type, TaskDrafts.topicDue(createdByRole, DateUtils.today()), createdByRole))
+    fun addTask(topic: TopicEntity, type: TaskType, createdByRole: String) {
+        viewModelScope.launch {
+            val subject = state.value.subject ?: return@launch
+            tasks.save(TaskDrafts.forTopic(subject, topic, type, TaskDrafts.topicDue(createdByRole, DateUtils.today()), createdByRole))
+        }
     }
 
-    fun updateSubject(subject: SubjectEntity) = viewModelScope.launch { subjects.save(subject) }
+    fun updateSubject(subject: SubjectEntity) { viewModelScope.launch { subjects.save(subject) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: SubjectDetailEvent) {

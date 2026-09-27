@@ -35,32 +35,38 @@ class SettingsViewModel(
     }.combine(childError) { s, e -> s.copy(childError = e) }
         .asUiState(viewModelScope, SettingsUiState())
 
-    fun switchChild(familyId: String) = viewModelScope.launch { onboarding.switchChild(familyId) }
-    fun addChild(name: String, birthDate: LocalDate?) = viewModelScope.launch {
-        if (name.isBlank()) return@launch
-        onboarding.addChildAsParent(name.trim(), birthDate).onFailure { childError.value = it.message }
+    fun switchChild(familyId: String) { viewModelScope.launch { onboarding.switchChild(familyId) } }
+    fun addChild(name: String, birthDate: LocalDate?) {
+        viewModelScope.launch {
+            if (name.isBlank()) return@launch
+            onboarding.addChildAsParent(name.trim(), birthDate).onFailure { childError.value = it.message }
+        }
     }
-    fun linkChild(code: String) = viewModelScope.launch {
-        if (code.isBlank()) return@launch
-        onboarding.linkChild(code).onFailure { childError.value = it.message }
+    fun linkChild(code: String) {
+        viewModelScope.launch {
+            if (code.isBlank()) return@launch
+            onboarding.linkChild(code).onFailure { childError.value = it.message }
+        }
     }
 
-    fun signOut() = viewModelScope.launch { onboarding.signOut() }
+    fun signOut() { viewModelScope.launch { onboarding.signOut() } }
     fun requestSync() = onboarding.requestSync()
-    fun removeMember(id: String) = viewModelScope.launch { members.remove(id) }
-    fun setMySubjects(ids: List<String>) = viewModelScope.launch { state.value.me?.let { members.setSubjects(it.id, ids) } }
-    fun setMentorEnabled(enabled: Boolean) = viewModelScope.launch { state.value.me?.let { members.setMentorEnabled(it.id, enabled) } }
-    fun setGradeYear(gradeYear: Int) = viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setGradeYear(it.id, gradeYear) } }
-    fun setBirthDate(date: LocalDate?) = viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setBirthDate(it.id, date) } }
-    fun setStudentLevel(level: StudentUiLevel?) = viewModelScope.launch { state.value.student?.let { members.setUiLevel(it.id, level) } }
-    fun saveStudentYear(birthDate: LocalDate?, gradeYear: Int, level: StudentUiLevel?) = viewModelScope.launch {
-        val student = state.value.student ?: return@launch
-        if (birthDate != state.value.birthDate) members.setBirthDate(student.id, birthDate)
-        if (gradeYear != student.gradeYear) members.setGradeYear(student.id, gradeYear)
-        if (level != state.value.chosenStudentLevel) members.setUiLevel(student.id, level)
+    fun removeMember(id: String) { viewModelScope.launch { members.remove(id) } }
+    fun setMySubjects(ids: List<String>) { viewModelScope.launch { state.value.me?.let { members.setSubjects(it.id, ids) } } }
+    fun setMentorEnabled(enabled: Boolean) { viewModelScope.launch { state.value.me?.let { members.setMentorEnabled(it.id, enabled) } } }
+    fun setGradeYear(gradeYear: Int) { viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setGradeYear(it.id, gradeYear) } } }
+    fun setBirthDate(date: LocalDate?) { viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setBirthDate(it.id, date) } } }
+    fun setStudentLevel(level: StudentUiLevel?) { viewModelScope.launch { state.value.student?.let { members.setUiLevel(it.id, level) } } }
+    fun saveStudentYear(birthDate: LocalDate?, gradeYear: Int, level: StudentUiLevel?) {
+        viewModelScope.launch {
+            val student = state.value.student ?: return@launch
+            if (birthDate != state.value.birthDate) members.setBirthDate(student.id, birthDate)
+            if (gradeYear != student.gradeYear) members.setGradeYear(student.id, gradeYear)
+            if (level != state.value.chosenStudentLevel) members.setUiLevel(student.id, level)
+        }
     }
-    fun setGamify(enabled: Boolean) = viewModelScope.launch { state.value.student?.let { members.setGamify(it.id, enabled) } }
-    fun updateMyProfile(name: String, title: String) = viewModelScope.launch { state.value.me?.let { members.updateProfile(it.id, name, title) } }
+    fun setGamify(enabled: Boolean) { viewModelScope.launch { state.value.student?.let { members.setGamify(it.id, enabled) } } }
+    fun updateMyProfile(name: String, title: String) { viewModelScope.launch { state.value.me?.let { members.updateProfile(it.id, name, title) } } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: SettingsEvent) {

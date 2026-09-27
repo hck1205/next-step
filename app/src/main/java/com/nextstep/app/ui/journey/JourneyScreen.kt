@@ -10,14 +10,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -38,10 +36,11 @@ import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.CurriculumCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
+import com.nextstep.app.ui.components.layout.BackButton
 import com.nextstep.app.ui.components.row.GoalStepRow
 import com.nextstep.app.ui.journey.components.ActivityChips
 import com.nextstep.app.ui.journey.components.CategoryFilter
@@ -89,7 +88,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
             }
             item { JourneyHeader(state, onEvent) }
             if (state.loaded && state.items.isEmpty() && state.steps.isEmpty()) {
-                item { AppCard { EmptyState(if (state.hasBirthDate) "표시할 이정표가 없어요" else "생년월일을 입력하면 나이대별 준비 항목이 자동으로 채워져요") } }
+                item { EmptyCard(if (state.hasBirthDate) "표시할 이정표가 없어요" else "생년월일을 입력하면 나이대별 준비 항목이 자동으로 채워져요") }
             }
             if (state.hasBirthDate) periodSections(state, caps, actions, onEvent, milestone)
             else phaseSections(state, milestone)
@@ -104,7 +103,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
 private fun JourneyTopBar(studentName: String, actions: JourneyActions) {
     TopAppBar(
         title = { Text(if (studentName.isBlank()) "성장 여정" else "${studentName}의 성장 여정") },
-        navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+        navigationIcon = { BackButton(actions.onBack) },
         actions = {
             // 자주 여는 "올해"만 보이게, 나머지 화면은 ⋮ 로. 설정은 하단 가족 탭이 맡습니다.
             actions.onOpenYear?.let { TextButton(onClick = it) { Text("올해") } }

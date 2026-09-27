@@ -16,7 +16,6 @@ object DateUtils {
     val KO: Locale = Locale.KOREAN
 
     fun today(): LocalDate = LocalDate.now(zone)
-    fun LocalDate.toEpochDayLong(): Long = this.toEpochDay()
     fun fromEpochDay(day: Long): LocalDate = LocalDate.ofEpochDay(day)
 
     fun toMillis(dateTime: LocalDateTime): Long = dateTime.atZone(zone).toInstant().toEpochMilli()

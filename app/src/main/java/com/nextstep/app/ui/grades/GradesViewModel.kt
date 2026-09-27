@@ -30,14 +30,16 @@ class GradesViewModel(
 
     fun setFilter(subjectId: String?) { filter.value = subjectId }
 
-    fun save(existing: GradeEntity?, subjectId: String, title: String, examType: ExamType, score: Double, maxScore: Double, classAverage: Double?, date: LocalDate, memo: String) = viewModelScope.launch {
-        val g = (existing ?: GradeEntity(familyId = "", subjectId = subjectId, title = title, score = score, date = date.toEpochDay())).copy(
-            subjectId = subjectId, title = title, examType = examType, score = score, maxScore = maxScore, classAverage = classAverage, date = date.toEpochDay(), memo = memo,
-        )
-        grades.save(g)
+    fun save(existing: GradeEntity?, subjectId: String, title: String, examType: ExamType, score: Double, maxScore: Double, classAverage: Double?, date: LocalDate, memo: String) {
+        viewModelScope.launch {
+            val g = (existing ?: GradeEntity(familyId = "", subjectId = subjectId, title = title, score = score, date = date.toEpochDay())).copy(
+                subjectId = subjectId, title = title, examType = examType, score = score, maxScore = maxScore, classAverage = classAverage, date = date.toEpochDay(), memo = memo,
+            )
+            grades.save(g)
+        }
     }
 
-    fun delete(id: String) = viewModelScope.launch { grades.delete(id) }
+    fun delete(id: String) { viewModelScope.launch { grades.delete(id) } }
 
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: GradesEvent) {

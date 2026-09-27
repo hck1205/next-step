@@ -19,7 +19,7 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.row.HistoryEventRow
@@ -61,7 +61,7 @@ internal fun PlanHistoryContent(state: PlanHistoryUiState, actions: PlanHistoryA
             item { RateCard(state.bySubject) }
         }
         item { SectionTitle("달성한 목표 · ${state.achieved.size}") }
-        if (state.achieved.isEmpty()) item { AppCard { EmptyState("아직 달성한 목표가 없어요") } }
+        if (state.achieved.isEmpty()) item { EmptyCard("아직 달성한 목표가 없어요") }
         items(state.achieved, key = { "a-" + it.first.goal.id }) { (node, next) ->
             AppCard(onClick = { actions.onOpenGoal(node.goal.id) }) {
                 Column {

@@ -75,16 +75,20 @@ class MentorDashboardViewModel(
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
 
-    fun setSubjects(ids: List<String>) = viewModelScope.launch {
-        val me = state.value.me ?: return@launch
-        members.setSubjects(me.id, ids)
+    fun setSubjects(ids: List<String>) {
+        viewModelScope.launch {
+            val me = state.value.me ?: return@launch
+            members.setSubjects(me.id, ids)
+        }
     }
 
-    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) = viewModelScope.launch {
-        tasks.save(TaskDrafts.written(title, subjectId, type, due, Role.MENTOR.name))
+    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) {
+        viewModelScope.launch {
+            tasks.save(TaskDrafts.written(title, subjectId, type, due, Role.MENTOR.name))
+        }
     }
 
-    fun deleteTask(id: String) = viewModelScope.launch { tasks.delete(id) }
+    fun deleteTask(id: String) { viewModelScope.launch { tasks.delete(id) } }
 
     private data class Data(
         val topics: List<TopicEntity>,

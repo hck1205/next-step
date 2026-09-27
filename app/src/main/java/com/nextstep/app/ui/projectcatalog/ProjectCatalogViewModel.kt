@@ -45,10 +45,12 @@ class ProjectCatalogViewModel(
     }
 
     /** 같은 프로젝트를 두 번 시작하지 않습니다. */
-    private fun start(planId: String, startIndex: Int, createdByRole: String) = viewModelScope.launch {
-        val plan = ProjectCatalog.byId[planId] ?: return@launch
-        if (planId in state.value.started) return@launch
-        val (goal, steps) = ProjectPlanner.start(plan, startIndex, today(), createdByRole)
-        goals.add(goal, steps)
+    private fun start(planId: String, startIndex: Int, createdByRole: String) {
+        viewModelScope.launch {
+            val plan = ProjectCatalog.byId[planId] ?: return@launch
+            if (planId in state.value.started) return@launch
+            val (goal, steps) = ProjectPlanner.start(plan, startIndex, today(), createdByRole)
+            goals.add(goal, steps)
+        }
     }
 }

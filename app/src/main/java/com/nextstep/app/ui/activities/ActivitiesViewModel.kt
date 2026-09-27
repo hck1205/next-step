@@ -45,8 +45,8 @@ class ActivitiesViewModel(
         )
     }.asUiState(viewModelScope, ActivitiesUiState())
 
-    fun save(activity: ActivityEntity) = viewModelScope.launch { activities.save(activity) }
-    fun delete(id: String) = viewModelScope.launch { activities.delete(id) }
+    fun save(activity: ActivityEntity) { viewModelScope.launch { activities.save(activity) } }
+    fun delete(id: String) { viewModelScope.launch { activities.delete(id) } }
     fun setFilter(type: ActivityType?) { filter.value = type }
 
     /** 화면 이벤트 단일 진입점. */
