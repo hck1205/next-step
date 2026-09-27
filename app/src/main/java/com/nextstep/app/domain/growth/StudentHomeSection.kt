@@ -5,9 +5,9 @@ import com.nextstep.app.domain.hub.Concern
 /**
  * 학생 "오늘" 화면의 카드 종류. 어떤 카드를 보여 줄지는 [StudentUiLevel] 이 정합니다.
  * [label] 은 새 단계가 열릴 때 "새로 생긴 것" 칩에 쓰입니다. [concern] 은 오늘 화면에서 묶이는 관심사(기록 탭과 같은 분류)입니다.
- * 타이머는 묶지 않고 맨 위에 둡니다.
+ * 타이머는 묶지 않고 맨 위에 둡니다. [shortcut] 은 내용 없이 다른 화면으로 가는 한 줄짜리 카드라, 슬라이드에서 묶음 맨 뒤로 갑니다.
  */
-enum class StudentHomeSection(val label: String, val concern: Concern) {
+enum class StudentHomeSection(val label: String, val concern: Concern, val shortcut: Boolean = false) {
     TIMER("공부 시작 버튼", Concern.STUDY),
     TASKS("오늘 할 일", Concern.PLAN),
     MY_WEEK("나의 이번 주", Concern.STUDY),
@@ -26,5 +26,5 @@ enum class StudentHomeSection(val label: String, val concern: Concern) {
     SUBJECTS("과목별 진도", Concern.STUDY),
     ROADMAP("멘토 로드맵", Concern.LEARN),
     JOURNEY("여정", Concern.PLAN),
-    PLANNER("학습 계획 만들기", Concern.PLAN),
+    PLANNER("학습 계획 만들기", Concern.PLAN, shortcut = true),
 }

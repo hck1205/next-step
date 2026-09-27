@@ -95,7 +95,7 @@ data class HomeUiState(
 
     /** 타이머를 뺀 카드를 관심사로 묶은 것(오늘 화면의 관심사 칩·슬라이드). */
     val todayGroups: List<TodayGroup<StudentHomeSection>>
-        get() = TodayLayout.group(visibleSections.filter { it != StudentHomeSection.TIMER }) { it.concern }
+        get() = TodayLayout.group(visibleSections.filter { it != StudentHomeSection.TIMER }, isShortcut = { it.shortcut }) { it.concern }
 
     fun hasContent(section: StudentHomeSection): Boolean = when (section) {
         StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.EVENTS, StudentHomeSection.PLANNER -> true

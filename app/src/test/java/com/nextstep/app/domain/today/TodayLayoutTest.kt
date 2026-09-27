@@ -24,6 +24,15 @@ class TodayLayoutTest {
     }
 
     @Test
+    fun shortcutCardsGoToTheEndOfTheirGroupOnly() {
+        val order = listOf(StudentHomeSection.PLANNER, StudentHomeSection.TASKS, StudentHomeSection.GAME, StudentHomeSection.MY_WEEK)
+        val groups = TodayLayout.group(order, isShortcut = { it.shortcut }) { it.concern }
+        assertEquals(listOf(Concern.PLAN, Concern.STUDY), groups.map { it.concern }) // 묶음 순서는 그대로
+        assertEquals(listOf(StudentHomeSection.TASKS, StudentHomeSection.GAME, StudentHomeSection.PLANNER), groups[0].cards)
+        assertEquals(listOf(StudentHomeSection.PLANNER), StudentHomeSection.entries.filter { it.shortcut })
+    }
+
+    @Test
     fun todayCardsUseTheSameConcernsAsTheRecordsHub() {
         // 기록 탭과 같은 분류: 할 일·레벨은 목표·할 일, 이번 주·일정·진도는 공부, 루틴은 교육 프로젝트, 시험은 시험·성적
         assertEquals(Concern.PLAN, StudentHomeSection.TASKS.concern); assertEquals(Concern.PLAN, StudentHomeSection.GAME.concern)
