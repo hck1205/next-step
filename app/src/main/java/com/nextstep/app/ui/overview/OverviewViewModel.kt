@@ -70,14 +70,16 @@ class OverviewViewModel(
 
     val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth, streams.events) { b, learn, e, g, events ->
         val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events, b.ctx.year))
+        val weeks = PlanHistory.weeks(b.tasks, s.today, DIGEST_WEEKS)
+        val overdue = b.tasks.count { !it.deleted && !it.done && it.dueDate < s.today.toEpochDay() }
         s.copy(
             digests = listOf(
-                ConcernDigests.plan(GoalTree.nodes(e.goals, b.tasks, s.today), PlanHistory.weeks(b.tasks, s.today, 1).lastOrNull(), b.tasks.count { !it.deleted && !it.done && it.dueDate < s.today.toEpochDay() }),
-                ConcernDigests.study(s.balance?.weekMinutes ?: 0, learn.progress),
-                ConcernDigests.learn(learn.review),
+                ConcernDigests.plan(GoalTree.nodes(e.goals, b.tasks, s.today), weeks.lastOrNull(), overdue, weeks),
+                ConcernDigests.study(s.balance?.weekMinutes ?: 0, learn.progress, StudyStats.dailyMinutes(b.sessions, today = s.today).map { it.minutes }),
+                ConcernDigests.learn(learn.review, learn.progress),
                 ConcernDigests.project(ProjectPlanner.progressAll(e.goals, e.steps, e.logs, s.today)),
                 ConcernDigests.exams(MissionPlanner.focus(e.goals, e.steps, s.today), e.grades),
-                ConcernDigests.growth(GrowthStats.summarize(g.records.filter { !it.deleted }, s.today)),
+                ConcernDigests.growth(GrowthStats.summarize(g.records.filter { !it.deleted }, s.today), g.records.filter { !it.deleted }.sortedBy { it.date }.mapNotNull { it.heightCm }),
                 ConcernDigests.discover(s.balance?.experiencesThisPeriod ?: 0, AptitudeEngine.signals(b.activities, g.observations, s.today)),
             ),
         )
@@ -97,3 +99,5 @@ class OverviewViewModel(
 
     private data class Growth(val records: List<GrowthRecordEntity>, val observations: List<ObservationEntity>)
 }
+
+private const val DIGEST_WEEKS = 5

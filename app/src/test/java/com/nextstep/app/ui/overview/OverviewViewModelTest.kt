@@ -3,6 +3,7 @@ package com.nextstep.app.ui.overview
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.hub.DigestChart
 import com.nextstep.app.domain.project.ProjectCatalog
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.stats.BalanceVerdict
@@ -10,6 +11,7 @@ import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -58,6 +60,15 @@ class OverviewViewModelTest : ViewModelTestBase() {
         assertEquals("다가오는 시험 없음", d[4].headline); assertEquals("최근 1번 평균 90점", d[4].detail)
         assertEquals("키 130cm", d[5].headline)
         assertEquals("이번 학기 활동 없음", d[6].headline)
+        // 한 줄 차트: 배울 것 = 복습한 몫, 키는 기록이 하나라 흐름 없음, 공부·할 일은 기록이 없어 없음
+        assertEquals(DigestChart.Meter(0.25f), d[2].chart); assertNull(d[5].chart); assertNull(d[1].chart); assertNull(d[0].chart)
+        streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 30))
+        streams.growthRecords.value = streams.growthRecords.value + Fixtures.growth(LocalDate.of(2029, 10, 1), height = 131.0)
+        streams.tasks.value = listOf(Fixtures.task("a", today, done = true))
+        val after = settle(vm.state).digests
+        assertEquals(DigestChart.Bars(listOf(0, 0, 0, 0, 0, 0, 30)), after[1].chart)
+        assertEquals(DigestChart.Line(listOf(1300, 1310)), after[5].chart)
+        assertEquals(100, (after[0].chart as DigestChart.Bars).values.last())
         job.cancel()
     }
 

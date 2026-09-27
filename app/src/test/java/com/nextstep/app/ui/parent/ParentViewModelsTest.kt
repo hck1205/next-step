@@ -155,7 +155,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
         s = settle(vm.state)
         assertTrue(s.visibleCards.containsAll(listOf(ParentTodayCard.HEAT, ParentTodayCard.DAYS, ParentTodayCard.SUBJECT_TIME, ParentTodayCard.ASSIGNERS, ParentTodayCard.WEEK_RATES, ParentTodayCard.SCORES)))
         assertEquals(40, s.trends.recent); assertEquals(40, s.trends.daily.last().minutes)
-        assertEquals(listOf(1, 1, 0), s.trends.assigners.map { it.given }); assertEquals(50, s.trends.weekRates.last().percent)
+        assertEquals(listOf(1, 1), s.trends.assigners.map { it.total }); assertEquals(50, s.trends.weekRates.last().percent)
         assertEquals(listOf(70, 90), s.trends.scores.single().percents)
         // 차트 카드는 묶음 안에서 글 카드보다 앞에
         assertEquals(ParentTodayCard.HEAT, s.todayGroups.single { it.concern == Concern.STUDY }.cards.first())

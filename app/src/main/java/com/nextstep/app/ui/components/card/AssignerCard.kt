@@ -6,30 +6,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.data.model.Role
-import com.nextstep.app.domain.stats.AssignerShare
+import com.nextstep.app.domain.goaltree.Assigner
+import com.nextstep.app.domain.goaltree.RateBy
 import com.nextstep.app.ui.components.chart.BulletBars
 import com.nextstep.app.ui.components.chart.BulletRow
 import com.nextstep.app.ui.components.chart.ChartPalette
 import com.nextstep.app.ui.components.chart.ShareBar
 import com.nextstep.app.ui.components.chart.SharePart
 
-/** 누가 준 할 일: 스스로·학부모·멘토의 몫(쌓은 막대). 자세히 보면 준 사람마다 끝낸 수(목표 대비 막대)까지. */
+/**
+ * 누가 준 할 일(최근 4주): 스스로·학부모가·멘토가의 몫(쌓은 막대). 자세히 보면 준 사람마다 끝낸 수(목표 대비 막대)까지.
+ * 색은 준 사람을 따라갑니다([Assigner] 순서) — 한 사람이 빠져도 나머지 색은 그대로.
+ */
 @Composable
-fun AssignerCard(shares: List<AssignerShare>, compact: Boolean) {
+fun AssignerCard(byAssigner: List<RateBy>, compact: Boolean) {
     val palette = ChartPalette.current()
+    val colorOf = { r: RateBy -> palette.series[(Assigner.of(r.key)?.ordinal ?: 0) % palette.series.size] }
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            ShareBar(shares.mapIndexed { i, s -> SharePart(labelOf(s.role), s.given, palette.series[i % palette.series.size]) })
+            ShareBar(byAssigner.map { SharePart(it.label, it.total, colorOf(it)) })
             if (!compact) {
                 Text("끝낸 몫", style = MaterialTheme.typography.labelLarge)
-                BulletBars(
-                    shares.map { s -> BulletRow(labelOf(s.role), s.done, s.given, "${s.done}개", "${s.given}개") },
-                    doneLabel = "끝냄", goalLabel = "받은 것",
-                )
+                BulletBars(byAssigner.map { BulletRow(it.label, it.done, it.total, "${it.done}개", "${it.total}개") }, doneLabel = "끝냄", goalLabel = "받은 것")
             }
         }
     }
 }
-
-private fun labelOf(role: Role): String = if (role == Role.STUDENT) "스스로" else role.label

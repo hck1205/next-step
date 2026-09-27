@@ -1,16 +1,11 @@
 package com.nextstep.app.ui.components.chart
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
@@ -49,7 +44,7 @@ fun StatTile(
             delta?.let { DeltaLine(it, up, good) }
             Box(Modifier.padding(top = 6.dp)) {
                 trend?.invoke()
-                meter?.let { Meter(it) }
+                meter?.let { MeterBar(it) }
             }
         }
     }
@@ -65,14 +60,5 @@ private fun DeltaLine(text: String, up: Boolean?, good: Boolean?) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         up?.let { Icon(if (it) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown, contentDescription = null, tint = color, modifier = Modifier.size(14.dp)) }
         Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
-
-/** 0~1 몫을 가는 막대로. 바탕은 같은 계열의 옅은 색. */
-@Composable
-private fun Meter(fraction: Float) {
-    val palette = ChartPalette.current()
-    Box(Modifier.fillMaxWidth().height(8.dp).background(palette.track, RoundedCornerShape(4.dp))) {
-        Box(Modifier.fillMaxHeight().fillMaxWidth(fraction.coerceIn(0f, 1f)).background(palette.accent, RoundedCornerShape(4.dp)))
     }
 }

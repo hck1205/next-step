@@ -85,4 +85,20 @@ class ConcernDigestsTest {
         val fresh = GoalTree.node(goal.copy(createdAt = today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()), listOf(goal), emptyList(), today, ZoneOffset.UTC)
         assertEquals("목표 1개 진행 중", ConcernDigests.plan(listOf(fresh), week, 0).detail)
     }
+
+    @Test
+    fun chartsShowFlowOrShareOnlyWhenThereIsSomethingToDraw() {
+        val today = LocalDate.of(2029, 10, 10)
+        assertNull(ConcernDigests.study(0, emptyList(), daily = listOf(0, 0, 0)).chart)
+        assertEquals(DigestChart.Bars(listOf(0, 20, 35)), ConcernDigests.study(55, emptyList(), daily = listOf(0, 20, 35)).chart)
+        val progress = SubjectProgress(Fixtures.math, total = 8, classCovered = 4, reviewed = 2, previewed = 0, previewQueue = emptyList(), reviewQueue = emptyList())
+        assertEquals(DigestChart.Meter(0.25f), ConcernDigests.learn(emptyList(), listOf(progress)).chart)
+        assertNull(ConcernDigests.learn(emptyList()).chart)
+        val weeks = listOf(WeekRate(today.minusWeeks(1), due = 2, done = 1), WeekRate(today, due = 4, done = 4))
+        assertEquals(DigestChart.Bars(listOf(50, 100)), ConcernDigests.plan(emptyList(), weeks.last(), 0, weeks).chart)
+        assertNull(ConcernDigests.plan(emptyList(), null, 0, listOf(WeekRate(today, 0, 0))).chart)
+        assertEquals(DigestChart.Line(listOf(1300, 1315)), ConcernDigests.growth(null, listOf(130.0, 131.5)).chart)
+        assertNull(ConcernDigests.growth(null, listOf(130.0)).chart) // 한 번이면 흐름이 없음
+        assertNull(ConcernDigests.exams(emptyList(), listOf(Fixtures.grade("math", 80.0, 1), Fixtures.grade("eng", 90.0, 2))).chart) // 과목이 섞인 점수는 잇지 않음
+    }
 }

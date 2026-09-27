@@ -27,8 +27,8 @@ internal fun ParentKpis(t: FamilyTrends, modifier: Modifier = Modifier) {
         }
         add { m ->
             StatTile(
-                "이번 주 할 일", thisWeek?.takeIf { it.total > 0 }?.let { "${it.percent}%" } ?: "-", m,
-                delta = thisWeek?.let { "${it.done}/${it.total} 끝냄" }, trend = { MiniBars(t.weekRates.map { it.percent }) },
+                "이번 주 할 일", thisWeek?.takeIf { it.due > 0 }?.let { "${it.percent}%" } ?: "-", m,
+                delta = thisWeek?.let { "${it.done}/${it.due} 끝냄" }, trend = { MiniBars(t.weekRates.map { it.percent }) },
             )
         }
         if (avg != null) add { m ->

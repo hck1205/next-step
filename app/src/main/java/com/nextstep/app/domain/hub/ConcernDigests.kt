@@ -23,7 +23,8 @@ object ConcernDigests {
     /** 성적 평균에 쓰는 최근 시험 수. */
     const val RECENT_GRADES = 5
 
-    fun study(weekMinutes: Int, progress: List<SubjectProgress>): ConcernDigest {
+    /** 공부: 이번 주 시간 · 복습한 단원. 차트는 최근 7일 막대([daily], 오래된 날부터). */
+    fun study(weekMinutes: Int, progress: List<SubjectProgress>, daily: List<Int> = emptyList()): ConcernDigest {
         val total = progress.sumOf { it.total }
         val reviewed = progress.sumOf { it.reviewed }
         return ConcernDigest(
@@ -31,6 +32,7 @@ object ConcernDigests {
             headline = if (weekMinutes == 0) "이번 주 아직 0분" else "이번 주 ${DateUtils.formatMinutes(weekMinutes)}",
             detail = if (total == 0) null else "복습 $reviewed/${total}단원",
             attention = weekMinutes == 0,
+            chart = daily.takeIf { d -> d.any { it > 0 } }?.let { DigestChart.Bars(it) },
         )
     }
 
@@ -45,11 +47,13 @@ object ConcernDigests {
         )
     }
 
-    fun growth(summary: GrowthSummary?): ConcernDigest = ConcernDigest(
+    /** 성장: 키 · 자라는 속도. 차트는 키 기록 흐름([heights], 오래된 것부터 cm). */
+    fun growth(summary: GrowthSummary?, heights: List<Double> = emptyList()): ConcernDigest = ConcernDigest(
         concern = Concern.GROWTH,
         headline = summary?.heightCm?.let { "키 ${it.compact()}cm" } ?: "아직 기록 없음",
         detail = summary?.heightVelocityCmPerYear?.let { "1년에 ${it.compact()}cm 속도" },
         attention = summary?.signals.orEmpty().any { it.level == GrowthSignalLevel.CHECK },
+        chart = heights.takeIf { it.size >= 2 }?.let { h -> DigestChart.Line(h.map { (it * TENTHS).roundToInt() }) },
     )
 
     fun discover(activitiesThisPeriod: Int, signals: List<AptitudeSignal>): ConcernDigest = ConcernDigest(
@@ -59,17 +63,20 @@ object ConcernDigests {
         attention = activitiesThisPeriod == 0,
     )
 
-    fun learn(review: List<ReviewItem>): ConcernDigest {
+    /** 배울 것: 복습할 단원 수와 첫 단원. 차트는 전체 단원 중 복습까지 한 몫([progress]). */
+    fun learn(review: List<ReviewItem>, progress: List<SubjectProgress> = emptyList()): ConcernDigest {
+        val total = progress.sumOf { it.total }
         val first = review.firstOrNull()
         return ConcernDigest(
             concern = Concern.LEARN,
             headline = if (review.isEmpty()) "복습할 단원 없음" else "복습할 단원 ${review.size}개",
             detail = first?.let { "${it.subject.name} · ${it.topic.title}" },
             attention = review.any { it.reason == ReviewReason.LOW_CONFIDENCE },
+            chart = if (total == 0) null else DigestChart.Meter(progress.sumOf { it.reviewed }.toFloat() / total),
         )
     }
 
-    /** 교육 프로젝트: 진행 중인 수와, 늦어진 것(없으면 첫 프로젝트)의 지금 단계. 이번 주 기록이 없거나 늦어지면 주의. */
+    /** 교육 프로젝트: 진행 중인 수와, 늦어진 것(없으면 첫 프로젝트)의 지금 단계. 이번 주 기록이 없거나 늦어지면 주의. 차트는 계획대로 가는 몫. */
     fun project(progress: List<ProjectProgress>): ConcernDigest {
         val open = progress.filter { !it.isDone }
         val focus = open.firstOrNull { it.pace == ProjectPace.BEHIND } ?: open.firstOrNull()
@@ -78,11 +85,12 @@ object ConcernDigests {
             headline = if (open.isEmpty()) "진행 중인 프로젝트 없음" else "프로젝트 ${open.size}개 진행 중",
             detail = focus?.let { p -> "${p.plan.title} · ${p.current?.title ?: ""} · ${p.pace.label}" },
             attention = open.any { it.pace == ProjectPace.BEHIND || it.weekMinutes == 0 },
+            chart = if (open.isEmpty()) null else DigestChart.Meter(open.count { it.pace != ProjectPace.BEHIND }.toFloat() / open.size),
         )
     }
 
-    /** 목표·할 일: 이번 주 마감 할 일 중 끝낸 수, 밀린 할 일 → 오래 멈춘 목표 → 진행 중인 목표 수. */
-    fun plan(goals: List<GoalNode>, week: WeekRate?, overdue: Int): ConcernDigest {
+    /** 목표·할 일: 이번 주 마감 할 일 중 끝낸 수, 밀린 할 일 → 오래 멈춘 목표 → 진행 중인 목표 수. 차트는 주별 달성 막대([weeks], 오래된 주부터). */
+    fun plan(goals: List<GoalNode>, week: WeekRate?, overdue: Int, weeks: List<WeekRate> = emptyList()): ConcernDigest {
         val active = goals.filter { it.goal.status == GoalStatus.ACTIVE }
         val idle = active.filter { it.isIdle }.maxByOrNull { it.idleDays }
         return ConcernDigest(
@@ -95,8 +103,11 @@ object ConcernDigests {
                 else -> null
             },
             attention = overdue > 0 || idle != null,
+            chart = weeks.takeIf { w -> w.any { it.due > 0 } }?.let { w -> DigestChart.Bars(w.map { it.percent }) },
         )
     }
+
+    private const val TENTHS = 10
 
     private fun dDay(daysLeft: Int): String = when {
         daysLeft > 0 -> "D-$daysLeft"

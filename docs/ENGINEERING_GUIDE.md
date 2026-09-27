@@ -31,7 +31,7 @@ com.nextstep.app
 │   ├── access/             Capabilities(+ `Capabilities.of(role, me)`: 프로필·구성원 → 권한)
 │   ├── family/             StudentContext(구성원 → 학생·생년월일·단계·구간 달력·현재 구간을 한 번에)
 │   ├── time/               DateUtils
-│   ├── stats/              StudyStats, StudyQueues(예습·복습 대기열), BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats, TrendStats(학부모·멘토 차트 값 → FamilyTrends: 8주 흐름·공부 달력·누가 준 할 일·주별 달성·과목별 점수·과제 제출) + 결과 모델
+│   ├── stats/              StudyStats, StudyQueues(예습·복습 대기열), BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats, TrendStats(학부모·멘토 차트 값 → FamilyTrends: 8주 흐름·공부 달력·과목별 점수·과제 제출, 할 일의 주별·준 사람별 달성은 PlanHistory 그대로) + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
 │   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
 │   ├── mission/            MissionKind(단계별 종류), MissionCatalog(날짜에서 거꾸로 쪼갠 단계 설계), MissionPlanner(생성·압축·다음 단계·오늘 카드)
@@ -41,7 +41,7 @@ com.nextstep.app
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
 │   ├── today/            TodayLayout(오늘 카드를 관심사로 묶기), TodayGroup, ParentTodayCard·MentorTodayCard(학부모·멘토 오늘 카드와 관심사)
-│   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), HubAudience·HubViewer(역할별 관심사 순서·보는 사람), ConcernDigests(한눈에 타일)
+│   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), HubAudience·HubViewer(역할별 관심사 순서·보는 사람), ConcernDigests(한눈에 타일 + DigestChart: 타일 아래 한 줄 차트)
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
 │   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
 │   ├── taskboard/          TaskSuggester(복습 목록 · 로드맵 · 시험 → 과목·단원별 추천), TaskBoard(과목별 줄)
@@ -57,7 +57,7 @@ com.nextstep.app
     ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), AppDispatchers, Formatters, ExternalLinks
     ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나. 관심사별 하위 패키지:
     │   ├── card/           AppCard, LinkCard(다른 화면으로), StatusCard, StatTile, StageCard, JourneyNowCard, UpcomingExamCard, InsightCard, TalentCard, SectionTitle, EmptyState …
-    │   ├── chart/          ChartPalette(검증한 차트 색), ColumnChart, HeatCalendar, BulletBars, ShareBar, StatTile·StatGrid, Sparkline, MiniBars, ScoreMultiples, ChartLegend + BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip, Legend
+    │   ├── chart/          ChartPalette(검증한 차트 색), ColumnChart, HeatCalendar, BulletBars, ShareBar, StatTile·StatGrid, Sparkline, MiniBars, MeterBar, ScoreMultiples, ChartLegend + BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip, Legend
     │   ├── dialog/         *EditDialog, AssignTaskDialog, ConfirmDialog, TextInputDialog(한 줄·여러 줄·안내문)
     │   ├── input/          DateField, TimeField, OptionPicker, SubjectPicker, GradePicker, SegmentedRow
     │   ├── layout/         todayBoard(오늘 화면 몸통: 관심사 칩 + 카드 슬라이드 + 칩별 목록), ConcernFilterRow, CardCarousel, TodayCardFrame, GroupHeader, DetailSheet(자세히 모달)

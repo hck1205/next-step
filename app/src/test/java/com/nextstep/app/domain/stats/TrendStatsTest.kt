@@ -47,33 +47,6 @@ class TrendStatsTest {
     }
 
     @Test
-    fun assignersKeepStudentParentMentorOrderAndCountDone() {
-        val tasks = listOf(
-            Fixtures.task("a", today, by = Role.STUDENT.name, done = true),
-            Fixtures.task("b", today, by = Role.MENTOR.name),
-            Fixtures.task("c", today, by = Role.MENTOR.name, done = true),
-        )
-        val shares = TrendStats.assigners(tasks)
-        assertEquals(listOf(Role.STUDENT, Role.PARENT, Role.MENTOR), shares.map { it.role })
-        assertEquals(listOf(1, 0, 2), shares.map { it.given }); assertEquals(listOf(1, 0, 1), shares.map { it.done })
-        assertEquals(1f / 3f, TrendStats.selfShare(tasks), 0.001f)
-        assertEquals(0f, TrendStats.selfShare(emptyList()), 0f)
-    }
-
-    @Test
-    fun weekRatesCountTasksDueInEachWeek() {
-        val tasks = listOf(
-            Fixtures.task("이번 주", today, done = true),
-            Fixtures.task("이번 주 2", today.plusDays(3)),
-            Fixtures.task("지난주", today.minusDays(7), done = true),
-        )
-        val rates = TrendStats.weekRates(tasks, today)
-        assertEquals(5, rates.size)
-        assertEquals(50, rates.last().percent); assertEquals(100, rates[3].percent); assertEquals(0, rates.first().percent)
-        assertEquals(LocalDate.of(2026, 4, 13), rates.last().monday)
-    }
-
-    @Test
     fun scoreSeriesIsDateOrderedPercentWithClassAverage() {
         val grades = listOf(Fixtures.grade("math", 90.0, 20, classAvg = 70.0), Fixtures.grade("math", 80.0, 10, classAvg = 80.0))
         val series = TrendStats.scoreSeries(grades, listOf(Fixtures.math, Fixtures.english))
@@ -106,6 +79,8 @@ class TrendStatsTest {
         assertEquals(listOf(30, 0), t.bySubject.map { it.minutes }) // 이번 주(월요일부터)만
         assertEquals(80, t.scoreAverage); assertEquals(10, t.scoreChange)
         assertEquals(0.5f, t.selfShare, 0.001f); assertEquals(1, t.submissions.done)
+        assertEquals(listOf("STUDENT", "MENTOR"), t.assigners.map { it.key }) // 기록 탭과 같은 PlanHistory 계산
+        assertEquals(5, t.weekRates.size); assertEquals(50, t.weekRates.last().percent)
         assertEquals((180 + 180) / 7, t.dailyGoal)
         assertNull(FamilyTrends().recentChange); assertNull(FamilyTrends().scoreAverage)
     }

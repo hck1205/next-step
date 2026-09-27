@@ -61,8 +61,7 @@ object StudyStats {
     }
 
     /** 최근 n일 일별 학습 시간(오래된 날부터). */
-    fun dailyMinutes(sessions: List<StudySessionEntity>, days: Int = 7): List<DayMinutes> {
-        val today = DateUtils.today()
+    fun dailyMinutes(sessions: List<StudySessionEntity>, days: Int = 7, today: LocalDate = DateUtils.today()): List<DayMinutes> {
         return (days - 1 downTo 0).map { back ->
             val d = today.minusDays(back.toLong())
             DayMinutes(d, minutesBetween(sessions, d, d.plusDays(1)))

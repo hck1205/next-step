@@ -2,7 +2,7 @@ package com.nextstep.app.ui.components.card
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.domain.stats.WeekRate
+import com.nextstep.app.domain.goaltree.WeekRate
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.chart.ColumnChart
 
@@ -12,8 +12,8 @@ fun WeekRatesCard(weeks: List<WeekRate>, compact: Boolean) {
     AppCard {
         ColumnChart(
             values = weeks.map { it.percent },
-            labels = weeks.map { DateUtils.formatShortDate(it.monday) },
-            description = "주별 할 일 달성: " + weeks.joinToString { "${DateUtils.formatShortDate(it.monday)} 주 ${it.done}/${it.total}" },
+            labels = weeks.map { DateUtils.formatShortDate(it.weekStart) },
+            description = "주별 할 일 달성: " + weeks.joinToString { "${DateUtils.formatShortDate(it.weekStart)} 주 ${it.done}/${it.due}" },
             goal = GOOD_PERCENT,
             goalLabel = "${GOOD_PERCENT}%",
             max = FULL_PERCENT,

@@ -87,7 +87,7 @@ data class ParentDashboardUiState(
         ParentTodayCard.HEAT, ParentTodayCard.DAYS -> trends.hasStudy
         ParentTodayCard.SUBJECT_TIME -> trends.bySubject.isNotEmpty() && trends.hasStudy
         ParentTodayCard.ASSIGNERS -> trends.hasTasks
-        ParentTodayCard.WEEK_RATES -> trends.weekRates.any { it.total > 0 }
+        ParentTodayCard.WEEK_RATES -> trends.weekRates.any { it.due > 0 }
         ParentTodayCard.SCORES -> trends.scores.isNotEmpty()
     }
 
