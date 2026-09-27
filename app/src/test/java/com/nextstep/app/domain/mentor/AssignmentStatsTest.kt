@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.mentor
 
+import com.nextstep.app.domain.stats.Submissions
 import com.nextstep.app.testing.Fixtures
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
@@ -21,6 +22,7 @@ class AssignmentStatsTest {
         )
         val r = AssignmentStats.report(tasks, listOf(Fixtures.math, Fixtures.english), today)
         assertEquals(5, r.total); assertEquals(2, r.done); assertEquals(40, r.percent)
+        assertEquals(Submissions(done = 2, pending = 2, late = 1), r.submissions) // 끝냄 · 기한 전 · 밀림 차트
         assertEquals(listOf("밀림"), r.overdue.map { it.title })
         assertEquals(listOf("곧"), r.dueSoon.map { it.title })
         assertEquals(listOf("어제 끝", "옛날 끝"), r.recentDone.map { it.title })

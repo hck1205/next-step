@@ -22,6 +22,8 @@ class AssignmentsViewModelTest : ViewModelTestBase() {
         assertEquals(1, s.report!!.total)
         assertEquals(listOf("과제"), s.report!!.overdue.map { it.title })
         assertEquals(listOf(Fixtures.math), s.subjects)
+        // 주별 과제 달성: 멘토 과제만(학생의 할 일은 빠짐), 5주
+        assertEquals(5, s.weeks.size); assertEquals(1, s.weeks.sumOf { it.due })
         job.cancel()
     }
 }

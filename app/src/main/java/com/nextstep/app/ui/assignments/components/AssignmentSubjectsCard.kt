@@ -1,30 +1,19 @@
 package com.nextstep.app.ui.assignments.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.mentor.AssignmentSubject
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.subjectColor
+import com.nextstep.app.ui.components.chart.BulletBars
+import com.nextstep.app.ui.components.chart.BulletRow
 
-/** 과목별 과제 완료율(낮은 과목 먼저). */
+/** 과목별 과제: 막대 = 끝낸 과제, 세로 선 = 낸 과제(낮은 과목 먼저). 줄 앞 작은 표시는 과목 색. */
 @Composable
 internal fun AssignmentSubjectsCard(bySubject: List<AssignmentSubject>) {
     AppCard {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("과목별 완료", style = MaterialTheme.typography.titleSmall)
-            bySubject.forEach { s ->
-                LabeledProgress(
-                    label = s.subject?.name ?: "과목 없음",
-                    ratio = if (s.total == 0) 0f else s.done.toFloat() / s.total,
-                    color = s.subject?.let { subjectColor(it.color) } ?: MaterialTheme.colorScheme.outline,
-                    trailing = "${s.done}/${s.total}",
-                )
-            }
-        }
+        BulletBars(
+            bySubject.map { s -> BulletRow(s.subject?.name ?: "과목 없음", s.done, s.total, "${s.done}개", "${s.total}개", s.subject?.let { subjectColor(it.color) }) },
+            doneLabel = "끝냄", goalLabel = "낸 과제",
+        )
     }
 }

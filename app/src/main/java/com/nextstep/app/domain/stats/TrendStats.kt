@@ -70,12 +70,7 @@ object TrendStats {
     }
 
     /** 멘토가 낸 과제의 상태: 끝냄 · 기한 전 · 기한이 지났는데 안 함. */
-    fun submissions(tasks: List<TaskEntity>, today: LocalDate): Submissions {
-        val mine = tasks.filter(AssignmentStats::isAssignment)
-        val done = mine.count { it.done }
-        val late = mine.count { !it.done && it.dueDate < today.toEpochDay() }
-        return Submissions(done = done, pending = mine.size - done - late, late = late)
-    }
+    fun submissions(tasks: List<TaskEntity>, today: LocalDate): Submissions = AssignmentStats.report(tasks, emptyList(), today).submissions
 
     private const val DAYS_IN_WEEK = 7L
     private const val ROLLING_PERIODS = 8

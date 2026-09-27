@@ -21,6 +21,8 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.chart.BulletBars
+import com.nextstep.app.ui.components.chart.BulletRow
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.review.components.ReviewRow
 
@@ -37,11 +39,10 @@ internal fun ReviewContent(state: ReviewUiState, caps: Capabilities, onEvent: (R
     LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             AppCard {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(if (state.total == 0) "지금 다시 볼 단원이 없어요" else "다시 볼 단원 ${state.total}개", style = MaterialTheme.typography.titleSmall)
-                    if (state.perSubject.isNotEmpty()) {
-                        Text(state.perSubject.joinToString(" · ") { (name, n) -> "$name $n" }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                    // 과목마다 남은 복습(많은 과목 먼저): 한 계열 가로 막대, 값은 줄 끝 글자
+                    if (state.perSubject.isNotEmpty()) BulletBars(state.perSubject.map { (name, n) -> BulletRow(name, n, valueText = "${n}단원") }, max = state.perSubject.sumOf { it.second })
                 }
             }
         }

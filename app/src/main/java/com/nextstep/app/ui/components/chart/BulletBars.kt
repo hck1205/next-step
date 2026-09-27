@@ -31,12 +31,12 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 목표 대비 가로 막대(과목별 이번 주 시간, 누가 준 할 일 중 끝낸 것 등). 막대 = 한 것(한 색), 세로 선 = 목표.
- * 값은 줄 끝에 글자로 적어 색만으로 읽지 않게 합니다. 아래 범례의 두 이름은 [doneLabel]·[goalLabel].
+ * 값은 줄 끝에 글자로 적어 색만으로 읽지 않게 합니다. [max] 를 주면 막대 길이의 기준(예: 전체 중 몫). 아래 범례의 두 이름은 [doneLabel]·[goalLabel]. 목표가 0 인 줄은 막대만(그때는 범례도 없음).
  */
 @Composable
-fun BulletBars(rows: List<BulletRow>, modifier: Modifier = Modifier, doneLabel: String = "한 것", goalLabel: String = "목표") {
+fun BulletBars(rows: List<BulletRow>, modifier: Modifier = Modifier, doneLabel: String = "한 것", goalLabel: String = "목표", max: Int? = null) {
     val palette = ChartPalette.current()
-    val max = rows.maxOfOrNull { maxOf(it.value, it.goal) }?.coerceAtLeast(1) ?: 1
+    val top = max ?: rows.maxOfOrNull { maxOf(it.value, it.goal) }?.coerceAtLeast(1) ?: 1
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         rows.forEach { r ->
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -44,12 +44,13 @@ fun BulletBars(rows: List<BulletRow>, modifier: Modifier = Modifier, doneLabel: 
                     r.mark?.let { Box(Modifier.size(8.dp).background(it, RoundedCornerShape(2.dp))) }
                     Text(r.name, style = MaterialTheme.typography.labelMedium)
                 }
-                BulletTrack(r, max, palette, Modifier.weight(1f))
+                BulletTrack(r, top, palette, Modifier.weight(1f))
                 Text(r.valueText, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-                Text("/ ${r.goalText}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (r.goal > 0) Text("/ ${r.goalText}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        ChartLegend(listOf(LegendKey(doneLabel, palette.accent), LegendKey(goalLabel, palette.ink, line = true)))
+        // 목표가 없는 한 계열이면 범례 없이(제목이 무엇인지 말함)
+        if (rows.any { it.goal > 0 }) ChartLegend(listOf(LegendKey(doneLabel, palette.accent), LegendKey(goalLabel, palette.ink, line = true)))
     }
 }
 

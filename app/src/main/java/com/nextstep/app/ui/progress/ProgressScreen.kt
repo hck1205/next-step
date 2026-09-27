@@ -30,6 +30,7 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.dialog.SubjectEditDialog
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.hostedSectionAdd
+import com.nextstep.app.ui.progress.components.ReviewGapCard
 import com.nextstep.app.ui.progress.components.SubjectProgressCard
 
 @Composable
@@ -62,6 +63,10 @@ internal fun ProgressContent(state: ProgressUiState, caps: Capabilities, actions
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+            }
+            if (state.progress.any { it.classCovered > 0 }) {
+                item { SectionTitle("수업한 단원 대비 복습") }
+                item { ReviewGapCard(state.progress) }
             }
             // 로드맵은 같은 기록 탭의 배울 것 › 로드맵에 있어 여기서 다시 잇지 않습니다(본문에는 내용만).
             item { SectionTitle(if (caps.isStudent) "내 커리큘럼" else "과목별 진도") }

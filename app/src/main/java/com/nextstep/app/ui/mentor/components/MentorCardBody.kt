@@ -17,6 +17,7 @@ import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.StageCard
 import com.nextstep.app.ui.components.card.StudyWeeksCard
 import com.nextstep.app.ui.components.card.SubjectTimeCard
+import com.nextstep.app.ui.components.card.SubmissionsCard
 import com.nextstep.app.ui.components.chart.ScoreMultiples
 import com.nextstep.app.ui.mentor.MentorDashboardActions
 import com.nextstep.app.ui.mentor.MentorDashboardEvent

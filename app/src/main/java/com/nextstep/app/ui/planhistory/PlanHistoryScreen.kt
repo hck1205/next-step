@@ -13,16 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nextstep.app.domain.goaltree.RateBy
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.AssignerCard
 import com.nextstep.app.ui.components.card.EmptyCard
-import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.row.HistoryEventRow
+import com.nextstep.app.ui.planhistory.components.RateBars
 import com.nextstep.app.ui.planhistory.components.WeekBars
 
 /**
@@ -54,11 +54,11 @@ internal fun PlanHistoryContent(state: PlanHistoryUiState, actions: PlanHistoryA
         }
         if (state.byAssigner.isNotEmpty()) {
             item { SectionTitle("누가 준 할 일") }
-            item { RateCard(state.byAssigner) }
+            item { AssignerCard(state.byAssigner, compact = false) }
         }
         if (state.bySubject.isNotEmpty()) {
             item { SectionTitle("과목별") }
-            item { RateCard(state.bySubject) }
+            item { RateBars(state.bySubject) }
         }
         item { SectionTitle("달성한 목표 · ${state.achieved.size}") }
         if (state.achieved.isEmpty()) item { EmptyCard("아직 달성한 목표가 없어요") }
@@ -76,15 +76,6 @@ internal fun PlanHistoryContent(state: PlanHistoryUiState, actions: PlanHistoryA
         if (state.timeline.isNotEmpty()) {
             item { SectionTitle("지난 기록") }
             item { AppCard { Column(verticalArrangement = Arrangement.spacedBy(10.dp)) { state.timeline.forEach { HistoryEventRow(it) } } } }
-        }
-    }
-}
-
-@Composable
-private fun RateCard(rows: List<RateBy>) {
-    AppCard {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            rows.forEach { r -> LabeledProgress(label = "${r.label} · ${r.done}/${r.total}", ratio = r.rate, color = MaterialTheme.colorScheme.secondary, trailing = r.rate.asPercent()) }
         }
     }
 }

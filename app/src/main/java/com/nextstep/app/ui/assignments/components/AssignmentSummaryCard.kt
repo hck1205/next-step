@@ -2,29 +2,21 @@ package com.nextstep.app.ui.assignments.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.mentor.AssignmentReport
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.SubmissionsBar
 
-/** 과제 요약: 한 문장 + 완료 막대. */
+/** 과제 요약: 한 문장 + 끝냄·기한 전·밀림의 몫(쌓은 막대, 이름과 몫은 범례에 글로). */
 @Composable
 internal fun AssignmentSummaryCard(report: AssignmentReport) {
     AppCard {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(report.line, style = MaterialTheme.typography.titleSmall)
-            if (report.total > 0) {
-                LinearProgressIndicator(progress = { report.done.toFloat() / report.total }, modifier = Modifier.fillMaxWidth())
-                Text(
-                    "끝낸 과제 ${report.done}/${report.total} · 밀린 ${report.overdue.size} · 이번 주 마감 ${report.dueSoon.size}",
-                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            if (report.total > 0) SubmissionsBar(report.submissions)
         }
     }
 }
