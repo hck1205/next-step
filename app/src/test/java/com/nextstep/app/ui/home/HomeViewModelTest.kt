@@ -270,4 +270,23 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertEquals(listOf(StudentHomeSection.PLANNER), s.menuShortcuts)
         job.cancel()
     }
+
+    @Test
+    fun studyFlowAndScoreChartsOpenWithAgeAndShowOnlyMyOwnRecords() = runTest {
+        streams.subjects.value = listOf(Fixtures.math)
+        streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 30))
+        streams.grades.value = listOf(Fixtures.grade("math", 70.0, 1), Fixtures.grade("math", 85.0, 2))
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 3))
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertFalse(StudentHomeSection.STUDY_FLOW in s.visibleSections) // 초3: 숫자 대신 별·스티커
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 5))
+        s = settle(vm.state)
+        assertTrue(StudentHomeSection.STUDY_FLOW in s.visibleSections); assertFalse(StudentHomeSection.MY_SCORES in s.visibleSections)
+        assertEquals(5, s.studyHeat.size); assertEquals(30, s.studyHeat.last().totalMinutes)
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 8))
+        s = settle(vm.state)
+        assertTrue(StudentHomeSection.MY_SCORES in s.visibleSections); assertEquals(listOf(70, 85), s.scoreSeries.single().percents)
+        job.cancel()
+    }
 }

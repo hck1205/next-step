@@ -11,6 +11,8 @@ enum class StudentHomeSection(val label: String, val concern: Concern, val short
     TIMER("공부 시작 버튼", Concern.STUDY),
     TASKS("오늘 할 일", Concern.PLAN),
     MY_WEEK("나의 이번 주", Concern.STUDY),
+    /** 나의 공부 달력(5주)과 최근 7일 막대 — 남과 견주지 않고 내 기록만. 숫자를 보는 나이부터. */
+    STUDY_FLOW("나의 공부 흐름", Concern.STUDY),
     ROUTINE("오늘의 루틴", Concern.PROJECT),
     /** 레벨·이번 주 도전·배지. 학부모가 게임 요소를 끄면(MemberEntity.gamify) 보이지 않습니다. */
     GAME("나의 레벨", Concern.PLAN),
@@ -22,6 +24,8 @@ enum class StudentHomeSection(val label: String, val concern: Concern, val short
     PREVIEW("미리 보기", Concern.LEARN),
     MISSION("시험·목표", Concern.EXAMS),
     EXAM("다가오는 시험", Concern.EXAMS),
+    /** 과목별 내 점수 흐름(같은 눈금). 성적이 본격적으로 쌓이는 중학생부터. */
+    MY_SCORES("나의 점수 흐름", Concern.EXAMS),
     CURRICULUM("이번 학기 배울 것", Concern.LEARN),
     SUBJECTS("과목별 진도", Concern.STUDY),
     ROADMAP("멘토 로드맵", Concern.LEARN),

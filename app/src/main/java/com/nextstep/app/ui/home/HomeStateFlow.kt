@@ -20,6 +20,7 @@ import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.stats.StudyQueues
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.year.AheadPlans
 import com.nextstep.app.domain.year.YearPlans
@@ -29,13 +30,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
 /**
- * 오늘 화면 상태를 기록 흐름에서 차례로 쌓습니다: 기본 수치 → 진도·대기열 → 학생(단계·올해·추천) → 이번 주·미션·루틴 → 게임.
+ * 오늘 화면 상태를 기록 흐름에서 차례로 쌓습니다: 기본 수치 → 진도·대기열 → 학생(단계·올해·추천) → 이번 주·미션·루틴 → 게임 → 흐름 차트.
  * ViewModel 은 이 흐름을 구독하고 사용자 동작만 처리합니다.
  */
 internal object HomeStateFlow {
     fun of(streams: FamilyDataStreams, lastPlan: Flow<StudyPlan?>): Flow<HomeUiState> {
         val progress = withProgress(base(streams), streams, lastPlan)
-        return withGame(withPlans(withStudent(progress, streams), streams), streams)
+        return withTrends(withGame(withPlans(withStudent(progress, streams), streams), streams), streams)
     }
 
     private fun base(streams: FamilyDataStreams): Flow<HomeUiState> =
@@ -120,6 +121,12 @@ internal object HomeStateFlow {
             if (all.firstOrNull { it.isStudent }?.gamify == false) return@combine s.copy(game = null, nextReward = null)
             val profile = Gamify.profile(input, s.today, style = s.level.game)
             s.copy(game = profile, nextReward = Rewards.next(Rewards.views(rewards, input.goals, profile.level.number, profile.boards)))
+        }
+
+    /** 나의 공부 흐름·점수 흐름 카드의 값(내 기록만, 남과 견주지 않음). */
+    private fun withTrends(game: Flow<HomeUiState>, streams: FamilyDataStreams): Flow<HomeUiState> =
+        combine(game, streams.sessions, streams.grades) { s, sessions, grades ->
+            s.copy(studyHeat = TrendStats.heatCalendar(sessions, s.today), scoreSeries = TrendStats.scoreSeries(grades, s.subjects))
         }
 
     private const val DAYS_IN_WEEK = 7

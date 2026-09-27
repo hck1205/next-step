@@ -24,6 +24,8 @@ import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.domain.stats.DayMinutes
 import com.nextstep.app.domain.stats.EventOccurrence
+import com.nextstep.app.domain.stats.HeatWeek
+import com.nextstep.app.domain.stats.ScoreSeries
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.UpcomingExam
 import com.nextstep.app.domain.time.DateUtils
@@ -88,6 +90,10 @@ data class HomeUiState(
     val studentId: String? = null,
     /** 최근 7일 학습 시간(별 스티커·요일 점)과 연속 학습 일수. */
     val week: List<DayMinutes> = emptyList(),
+    /** 나의 공부 달력(최근 5주). */
+    val studyHeat: List<HeatWeek> = emptyList(),
+    /** 과목별 내 점수 흐름. */
+    val scoreSeries: List<ScoreSeries> = emptyList(),
     val streak: Int = 0,
 ) {
     /** 오늘 보여 줄 카드(화면 단계가 연 것 중 내용이 있는 것, 올해 프로필 순서). */
@@ -115,5 +121,7 @@ data class HomeUiState(
         StudentHomeSection.REVIEW -> reviewQueue.isNotEmpty()
         StudentHomeSection.PREVIEW -> previewQueue.isNotEmpty()
         StudentHomeSection.ROADMAP -> roadmapFocus.isNotEmpty()
+        StudentHomeSection.STUDY_FLOW -> studyHeat.any { w -> w.activeDays > 0 }
+        StudentHomeSection.MY_SCORES -> scoreSeries.isNotEmpty()
     }
 }
