@@ -20,6 +20,7 @@ import com.nextstep.app.domain.mentor.MentorScope
 import com.nextstep.app.domain.stats.RoadmapStats
 import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.UiDefaults
@@ -72,6 +73,7 @@ class MentorDashboardViewModel(
             myTasks = scopedTasks.filter { !it.done && AssignmentStats.isAssignment(it) },
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, scopedTasks, d.events).take(UiDefaults.MAX_INSIGHTS),
             roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
+            trends = TrendStats.family(sessions, scopedTasks, grades, s.subjects, DateUtils.today()),
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
 

@@ -34,6 +34,7 @@ import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.UiDefaults
@@ -97,11 +98,15 @@ class ParentDashboardViewModel(
         )
     }
 
-    /** 받을 차례가 된 보상: 레벨·스티커판 보상은 기록에서 계산한 지금 값으로 판단합니다(게임 요소를 꺼도 약속은 그대로). */
-    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, streams.gameInputs(), streams.rewards) { s, members, input, list ->
+    /** 받을 차례가 된 보상: 레벨·스티커판 보상은 기록에서 계산한 지금 값으로 판단합니다(게임 요소를 꺼도 약속은 그대로). 차트 값도 여기서 붙입니다. */
+    private val trends = combine(streams.sessions, streams.tasks, streams.grades, streams.subjects) { sessions, tasks, grades, subjects ->
+        TrendStats.family(sessions, tasks, grades, subjects, DateUtils.today())
+    }
+
+    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, streams.gameInputs(), streams.rewards, trends) { s, members, input, list, t ->
         val style = StudentScreen.of(members.firstOrNull { it.isStudent }, s.today).level.game
         val profile = Gamify.profile(input, s.today, style = style)
-        s.copy(rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)))
+        s.copy(rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t)
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
     /** 학부모가 자녀에게 할 일을 배정합니다. */

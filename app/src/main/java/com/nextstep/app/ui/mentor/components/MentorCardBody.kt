@@ -15,9 +15,9 @@ import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.InsightCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.StageCard
-import com.nextstep.app.ui.components.card.subjectColor
-import com.nextstep.app.ui.components.chart.BarChart
-import com.nextstep.app.ui.components.chart.BarItem
+import com.nextstep.app.ui.components.card.StudyWeeksCard
+import com.nextstep.app.ui.components.card.SubjectTimeCard
+import com.nextstep.app.ui.components.chart.ScoreMultiples
 import com.nextstep.app.ui.mentor.MentorDashboardActions
 import com.nextstep.app.ui.mentor.MentorDashboardEvent
 import com.nextstep.app.ui.mentor.MentorDashboardUiState
@@ -50,13 +50,10 @@ internal fun MentorCardBody(
             }
             TextButton(onClick = onAssign) { Text(if (state.myTasks.size > rows) "${state.myTasks.size - rows}개 더 · 과제 내기" else "과제 내기") }
         }
-        MentorTodayCard.STATS -> MentorStatsRow(state.weekMinutes, state.myTasks.size, state.averageScore)
-        MentorTodayCard.WEEK_CHART -> AppCard {
-            BarChart(
-                items = state.weeklyBySubject.mapNotNull { w -> w.subject?.let { s -> BarItem(s.name, w.minutes.toFloat(), subjectColor(s.color), goal = w.goalMinutes.toFloat().takeIf { it > 0 }) } },
-                valueFormatter = { DateUtils.formatMinutes(it.toInt()) },
-            )
-        }
+        MentorTodayCard.SUBMISSIONS -> SubmissionsCard(state.trends.submissions)
+        MentorTodayCard.STUDY_WEEKS -> StudyWeeksCard(state.trends.rolling, state.subjects.sumOf { it.weeklyGoalMinutes }, DateUtils.today(), compact)
+        MentorTodayCard.WEEK_CHART -> SubjectTimeCard(state.weeklyBySubject)
+        MentorTodayCard.SCORES -> AppCard { ScoreMultiples(state.trends.scores, lineHeight = if (compact) COMPACT_LINE_DP.dp else FULL_LINE_DP.dp) }
         MentorTodayCard.PROGRESS -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.progress.take(if (compact) 2 else rows).forEach { p -> MentorProgressCard(p, onOpen = { actions.onOpenSubject(p.subject.id) }) }
         }
@@ -79,9 +76,12 @@ internal fun MentorCardBody(
 /** 카드 틀의 제목. 스스로 머리를 가진 카드(기준·로드맵·콘텐츠)는 빈 문자열. */
 internal fun mentorCardTitle(card: MentorTodayCard): String = when (card) {
     MentorTodayCard.STAGE, MentorTodayCard.ROADMAP, MentorTodayCard.CONTENT -> ""
-    MentorTodayCard.WEEK_CHART -> "이번 주 과목별 학습 시간 (선: 목표)"
     MentorTodayCard.PROGRESS -> "진도 · 학급 진도 대비 복습률"
-    MentorTodayCard.INSIGHTS, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.STATS, MentorTodayCard.GRADES -> card.title
+    MentorTodayCard.INSIGHTS, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.GRADES, MentorTodayCard.WEEK_CHART,
+    MentorTodayCard.SUBMISSIONS, MentorTodayCard.STUDY_WEEKS, MentorTodayCard.SCORES,
+    -> card.title
 }
 
 private const val FULL_ROWS = 10
+private const val COMPACT_LINE_DP = 26
+private const val FULL_LINE_DP = 40

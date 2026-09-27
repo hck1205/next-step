@@ -70,8 +70,8 @@ object StudyStats {
     }
 
     /** 이번 주 과목별 학습 시간과 목표. */
-    fun weeklyMinutesBySubject(sessions: List<StudySessionEntity>, subjects: List<SubjectEntity>): List<SubjectMinutes> {
-        val start = DateUtils.weekStart()
+    fun weeklyMinutesBySubject(sessions: List<StudySessionEntity>, subjects: List<SubjectEntity>, today: LocalDate = DateUtils.today()): List<SubjectMinutes> {
+        val start = DateUtils.weekStart(today)
         val fromMs = DateUtils.startOfDayMillis(start)
         val toMs = DateUtils.startOfDayMillis(start.plusWeeks(1))
         val weekSessions = sessions.filter { it.startAt in fromMs until toMs }

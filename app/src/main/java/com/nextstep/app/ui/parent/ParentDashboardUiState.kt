@@ -14,6 +14,7 @@ import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.domain.stats.BalanceReport
 import com.nextstep.app.domain.stats.EventOccurrence
+import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.UpcomingExam
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.ParentTodayCard
@@ -56,6 +57,8 @@ data class ParentDashboardUiState(
     /** 이 기기에 연결된 자녀들과 지금 보고 있는 자녀. */
     val children: List<LinkedChild> = emptyList(),
     val activeFamilyId: String? = null,
+    /** 차트 값(공부 흐름 · 달력 · 누가 준 할 일 · 주별 달성 · 과목별 점수). */
+    val trends: FamilyTrends = FamilyTrends(),
 ) {
     /** 첫 화면의 상태 문장: 균형 판단 + 챙길 것 수. 숫자 대신 문장으로. */
     val statusHeadline: String get() {
@@ -81,6 +84,11 @@ data class ParentDashboardUiState(
         ParentTodayCard.ROUTINE -> routines.isNotEmpty()
         ParentTodayCard.MISSIONS -> missionFocus.isNotEmpty()
         ParentTodayCard.EXAM -> upcomingExams.isNotEmpty()
+        ParentTodayCard.HEAT, ParentTodayCard.DAYS -> trends.hasStudy
+        ParentTodayCard.SUBJECT_TIME -> trends.bySubject.isNotEmpty() && trends.hasStudy
+        ParentTodayCard.ASSIGNERS -> trends.hasTasks
+        ParentTodayCard.WEEK_RATES -> trends.weekRates.any { it.total > 0 }
+        ParentTodayCard.SCORES -> trends.scores.isNotEmpty()
     }
 
     /** 상태 카드의 맥락 줄: 이번 주 · 구간. */

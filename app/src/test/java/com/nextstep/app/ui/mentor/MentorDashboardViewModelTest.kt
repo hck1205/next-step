@@ -4,6 +4,7 @@ import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.stats.Submissions
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.fake.FakeFamilyDataStreams
@@ -46,6 +47,9 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("내 과제"), s.myTasks.map { it.title })
         assertEquals(1, s.roadmap.inProgress); assertEquals(1, s.roadmap.done); assertEquals(1, s.roadmap.overdue); assertEquals(2, s.roadmap.total)
         assertEquals(80.0, s.averageScore!!, 0.001)
+        // 차트 값도 담당 과목으로 좁혀짐: 수학 공부 30분, 수학 과제 하나(기한 전)
+        assertEquals(30, s.trends.recent); assertEquals(Submissions(done = 0, pending = 1, late = 0), s.trends.submissions)
+        assertTrue(MentorTodayCard.SUBMISSIONS in s.visibleCards); assertTrue(MentorTodayCard.STUDY_WEEKS in s.visibleCards)
 
         streams.myMember.value = me.copy(subjectIds = "")
         val all = settle(vm.state)
@@ -79,7 +83,9 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         assertEquals(Concern.OVERVIEW, s.todayGroups.first().concern)
         streams.grades.value = listOf(Fixtures.grade("math", 80.0, 1))
         s = settle(vm.state)
-        assertEquals(listOf(MentorTodayCard.GRADES), s.todayGroups.single { it.concern == Concern.EXAMS }.cards)
+        assertEquals(listOf(MentorTodayCard.SCORES, MentorTodayCard.GRADES), s.todayGroups.single { it.concern == Concern.EXAMS }.cards)
+        assertEquals(listOf(80), s.trends.scores.single().percents)
+        assertFalse(MentorTodayCard.SUBMISSIONS in s.visibleCards) // 낸 과제가 없으면 제출 카드도 없음
         job.cancel()
     }
 }

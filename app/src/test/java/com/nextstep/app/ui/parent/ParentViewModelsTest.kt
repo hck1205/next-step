@@ -142,4 +142,23 @@ class ParentViewModelsTest : ViewModelTestBase() {
         assertEquals(listOf(ParentTodayCard.ROUTINE), s.todayGroups.single { it.concern == Concern.PROJECT }.cards)
         job.cancel()
     }
+
+    @Test
+    fun trendCardsAppearOnlyWithRecordsAndCarryChartValues() = runTest {
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertFalse(ParentTodayCard.HEAT in s.visibleCards); assertFalse(ParentTodayCard.SCORES in s.visibleCards); assertFalse(ParentTodayCard.ASSIGNERS in s.visibleCards)
+        streams.subjects.value = listOf(Fixtures.math)
+        streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 40))
+        streams.tasks.value = listOf(Fixtures.task("스스로", today, by = "STUDENT", done = true), Fixtures.task("엄마가", today, by = "PARENT"))
+        streams.grades.value = listOf(Fixtures.grade("math", 70.0, 1), Fixtures.grade("math", 90.0, 2))
+        s = settle(vm.state)
+        assertTrue(s.visibleCards.containsAll(listOf(ParentTodayCard.HEAT, ParentTodayCard.DAYS, ParentTodayCard.SUBJECT_TIME, ParentTodayCard.ASSIGNERS, ParentTodayCard.WEEK_RATES, ParentTodayCard.SCORES)))
+        assertEquals(40, s.trends.recent); assertEquals(40, s.trends.daily.last().minutes)
+        assertEquals(listOf(1, 1, 0), s.trends.assigners.map { it.given }); assertEquals(50, s.trends.weekRates.last().percent)
+        assertEquals(listOf(70, 90), s.trends.scores.single().percents)
+        // 차트 카드는 묶음 안에서 글 카드보다 앞에
+        assertEquals(ParentTodayCard.HEAT, s.todayGroups.single { it.concern == Concern.STUDY }.cards.first())
+        job.cancel()
+    }
 }

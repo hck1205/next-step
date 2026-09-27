@@ -9,14 +9,21 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.today.ParentTodayCard
 import com.nextstep.app.ui.common.UiDefaults
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.AssignerCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.GoalFocusCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.MissionFocusCard
 import com.nextstep.app.ui.components.card.RewardDueCard
 import com.nextstep.app.ui.components.card.RoutineCard
+import com.nextstep.app.ui.components.card.StudyDaysCard
+import com.nextstep.app.ui.components.card.SubjectTimeCard
 import com.nextstep.app.ui.components.card.UpcomingExamCard
 import com.nextstep.app.ui.components.card.WeekPlanCard
+import com.nextstep.app.ui.components.card.WeekRatesCard
+import com.nextstep.app.ui.components.chart.HeatCalendar
+import com.nextstep.app.ui.components.chart.ScoreMultiples
 import com.nextstep.app.ui.components.row.EventRow
 import com.nextstep.app.ui.parent.ParentDashboardActions
 import com.nextstep.app.ui.parent.ParentDashboardEvent
@@ -53,6 +60,12 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
         }
         ParentTodayCard.ROUTINE -> RoutineCard(state.routines, onToggle = { p, item -> onEvent(ParentDashboardEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject, compact = compact)
         ParentTodayCard.MISSIONS -> MissionFocusCard(state.missionFocus, onOpen = actions.onOpenGoals)
+        ParentTodayCard.WEEK_RATES -> WeekRatesCard(state.trends.weekRates, compact)
+        ParentTodayCard.ASSIGNERS -> AssignerCard(state.trends.assigners, compact)
+        ParentTodayCard.HEAT -> AppCard { HeatCalendar(state.trends.heat, state.today, compact = compact) }
+        ParentTodayCard.DAYS -> StudyDaysCard(state.trends.daily, state.trends.dailyGoal, compact)
+        ParentTodayCard.SUBJECT_TIME -> SubjectTimeCard(state.trends.bySubject)
+        ParentTodayCard.SCORES -> AppCard { ScoreMultiples(state.trends.scores, lineHeight = if (compact) COMPACT_LINE_DP.dp else FULL_LINE_DP.dp) }
         ParentTodayCard.EXAM -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             state.upcomingExams.take(if (compact) 1 else rows).forEach { UpcomingExamCard(it) }
         }
@@ -63,7 +76,11 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
 internal fun parentCardTitle(card: ParentTodayCard, state: ParentDashboardUiState): String = when (card) {
     ParentTodayCard.TODAY -> "오늘의 ${state.studentName.ifBlank { "아이" }}"
     ParentTodayCard.REWARDS, ParentTodayCard.WEEK, ParentTodayCard.EXAM -> ""
-    ParentTodayCard.JOURNEY, ParentTodayCard.GOALS, ParentTodayCard.ROUTINE, ParentTodayCard.MISSIONS -> card.title
+    ParentTodayCard.JOURNEY, ParentTodayCard.GOALS, ParentTodayCard.ROUTINE, ParentTodayCard.MISSIONS,
+    ParentTodayCard.WEEK_RATES, ParentTodayCard.ASSIGNERS, ParentTodayCard.HEAT, ParentTodayCard.DAYS, ParentTodayCard.SUBJECT_TIME, ParentTodayCard.SCORES,
+    -> card.title
 }
 
 private const val FULL_ROWS = 10
+private const val COMPACT_LINE_DP = 26
+private const val FULL_LINE_DP = 40

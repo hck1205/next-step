@@ -1,6 +1,7 @@
 package com.nextstep.app.ui.parent
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -40,6 +41,7 @@ import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.todayBoard
 import com.nextstep.app.ui.parent.components.ParentCardBody
+import com.nextstep.app.ui.parent.components.ParentKpis
 import com.nextstep.app.ui.parent.components.parentCardTitle
 
 /**
@@ -98,19 +100,22 @@ private fun ParentTopBar(state: ParentDashboardUiState, caps: Capabilities, acti
     )
 }
 
-/** 이번 주 상태 요약(학습 시간 · 균형 · 스스로). 관심사 칩 아래, "전체"일 때만. */
+/** 이번 주 상태 요약(학습 시간 · 균형 · 스스로)과 그 아래 지표 네 칸. 관심사 칩 아래, "전체"일 때만. */
 @Composable
 private fun ParentStatus(state: ParentDashboardUiState) {
     val b = state.balance
-    StatusCard(
-        context = "${state.studentName.ifBlank { "자녀" }} · ${state.statusContext}",
-        headline = state.statusHeadline,
-        tiles = listOfNotNull(
-            StatusTile("이번 주 학습", DateUtils.formatMinutes(state.weekMinutes)),
-            b?.let { StatusTile("균형", it.studyVerdict.label) },
-            b?.selfDirectedRatio?.let { StatusTile("스스로", "${(it * PERCENT).toInt()}%") } ?: StatusTile("연속", "${state.streak}일"),
-        ),
-    )
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        StatusCard(
+            context = "${state.studentName.ifBlank { "자녀" }} · ${state.statusContext}",
+            headline = state.statusHeadline,
+            tiles = listOfNotNull(
+                StatusTile("이번 주 학습", DateUtils.formatMinutes(state.weekMinutes)),
+                b?.let { StatusTile("균형", it.studyVerdict.label) },
+                b?.selfDirectedRatio?.let { StatusTile("스스로", "${(it * PERCENT).toInt()}%") } ?: StatusTile("연속", "${state.streak}일"),
+            ),
+        )
+        ParentKpis(state.trends)
+    }
 }
 
 private const val PERCENT = 100

@@ -40,6 +40,7 @@ import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.todayBoard
 import com.nextstep.app.ui.mentor.components.MentorCardBody
+import com.nextstep.app.ui.mentor.components.MentorKpis
 import com.nextstep.app.ui.mentor.components.mentorCardTitle
 
 @Composable
@@ -72,6 +73,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
             todayBoard(
                 groups = state.todayGroups, filter = filter, onFilter = { filter = it },
                 title = { mentorCardTitle(it) }, key = { it.name }, onExpand = { sheet = it },
+                lead = { MentorKpis(state.trends, state.progress) },
                 body = { card, compact -> MentorCardBody(card, state, actions, onEvent, compact, onChangeSubjects = { showSubjects = true }, onAssign = { showAssign = true }) },
             )
             item { Spacer(Modifier.height(24.dp)) }

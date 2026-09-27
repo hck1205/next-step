@@ -8,6 +8,7 @@ import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.Insight
+import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.stats.SubjectProgress
@@ -42,6 +43,8 @@ data class MentorDashboardUiState(
     /** 이 기기에 연결된 학생들과 지금 보고 있는 학생. */
     val students: List<LinkedChild> = emptyList(),
     val activeFamilyId: String? = null,
+    /** 담당 과목으로 좁힌 차트 값(과제 제출 · 8주 흐름 · 과목별 점수). */
+    val trends: FamilyTrends = FamilyTrends(),
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 
@@ -50,7 +53,10 @@ data class MentorDashboardUiState(
     val todayGroups: List<TodayGroup<MentorTodayCard>> by lazy { TodayLayout.group(visibleCards) { it.concern } }
 
     fun hasContent(card: MentorTodayCard): Boolean = when (card) {
-        MentorTodayCard.STAGE, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.STATS, MentorTodayCard.ROADMAP, MentorTodayCard.CONTENT -> true
+        MentorTodayCard.STAGE, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.ROADMAP, MentorTodayCard.CONTENT -> true
+        MentorTodayCard.SUBMISSIONS -> trends.submissions.total > 0
+        MentorTodayCard.STUDY_WEEKS -> trends.hasStudy
+        MentorTodayCard.SCORES -> trends.scores.isNotEmpty()
         MentorTodayCard.INSIGHTS -> insights.isNotEmpty()
         MentorTodayCard.WEEK_CHART -> weeklyBySubject.isNotEmpty()
         MentorTodayCard.PROGRESS -> progress.isNotEmpty()
