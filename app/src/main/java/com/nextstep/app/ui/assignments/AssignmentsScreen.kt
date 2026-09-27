@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.assignments
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +15,7 @@ import com.nextstep.app.ui.assignments.components.AssignmentRow
 import com.nextstep.app.ui.assignments.components.AssignmentSubjectsCard
 import com.nextstep.app.ui.assignments.components.AssignmentSummaryCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.ScreenPadding
 
 /** 과제 › 과제: 요약 → 밀린 과제 → 이번 주 마감 → 과목별 완료율 → 최근 끝낸 과제. */
 @Composable
@@ -27,7 +27,7 @@ fun AssignmentsScreen(viewModel: AssignmentsViewModel = viewModel(factory = AppV
 @Composable
 internal fun AssignmentsContent(state: AssignmentsUiState) {
     val r = state.report ?: return
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { AssignmentSummaryCard(r) }
         if (r.overdue.isNotEmpty()) {
             item { SectionTitle("밀린 과제") }

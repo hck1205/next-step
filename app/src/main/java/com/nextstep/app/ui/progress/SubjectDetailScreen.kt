@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.progress
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +40,7 @@ import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.components.dialog.SubjectEditDialog
 import com.nextstep.app.ui.components.dialog.TextInputDialog
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.progress.components.ClassProgressDialog
 import com.nextstep.app.ui.progress.components.ProgressSummaryCard
 import com.nextstep.app.ui.progress.components.QueueHintCard
@@ -67,7 +67,7 @@ internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilitie
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item { ProgressSummaryCard(state.topics, subject?.teacher, color, caps, onSetProgress = { showProgressPicker = true }) }

@@ -2,7 +2,6 @@ package com.nextstep.app.ui.mentor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -38,6 +37,7 @@ import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.BackButton
 import com.nextstep.app.ui.components.layout.DetailSheet
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.todayBoard
 import com.nextstep.app.ui.mentor.components.MentorCardBody
 import com.nextstep.app.ui.mentor.components.mentorCardTitle
@@ -64,7 +64,7 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
     Scaffold(topBar = { MentorTopBar(state, actions) }) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             // 관심사 칩 → "전체"는 관심사마다 카드 슬라이드, 칩을 고르면 그 관심사만 크게. 펼치기는 자세히 시트로.

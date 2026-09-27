@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +21,7 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.review.components.ReviewRow
 
 /** 배울 것 › 복습: 과목별 남은 단원 한 줄 → 이유별 목록(이해도 낮음 → 점수 내려간 과목 → 수업 뒤 → 다음 수업 예습). */
@@ -34,7 +34,7 @@ fun ReviewScreen(caps: Capabilities, viewModel: ReviewViewModel = viewModel(fact
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ReviewContent(state: ReviewUiState, caps: Capabilities, onEvent: (ReviewEvent) -> Unit) {
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             AppCard {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

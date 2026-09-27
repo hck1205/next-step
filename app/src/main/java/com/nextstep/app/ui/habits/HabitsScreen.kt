@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.habits
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.StatTile
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.habits.components.DayPartCard
 import com.nextstep.app.ui.habits.components.HabitLinesCard
 import com.nextstep.app.ui.habits.components.WeekCompareCard
@@ -29,7 +29,7 @@ fun HabitsScreen(viewModel: HabitsViewModel = viewModel(factory = AppViewModelPr
 @Composable
 internal fun HabitsContent(state: HabitsUiState) {
     val r = state.report ?: return
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item { HabitLinesCard(r.lines) }
         if (!r.isEmpty) {
             item {

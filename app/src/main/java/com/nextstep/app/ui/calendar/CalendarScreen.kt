@@ -3,7 +3,6 @@ package com.nextstep.app.ui.calendar
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +30,7 @@ import com.nextstep.app.ui.calendar.components.CalendarEventRow
 import com.nextstep.app.ui.calendar.components.MonthGrid
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.components.row.SessionRow
 import com.nextstep.app.ui.components.row.TaskRow
@@ -58,7 +58,7 @@ internal fun CalendarContent(state: CalendarUiState, caps: Capabilities, onEvent
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item { MonthGrid(state, onPrev = { onEvent(CalendarEvent.PrevMonth) }, onNext = { onEvent(CalendarEvent.NextMonth) }, onSelect = { onEvent(CalendarEvent.Select(it)) }) }

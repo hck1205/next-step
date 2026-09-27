@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.curriculum
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +24,7 @@ import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.curriculum.components.BulletCard
 import com.nextstep.app.ui.curriculum.components.PeriodNavRow
 import com.nextstep.app.ui.curriculum.components.SubjectPlanCard
@@ -57,7 +57,7 @@ internal fun CurriculumContent(state: CurriculumUiState, caps: Capabilities, act
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {

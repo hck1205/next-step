@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.todo
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +17,7 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.StatTile
 import com.nextstep.app.ui.components.input.SegmentedRow
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.todo.components.LaneCard
 
 /**
@@ -35,7 +35,7 @@ internal fun TodoContent(state: TodoUiState, caps: Capabilities, actions: TodoAc
     val canCheck = caps.canCheckTask(state.stage)
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+        contentPadding = ScreenPadding.list,
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {

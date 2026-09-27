@@ -2,7 +2,6 @@ package com.nextstep.app.ui.projects
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +21,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.RoutineCard
 import com.nextstep.app.ui.components.input.SegmentedRow
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.projects.components.ProjectCard
 
 /**
@@ -38,7 +38,7 @@ fun ProjectsScreen(actions: ProjectsActions, viewModel: ProjectsViewModel = view
 internal fun ProjectsContent(state: ProjectsUiState, actions: ProjectsActions, onEvent: (ProjectsEvent) -> Unit) {
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+        contentPadding = ScreenPadding.list,
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         if (state.loaded && state.all.isEmpty()) {

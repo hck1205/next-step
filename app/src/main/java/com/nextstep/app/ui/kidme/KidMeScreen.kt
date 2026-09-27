@@ -2,7 +2,6 @@ package com.nextstep.app.ui.kidme
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -33,6 +32,7 @@ import com.nextstep.app.ui.components.card.BadgeGrid
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.row.RewardRow
 import com.nextstep.app.ui.kidme.components.StickerGrid
 
@@ -50,7 +50,7 @@ fun KidMeScreen(viewModel: KidMeViewModel = viewModel(factory = AppViewModelProv
 @Composable
 internal fun KidMeContent(state: KidMeUiState) {
     Scaffold(topBar = { TopAppBar(title = { Text(if (state.studentName.isBlank()) "내 스티커" else "${state.studentName}의 스티커") }) }) { padding ->
-        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             state.game?.let { g ->
                 item { GameCard(g, state.nextReward, showsNumbers = false) }
                 item { SectionTitle(g.style.badgeWord) }

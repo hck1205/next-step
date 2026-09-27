@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.selfdirection
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +15,7 @@ import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.WeekPlanCard
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.selfdirection.components.EvidenceCard
 import com.nextstep.app.ui.selfdirection.components.LadderCard
 import com.nextstep.app.ui.selfdirection.components.LoopCard
@@ -38,7 +38,7 @@ internal fun SelfDirectionContent(state: SelfDirectionUiState, caps: Capabilitie
     val access = WeekAccess.of(caps, report.stage)
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+        contentPadding = ScreenPadding.list,
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {

@@ -2,7 +2,6 @@ package com.nextstep.app.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -28,6 +27,7 @@ import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.DetailSheet
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.TodayCardFrame
 import com.nextstep.app.ui.components.layout.todayBoard
 import com.nextstep.app.ui.components.speech.rememberSpeaker
@@ -66,7 +66,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
         // 카드는 화면 단계(level)가 연 것만 그립니다. 학년으로 직접 분기하지 않습니다.
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(if (level.showsNumbers) 10.dp else 14.dp),
         ) {
             if (level.kid.oneColumnToday) {

@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.progress
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +28,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.dialog.SubjectEditDialog
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.progress.components.SubjectProgressCard
 
@@ -52,7 +52,7 @@ internal fun ProgressContent(state: ProgressUiState, caps: Capabilities, actions
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (caps.isStudent) item {

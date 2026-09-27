@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.grades
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +28,7 @@ import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.SubjectRadarCard
 import com.nextstep.app.ui.components.dialog.GradeEditDialog
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.grades.components.GradeRow
 import com.nextstep.app.ui.grades.components.GradeStatsRow
@@ -56,7 +56,7 @@ internal fun GradesContent(state: GradesUiState, caps: Capabilities, onEvent: (G
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item { GradeStatsRow(state.overallAverage, state.scores) }

@@ -2,7 +2,6 @@ package com.nextstep.app.ui.goal
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,6 +28,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.row.HistoryEventRow
 import com.nextstep.app.ui.goal.components.ChainCard
 import com.nextstep.app.ui.goal.components.ChildGoalCard
@@ -64,7 +64,7 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 48.dp),
+            contentPadding = ScreenPadding.detail,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             val node = state.node

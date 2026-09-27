@@ -2,7 +2,6 @@ package com.nextstep.app.ui.parent
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +39,7 @@ import com.nextstep.app.ui.components.input.ChildPicker
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.DetailSheet
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.todayBoard
 import com.nextstep.app.ui.parent.components.ParentCardBody
 import com.nextstep.app.ui.parent.components.parentCardTitle
@@ -65,7 +65,7 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
     Scaffold(topBar = { ParentTopBar(state, caps, actions) }) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             // 상단 바 아래 관심사 칩 → 상태 요약 → "전체"는 관심사마다 카드 슬라이드, 칩을 고르면 그 관심사만 크게. 펼치기는 자세히 시트로.

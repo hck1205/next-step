@@ -3,7 +3,6 @@ package com.nextstep.app.ui.yearplan
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,6 +32,7 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.speech.rememberSpeaker
 import com.nextstep.app.ui.yearplan.components.AheadHeader
 import com.nextstep.app.ui.yearplan.components.MineFilterRow
@@ -97,7 +97,7 @@ private fun YearBody(state: YearPlanUiState, theme: String, onEvent: (YearPlanEv
         state, onToggle = { onEvent(YearPlanEvent.Toggle(it)) }, onOpen = onOpen,
         openTerms = openTerms, onFold = { key -> openTerms = if (key in openTerms) openTerms - key else openTerms + key },
     )
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item(key = "summary") { YearSummaryCard(state, theme) }
         if (state.mineCount > 0 && state.mineCount < state.allCount) item(key = "mine") {
             MineFilterRow(state.mineOnly, state.mineCount, state.allCount, onShowMine = { onEvent(YearPlanEvent.ShowMine(it)) })

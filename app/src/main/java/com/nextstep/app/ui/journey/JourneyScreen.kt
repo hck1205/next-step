@@ -2,7 +2,6 @@ package com.nextstep.app.ui.journey
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -41,6 +40,7 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.layout.AppBarMenu
 import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.row.GoalStepRow
 import com.nextstep.app.ui.journey.components.ActivityChips
 import com.nextstep.app.ui.journey.components.CategoryFilter
@@ -77,7 +77,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             // 분류 칩은 이 화면의 거르기라 상단 바 바로 아래에 붙여 둡니다(스크롤해도 남음). 그 아래 지금 나이 요약.

@@ -2,7 +2,6 @@ package com.nextstep.app.ui.planhistory
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +21,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.row.HistoryEventRow
 import com.nextstep.app.ui.planhistory.components.WeekBars
 
@@ -39,7 +39,7 @@ fun PlanHistoryScreen(actions: PlanHistoryActions, viewModel: PlanHistoryViewMod
 internal fun PlanHistoryContent(state: PlanHistoryUiState, actions: PlanHistoryActions) {
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
+        contentPadding = ScreenPadding.list,
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {

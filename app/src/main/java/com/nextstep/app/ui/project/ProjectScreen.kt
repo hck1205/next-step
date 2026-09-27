@@ -2,7 +2,6 @@ package com.nextstep.app.ui.project
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +29,7 @@ import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.chart.MinutesLadder
 import com.nextstep.app.ui.components.dialog.ConfirmDialog
 import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.project.components.CheckpointCard
 import com.nextstep.app.ui.project.components.PhaseTimeline
 import com.nextstep.app.ui.project.components.ProjectHeaderCard
@@ -59,7 +59,7 @@ internal fun ProjectContent(state: ProjectUiState, caps: Capabilities, actions: 
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 48.dp),
+            contentPadding = ScreenPadding.detail,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (p == null) {

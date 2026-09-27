@@ -3,7 +3,6 @@ package com.nextstep.app.ui.talent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.talent.components.AptitudeCard
 import com.nextstep.app.ui.talent.components.ObservationDialog
 import com.nextstep.app.ui.talent.components.ObservationRow
@@ -39,7 +39,7 @@ internal fun TalentContent(state: TalentUiState, caps: Capabilities, onEvent: (T
     var showObserve by remember { mutableStateOf(false) }
     if (showObserve) ObservationDialog(today = state.today, onConfirm = { onEvent(TalentEvent.Observe(it)); showObserve = false }, onDismiss = { showObserve = false })
 
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { AptitudeCard(signals = state.signals, onObserve = if (caps.canRecordGrowth) ({ showObserve = true }) else null) }
         state.byDomain.forEach { (domain, observations) ->
             stickyHeader(key = "d${domain.name}") {

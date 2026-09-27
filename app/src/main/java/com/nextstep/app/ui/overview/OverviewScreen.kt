@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.overview
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +16,7 @@ import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.overview.components.AttentionLegend
 import com.nextstep.app.ui.overview.components.BalanceCard
 import com.nextstep.app.ui.overview.components.ConcernTile
@@ -34,7 +34,7 @@ fun OverviewScreen(concerns: List<Concern>, actions: OverviewActions, viewModel:
 @Composable
 internal fun OverviewContent(state: OverviewUiState, concerns: List<Concern>, actions: OverviewActions) {
     val tiles = concerns.mapNotNull { c -> state.digests.firstOrNull { it.concern == c } }
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         item {
             val b = state.balance
             if (b != null) BalanceCard(b, state.yearLabel ?: state.stage?.label) else EmptyCard("기록이 쌓이면 균형을 보여 드려요")

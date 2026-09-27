@@ -3,7 +3,6 @@ package com.nextstep.app.ui.rewards
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +33,7 @@ import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.dialog.PromiseRewardDialog
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.hostedSectionAdd
 import com.nextstep.app.ui.components.row.RewardRow
 import com.nextstep.app.ui.rewards.components.XpBreakdownCard
@@ -58,7 +58,7 @@ internal fun RewardsContent(state: RewardsUiState, caps: Capabilities, showsNumb
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (state.gamify) {

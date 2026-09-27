@@ -3,7 +3,6 @@ package com.nextstep.app.ui.growth
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +25,7 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.chart.LineChart
 import com.nextstep.app.ui.components.chart.LineSeries
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.growth.components.GrowthCard
 import com.nextstep.app.ui.growth.components.GrowthRecordDialog
 import com.nextstep.app.ui.growth.components.GrowthRecordRow
@@ -44,7 +44,7 @@ internal fun GrowthContent(state: GrowthUiState, caps: Capabilities, onEvent: (G
     var showEdit by remember { mutableStateOf(false) }
     if (showEdit) GrowthRecordDialog(existing = editing, today = state.today, onConfirm = { onEvent(GrowthEvent.Save(it)); showEdit = false }, onDismiss = { showEdit = false })
 
-    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item { GrowthCard(summary = state.summary, onAdd = if (caps.canRecordGrowth) ({ editing = null; showEdit = true }) else null) }
         if (state.heightTrend.size >= MIN_TREND) item {
             AppCard {

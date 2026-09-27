@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.insights
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,6 +25,7 @@ import com.nextstep.app.ui.components.card.InsightCard
 import com.nextstep.app.ui.components.card.SectionTitle
 import com.nextstep.app.ui.components.card.SubjectRadarCard
 import com.nextstep.app.ui.components.card.TalentCard
+import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.insights.components.FocusHoursCard
 import com.nextstep.app.ui.insights.components.StudyDaysCard
 import com.nextstep.app.ui.insights.components.SubjectShareCard
@@ -43,7 +43,7 @@ internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, onEvent
     Scaffold { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (caps.isParent) talents(state)
