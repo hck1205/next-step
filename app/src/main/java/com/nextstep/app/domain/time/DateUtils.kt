@@ -16,6 +16,8 @@ object DateUtils {
     val KO: Locale = Locale.KOREAN
 
     fun today(): LocalDate = LocalDate.now(zone)
+    /** 지금 시각(분 단위, 초는 버림). 입력 창의 기본값용. */
+    fun nowTime(): LocalTime = LocalTime.now(zone).withSecond(0).withNano(0)
     fun fromEpochDay(day: Long): LocalDate = LocalDate.ofEpochDay(day)
 
     fun toMillis(dateTime: LocalDateTime): Long = dateTime.atZone(zone).toInstant().toEpochMilli()

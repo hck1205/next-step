@@ -41,10 +41,10 @@ object TaskDrafts {
         dueDate = today.toEpochDay(), createdByRole = Role.STUDENT.name,
     )
 
-    /** 올해 할 일 한 줄을 오늘 할 일로. 하는 법은 메모로 따라갑니다. */
-    fun forYearTask(task: YearTask, today: LocalDate): TaskEntity = TaskEntity(
+    /** 올해 할 일 한 줄을 오늘 할 일로. 하는 법은 메모로 따라갑니다. 누른 사람([byRole])이 만든 할 일이라 학부모가 넣으면 "학부모가 준 할 일". */
+    fun forYearTask(task: YearTask, today: LocalDate, byRole: String): TaskEntity = TaskEntity(
         familyId = "", title = task.title, type = if (task.area == YearArea.EXAM) TaskType.EXAM_PREP else TaskType.HOMEWORK,
-        dueDate = today.toEpochDay(), createdByRole = Role.STUDENT.name, note = task.how,
+        dueDate = today.toEpochDay(), createdByRole = byRole, note = task.how,
     )
 
     /** 분석 제안에서 만든 할 일. 제안을 본 다음 날까지. */

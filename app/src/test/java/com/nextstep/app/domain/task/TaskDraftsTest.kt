@@ -38,7 +38,7 @@ class TaskDraftsTest {
     fun studyKindAndYearTaskBecomeTodaysOwnTasks() {
         val kind = TaskDrafts.forStudyKind(StudyKind("받아쓰기", StudyKindType.TEST_PREP, 2, 10), today)
         assertEquals("받아쓰기 10분", kind.title); assertEquals(TaskType.EXAM_PREP, kind.type); assertTrue(kind.isStudentMade)
-        val year = TaskDrafts.forYearTask(YearTask(YearArea.EXAM, YearTerm.FIRST, "단원평가", "틀린 문제 다시 풀기", YearDoer.CHILD), today)
+        val year = TaskDrafts.forYearTask(YearTask(YearArea.EXAM, YearTerm.FIRST, "단원평가", "틀린 문제 다시 풀기", YearDoer.CHILD), today, Role.STUDENT.name)
         assertEquals(TaskType.EXAM_PREP, year.type); assertEquals("틀린 문제 다시 풀기", year.note); assertEquals(today.toEpochDay(), year.dueDate)
     }
 

@@ -51,15 +51,15 @@ import com.nextstep.app.ui.yearplan.components.YearTrendCard
 fun YearPlanScreen(caps: Capabilities, actions: YearPlanActions, viewModel: YearPlanViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(caps.yearDoers) { viewModel.onEvent(YearPlanEvent.SetMine(caps.yearDoers)) }
-    YearPlanContent(state = state, actions = actions, onEvent = viewModel::onEvent)
+    YearPlanContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, onEvent: (YearPlanEvent) -> Unit) {
+internal fun YearPlanContent(state: YearPlanUiState, caps: Capabilities, actions: YearPlanActions, onEvent: (YearPlanEvent) -> Unit) {
     var open by remember { mutableStateOf<YearTaskView?>(null) }
     val speak = if (state.level.kid.readsAloud) rememberSpeaker() else null
-    open?.let { v -> YearTaskDialog(v, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onAddToToday = { onEvent(YearPlanEvent.AddToToday(v.task)) }, onSpeak = speak, onDismiss = { open = null }) }
+    open?.let { v -> YearTaskDialog(v, onToggle = { onEvent(YearPlanEvent.Toggle(v)) }, onAddToToday = { onEvent(YearPlanEvent.AddToToday(v.task, caps.actingRoleName)) }, onSpeak = speak, onDismiss = { open = null }) }
 
     Scaffold(
         topBar = {

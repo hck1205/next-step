@@ -28,7 +28,7 @@ import java.time.LocalTime
 fun ManualSessionDialog(subjects: List<SubjectEntity>, onDismiss: () -> Unit, onSave: (String?, LocalDate, LocalTime, Int, String) -> Unit) {
     var subjectId by remember { mutableStateOf(subjects.firstOrNull()?.id) }
     var date by remember { mutableStateOf(DateUtils.today()) }
-    var start by remember { mutableStateOf(LocalTime.now().withSecond(0).withNano(0).minusHours(1)) }
+    var start by remember { mutableStateOf(DateUtils.nowTime().minusHours(1)) }
     var minutes by remember { mutableStateOf("60") }
     var note by remember { mutableStateOf("") }
     AlertDialog(

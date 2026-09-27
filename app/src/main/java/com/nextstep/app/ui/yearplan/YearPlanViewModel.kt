@@ -79,9 +79,9 @@ class YearPlanViewModel(
         }
     }
 
-    fun addToToday(task: YearTask) {
+    fun addToToday(task: YearTask, byRole: String) {
         viewModelScope.launch {
-            tasks.save(TaskDrafts.forYearTask(task, today()))
+            tasks.save(TaskDrafts.forYearTask(task, today(), byRole))
         }
     }
 
@@ -89,7 +89,7 @@ class YearPlanViewModel(
     fun onEvent(event: YearPlanEvent) {
         when (event) {
             is YearPlanEvent.Toggle -> toggle(event.view)
-            is YearPlanEvent.AddToToday -> addToToday(event.task)
+            is YearPlanEvent.AddToToday -> addToToday(event.task, event.byRole)
             is YearPlanEvent.SetMine -> mine.value = event.doers
             is YearPlanEvent.ShowMine -> mineOnly.value = event.mineOnly
         }
