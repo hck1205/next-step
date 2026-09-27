@@ -260,4 +260,14 @@ class HomeViewModelTest : ViewModelTestBase() {
         assertFalse(StudentHomeSection.ROUTINE in s.visibleSections) // 루틴이 없으면 카드도 없음
         job.cancel()
     }
+
+    @Test
+    fun plannerIsAHeaderMenuItemForOlderStudentsNotACard() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 11))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertFalse(StudentHomeSection.PLANNER in s.visibleSections)
+        assertEquals(listOf(StudentHomeSection.PLANNER), s.menuShortcuts)
+        job.cancel()
+    }
 }

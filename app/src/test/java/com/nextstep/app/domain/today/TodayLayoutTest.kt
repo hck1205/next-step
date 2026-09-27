@@ -24,12 +24,10 @@ class TodayLayoutTest {
     }
 
     @Test
-    fun shortcutCardsGoToTheEndOfTheirGroupOnly() {
-        val order = listOf(StudentHomeSection.PLANNER, StudentHomeSection.TASKS, StudentHomeSection.GAME, StudentHomeSection.MY_WEEK)
-        val groups = TodayLayout.group(order, isShortcut = { it.shortcut }) { it.concern }
-        assertEquals(listOf(Concern.PLAN, Concern.STUDY), groups.map { it.concern }) // 묶음 순서는 그대로
-        assertEquals(listOf(StudentHomeSection.TASKS, StudentHomeSection.GAME, StudentHomeSection.PLANNER), groups[0].cards)
+    fun shortcutsAreMenuItemsNotCards() {
+        // 내용 없이 다른 화면으로 가는 것은 카드가 아니라 오늘 화면 머리의 ⋮ 메뉴로
         assertEquals(listOf(StudentHomeSection.PLANNER), StudentHomeSection.entries.filter { it.shortcut })
+        assertEquals(listOf(MentorTodayCard.CONTENT), MentorTodayCard.entries.filter { it.shortcut })
     }
 
     @Test

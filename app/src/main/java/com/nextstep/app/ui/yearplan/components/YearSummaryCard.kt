@@ -3,7 +3,6 @@ package com.nextstep.app.ui.yearplan.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,7 +16,7 @@ import com.nextstep.app.ui.yearplan.YearPlanUiState
 @Composable
 internal fun YearSummaryCard(state: YearPlanUiState, theme: String) {
     val numbers = state.level.showsNumbers
-    AppCard(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+    AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(theme, style = MaterialTheme.typography.titleMedium)
             LinearProgressIndicator(progress = { if (state.total == 0) 0f else state.done.toFloat() / state.total }, modifier = Modifier.fillMaxWidth())

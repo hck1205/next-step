@@ -1,12 +1,16 @@
 package com.nextstep.app.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -22,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.components.layout.TodayCardFrame
 import com.nextstep.app.ui.components.layout.todayBoard
@@ -47,30 +52,35 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
     var sheet by remember { mutableStateOf<StudentHomeSection?>(null) }
     val level = state.level
     val speak = if (level.kid.readsAloud) rememberSpeaker() else null
-    Scaffold(topBar = { HomeTopBar(state) }) { padding ->
+    val body: @Composable (StudentHomeSection, Boolean) -> Unit = { section, compact ->
+        HomeSectionBody(section, state, actions, onEvent, compact, onSpeak = speak, onOpenPlanner = { showPlanner = true })
+    }
+    // 단계가 오른 것 알림과 타이머는 묶음에 들지 않는 머리 카드: 관심사 칩 아래, "전체"일 때만.
+    val lead: @Composable () -> Unit = {
+        Column(verticalArrangement = Arrangement.spacedBy(if (level.showsNumbers) 10.dp else 14.dp)) {
+            state.levelUp?.let { up -> LevelUpCard(up, state.newSections, onOk = { onEvent(HomeEvent.DismissLevelUp) }) }
+            if (StudentHomeSection.TIMER in state.visibleSections) body(StudentHomeSection.TIMER, false)
+        }
+    }
+    Scaffold(topBar = { HomeTopBar(state, menu = homeMenu(state, actions, onOpenPlanner = { showPlanner = true })) }) { padding ->
         // 카드는 화면 단계(level)가 연 것만 그립니다. 학년으로 직접 분기하지 않습니다.
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(if (level.showsNumbers) 10.dp else 14.dp),
         ) {
-            state.levelUp?.let { up -> item { LevelUpCard(up, state.newSections, onOk = { onEvent(HomeEvent.DismissLevelUp) }) } }
-            val body: @Composable (StudentHomeSection, Boolean) -> Unit = { section, compact ->
-                HomeSectionBody(section, state, actions, onEvent, compact, onSpeak = speak, onOpenPlanner = { showPlanner = true })
-            }
-            // 타이머는 늘 맨 위. 나머지 카드는 올해 프로필 순서(StudentScreen.homeOrder)대로입니다. 학년으로 직접 분기하지 않습니다.
-            if (StudentHomeSection.TIMER in state.visibleSections && filter == null) item(key = "timer") { body(StudentHomeSection.TIMER, false) }
             if (level.kid.oneColumnToday) {
                 // 아이 화면: 관심사 칩·슬라이드 없이 큰 카드 한 줄로.
+                item(key = "today-lead") { lead() }
                 state.visibleSections.filter { it != StudentHomeSection.TIMER }.forEach { section ->
                     item(key = "one-${section.name}") { TodayCardFrame(homeSectionTitle(section, state), onExpand = null) { body(section, false) } }
                 }
             } else {
-                // 관심사 칩 → "전체"는 관심사마다 카드 슬라이드, 칩을 고르면 그 관심사만 크게. 펼치기는 자세히 시트로.
+                // 상단 바 아래 관심사 칩 → 머리 카드 → "전체"는 관심사마다 카드 슬라이드(올해 프로필 순서), 칩을 고르면 그 관심사만 크게.
                 todayBoard(
                     groups = state.todayGroups, filter = filter, onFilter = { filter = it },
                     title = { homeSectionTitle(it, state) }, key = { it.name }, onExpand = { sheet = it },
-                    body = body,
+                    lead = lead, body = body,
                 )
             }
             item { Spacer(Modifier.height(8.dp)) }
@@ -86,4 +96,11 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
         PlannerDialog(defaults = state.planDefaults, onDismiss = { showPlanner = false }) { onEvent(HomeEvent.GeneratePlan(it)) }
     }
     state.lastPlan?.let { plan -> PlanResultDialog(plan, onDismiss = { onEvent(HomeEvent.DismissPlanResult) }) }
+}
+
+/** 머리 ⋮ 메뉴: 영상 저장소(추천 영상이 열린 단계부터)와, 카드 대신 메뉴로 들어간 바로가기(학습 계획 만들기). */
+private fun homeMenu(state: HomeUiState, actions: HomeActions, onOpenPlanner: () -> Unit): List<AppBarMenuItem> = listOfNotNull(
+    if (state.level.shows(StudentHomeSection.RECOMMENDATION)) AppBarMenuItem("영상 저장소", Icons.Default.SmartDisplay, actions.onOpenContent) else null,
+) + state.menuShortcuts.mapNotNull { section ->
+    if (section == StudentHomeSection.PLANNER) AppBarMenuItem(section.label, Icons.Default.EditCalendar, onOpenPlanner) else null
 }

@@ -1,8 +1,10 @@
 package com.nextstep.app.ui.journey
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -10,12 +12,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -35,6 +40,8 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.CurriculumCard
 import com.nextstep.app.ui.components.card.EmptyState
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.AppBarMenu
+import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.components.row.GoalStepRow
 import com.nextstep.app.ui.journey.components.ActivityChips
 import com.nextstep.app.ui.journey.components.CategoryFilter
@@ -55,7 +62,7 @@ fun JourneyScreen(caps: Capabilities, actions: JourneyActions, viewModel: Journe
     JourneyContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: JourneyActions, onEvent: (JourneyEvent) -> Unit) {
     var expandedKey by remember { mutableStateOf<String?>(null) }
@@ -74,10 +81,13 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item { JourneyHeader(state, onEvent) }
-            if (state.hasBirthDate || state.items.isNotEmpty()) {
-                item { CategoryFilter(state.filter) { onEvent(JourneyEvent.SetFilter(it)) } }
+            // 분류 칩은 이 화면의 거르기라 상단 바 바로 아래에 붙여 둡니다(스크롤해도 남음). 그 아래 지금 나이 요약.
+            if (state.hasBirthDate || state.items.isNotEmpty()) stickyHeader(key = "journey-filter") {
+                Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxWidth()) {
+                    CategoryFilter(state.filter) { onEvent(JourneyEvent.SetFilter(it)) }
+                }
             }
+            item { JourneyHeader(state, onEvent) }
             if (state.loaded && state.items.isEmpty() && state.steps.isEmpty()) {
                 item { AppCard { EmptyState(if (state.hasBirthDate) "표시할 이정표가 없어요" else "생년월일을 입력하면 나이대별 준비 항목이 자동으로 채워져요") } }
             }
@@ -96,10 +106,14 @@ private fun JourneyTopBar(studentName: String, actions: JourneyActions) {
         title = { Text(if (studentName.isBlank()) "성장 여정" else "${studentName}의 성장 여정") },
         navigationIcon = { if (actions.onBack != null) IconButton(onClick = actions.onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
         actions = {
+            // 자주 여는 "올해"만 보이게, 나머지 화면은 ⋮ 로. 설정은 하단 가족 탭이 맡습니다.
             actions.onOpenYear?.let { TextButton(onClick = it) { Text("올해") } }
-            TextButton(onClick = actions.onOpenGoals) { Text("목표") }
-            TextButton(onClick = actions.onOpenActivities) { Text("활동") }
-            TextButton(onClick = actions.onOpenSettings) { Text("설정") }
+            AppBarMenu(
+                listOf(
+                    AppBarMenuItem("목표", Icons.Default.Flag, actions.onOpenGoals),
+                    AppBarMenuItem("활동 기록", Icons.Default.Star, actions.onOpenActivities),
+                ),
+            )
         },
     )
 }

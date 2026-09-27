@@ -32,13 +32,13 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
         ParentTodayCard.REWARDS -> RewardDueCard(state.rewardsDue, onGive = { onEvent(ParentDashboardEvent.GiveReward(it)) }, onOpenGoal = actions.onOpenGoal)
         ParentTodayCard.GOALS -> Column {
             GoalFocusCard(state.goalFocus, onOpen = actions.onOpenGoal)
-            TextButton(onClick = { actions.onOpenRecords(ConcernSection.GOAL_TREE) }) { Text("목표 전체") }
+            if (!compact) TextButton(onClick = { actions.onOpenRecords(ConcernSection.GOAL_TREE) }) { Text("목표 전체") }
         }
         ParentTodayCard.TODAY -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) AppCard { EmptyState("오늘은 잡힌 할 일과 일정이 없어요") }
             state.pendingTasks.take(rows).forEach { t -> PendingTaskRow(t, state.subjects.firstOrNull { it.id == t.subjectId }) }
             state.todayEvents.take(rows).forEach { occ -> EventRow(occ, state.subjects) }
-            TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) {
+            if (!compact) TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) {
                 Text(if (state.pendingTasks.size > rows) "할 일 ${state.pendingTasks.size - rows}개 더 · 일정 전체" else "일정 전체")
             }
         }

@@ -8,15 +8,17 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.TextOverflow
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.layout.AppBarMenu
+import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.home.HomeUiState
 
 /**
  * 오늘 화면 머리: "오늘" · 올해 한 줄(해마다 바뀜, 예: 초3 · 사회·과학·영어가 새로 시작되는 해) · 날짜.
- * 숫자를 보는 나이는 날짜 뒤에 남은 할 일 수와 오늘 공부한 시간을 붙입니다.
+ * 숫자를 보는 나이는 날짜 뒤에 남은 할 일 수와 오늘 공부한 시간을 붙입니다. 오른쪽 ⋮ 에는 다른 화면으로 가는 바로가기([menu]).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun HomeTopBar(state: HomeUiState) {
+internal fun HomeTopBar(state: HomeUiState, menu: List<AppBarMenuItem>) {
     TopAppBar(
         title = {
             Column {
@@ -29,5 +31,6 @@ internal fun HomeTopBar(state: HomeUiState) {
                 )
             }
         },
+        actions = { AppBarMenu(menu) },
     )
 }

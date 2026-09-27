@@ -12,7 +12,8 @@ import com.nextstep.app.domain.today.TodayLayout
 
 /**
  * 오늘 화면의 몸통(학생·학부모·멘토 공통, 묶음은 domain/today/TodayLayout).
- * - 관심사 칩 줄이 위에 붙어 있습니다(묶음이 둘 이상일 때).
+ * - 관심사 칩 줄은 상단 바 바로 아래에 붙어 있습니다(묶음이 둘 이상일 때). 화면의 탭이라 본문 중간에 두지 않습니다.
+ * - [lead](상태 요약·타이머처럼 묶음에 들지 않는 머리 카드)는 칩 아래, "전체"일 때만.
  * - "전체": 관심사마다 머리 한 줄 + 카드 슬라이드(카드가 하나면 슬라이드 없이). 카드는 모두 줄인 모양([body] 의 compact = true)이고,
  *   슬라이드의 한 장은 같은 높이의 타일([SlideCard])이라 넘겨도 들쭉날쭉하지 않습니다. "자세히"·펼치기가 [onExpand] 로 자세히 시트를 엽니다.
  * - 칩을 고르면 그 관심사 카드만 세로로 크게.
@@ -25,10 +26,12 @@ fun <T> LazyListScope.todayBoard(
     title: (T) -> String,
     key: (T) -> String,
     onExpand: (T) -> Unit,
+    lead: (@Composable () -> Unit)? = null,
     body: @Composable (card: T, compact: Boolean) -> Unit,
 ) {
     if (groups.size > 1) stickyHeader(key = "concern-filter") { ConcernFilterRow(groups.map { it.concern to it.cards.size }, filter, onFilter) }
     if (filter == null) {
+        if (lead != null) item(key = "today-lead") { lead() }
         groups.forEach { g ->
             val only = g.cards.singleOrNull()
             if (only != null) {

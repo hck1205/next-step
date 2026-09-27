@@ -89,10 +89,7 @@ internal fun YearPlanContent(state: YearPlanUiState, actions: YearPlanActions, o
 private fun YearBody(state: YearPlanUiState, theme: String, onEvent: (YearPlanEvent) -> Unit, onOpen: (YearTaskView) -> Unit) {
     var tabIndex by rememberSaveable { mutableIntStateOf(0) }
     var openTerms by rememberSaveable { mutableStateOf(setOf<String>()) }
-    YearSummaryCard(state, theme)
-    if (state.mineCount > 0 && state.mineCount < state.allCount) {
-        MineFilterRow(state.mineOnly, state.mineCount, state.allCount, onShowMine = { onEvent(YearPlanEvent.ShowMine(it)) })
-    }
+    // 분류 탭은 이 화면의 메뉴라 상단 바 바로 아래, 요약·내 할 일 칩은 목록의 맨 위(내용과 함께 스크롤).
     val selected = tabIndex.coerceIn(0, state.tabs.lastIndex)
     ScrollableTabRow(selectedTabIndex = selected, edgePadding = 12.dp) {
         state.tabs.forEachIndexed { i, tab ->
@@ -104,6 +101,10 @@ private fun YearBody(state: YearPlanUiState, theme: String, onEvent: (YearPlanEv
         openTerms = openTerms, onFold = { key -> openTerms = if (key in openTerms) openTerms - key else openTerms + key },
     )
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item(key = "summary") { YearSummaryCard(state, theme) }
+        if (state.mineCount > 0 && state.mineCount < state.allCount) item(key = "mine") {
+            MineFilterRow(state.mineOnly, state.mineCount, state.allCount, onShowMine = { onEvent(YearPlanEvent.ShowMine(it)) })
+        }
         yearTab(state.tabs[selected], lists)
     }
 }

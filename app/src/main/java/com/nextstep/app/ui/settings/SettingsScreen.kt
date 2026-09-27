@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,8 +27,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.AppBarMenu
+import com.nextstep.app.ui.components.layout.AppBarMenuItem
 import com.nextstep.app.ui.settings.components.ChildrenCard
 import com.nextstep.app.ui.settings.components.GamifyCard
 import com.nextstep.app.ui.settings.components.MembersCard
@@ -46,7 +48,7 @@ fun SettingsScreen(caps: Capabilities, actions: SettingsActions, viewModel: Sett
     SettingsContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
 }
 
-/** 가족 탭: 자녀·내 정보·역할별 설정·구성원·연결 코드·계정. 위에서부터 자주 보는 순서. */
+/** 가족 탭: 자녀·내 정보·역할별 설정·구성원·연결 코드·계정(맨 아래). 다른 화면으로 가는 것(영상 저장소)은 머리 ⋮ 에. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions: SettingsActions, onEvent: (SettingsEvent) -> Unit) {
@@ -57,11 +59,11 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
             TopAppBar(
                 title = { Text("가족") },
                 navigationIcon = { actions.onBack?.let { back -> IconButton(onClick = back) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } } },
+                actions = { AppBarMenu(listOf(AppBarMenuItem("영상 저장소", Icons.Default.SmartDisplay, actions.onOpenContent))) },
             )
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            LinkCard("콘텐츠 저장소", "좋은 유튜브 강의를 등록해 두면 아이 진도에 맞춰 추천돼요", onClick = actions.onOpenContent)
             FamilySection(state, caps, onEvent, open)
             RoleSection(state, caps, onEvent, open)
             SectionTitle("연결된 구성원")
