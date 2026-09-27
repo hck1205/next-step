@@ -15,10 +15,10 @@ data class GoalTreeUiState(
     /** 목표마다 아직 주지 않은 보상 이름(카드의 선물 한 줄). */
     val rewardTitles: Map<String, String> = emptyMap(),
 ) {
-    private val shown: List<GoalNode> get() = nodes.filter { it.goal.status == filter.status && (area == null || it.goal.area == area.name) }
+    private val shown: List<GoalNode> by lazy { nodes.filter { it.goal.status == filter.status && (area == null || it.goal.area == area.name) } }
     /** 거르개에 맞는 목표 중, 이어지는 목표가 같은 거르개 안에 없는 것. */
-    val roots: List<GoalNode> get() = GoalTree.roots(shown).sortedWith(compareBy<GoalNode> { it.daysLeft ?: Int.MAX_VALUE }.thenByDescending { it.goal.createdAt })
+    val roots: List<GoalNode> by lazy { GoalTree.roots(shown).sortedWith(compareBy<GoalNode> { it.daysLeft ?: Int.MAX_VALUE }.thenByDescending { it.goal.createdAt }) }
     fun childrenOf(goalId: String): List<GoalNode> = shown.filter { it.goal.leadsTo == goalId }
-    val areas: List<GoalArea> get() = GoalArea.entries.filter { a -> nodes.any { it.goal.area == a.name } }
+    val areas: List<GoalArea> by lazy { GoalArea.entries.filter { a -> nodes.any { it.goal.area == a.name } } }
     fun count(f: GoalFilter): Int = nodes.count { it.goal.status == f.status }
 }

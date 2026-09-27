@@ -20,12 +20,12 @@ data class RewardsUiState(
     val rewards: List<RewardView> = emptyList(),
     val goals: List<GoalEntity> = emptyList(),
 ) {
-    val due: List<RewardView> get() = rewards.filter { it.status == RewardStatus.EARNED }
-    val promised: List<RewardView> get() = rewards.filter { it.status == RewardStatus.PROMISED }
-    val given: List<RewardView> get() = rewards.filter { it.status == RewardStatus.GIVEN }
-    val nextReward: RewardView? get() = Rewards.next(rewards)
+    val due: List<RewardView> by lazy { rewards.filter { it.status == RewardStatus.EARNED } }
+    val promised: List<RewardView> by lazy { rewards.filter { it.status == RewardStatus.PROMISED } }
+    val given: List<RewardView> by lazy { rewards.filter { it.status == RewardStatus.GIVEN } }
+    val nextReward: RewardView? by lazy { Rewards.next(rewards) }
     /** 이 나이에 보상을 걸 수 있는 곳(게임 요소가 꺼져 있으면 목표만). */
-    val targets: List<RewardTarget> get() = Rewards.targets(style, gamify, profile, goals)
+    val targets: List<RewardTarget> by lazy { Rewards.targets(style, gamify, profile, goals) }
     val canPromise: Boolean get() = targets.isNotEmpty()
     val ideas: List<String> get() = Rewards.ideasFor(style)
     val hint: String get() = Rewards.hintFor(style)

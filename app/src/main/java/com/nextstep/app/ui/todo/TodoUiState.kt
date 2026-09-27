@@ -14,10 +14,10 @@ data class TodoUiState(
     val filter: TodoFilter = TodoFilter.ALL,
     val stage: SelfDirectionStage = SelfDirectionStage.OWN,
 ) {
-    val overdueCount: Int get() = lanes.sumOf { it.overdue.size }
-    val todayCount: Int get() = lanes.sumOf { it.today.size }
-    val doneThisWeek: Int get() = lanes.sumOf { it.doneThisWeek }
-    val suggestionCount: Int get() = lanes.sumOf { it.suggestions.size }
+    val overdueCount: Int by lazy { lanes.sumOf { it.overdue.size } }
+    val todayCount: Int by lazy { lanes.sumOf { it.today.size } }
+    val doneThisWeek: Int by lazy { lanes.sumOf { it.doneThisWeek } }
+    val suggestionCount: Int by lazy { lanes.sumOf { it.suggestions.size } }
     val shown: List<SubjectLane> get() = when (filter) {
         TodoFilter.ALL -> lanes
         TodoFilter.NOW -> lanes.filter { it.overdue.isNotEmpty() || it.today.isNotEmpty() }

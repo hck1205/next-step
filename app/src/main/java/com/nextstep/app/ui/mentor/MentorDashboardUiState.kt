@@ -46,8 +46,8 @@ data class MentorDashboardUiState(
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 
     /** 내용이 있는 카드(MentorTodayCard 순서)와 관심사로 묶은 것(오늘 화면의 관심사 칩·슬라이드). */
-    val visibleCards: List<MentorTodayCard> get() = MentorTodayCard.entries.filter { !it.shortcut && hasContent(it) }
-    val todayGroups: List<TodayGroup<MentorTodayCard>> get() = TodayLayout.group(visibleCards) { it.concern }
+    val visibleCards: List<MentorTodayCard> by lazy { MentorTodayCard.entries.filter { !it.shortcut && hasContent(it) } }
+    val todayGroups: List<TodayGroup<MentorTodayCard>> by lazy { TodayLayout.group(visibleCards) { it.concern } }
 
     fun hasContent(card: MentorTodayCard): Boolean = when (card) {
         MentorTodayCard.STAGE, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.STATS, MentorTodayCard.ROADMAP, MentorTodayCard.CONTENT -> true

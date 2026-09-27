@@ -68,10 +68,10 @@ data class ParentDashboardUiState(
         }
     }
     /** 상태 카드 아래 카드 중 내용이 있는 것(ParentTodayCard 순서). */
-    val visibleCards: List<ParentTodayCard> get() = ParentTodayCard.entries.filter(::hasContent)
+    val visibleCards: List<ParentTodayCard> by lazy { ParentTodayCard.entries.filter(::hasContent) }
 
     /** 관심사로 묶은 카드(오늘 화면의 관심사 칩·슬라이드). */
-    val todayGroups: List<TodayGroup<ParentTodayCard>> get() = TodayLayout.group(visibleCards) { it.concern }
+    val todayGroups: List<TodayGroup<ParentTodayCard>> by lazy { TodayLayout.group(visibleCards) { it.concern } }
 
     fun hasContent(card: ParentTodayCard): Boolean = when (card) {
         ParentTodayCard.JOURNEY, ParentTodayCard.TODAY -> true

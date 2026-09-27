@@ -91,14 +91,13 @@ data class HomeUiState(
     val streak: Int = 0,
 ) {
     /** 오늘 보여 줄 카드(화면 단계가 연 것 중 내용이 있는 것, 올해 프로필 순서). */
-    val visibleSections: List<StudentHomeSection> get() = homeOrder.filter { !it.shortcut && hasContent(it) }
+    val visibleSections: List<StudentHomeSection> by lazy { homeOrder.filter { !it.shortcut && hasContent(it) } }
 
     /** 카드 대신 머리의 ⋮ 메뉴에 넣는 바로가기(화면 단계가 연 것만). */
-    val menuShortcuts: List<StudentHomeSection> get() = homeOrder.filter { it.shortcut }
+    val menuShortcuts: List<StudentHomeSection> by lazy { homeOrder.filter { it.shortcut } }
 
     /** 타이머를 뺀 카드를 관심사로 묶은 것(오늘 화면의 관심사 칩·슬라이드). */
-    val todayGroups: List<TodayGroup<StudentHomeSection>>
-        get() = TodayLayout.group(visibleSections.filter { it != StudentHomeSection.TIMER }) { it.concern }
+    val todayGroups: List<TodayGroup<StudentHomeSection>> by lazy { TodayLayout.group(visibleSections.filter { it != StudentHomeSection.TIMER }) { it.concern } }
 
     fun hasContent(section: StudentHomeSection): Boolean = when (section) {
         StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.EVENTS, StudentHomeSection.PLANNER -> true

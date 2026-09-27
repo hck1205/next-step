@@ -10,6 +10,7 @@ import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.growth.YearProfile
 import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
 /**
@@ -82,7 +83,7 @@ object BalanceStats {
 
     /** 이번 주(월~일) 학원·수업 일정의 합(분). 매주 반복 일정도 셉니다. */
     fun classWeekMinutes(events: List<EventEntity>, today: LocalDate): Int {
-        val monday = today.minusDays(today.dayOfWeek.value - 1L)
+        val monday = DateUtils.weekStart(today)
         return (0L until DAYS_IN_WEEK).sumOf { d ->
             StudyStats.eventsOn(monday.plusDays(d), events)
                 .filter { !it.event.deleted && (it.event.type == EventType.ACADEMY || it.event.type == EventType.CLASS) }

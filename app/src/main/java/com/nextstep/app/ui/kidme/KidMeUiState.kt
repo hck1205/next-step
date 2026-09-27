@@ -21,5 +21,5 @@ data class KidMeUiState(
     val game: GameProfile? = null,
     val rewards: List<RewardView> = emptyList(),
 ) {
-    val nextReward: RewardView? get() = Rewards.next(rewards)
+    val nextReward: RewardView? by lazy { Rewards.next(rewards) }
 }

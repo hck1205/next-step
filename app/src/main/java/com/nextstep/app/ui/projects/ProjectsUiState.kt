@@ -10,5 +10,5 @@ data class ProjectsUiState(
     val categories: List<ProjectCategory> = emptyList(),
     val filter: ProjectCategory? = null,
 ) {
-    val shown: List<ProjectProgress> get() = all.filter { filter == null || it.plan.category == filter }
+    val shown: List<ProjectProgress> by lazy { all.filter { filter == null || it.plan.category == filter } }
 }

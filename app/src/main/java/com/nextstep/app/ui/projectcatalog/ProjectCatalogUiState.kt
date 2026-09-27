@@ -18,6 +18,6 @@ data class ProjectCatalogUiState(
     val ageLabel: String? = null,
     val today: LocalDate = DateUtils.today(),
 ) {
-    val categories: List<ProjectCategory> get() = ProjectCategory.entries.filter { c -> plans.any { it.category == c } }
-    val shown: List<ProjectPlan> get() = plans.filter { filter == null || it.category == filter }
+    val categories: List<ProjectCategory> by lazy { ProjectCategory.entries.filter { c -> plans.any { it.category == c } } }
+    val shown: List<ProjectPlan> by lazy { plans.filter { filter == null || it.category == filter } }
 }
