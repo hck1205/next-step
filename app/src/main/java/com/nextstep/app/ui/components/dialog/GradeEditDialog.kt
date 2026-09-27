@@ -21,12 +21,12 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.ExamType
+import com.nextstep.app.domain.entry.GradeDraft
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.oneDecimal
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.components.input.SubjectPicker
-import java.time.LocalDate
 
 @Composable
 fun GradeEditDialog(
@@ -34,7 +34,7 @@ fun GradeEditDialog(
     subjects: List<SubjectEntity>,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)?,
-    onSave: (String, String, ExamType, Double, Double, Double?, LocalDate, String) -> Unit,
+    onSave: (GradeDraft) -> Unit,
 ) {
     var subjectId by remember { mutableStateOf(existing?.subjectId ?: subjects.firstOrNull()?.id ?: "") }
     var title by remember { mutableStateOf(existing?.title ?: "") }
@@ -64,7 +64,7 @@ fun GradeEditDialog(
         },
         confirmButton = {
             TextButton(enabled = valid, onClick = {
-                onSave(subjectId, title.trim(), type, score.toDouble(), max.toDouble(), classAvg.toDoubleOrNull(), date, memo.trim()); onDismiss()
+                onSave(GradeDraft(subjectId, title, type, score.toDouble(), max.toDouble(), classAvg.toDoubleOrNull(), date, memo)); onDismiss()
             }) { Text("저장") }
         },
         dismissButton = {

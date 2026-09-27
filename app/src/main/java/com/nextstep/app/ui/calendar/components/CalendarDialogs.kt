@@ -18,9 +18,7 @@ internal fun CalendarDialogs(dialog: CalendarDialog?, state: CalendarUiState, ca
                 existing = existing, subjects = state.subjects, defaultDate = state.selected,
                 onDismiss = onDismiss,
                 onDelete = existing?.let { e -> { onEvent(CalendarEvent.DeleteEvent(e.id)) } },
-            ) { title, subjectId, type, date, start, end, repeat, location, memo ->
-                onEvent(CalendarEvent.SaveEvent(existing, title, subjectId, type, date, start, end, repeat, location, memo))
-            }
+            ) { onEvent(CalendarEvent.SaveEvent(existing, it)) }
         }
         is CalendarDialog.EditTask -> TaskEditDialog(existing = dialog.task, subjects = state.subjects, defaultDate = state.selected, onDismiss = onDismiss) { title, subjectId, type, due ->
             onEvent(CalendarEvent.SaveTask(dialog.task, title, subjectId, type, due, caps.actingRoleName))

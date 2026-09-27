@@ -2,6 +2,7 @@ package com.nextstep.app.ui.calendar
 
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.entry.EventDraft
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.fake.FakeEventRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
@@ -58,12 +59,12 @@ class CalendarViewModelTest : ViewModelTestBase() {
     fun saveEventNormalizesEndBeforeStartAndKeepsIdOnEdit() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
         val date = LocalDate.of(2026, 9, 1)
-        vm.onEvent(CalendarEvent.SaveEvent(null, "학원", "math", EventType.ACADEMY, date, LocalTime.of(18, 0), LocalTime.of(17, 0), true, "역삼", ""))
+        vm.onEvent(CalendarEvent.SaveEvent(null, EventDraft("학원", "math", EventType.ACADEMY, date, LocalTime.of(18, 0), LocalTime.of(17, 0), true, "역삼", "")))
         settle(vm.state)
         val saved = events.saved.single()
         assertEquals(DateUtils.toMillis(date, LocalTime.of(19, 0)), saved.endAt) // 종료가 시작보다 이르면 +1시간
         assertTrue(saved.repeatWeekly); assertEquals("역삼", saved.location)
-        vm.onEvent(CalendarEvent.SaveEvent(saved, "학원2", null, EventType.OTHER, date, LocalTime.of(9, 0), LocalTime.of(10, 0), false, "", ""))
+        vm.onEvent(CalendarEvent.SaveEvent(saved, EventDraft("학원2", null, EventType.OTHER, date, LocalTime.of(9, 0), LocalTime.of(10, 0), false, "", "")))
         settle(vm.state)
         assertEquals(saved.id, events.saved[1].id); assertEquals("학원2", events.saved[1].title); assertFalse(events.saved[1].repeatWeekly)
         vm.onEvent(CalendarEvent.DeleteEvent(saved.id))

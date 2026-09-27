@@ -9,11 +9,11 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.entry.EventDraft
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.YearMonth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -56,15 +56,8 @@ class CalendarViewModel(
     fun select(date: LocalDate) { selected.value = date; month.value = YearMonth.from(date) }
     fun today() = select(DateUtils.today())
 
-    fun saveEvent(existing: EventEntity?, title: String, subjectId: String?, type: EventType, date: LocalDate, start: LocalTime, end: LocalTime, repeatWeekly: Boolean, location: String, memo: String) {
-        viewModelScope.launch {
-            val startMs = DateUtils.toMillis(date, start)
-            val endMs = DateUtils.toMillis(date, if (end.isAfter(start)) end else start.plusHours(1))
-            val event = (existing ?: EventEntity(familyId = "", title = title, startAt = startMs, endAt = endMs)).copy(
-                title = title, subjectId = subjectId, type = type, startAt = startMs, endAt = endMs, repeatWeekly = repeatWeekly, location = location, memo = memo,
-            )
-            events.save(event)
-        }
+    fun saveEvent(existing: EventEntity?, draft: EventDraft) {
+        viewModelScope.launch { events.save(draft.toEntity(existing)) }
     }
 
     fun deleteEvent(id: String) { viewModelScope.launch { events.delete(id) } }
@@ -88,7 +81,7 @@ class CalendarViewModel(
             CalendarEvent.NextMonth -> nextMonth()
             is CalendarEvent.Select -> select(event.date)
             CalendarEvent.Today -> today()
-            is CalendarEvent.SaveEvent -> saveEvent(event.existing, event.title, event.subjectId, event.type, event.date, event.start, event.end, event.repeatWeekly, event.location, event.memo)
+            is CalendarEvent.SaveEvent -> saveEvent(event.existing, event.draft)
             is CalendarEvent.DeleteEvent -> deleteEvent(event.id)
             is CalendarEvent.SaveTask -> saveTask(event.existing, event.title, event.subjectId, event.type, event.due, event.role)
             is CalendarEvent.ToggleTask -> toggleTask(event.task)

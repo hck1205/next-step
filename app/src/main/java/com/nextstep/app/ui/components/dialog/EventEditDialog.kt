@@ -21,13 +21,12 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.EventType
-import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.entry.EventDraft
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.components.input.SubjectPicker
 import com.nextstep.app.ui.components.input.TimeField
 import java.time.LocalDate
-import java.time.LocalTime
 
 @Composable
 fun EventEditDialog(
@@ -36,17 +35,18 @@ fun EventEditDialog(
     defaultDate: LocalDate,
     onDismiss: () -> Unit,
     onDelete: (() -> Unit)?,
-    onSave: (String, String?, EventType, LocalDate, LocalTime, LocalTime, Boolean, String, String) -> Unit,
+    onSave: (EventDraft) -> Unit,
 ) {
-    var title by remember { mutableStateOf(existing?.title ?: "") }
-    var subjectId by remember { mutableStateOf(existing?.subjectId) }
-    var type by remember { mutableStateOf(existing?.type ?: EventType.CLASS) }
-    var date by remember { mutableStateOf(existing?.let { DateUtils.toLocalDate(it.startAt) } ?: defaultDate) }
-    var start by remember { mutableStateOf(existing?.let { DateUtils.toLocalDateTime(it.startAt).toLocalTime() } ?: LocalTime.of(16, 0)) }
-    var end by remember { mutableStateOf(existing?.let { DateUtils.toLocalDateTime(it.endAt).toLocalTime() } ?: LocalTime.of(17, 0)) }
-    var repeat by remember { mutableStateOf(existing?.repeatWeekly ?: false) }
-    var location by remember { mutableStateOf(existing?.location ?: "") }
-    var memo by remember { mutableStateOf(existing?.memo ?: "") }
+    val init = remember { EventDraft.of(existing, defaultDate) }
+    var title by remember { mutableStateOf(init.title) }
+    var subjectId by remember { mutableStateOf(init.subjectId) }
+    var type by remember { mutableStateOf(init.type) }
+    var date by remember { mutableStateOf(init.date) }
+    var start by remember { mutableStateOf(init.start) }
+    var end by remember { mutableStateOf(init.end) }
+    var repeat by remember { mutableStateOf(init.repeatWeekly) }
+    var location by remember { mutableStateOf(init.location) }
+    var memo by remember { mutableStateOf(init.memo) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (existing == null) "일정 추가" else "일정 편집") },
@@ -69,7 +69,7 @@ fun EventEditDialog(
             }
         },
         confirmButton = {
-            TextButton(enabled = title.isNotBlank(), onClick = { onSave(title.trim(), subjectId, type, date, start, end, repeat, location.trim(), memo.trim()); onDismiss() }) { Text("저장") }
+            TextButton(enabled = title.isNotBlank(), onClick = { onSave(EventDraft(title, subjectId, type, date, start, end, repeat, location, memo)); onDismiss() }) { Text("저장") }
         },
         dismissButton = {
             Row {

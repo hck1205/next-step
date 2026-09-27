@@ -3,10 +3,6 @@ package com.nextstep.app.ui.quickadd
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
-import com.nextstep.app.data.local.entity.EventEntity
-import com.nextstep.app.data.local.entity.GradeEntity
-import com.nextstep.app.data.model.EventType
-import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.ActivityRepository
@@ -14,12 +10,13 @@ import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.entry.EventDraft
+import com.nextstep.app.domain.entry.GradeDraft
 import com.nextstep.app.domain.growth.KidRecord
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
-import java.time.LocalTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -50,18 +47,16 @@ class QuickAddViewModel(
         }
     }
 
-    fun saveGrade(subjectId: String, title: String, examType: ExamType, score: Double, maxScore: Double, classAverage: Double?, date: LocalDate, memo: String) {
+    fun saveGrade(draft: GradeDraft) {
         viewModelScope.launch {
-            grades.save(GradeEntity(familyId = "", subjectId = subjectId, title = title, examType = examType, score = score, maxScore = maxScore, classAverage = classAverage, date = date.toEpochDay(), memo = memo))
+            grades.save(draft.toEntity())
             message.value = "성적을 입력했어요"
         }
     }
 
-    fun saveEvent(title: String, subjectId: String?, type: EventType, date: LocalDate, start: LocalTime, end: LocalTime, repeatWeekly: Boolean, location: String, memo: String) {
+    fun saveEvent(draft: EventDraft) {
         viewModelScope.launch {
-            val startMs = DateUtils.toMillis(date, start)
-            val endMs = DateUtils.toMillis(date, if (end.isAfter(start)) end else start.plusHours(1))
-            events.save(EventEntity(familyId = "", subjectId = subjectId, title = title, type = type, startAt = startMs, endAt = endMs, repeatWeekly = repeatWeekly, location = location, memo = memo))
+            events.save(draft.toEntity())
             message.value = "일정을 추가했어요"
         }
     }
@@ -81,8 +76,8 @@ class QuickAddViewModel(
         when (event) {
             is QuickAddEvent.SaveActivity -> saveActivity(event.activity)
             is QuickAddEvent.SaveTask -> saveTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
-            is QuickAddEvent.SaveGrade -> saveGrade(event.subjectId, event.title, event.examType, event.score, event.maxScore, event.classAverage, event.date, event.memo)
-            is QuickAddEvent.SaveEvent -> saveEvent(event.title, event.subjectId, event.type, event.date, event.start, event.end, event.repeatWeekly, event.location, event.memo)
+            is QuickAddEvent.SaveGrade -> saveGrade(event.draft)
+            is QuickAddEvent.SaveEvent -> saveEvent(event.draft)
             is QuickAddEvent.KidRecordTap -> kidRecord(event.record)
             QuickAddEvent.ClearMessage -> clearMessage()
         }

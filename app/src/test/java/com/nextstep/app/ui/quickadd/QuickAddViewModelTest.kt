@@ -6,6 +6,8 @@ import com.nextstep.app.data.model.ExamType
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.entry.EventDraft
+import com.nextstep.app.domain.entry.GradeDraft
 import com.nextstep.app.domain.growth.KidRecord
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.fake.FakeActivityRepository
@@ -64,9 +66,9 @@ class QuickAddViewModelTest : ViewModelTestBase() {
         vm.onEvent(QuickAddEvent.ClearMessage); s = settle(vm.state); assertNull(s.savedMessage)
         vm.onEvent(QuickAddEvent.SaveTask(" 익힘책 ", "math", TaskType.HOMEWORK, today, "PARENT")); settle(vm.state)
         assertEquals("익힘책", tasks.saved.single().title); assertEquals("PARENT", tasks.saved.single().createdByRole); assertEquals(today.toEpochDay(), tasks.saved.single().dueDate)
-        vm.onEvent(QuickAddEvent.SaveGrade("math", "중간", ExamType.MIDTERM, 88.0, 100.0, 70.0, today, "")); settle(vm.state)
+        vm.onEvent(QuickAddEvent.SaveGrade(GradeDraft("math", "중간", ExamType.MIDTERM, 88.0, 100.0, 70.0, today, ""))); settle(vm.state)
         assertEquals(88.0, grades.saved.single().score, 0.0); assertEquals(70.0, grades.saved.single().classAverage!!, 0.0)
-        vm.onEvent(QuickAddEvent.SaveEvent("학원", null, EventType.ACADEMY, today, LocalTime.of(17, 0), LocalTime.of(16, 0), true, "역삼", "")); s = settle(vm.state)
+        vm.onEvent(QuickAddEvent.SaveEvent(EventDraft("학원", null, EventType.ACADEMY, today, LocalTime.of(17, 0), LocalTime.of(16, 0), true, "역삼", ""))); s = settle(vm.state)
         val e = events.saved.single()
         assertEquals(e.startAt + 60 * 60 * 1000L, e.endAt) // 종료가 시작보다 앞서면 한 시간짜리
         assertTrue(e.repeatWeekly); assertEquals("일정을 추가했어요", s.savedMessage)

@@ -86,12 +86,8 @@ fun QuickAddSheet(caps: Capabilities, studentLevel: StudentUiLevel?, onDismiss: 
         QuickAddAction.TASK -> TaskEditDialog(existing = null, subjects = state.subjects, defaultDate = state.today, onDismiss = onDismiss) { title, subjectId, type, due ->
             viewModel.onEvent(QuickAddEvent.SaveTask(title, subjectId, type, due, caps.actingRoleName))
         }
-        QuickAddAction.GRADE -> GradeEditDialog(existing = null, subjects = state.subjects, onDismiss = onDismiss, onDelete = null) { subjectId, title, examType, score, max, avg, date, memo ->
-            viewModel.onEvent(QuickAddEvent.SaveGrade(subjectId, title, examType, score, max, avg, date, memo))
-        }
-        QuickAddAction.EVENT -> EventEditDialog(existing = null, subjects = state.subjects, defaultDate = state.today, onDismiss = onDismiss, onDelete = null) { title, subjectId, type, date, start, end, repeat, location, memo ->
-            viewModel.onEvent(QuickAddEvent.SaveEvent(title, subjectId, type, date, start, end, repeat, location, memo))
-        }
+        QuickAddAction.GRADE -> GradeEditDialog(existing = null, subjects = state.subjects, onDismiss = onDismiss, onDelete = null) { viewModel.onEvent(QuickAddEvent.SaveGrade(it)) }
+        QuickAddAction.EVENT -> EventEditDialog(existing = null, subjects = state.subjects, defaultDate = state.today, onDismiss = onDismiss, onDelete = null) { viewModel.onEvent(QuickAddEvent.SaveEvent(it)) }
         QuickAddAction.TIMER, null -> Unit
     }
 }

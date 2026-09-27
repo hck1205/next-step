@@ -3,6 +3,7 @@ package com.nextstep.app.ui.grades
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.ExamType
+import com.nextstep.app.domain.entry.GradeDraft
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGradeRepository
 import com.nextstep.app.testing.MainDispatcherRule
@@ -52,7 +53,7 @@ class GradesViewModelTest {
     fun saveEventDelegatesToRepositoryWithConvertedDate() = runTest {
         val vm = viewModel()
         val job = subscribe(vm)
-        vm.onEvent(GradesEvent.Save(null, "math", "중간고사", ExamType.MIDTERM, 88.0, 100.0, 70.0, LocalDate.of(2026, 9, 1), ""))
+        vm.onEvent(GradesEvent.Save(null, GradeDraft("math", "중간고사", ExamType.MIDTERM, 88.0, 100.0, 70.0, LocalDate.of(2026, 9, 1), "")))
         advanceUntilIdle()
 
         val saved = grades.saved.single()

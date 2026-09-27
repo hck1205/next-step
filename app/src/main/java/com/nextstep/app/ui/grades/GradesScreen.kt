@@ -80,9 +80,7 @@ internal fun GradesContent(state: GradesUiState, caps: Capabilities, onEvent: (G
     }
 
     if (showEdit) {
-        GradeEditDialog(editing, state.subjects, onDismiss = { showEdit = false }, onDelete = editing?.let { g -> { onEvent(GradesEvent.Delete(g.id)) } }) { subjectId, title, type, score, max, classAvg, date, memo ->
-            onEvent(GradesEvent.Save(editing, subjectId, title, type, score, max, classAvg, date, memo))
-        }
+        GradeEditDialog(editing, state.subjects, onDismiss = { showEdit = false }, onDelete = editing?.let { g -> { onEvent(GradesEvent.Delete(g.id)) } }) { onEvent(GradesEvent.Save(editing, it)) }
     }
 }
 
