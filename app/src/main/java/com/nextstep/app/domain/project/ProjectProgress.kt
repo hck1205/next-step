@@ -19,6 +19,8 @@ data class ProjectProgress(
     val pace: ProjectPace,
     val targetDate: LocalDate?,
     val projectedEnd: LocalDate?,
+    /** 누가 시작했는지. 모르는 옛 기록이면 null. */
+    val kind: ProjectKind? = null,
 ) {
     val total: Int get() = plan.phases.size
     val current: ProjectPhase? get() = plan.phases.getOrNull(currentIndex)

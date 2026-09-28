@@ -129,6 +129,7 @@ object ProjectPlanner {
             activeDaysThisWeek = week.map { it.date }.distinct().size,
             pace = pace, targetDate = targetDate,
             projectedEnd = if (current == null) null else targetDate?.plusDays(shiftDays),
+            kind = ProjectKind.of(goal),
         )
     }
 

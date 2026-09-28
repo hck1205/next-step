@@ -28,7 +28,8 @@ class RoomGoalRepository(
         if (goal.title.isBlank()) return
         val familyId = familyIdOr(goal.familyId)
         val now = now()
-        goalDao.upsert(goal.copy(familyId = familyId, title = goal.title.trim(), createdByRole = scope.currentProfile().role?.name ?: "", updatedAt = now, dirty = true))
+        val me = scope.currentProfile()
+        goalDao.upsert(goal.copy(familyId = familyId, title = goal.title.trim(), createdByRole = me.role?.name ?: "", createdById = me.memberId ?: "", updatedAt = now, dirty = true))
         stepDao.upsertAll(steps.map { it.copy(familyId = familyId, goalId = goal.id, updatedAt = now, dirty = true) })
         pushLater()
     }

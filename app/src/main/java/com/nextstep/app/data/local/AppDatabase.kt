@@ -66,7 +66,7 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
         WeekPlanEntity::class,
         RewardEntity::class,
     ],
-    version = 17,
+    version = 18,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

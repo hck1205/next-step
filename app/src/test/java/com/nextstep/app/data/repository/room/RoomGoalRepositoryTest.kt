@@ -28,7 +28,7 @@ class RoomGoalRepositoryTest {
         val goal = Fixtures.goal("영어", trackId = "english-early").copy(familyId = "", title = " 영어 ")
         repo.add(goal, listOf(Fixtures.step("other", "g1s1", "a").copy(familyId = ""), Fixtures.step("other", "g1s2", "b").copy(familyId = "", id = "s2")))
         val saved = goalDao.all.single()
-        assertEquals(Fixtures.FAMILY, saved.familyId); assertEquals("영어", saved.title); assertEquals("PARENT", saved.createdByRole); assertTrue(saved.dirty)
+        assertEquals(Fixtures.FAMILY, saved.familyId); assertEquals("영어", saved.title); assertEquals("PARENT", saved.createdByRole); assertEquals("me", saved.createdById); assertTrue(saved.dirty)
         assertEquals(2, stepDao.all.size)
         assertTrue(stepDao.all.all { it.goalId == goal.id && it.familyId == Fixtures.FAMILY && it.dirty })
         assertEquals(1, sync.pushRequests)

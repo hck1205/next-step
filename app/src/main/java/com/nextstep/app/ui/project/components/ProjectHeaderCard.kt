@@ -17,7 +17,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.PaceChip
 
-/** 프로젝트 맨 위: 목표 문장, 단계 진행, 계획한 도착일과 지금 속도로 본 도착 예상, 이번 주 채운 양. */
+/** 프로젝트 맨 위: 목표 문장, 누가 줬는지(보는 사람), 단계 진행, 계획한 도착일과 지금 속도로 본 도착 예상, 이번 주 채운 양. */
 @Composable
 internal fun ProjectHeaderCard(p: ProjectProgress) {
     AppCard {
@@ -28,6 +28,7 @@ internal fun ProjectHeaderCard(p: ProjectProgress) {
             }
             Text("목표", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(p.plan.goal, style = MaterialTheme.typography.titleMedium)
+            p.kind?.let { Text("${it.label} · ${it.audience}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             LabeledProgress(
                 label = if (p.isDone) "${p.total}단계 모두 통과" else "${p.currentIndex + 1}/${p.total}단계 · ${p.current?.title}",
                 ratio = ratio(p.currentIndex, p.total), color = MaterialTheme.colorScheme.primary,

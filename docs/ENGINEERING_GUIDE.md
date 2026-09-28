@@ -50,7 +50,7 @@ com.nextstep.app
 │   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
 │   ├── gamify/             Gamify(기록 → 경험치·레벨·배지·연속·이번 주 도전·스티커, 저장하는 점수 없음), GameStyle(나이별 모양: 스티커판·레벨·성장 기록), XpSource, GameLevel, Badge, GameProfile, GameInputs
 │   ├── reward/             Rewards(보상 약속 → 받을 차례 → 받음 상태, 다음 보상, 나이별 걸 곳·예시), RewardKind(목표·레벨·스티커판), RewardTarget, RewardStatus, RewardView
-│   ├── project/            ProjectCatalog(교육 프로젝트: 목표 → 단계 → 하루 루틴), ProjectPlanner(시작·일정·진행·속도·도착 예상), ProjectPlan/ProjectPhase/RoutineItem/ProjectProgress
+│   ├── project/            ProjectCatalog(교육 프로젝트: 목표 → 단계 → 하루 루틴), ProjectPlanner(시작·일정·진행·속도·도착 예상), ProjectKind(누가 줬는지)·ProjectViewer(만든 사람과 학생만 봄), ProjectPlan/ProjectPhase/RoutineItem/ProjectProgress
 │   ├── year/               YearPlans(해마다 할 일을 분류별로), YearTask, YearArea(분류 = 올해 탭), YearTerm(1학기·2학기·1년 내내)
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계, 트랙·직접 만든 목표와 단계 만들기), ActivitySummary(활동 기록 요약)
 └── ui/

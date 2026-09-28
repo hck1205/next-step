@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.project.ProjectKind
 import com.nextstep.app.domain.project.ProjectPlan
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.time.DateUtils
@@ -27,10 +28,10 @@ import java.time.LocalDate
 
 /**
  * 시작 단계 고르기. 나이에 맞는 단계가 미리 골라져 있고("추천"), 이미 할 수 있으면 더 뒤 단계를 고릅니다.
- * 고른 단계에 따라 오늘부터 이어 붙인 일정의 도착 예정 달을 바로 보여 줍니다.
+ * 고른 단계에 따라 오늘부터 이어 붙인 일정의 도착 예정 달을 바로 보여 줍니다. 시작하는 사람에 따라 생길 [kind] 와 보는 사람도 알려 줍니다.
  */
 @Composable
-internal fun StartProjectDialog(plan: ProjectPlan, suggestedIndex: Int, today: LocalDate, onDismiss: () -> Unit, onStart: (Int) -> Unit) {
+internal fun StartProjectDialog(plan: ProjectPlan, suggestedIndex: Int, today: LocalDate, kind: ProjectKind, onDismiss: () -> Unit, onStart: (Int) -> Unit) {
     var chosen by remember(plan.id) { mutableIntStateOf(suggestedIndex) }
     val finish = remember(plan.id, chosen) { ProjectPlanner.schedule(plan, chosen, today).lastOrNull()?.end }
     AlertDialog(
@@ -38,6 +39,7 @@ internal fun StartProjectDialog(plan: ProjectPlan, suggestedIndex: Int, today: L
         title = { Text(plan.title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("${kind.label} · ${kind.audience}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("어느 단계부터 시작할까요?", style = MaterialTheme.typography.bodyMedium)
                 Column(Modifier.heightIn(max = 320.dp).verticalScroll(rememberScrollState())) {
                     plan.phases.forEachIndexed { i, phase ->

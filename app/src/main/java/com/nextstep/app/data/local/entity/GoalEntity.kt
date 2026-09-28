@@ -22,6 +22,8 @@ data class GoalEntity(
     /** 시험·수행평가·입시처럼 날짜가 정해진 목표의 D-day(epochDay). 장기 목표는 null. */
     val targetDate: Long? = null,
     val createdByRole: String = "",
+    /** 만든 사람의 구성원 id(UserProfile.memberId). 교육 프로젝트를 만든 사람과 학생만 보게 할 때 씁니다(ProjectViewer). 옛 기록은 빈 값. */
+    val createdById: String = "",
     /** 이 목표를 이루면 이어지는(힘을 보태는) 더 큰 목표의 id. 목표 트리에서 쓰고, 순환은 허용하지 않습니다. */
     val leadsTo: String? = null,
     /** 달성한 시각. */

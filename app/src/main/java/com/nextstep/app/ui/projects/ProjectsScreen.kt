@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.project.ProjectCategory
+import com.nextstep.app.domain.project.ProjectKind
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.EmptyState
@@ -57,6 +58,14 @@ internal fun ProjectsContent(state: ProjectsUiState, actions: ProjectsActions, o
                 SegmentedRow(
                     options = listOf<ProjectCategory?>(null) + state.categories, selected = state.filter,
                     label = { it?.label ?: "전체" }, onSelect = { onEvent(ProjectsEvent.SelectCategory(it)) }, modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+        if (state.kinds.size > 1) {
+            item {
+                SegmentedRow(
+                    options = listOf<ProjectKind?>(null) + state.kinds, selected = state.kind,
+                    label = { it?.chip ?: "전체" }, onSelect = { onEvent(ProjectsEvent.SelectKind(it)) }, modifier = Modifier.fillMaxWidth(),
                 )
             }
         }

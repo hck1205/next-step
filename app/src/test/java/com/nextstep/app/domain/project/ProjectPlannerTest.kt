@@ -126,6 +126,7 @@ class ProjectPlannerTest {
         val plain = Fixtures.goal("수학 목표")
         val list = ProjectPlanner.progressAll(listOf(goal, archived, plain), steps, emptyList(), day)
         assertEquals(listOf(goal.id), list.map { it.goalId })
+        assertEquals(ProjectKind.PARENT, list.single().kind)
     }
 
     @Test
