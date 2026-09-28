@@ -10,7 +10,7 @@ import com.nextstep.app.domain.goaltree.Assigner
  */
 enum class ProjectKind(val assigner: Assigner, val chip: String, val label: String, val audience: String) {
     SELF(Assigner.SELF, "스스로 만든", "스스로 만든 프로젝트", "학생만 봐요"),
-    PARENT(Assigner.PARENT, "학부모가 준", "학부모가 준 프로젝트", "준 학부모와 학생만 봐요"),
+    PARENT(Assigner.PARENT, "학부모가 준", "학부모가 준 프로젝트", "학부모와 학생만 봐요"),
     MENTOR(Assigner.MENTOR, "멘토가 준", "멘토가 준 프로젝트", "준 멘토와 학생만 봐요");
 
     companion object {

@@ -33,13 +33,14 @@ class ProjectViewerTest {
     }
 
     @Test
-    fun onlyTheCreatorAndTheStudentSeeAProject() {
+    fun onlyTheGiverSideAndTheStudentSeeAProject() {
         val self = project("STUDENT", "kid")
         assertTrue(student.canSee(self)); assertFalse(mom.canSee(self)); assertFalse(mathMentor.canSee(self))
 
         val fromMom = project("PARENT", "mom")
         assertTrue(student.canSee(fromMom)); assertTrue(mom.canSee(fromMom))
-        assertFalse(dad.canSee(fromMom)); assertFalse(mathMentor.canSee(fromMom))
+        assertTrue(dad.canSee(fromMom)) // 보호자 두 사람은 함께 봅니다
+        assertFalse(mathMentor.canSee(fromMom))
 
         val fromMentor = project("MENTOR", "m2")
         assertTrue(student.canSee(fromMentor)); assertTrue(pianoMentor.canSee(fromMentor))
@@ -48,8 +49,8 @@ class ProjectViewerTest {
 
     @Test
     fun oldRecordsFallBackToTheRoleAndOtherGoalsAreOpen() {
-        val oldFromParent = project("PARENT")
-        assertTrue(mom.canSee(oldFromParent)); assertTrue(dad.canSee(oldFromParent)); assertFalse(mathMentor.canSee(oldFromParent))
+        val oldFromMentor = project("MENTOR")
+        assertTrue(mathMentor.canSee(oldFromMentor)); assertTrue(pianoMentor.canSee(oldFromMentor)); assertFalse(mom.canSee(oldFromMentor))
         assertTrue(mathMentor.canSee(project("")))
         assertTrue(mathMentor.canSee(Fixtures.goal("수학 목표").copy(createdByRole = "STUDENT")))
         assertTrue(ProjectViewer(null, null).canSee(project("STUDENT")))
