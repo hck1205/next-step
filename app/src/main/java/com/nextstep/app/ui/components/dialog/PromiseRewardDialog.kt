@@ -25,7 +25,7 @@ import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.components.input.SegmentedRow
 
 /**
- * 보상 약속하기(학부모·멘토): 언제(목표를 이루면 / 레벨에 닿으면 / 스티커판을 채우면) · 무엇을.
+ * 보상 약속하기(학부모): 언제(목표를 이루면 / 레벨에 닿으면 / 스티커판을 채우면) · 무엇을.
  * [targets] 는 이 나이에 걸 수 있는 곳만 들어 있고(domain/reward/Rewards.targets), 하나뿐이면(목표 화면) 고르지 않습니다.
  * [ideas] · [hint] 도 나이에 맞춘 예시와 안내입니다.
  */

@@ -5,7 +5,7 @@ import com.nextstep.app.domain.growth.StudentUiLevel
 /**
  * 관심사 안의 섹션 하나 = 기능 화면 하나. 한 관심사 안에서는 이 순서가 곧 화면 순서입니다.
  * [minLevel] 은 학생 화면 단계가 이 이상일 때만 보인다는 뜻이고(학부모·멘토는 단계로 줄지 않음),
- * [audiences] 는 이 섹션을 보는 자리입니다. 가족의 일(주간 계획·돌아보기 · 활동 · 재능 · 신체)은 가족(학부모·학생)만 봅니다 —
+ * [audiences] 는 이 섹션을 보는 자리입니다. 가족의 일(주간 계획·돌아보기 · 활동 · 재능 · 신체 · 보상·배지)은 가족(학부모·학생)만 봅니다 —
  * 멘토는 담당 과목을 가르치는 사람이라 학업 섹션만 봅니다.
  * [route] 는 내비게이션 인자이며, 오늘 카드의 "전체" 버튼이 이 값으로 해당 섹션을 바로 엽니다.
  */
@@ -34,7 +34,7 @@ enum class ConcernSection(
     TODO(Concern.PLAN, "할 일", "todo", StudentUiLevel.SEEDLING),
     ASSIGNMENTS(Concern.PLAN, "과제", "assignments", StudentUiLevel.STEM),
     PLAN_HISTORY(Concern.PLAN, "기록", "plan-history", StudentUiLevel.SEEDLING),
-    REWARDS(Concern.PLAN, "보상·배지", "rewards", StudentUiLevel.SEED),
+    REWARDS(Concern.PLAN, "보상·배지", "rewards", StudentUiLevel.SEED, audiences = FAMILY),
     BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = FAMILY),
     ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED, audiences = FAMILY),
     TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING, audiences = FAMILY);

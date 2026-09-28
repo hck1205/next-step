@@ -11,7 +11,7 @@ import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.ui.components.row.RewardRow
 
 /**
- * 오늘 화면(학부모·멘토): 아이가 이뤄서 받을 차례가 된 보상. "줬어요"를 누르면 받음으로 남고 아이 화면에도 보입니다.
+ * 오늘 화면(학부모): 아이가 이뤄서 받을 차례가 된 보상. "줬어요"를 누르면 받음으로 남고 아이 화면에도 보입니다.
  * 약속을 지키는 것이 보상의 전부라, 받을 차례가 있을 때만 나타납니다.
  */
 @Composable

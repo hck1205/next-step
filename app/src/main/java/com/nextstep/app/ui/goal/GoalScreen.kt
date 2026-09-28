@@ -88,7 +88,8 @@ private fun LazyListScope.goalTop(node: GoalNode, state: GoalUiState, caps: Capa
             onArchive = { onEvent(GoalEvent.Archive) }, onEdit = { open(GoalDialog.EDIT) },
         )
     }
-    if (state.reward != null || caps.canGiveRewards) item {
+    // 보상은 가족의 일: 학부모가 약속·주고, 학생은 보기만, 멘토에게는 보이지 않음
+    if (caps.isFamily && (state.reward != null || caps.canGiveRewards)) item {
         GoalRewardCard(
             state.reward, canGive = caps.canGiveRewards, achieved = node.isAchieved, onPromise = { open(GoalDialog.PROMISE) },
             onGive = { state.reward?.let { onEvent(GoalEvent.GiveReward(it.reward.id)) } }, onCancel = { state.reward?.let { onEvent(GoalEvent.CancelReward(it.reward.id)) } },

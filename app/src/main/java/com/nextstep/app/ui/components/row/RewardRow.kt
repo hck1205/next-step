@@ -23,7 +23,7 @@ import com.nextstep.app.domain.time.DateUtils
 
 /**
  * 보상 한 줄: 무엇을 · 언제(목표를 이루면 / 레벨에 닿으면) · 지금 어디까지.
- * [onGive]·[onCancel] 이 있으면(학부모·멘토) 받을 차례에 "줬어요", 약속에 "취소" 버튼이 붙습니다.
+ * [onGive]·[onCancel] 이 있으면(학부모) 받을 차례에 "줬어요", 약속에 "취소" 버튼이 붙습니다.
  */
 @Composable
 fun RewardRow(view: RewardView, onGive: (() -> Unit)? = null, onCancel: (() -> Unit)? = null, onOpen: (() -> Unit)? = null) {

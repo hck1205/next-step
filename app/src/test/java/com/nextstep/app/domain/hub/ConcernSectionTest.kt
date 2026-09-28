@@ -25,7 +25,7 @@ class ConcernSectionTest {
         val v = HubViewer.MENTOR
         // 멘토 = 담당 과목을 가르치는 사람: 활동·재능(발견)과 신체(성장) 관심사가 없고, 공부에서 자기주도 주간 계획(스스로)도 빠짐
         assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.STUDY, Concern.LEARN, Concern.PROJECT, Concern.EXAMS), ConcernSection.concernsFor(v))
-        listOf(ConcernSection.BODY, ConcernSection.SELF, ConcernSection.ACTIVITIES, ConcernSection.TALENT).forEach { assertFalse(it in ConcernSection.visibleFor(v)) }
+        listOf(ConcernSection.BODY, ConcernSection.SELF, ConcernSection.ACTIVITIES, ConcernSection.TALENT, ConcernSection.REWARDS).forEach { assertFalse(it in ConcernSection.visibleFor(v)) }
         assertEquals(ConcernSection.PROGRESS, ConcernSection.from("self", v)) // 가족 섹션을 열려고 하면 같은 관심사의 첫 섹션
         assertEquals(ConcernSection.OVERVIEW, ConcernSection.from("body", v))
         assertEquals(ConcernSection.GOAL_TREE, ConcernSection.visibleFor(v)[1])

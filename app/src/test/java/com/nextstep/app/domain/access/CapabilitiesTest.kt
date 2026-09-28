@@ -28,7 +28,7 @@ class CapabilitiesTest {
 
     @Test
     fun parentsAndMentorsGiveRewardsAndOnlyParentsToggleGames() {
-        assertTrue(parent.canGiveRewards); assertTrue(mentor.canGiveRewards); assertTrue(parentMentor.canGiveRewards); assertFalse(student.canGiveRewards)
+        assertTrue(parent.canGiveRewards); assertFalse(mentor.canGiveRewards); assertTrue(parentMentor.canGiveRewards); assertFalse(student.canGiveRewards)  // 보상은 가족의 일: 학부모만(학부모 겸 멘토도 학부모로서)
         GameStyle.entries.forEach { assertTrue(parent.canToggleGamification(it)); assertFalse(mentor.canToggleGamification(it)) }
         // 스스로 끌 수 있는 것은 성장 기록 모양(중등 이후)의 학생뿐
         assertFalse(student.canToggleGamification(GameStyle.STICKERS)); assertFalse(student.canToggleGamification(GameStyle.LEVELS))

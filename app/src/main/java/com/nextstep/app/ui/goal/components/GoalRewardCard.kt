@@ -13,7 +13,7 @@ import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.row.RewardRow
 
 /**
- * 이 목표에 걸린 보상(선택). 학부모·멘토([canGive])는 걸기 · 바꾸기 · 취소 · "줬어요", 학생은 보기만 합니다.
+ * 이 목표에 걸린 보상(선택). 학부모([canGive])는 걸기 · 바꾸기 · 취소 · "줬어요", 학생은 보기만 합니다.
  * 보상이 없고 줄 수 없거나 이미 이룬 목표면 아무것도 그리지 않습니다.
  */
 @Composable

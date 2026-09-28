@@ -5,7 +5,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
- * 학부모·멘토가 약속한 보상 하나: 무엇을 이루면([kind] + [targetId]) 무엇을 줄지([title]).
+ * 학부모가 약속한 보상 하나(예전에 멘토가 약속한 것도 그대로 남습니다): 무엇을 이루면([kind] + [targetId]) 무엇을 줄지([title]).
  * 이룬 여부는 목표·레벨에서 계산하고(RewardKind), 준 때만 여기 남깁니다([givenAt]).
  */
 @Entity(tableName = "rewards", indices = [Index("familyId")])
