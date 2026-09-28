@@ -3,6 +3,7 @@ package com.nextstep.app.ui.rewards
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.gamify.Badge
+import com.nextstep.app.domain.gamify.GameInputs
 import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.reward.RewardKind
@@ -12,6 +13,7 @@ import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -35,6 +37,15 @@ class RewardsViewModelTest : ViewModelTestBase() {
         )
         // 어른이 준 할 일 5개를 마감 날 끝냄: 5×2 + 마감 덤 5 = 15, 목표 달성 10 → 25 XP(레벨 2)
         streams.tasks.value = (1..5).map { Fixtures.task("t$it", today, done = true, by = "PARENT").copy(doneAt = noon) }
+    }
+
+    @Test
+    fun levelComesFromTheGivenGameRecordsNotTheViewersScope() = runTest {
+        seed()
+        val vm = RewardsViewModel(streams, rewards, today = { today }, game = flowOf(GameInputs()))
+        val job = subscribe(vm.state)
+        assertEquals(0, settle(vm.state).profile.xp) // 화면이 보는 범위와 따로, 넘겨준 학생의 모든 기록으로 셉니다
+        job.cancel()
     }
 
     @Test

@@ -21,6 +21,7 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.gamify.GameInputs
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.growth.StudentScreen
@@ -41,6 +42,7 @@ import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.asUiState
 import com.nextstep.app.ui.common.gameInputs
 import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -55,6 +57,8 @@ class ParentDashboardViewModel(
     private val projects: ProjectRepository,
     private val weekPlans: WeekPlanRepository,
     private val rewards: RewardRepository,
+    /** 레벨·보상 계산은 학생의 모든 기록으로(학생이 보는 것과 같게). 보이는 프로젝트 범위와 상관없습니다. */
+    game: Flow<GameInputs> = streams.gameInputs(),
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.subjects, streams.sessions, streams.tasks, streams.events) { profile, subjects, sessions, tasks, events ->
@@ -103,7 +107,7 @@ class ParentDashboardViewModel(
         TrendStats.family(sessions, tasks, grades, subjects, DateUtils.today())
     }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, streams.gameInputs(), streams.rewards, trends) { s, members, input, list, t ->
+    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, trends) { s, members, input, list, t ->
         val style = StudentScreen.of(members.firstOrNull { it.isStudent }, s.today).level.game
         val profile = Gamify.profile(input, s.today, style = style)
         s.copy(rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t)

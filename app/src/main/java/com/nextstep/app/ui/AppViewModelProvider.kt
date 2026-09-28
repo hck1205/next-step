@@ -10,6 +10,7 @@ import com.nextstep.app.di.AppContainer
 import com.nextstep.app.ui.activities.ActivitiesViewModel
 import com.nextstep.app.ui.assignments.AssignmentsViewModel
 import com.nextstep.app.ui.calendar.CalendarViewModel
+import com.nextstep.app.ui.common.gameInputs
 import com.nextstep.app.ui.content.ContentViewModel
 import com.nextstep.app.ui.curriculum.CurriculumViewModel
 import com.nextstep.app.ui.goal.GoalViewModel
@@ -51,7 +52,7 @@ object AppViewModelProvider {
         initializer { with(container()) { RootViewModel(onboarding, members) } }
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
         initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans) } }
-        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards) } }
+        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, game = familyStreams.gameInputs()) } }
         initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
@@ -81,7 +82,7 @@ object AppViewModelProvider {
         initializer { with(container()) { GoalViewModel(createSavedStateHandle(), streams, goals, tasks, rewards) } }
         initializer { with(container()) { TodoViewModel(streams, tasks) } }
         initializer { with(container()) { PlanHistoryViewModel(streams) } }
-        initializer { with(container()) { RewardsViewModel(streams, rewards) } }
+        initializer { with(container()) { RewardsViewModel(streams, rewards, game = familyStreams.gameInputs()) } }
         initializer { with(container()) { SelfDirectionViewModel(streams, weekPlans, members) } }
         initializer { with(container()) { ProjectCatalogViewModel(streams, goals) } }
         initializer { with(container()) { ProjectViewModel(createSavedStateHandle(), streams, goals, projects) } }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.RewardRepository
+import com.nextstep.app.domain.gamify.GameInputs
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.growth.StudentScreen
@@ -13,6 +14,7 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import com.nextstep.app.ui.common.gameInputs
 import java.time.LocalDate
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -22,9 +24,11 @@ class RewardsViewModel(
     streams: FamilyDataStreams,
     private val rewards: RewardRepository,
     private val today: () -> LocalDate = { DateUtils.today() },
+    /** 레벨 계산은 학생의 모든 기록으로(학생이 보는 것과 같게). 보이는 프로젝트 범위와 상관없습니다. */
+    game: Flow<GameInputs> = streams.gameInputs(),
 ) : ViewModel() {
 
-    val state: StateFlow<RewardsUiState> = combine(streams.members, streams.gameInputs(), streams.rewards) { members, input, list ->
+    val state: StateFlow<RewardsUiState> = combine(streams.members, game, streams.rewards) { members, input, list ->
         val day = today()
         val student = members.firstOrNull { it.isStudent }
         val style = StudentScreen.of(student, day).level.game
