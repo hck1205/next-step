@@ -24,6 +24,22 @@ class TodayLayoutTest {
     }
 
     @Test
+    fun oneFocusCardOpensAndTheRestFoldIntoOneLinePerConcern() {
+        val cards = listOf(ParentTodayCard.JOURNEY, ParentTodayCard.KPIS, ParentTodayCard.GOALS, ParentTodayCard.HEAT, ParentTodayCard.ROUTINE)
+        val groups = TodayLayout.group(cards) { it.concern }
+        // 줄 보상이 없으면 지금 챙길 것이 먼저
+        assertEquals(ParentTodayCard.JOURNEY, TodayLayout.focus(cards, ParentTodayCard.FOCUS))
+        assertEquals(ParentTodayCard.REWARDS, TodayLayout.focus(cards + ParentTodayCard.REWARDS, ParentTodayCard.FOCUS))
+        val rest = TodayLayout.rest(groups, ParentTodayCard.JOURNEY)
+        assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.STUDY, Concern.PROJECT), rest.map { it.concern })
+        assertEquals(listOf(ParentTodayCard.KPIS), rest.first().cards) // 먼저 본 카드는 줄에서 빠짐
+        // 먼저 볼 카드만 있던 묶음은 줄이 없어지고, 바라는 카드가 없으면 화면 첫 카드
+        assertEquals(listOf(Concern.STUDY), TodayLayout.rest(TodayLayout.group(listOf(StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK)) { it.concern }, StudentHomeSection.TASKS).map { it.concern })
+        assertEquals(MentorTodayCard.STAGE, TodayLayout.focus(listOf(MentorTodayCard.STAGE, MentorTodayCard.ROADMAP), MentorTodayCard.FOCUS))
+        assertEquals(null, TodayLayout.focus(emptyList<MentorTodayCard>(), MentorTodayCard.FOCUS))
+    }
+
+    @Test
     fun shortcutsAreMenuItemsNotCards() {
         // 내용 없이 다른 화면으로 가는 것은 카드가 아니라 오늘 화면 머리의 ⋮ 메뉴로
         assertEquals(listOf(StudentHomeSection.PLANNER), StudentHomeSection.entries.filter { it.shortcut })

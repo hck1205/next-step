@@ -16,5 +16,10 @@ enum class MentorTodayCard(val title: String, val concern: Concern, val shortcut
     /** 바로가기: 카드가 아니라 머리의 ⋮ 메뉴 항목. */
     CONTENT("콘텐츠 저장소", Concern.LEARN, shortcut = true),
     SCORES("점수 추이", Concern.EXAMS),
-    GRADES("최근 성적", Concern.EXAMS),
+    GRADES("최근 성적", Concern.EXAMS);
+
+    companion object {
+        /** "전체"에서 먼저 펼칠 카드: 내가 낸 과제, 없으면 제출 현황. */
+        val FOCUS = listOf(TASKS, SUBMISSIONS)
+    }
 }

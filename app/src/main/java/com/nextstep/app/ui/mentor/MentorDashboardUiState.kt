@@ -43,7 +43,7 @@ data class MentorDashboardUiState(
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 
-    /** 내용이 있는 카드(MentorTodayCard 순서)와 관심사로 묶은 것(오늘 화면의 관심사 칩·슬라이드). */
+    /** 내용이 있는 카드(MentorTodayCard 순서)와 관심사로 묶은 것(오늘 화면의 "먼저 볼 것" · "더 보기" 줄). */
     val visibleCards: List<MentorTodayCard> by lazy { MentorTodayCard.entries.filter { !it.shortcut && hasContent(it) } }
     val todayGroups: List<TodayGroup<MentorTodayCard>> by lazy { TodayLayout.group(visibleCards) { it.concern } }
 

@@ -30,5 +30,10 @@ enum class StudentHomeSection(val label: String, val concern: Concern, val short
     SUBJECTS("과목별 진도", Concern.STUDY),
     ROADMAP("멘토 로드맵", Concern.LEARN),
     JOURNEY("여정", Concern.PLAN),
-    PLANNER("학습 계획 만들기", Concern.PLAN, shortcut = true),
+    PLANNER("학습 계획 만들기", Concern.PLAN, shortcut = true);
+
+    companion object {
+        /** "전체"에서 먼저 펼칠 카드: 오늘 할 일. */
+        val FOCUS = listOf(TASKS)
+    }
 }

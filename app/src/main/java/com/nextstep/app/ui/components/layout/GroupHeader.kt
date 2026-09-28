@@ -20,14 +20,14 @@ import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.ui.components.icon.concernIcon
 
 /**
- * 오늘 화면 "전체"의 관심사 머리: 아이콘 · 이름, 카드가 여럿이면 "모두 보기"(그 관심사 칩을 고름).
- * 카드가 하나뿐인 묶음은 머리 한 줄에 카드 이름([subtitle])과 펼치기 버튼([onExpand])까지 담아, 제목 줄이 두 번 쌓이지 않게 합니다.
+ * 오늘 화면 "전체"의 관심사 머리: 아이콘 · 이름, 카드가 여럿이면 "모두 보기"(그 관심사만 펼침).
+ * [label] 로 이름을 바꿀 수 있습니다("먼저 볼 것"). 카드가 하나뿐인 묶음은 머리 한 줄에 카드 이름([subtitle])과 펼치기 버튼([onExpand])까지 담아, 제목 줄이 두 번 쌓이지 않게 합니다.
  */
 @Composable
-fun GroupHeader(concern: Concern, count: Int, onSeeAll: (() -> Unit)?, subtitle: String? = null, onExpand: (() -> Unit)? = null) {
+fun GroupHeader(concern: Concern, count: Int, onSeeAll: (() -> Unit)?, subtitle: String? = null, onExpand: (() -> Unit)? = null, label: String = concern.label) {
     Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Icon(concernIcon(concern), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-        Text(concern.label, style = MaterialTheme.typography.titleMedium)
+        Text(label, style = MaterialTheme.typography.titleMedium)
         Text(
             subtitle?.let { "· $it" }.orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),

@@ -8,7 +8,7 @@ package com.nextstep.app.domain.growth
  * - [pictureRecord]: + 가 입력 양식 대신 그림 타일 한 번 누르기("책 읽었어요")
  * - [readsAloud]: 할 일 옆 스피커를 누르면 소리로 읽어 줌(아직 글이 서툰 나이)
  * - [visualTimer]: 타이머가 숫자 대신 줄어드는 원(남은 시간이 눈에 보임)
- * - [oneColumnToday]: 오늘 화면을 관심사 칩·옆으로 넘기는 슬라이드 없이 큰 카드 한 줄로(옆으로 넘기기가 아직 어려운 나이)
+ * - [oneColumnToday]: 오늘 화면을 접지 않고 큰 카드 한 줄로(펼치고 돌아오기가 아직 어려운 나이)
  */
 data class KidMode(
     val stickerMe: Boolean,

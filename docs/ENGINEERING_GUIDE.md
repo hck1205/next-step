@@ -60,7 +60,7 @@ com.nextstep.app
     │   ├── chart/          ChartPalette(검증한 차트 색), ChartHeights(차트 높이 한 곳), ColumnChart, HeatCalendar, BulletBars, ShareBar, StatTile·StatGrid, Sparkline, MiniBars, MeterBar, ScoreMultiples, ChartLegend(범례는 이것 하나) + BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip
     │   ├── dialog/         *EditDialog, AssignTaskDialog, ConfirmDialog, TextInputDialog(한 줄·여러 줄·안내문)
     │   ├── input/          DateField, TimeField, OptionPicker, SubjectPicker, GradePicker, SegmentedRow
-    │   ├── layout/         todayBoard(오늘 화면 몸통: 관심사 칩 + 카드 슬라이드 + 칩별 목록), ConcernFilterRow, CardCarousel, TodayCardFrame, GroupHeader, DetailSheet(자세히 모달)
+    │   ├── layout/         todayBoard(오늘 화면 몸통: 먼저 볼 것 한 장 + 더 보기 줄 + 관심사별 목록), ConcernRow, TitleBackRow, TodayCardFrame, GroupHeader, DetailSheet(자세히 모달)
     │   └── row/            EventRow, TaskRow, AssignedByLabel, SessionRow, GoalStepRow
     ├── theme/
     ├── navigation/

@@ -36,6 +36,7 @@ import com.nextstep.app.ui.components.input.SegmentedRow
 import com.nextstep.app.ui.components.layout.CompactTopBar
 import com.nextstep.app.ui.components.layout.LocalSectionAdd
 import com.nextstep.app.ui.components.layout.SectionAdd
+import com.nextstep.app.ui.components.layout.TitleBackRow
 import com.nextstep.app.ui.content.ContentActions
 import com.nextstep.app.ui.content.ContentLibraryScreen
 import com.nextstep.app.ui.curriculum.CurriculumActions
@@ -47,7 +48,6 @@ import com.nextstep.app.ui.goaltree.GoalTreeScreen
 import com.nextstep.app.ui.grades.GradesScreen
 import com.nextstep.app.ui.growth.GrowthScreen
 import com.nextstep.app.ui.habits.HabitsScreen
-import com.nextstep.app.ui.hub.components.ConcernTabs
 import com.nextstep.app.ui.insights.InsightsScreen
 import com.nextstep.app.ui.overview.OverviewActions
 import com.nextstep.app.ui.overview.OverviewScreen
@@ -71,10 +71,10 @@ import com.nextstep.app.ui.todo.TodoScreen
 import kotlinx.coroutines.launch
 
 /**
- * 기록 탭(학생은 "나"): 기능을 관심사별로 나눈 두 단 구조입니다.
- * 위 줄 = 관심사(한눈에 · 목표·할 일 · 공부 · 배울 것 · 교육 프로젝트 · 시험·성적 · 성장 · 활동·재능), 옆으로 밀어서도 넘깁니다.
- * 순서는 보는 자리가 정합니다: 학생은 배울 것, 멘토는 과제가 한눈에 바로 다음(HubAudience).
- * 아래 줄 = 그 관심사의 섹션(예: 공부 › 스스로 · 진도 · 시간 · 습관 · 일정). 섹션 하나가 기능 화면 하나이고 각자 ViewModel 을 가집니다.
+ * 기록 탭(학생은 "나"): 기능을 관심사별로 나누되 한 번에 한 층만 보입니다.
+ * 처음은 한눈에(관심사 타일 = 목차). 타일을 누르면 그 관심사로 들어가고, 머리에 "‹ 한눈에" · 관심사 이름 · 질문([TitleBackRow]).
+ * 관심사는 페이지라 옆으로 밀어서도 넘깁니다. 순서는 보는 자리가 정합니다(HubAudience).
+ * 그 아래 줄 = 그 관심사의 섹션(예: 공부 › 스스로 하는 힘 · 진도 · 공부 시간 · 공부 습관 · 일정). 섹션 하나가 기능 화면 하나이고 각자 ViewModel 을 가집니다.
  * 어떤 섹션이 보이는지는 domain/hub/ConcernSection 이 정합니다(학생은 화면 단계에 따라 줄고, 멘토에게 신체 기록은 없음).
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -117,7 +117,7 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            ConcernTabs(concerns, selected = pager.currentPage, onSelect = { page -> scope.launch { pager.animateScrollToPage(page) } })
+            concerns.getOrNull(pager.currentPage)?.let { HubHeader(it, onIndex = { openConcern(Concern.OVERVIEW) }) }
             HorizontalPager(state = pager, modifier = Modifier.fillMaxSize(), key = { concerns[it].name }) { page ->
                 val concern = concerns[page]
                 val sections = ConcernSection.sectionsOf(concern, viewer)
@@ -137,6 +137,17 @@ fun HubScreen(caps: Capabilities, studentLevel: StudentUiLevel?, actions: HubAct
             }
         }
     }
+}
+
+/** 지금 보는 관심사의 머리: 한눈에(목차)면 안내 한 줄, 관심사 안이면 "‹ 한눈에" · 이름 · 질문. */
+@Composable
+private fun HubHeader(current: Concern, onIndex: () -> Unit) {
+    val atIndex = current == Concern.OVERVIEW
+    TitleBackRow(
+        title = current.label, subtitle = if (atIndex) "관심사를 누르면 그 기록만 펼쳐요" else current.question,
+        backLabel = "한눈에", onBack = if (atIndex) null else onIndex,
+        modifier = Modifier.padding(horizontal = 16.dp),
+    )
 }
 
 /** 섹션 → 기능 화면. 기능 화면은 onBack 없이 그려져 제목줄 대신 관심사·섹션 줄을 씁니다. */

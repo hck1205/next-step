@@ -22,7 +22,7 @@ import com.nextstep.app.ui.mentor.MentorDashboardActions
 import com.nextstep.app.ui.mentor.MentorDashboardEvent
 import com.nextstep.app.ui.mentor.MentorDashboardUiState
 
-/** 멘토 오늘 화면의 카드 한 장의 내용. 슬라이드에서는 줄인 모양([compact]), 관심사 칩·자세히 시트에서는 전부. */
+/** 멘토 오늘 화면의 카드 한 장의 내용. "먼저 볼 것"에서는 줄인 모양([compact]), 관심사를 펼친 목록·자세히 시트에서는 전부. */
 @Composable
 internal fun MentorCardBody(
     card: MentorTodayCard, state: MentorDashboardUiState, actions: MentorDashboardActions, onEvent: (MentorDashboardEvent) -> Unit, compact: Boolean,

@@ -101,7 +101,7 @@ data class HomeUiState(
     /** 카드 대신 머리의 ⋮ 메뉴에 넣는 바로가기(화면 단계가 연 것만). */
     val menuShortcuts: List<StudentHomeSection> by lazy { homeOrder.filter { it.shortcut } }
 
-    /** 타이머를 뺀 카드를 관심사로 묶은 것(오늘 화면의 관심사 칩·슬라이드). */
+    /** 타이머를 뺀 카드를 관심사로 묶은 것(오늘 화면의 "먼저 볼 것" · "더 보기" 줄). */
     val todayGroups: List<TodayGroup<StudentHomeSection>> by lazy { TodayLayout.group(visibleSections.filter { it != StudentHomeSection.TIMER }) { it.concern } }
 
     fun hasContent(section: StudentHomeSection): Boolean = when (section) {

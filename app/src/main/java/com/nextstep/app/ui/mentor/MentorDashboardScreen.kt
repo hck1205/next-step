@@ -69,10 +69,10 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
             contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            // 관심사 칩 → "전체"는 관심사마다 카드 슬라이드, 칩을 고르면 그 관심사만 크게. 펼치기는 자세히 시트로.
+            // 지표 칸 → "먼저 볼 것" 한 장 → "더 보기"(관심사마다 한 줄). 한 줄을 누르면 그 관심사만 크게, 펼치기는 자세히 시트로.
             todayBoard(
                 groups = state.todayGroups, filter = filter, onFilter = { filter = it },
-                title = { mentorCardTitle(it) }, key = { it.name }, onExpand = { sheet = it },
+                title = { mentorCardTitle(it) }, key = { it.name }, onExpand = { sheet = it }, preferred = MentorTodayCard.FOCUS,
                 lead = { MentorKpis(state.trends, state.progress) },
                 body = { card, compact -> MentorCardBody(card, state, actions, onEvent, compact, onChangeSubjects = { showSubjects = true }, onAssign = { showAssign = true }) },
             )

@@ -29,12 +29,13 @@ import com.nextstep.app.ui.parent.ParentDashboardActions
 import com.nextstep.app.ui.parent.ParentDashboardEvent
 import com.nextstep.app.ui.parent.ParentDashboardUiState
 
-/** 학부모 오늘 화면의 카드 한 장의 내용. 슬라이드에서는 줄인 모양([compact]), 관심사 칩·자세히 시트에서는 전부. */
+/** 학부모 오늘 화면의 카드 한 장의 내용. "먼저 볼 것"에서는 줄인 모양([compact]), 관심사를 펼친 목록·자세히 시트에서는 전부. */
 @Composable
 internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState, actions: ParentDashboardActions, onEvent: (ParentDashboardEvent) -> Unit, compact: Boolean) {
     val rows = if (compact) UiDefaults.MAX_ROWS else FULL_ROWS
     when (card) {
         ParentTodayCard.JOURNEY -> JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney)
+        ParentTodayCard.KPIS -> ParentKpis(state.trends)
         ParentTodayCard.REWARDS -> RewardDueCard(state.rewardsDue, onGive = { onEvent(ParentDashboardEvent.GiveReward(it)) }, onOpenGoal = actions.onOpenGoal)
         ParentTodayCard.GOALS -> Column {
             GoalFocusCard(state.goalFocus, onOpen = actions.onOpenGoal)

@@ -41,7 +41,6 @@ import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.components.layout.ScreenPadding
 import com.nextstep.app.ui.components.layout.todayBoard
 import com.nextstep.app.ui.parent.components.ParentCardBody
-import com.nextstep.app.ui.parent.components.ParentKpis
 import com.nextstep.app.ui.parent.components.parentCardTitle
 
 /**
@@ -69,10 +68,10 @@ internal fun ParentDashboardContent(state: ParentDashboardUiState, caps: Capabil
             contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            // 상단 바 아래 관심사 칩 → 상태 요약 → "전체"는 관심사마다 카드 슬라이드, 칩을 고르면 그 관심사만 크게. 펼치기는 자세히 시트로.
+            // 상태 요약 → "먼저 볼 것" 한 장 → "더 보기"(관심사마다 한 줄). 한 줄을 누르면 그 관심사만 크게, 펼치기는 자세히 시트로.
             todayBoard(
                 groups = state.todayGroups, filter = filter, onFilter = { filter = it },
-                title = { parentCardTitle(it, state) }, key = { it.name }, onExpand = { sheet = it },
+                title = { parentCardTitle(it, state) }, key = { it.name }, onExpand = { sheet = it }, preferred = ParentTodayCard.FOCUS,
                 lead = { ParentStatus(state) },
                 body = { card, compact -> ParentCardBody(card, state, actions, onEvent, compact) },
             )
@@ -100,7 +99,7 @@ private fun ParentTopBar(state: ParentDashboardUiState, caps: Capabilities, acti
     )
 }
 
-/** 이번 주 상태 요약(학습 시간 · 균형 · 스스로)과 그 아래 지표 네 칸. 관심사 칩 아래, "전체"일 때만. */
+/** 이번 주 상태 요약(학습 시간 · 균형 · 스스로). "전체"의 맨 위에만. 지표 네 칸은 한눈에 묶음의 "이번 주 숫자" 카드로. */
 @Composable
 private fun ParentStatus(state: ParentDashboardUiState) {
     val b = state.balance
@@ -114,7 +113,6 @@ private fun ParentStatus(state: ParentDashboardUiState) {
                 b?.selfDirectedRatio?.let { StatusTile("스스로", "${(it * PERCENT).toInt()}%") } ?: StatusTile("연속", "${state.streak}일"),
             ),
         )
-        ParentKpis(state.trends)
     }
 }
 

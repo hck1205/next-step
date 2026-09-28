@@ -12,15 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/** 앱의 기본 카드. 슬라이드 타일 안([LocalFlatCards])에서는 바탕 없이 내용만 그려 카드가 겹치지 않습니다. */
+/** 앱의 기본 카드. */
 @Composable
 fun AppCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
     val base = modifier.fillMaxWidth()
     val m = if (onClick != null) base.clickable { onClick() } else base
-    if (LocalFlatCards.current) {
-        Box(m) { content() }
-        return
-    }
     Card(
         modifier = m,
         shape = RoundedCornerShape(16.dp),

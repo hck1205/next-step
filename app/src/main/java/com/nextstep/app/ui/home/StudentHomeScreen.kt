@@ -57,7 +57,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
     val body: @Composable (StudentHomeSection, Boolean) -> Unit = { section, compact ->
         HomeSectionBody(section, state, actions, onEvent, compact, onSpeak = speak, onOpenPlanner = { showPlanner = true })
     }
-    // 단계가 오른 것 알림과 타이머는 묶음에 들지 않는 머리 카드: 관심사 칩 아래, "전체"일 때만.
+    // 단계가 오른 것 알림과 타이머는 묶음에 들지 않는 머리 카드: "전체"의 맨 위에만.
     val lead: @Composable () -> Unit = {
         Column(verticalArrangement = Arrangement.spacedBy(if (level.showsNumbers) 10.dp else 14.dp)) {
             state.levelUp?.let { up -> LevelUpCard(up, state.newSections, onOk = { onEvent(HomeEvent.DismissLevelUp) }) }
@@ -76,16 +76,16 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
             verticalArrangement = Arrangement.spacedBy(if (level.showsNumbers) 10.dp else 14.dp),
         ) {
             if (level.kid.oneColumnToday) {
-                // 아이 화면: 관심사 칩·슬라이드 없이 큰 카드 한 줄로.
+                // 아이 화면: 접지 않고 큰 카드 한 줄로.
                 item(key = "today-lead") { lead() }
                 state.visibleSections.filter { it != StudentHomeSection.TIMER }.forEach { section ->
                     item(key = "one-${section.name}") { TodayCardFrame(homeSectionTitle(section, state), onExpand = null) { body(section, false) } }
                 }
             } else {
-                // 상단 바 아래 관심사 칩 → 머리 카드 → "전체"는 관심사마다 카드 슬라이드(올해 프로필 순서), 칩을 고르면 그 관심사만 크게.
+                // 머리 카드 → "먼저 볼 것"(오늘 할 일) → "더 보기"(관심사마다 한 줄, 올해 프로필 순서). 펼치기는 자세히 시트로.
                 todayBoard(
                     groups = state.todayGroups, filter = filter, onFilter = { filter = it },
-                    title = { homeSectionTitle(it, state) }, key = { it.name }, onExpand = { sheet = it },
+                    title = { homeSectionTitle(it, state) }, key = { it.name }, onExpand = { sheet = it }, preferred = StudentHomeSection.FOCUS,
                     lead = lead, body = body,
                 )
             }
