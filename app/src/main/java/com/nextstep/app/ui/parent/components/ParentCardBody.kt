@@ -77,7 +77,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
 internal fun parentCardTitle(card: ParentTodayCard, state: ParentDashboardUiState): String = when (card) {
     ParentTodayCard.TODAY -> "오늘의 ${state.studentName.ifBlank { "아이" }}"
     ParentTodayCard.REWARDS, ParentTodayCard.WEEK, ParentTodayCard.EXAM -> ""
-    ParentTodayCard.JOURNEY, ParentTodayCard.GOALS, ParentTodayCard.ROUTINE, ParentTodayCard.MISSIONS,
+    ParentTodayCard.JOURNEY, ParentTodayCard.KPIS, ParentTodayCard.GOALS, ParentTodayCard.ROUTINE, ParentTodayCard.MISSIONS,
     ParentTodayCard.WEEK_RATES, ParentTodayCard.ASSIGNERS, ParentTodayCard.HEAT, ParentTodayCard.DAYS, ParentTodayCard.SUBJECT_TIME, ParentTodayCard.SCORES,
     -> card.title
 }
