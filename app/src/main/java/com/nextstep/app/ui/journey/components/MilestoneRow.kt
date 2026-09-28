@@ -38,6 +38,8 @@ fun MilestoneRow(
     onEditDate: () -> Unit,
     onDelete: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    /** 가족(학생·학부모)만 고침. 멘토에게는 보기만(caps.canEditJourney). */
+    editable: Boolean = true,
 ) {
     val phase = item.phase(today)
     val done = item.status == MilestoneStatus.DONE
@@ -45,7 +47,7 @@ fun MilestoneRow(
     AppCard(modifier = modifier, onClick = onToggleExpand) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = done, onCheckedChange = { onSetStatus(if (it) MilestoneStatus.DONE else MilestoneStatus.UPCOMING) })
+                Checkbox(checked = done, enabled = editable, onCheckedChange = { onSetStatus(if (it) MilestoneStatus.DONE else MilestoneStatus.UPCOMING) })
                 Column(Modifier.weight(1f)) {
                     Text(
                         item.title, style = MaterialTheme.typography.bodyLarge, fontWeight = if (item.priority == 1 && !muted) FontWeight.SemiBold else FontWeight.Normal,
@@ -72,7 +74,7 @@ fun MilestoneRow(
                     Text("메모: ${item.note}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
                 }
                 Spacer(Modifier.height(4.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (editable) Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     TextButton(onClick = onEditNote) { Text("메모") }
                     TextButton(onClick = onEditDate) { Text("날짜") }
                     if (item.status == MilestoneStatus.SKIPPED) TextButton(onClick = { onSetStatus(MilestoneStatus.UPCOMING) }) { Text("다시 보기") }

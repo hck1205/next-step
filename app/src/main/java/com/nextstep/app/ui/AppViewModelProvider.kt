@@ -52,14 +52,14 @@ object AppViewModelProvider {
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
         initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans) } }
         initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards) } }
-        initializer { with(container()) { MentorDashboardViewModel(streams, members, tasks) } }
+        initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
         initializer { with(container()) { CalendarViewModel(streams, events, tasks) } }
         initializer { with(container()) { GradesViewModel(streams, grades) } }
         initializer { with(container()) { InsightsViewModel(streams, tasks) } }
         initializer { with(container()) { TimerViewModel(streams, sessions) } }
-        initializer { with(container()) { SettingsViewModel(streams, onboarding, members) } }
+        initializer { with(container()) { SettingsViewModel(familyStreams, onboarding, members) } }
         initializer { with(container()) { RoadmapViewModel(streams, roadmap) } }
         initializer { with(container()) { ContentViewModel(streams, contents) } }
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }

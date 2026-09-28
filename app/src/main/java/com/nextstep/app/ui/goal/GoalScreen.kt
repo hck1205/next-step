@@ -94,13 +94,13 @@ private fun LazyListScope.goalTop(node: GoalNode, state: GoalUiState, caps: Capa
             onGive = { state.reward?.let { onEvent(GoalEvent.GiveReward(it.reward.id)) } }, onCancel = { state.reward?.let { onEvent(GoalEvent.CancelReward(it.reward.id)) } },
         )
     }
-    item { ChainCard(state.chain, node.isAchieved, onOpen = actions.onOpenGoal, onChange = if (caps.canAssignTasks) ({ open(GoalDialog.LINK) }) else null) }
-    if (node.isAchieved && caps.canAssignTasks) item { NextGoalCard(node.parent?.title, onAdd = { open(GoalDialog.ADD_NEXT) }) }
+    item { ChainCard(state.chain, node.isAchieved, onOpen = actions.onOpenGoal, onChange = if (caps.canCreateTasks) ({ open(GoalDialog.LINK) }) else null) }
+    if (node.isAchieved && caps.canCreateTasks) item { NextGoalCard(node.parent?.title, onAdd = { open(GoalDialog.ADD_NEXT) }) }
 }
 
 /** 세부 할 일: 제목 줄(추가 버튼) + 목록. */
 private fun LazyListScope.goalTasks(node: GoalNode, state: GoalUiState, caps: Capabilities, onEvent: (GoalEvent) -> Unit, open: (GoalDialog) -> Unit) {
-    val canAdd = caps.canAssignTasks && !node.isAchieved
+    val canAdd = caps.canCreateTasks && !node.isAchieved
     item {
         SectionTitle(
             "세부 할 일 · ${node.doneTasks}/${node.totalTasks}",
@@ -109,7 +109,7 @@ private fun LazyListScope.goalTasks(node: GoalNode, state: GoalUiState, caps: Ca
     }
     item {
         SubTaskListCard(
-            node.tasks, state.subjects, state.today, canCheck = caps.canCheckTask(state.stage), canDelete = caps.canAssignTasks,
+            node.tasks, state.subjects, state.today, canCheck = caps.canCheckTask(state.stage), canDelete = caps.canCreateTasks,
             onToggle = { onEvent(GoalEvent.ToggleTask(it.id, !it.done)) }, onDelete = { onEvent(GoalEvent.DeleteTask(it.id)) },
         )
     }
@@ -120,7 +120,7 @@ private fun LazyListScope.goalChildrenAndHistory(node: GoalNode, state: GoalUiSt
     item {
         SectionTitle(
             "이 목표로 이어지는 작은 목표 · ${node.achievedChildren}/${node.children.size}",
-            action = if (caps.canAssignTasks && !node.isAchieved) ({ TextButton(onClick = { open(GoalDialog.ADD_CHILD) }) { Text("작은 목표 추가") } }) else null,
+            action = if (caps.canCreateTasks && !node.isAchieved) ({ TextButton(onClick = { open(GoalDialog.ADD_CHILD) }) { Text("작은 목표 추가") } }) else null,
         )
     }
     items(state.children, key = { "c-" + it.goal.id }) { c -> ChildGoalCard(c, onOpen = { actions.onOpenGoal(c.goal.id) }) }

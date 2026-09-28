@@ -5,7 +5,8 @@ import com.nextstep.app.domain.growth.StudentUiLevel
 /**
  * 관심사 안의 섹션 하나 = 기능 화면 하나. 한 관심사 안에서는 이 순서가 곧 화면 순서입니다.
  * [minLevel] 은 학생 화면 단계가 이 이상일 때만 보인다는 뜻이고(학부모·멘토는 단계로 줄지 않음),
- * [audiences] 는 이 섹션을 보는 자리입니다(예: 신체 기록은 멘토에게 보이지 않음).
+ * [audiences] 는 이 섹션을 보는 자리입니다. 가족의 일(주간 계획·돌아보기 · 활동 · 재능 · 신체)은 가족(학부모·학생)만 봅니다 —
+ * 멘토는 담당 과목을 가르치는 사람이라 학업 섹션만 봅니다.
  * [route] 는 내비게이션 인자이며, 오늘 카드의 "전체" 버튼이 이 값으로 해당 섹션을 바로 엽니다.
  */
 enum class ConcernSection(
@@ -16,7 +17,7 @@ enum class ConcernSection(
     val audiences: Set<HubAudience> = ALL,
 ) {
     OVERVIEW(Concern.OVERVIEW, "한눈에", "overview", StudentUiLevel.SEED),
-    SELF(Concern.STUDY, "스스로", "self", StudentUiLevel.SEEDLING),
+    SELF(Concern.STUDY, "스스로", "self", StudentUiLevel.SEEDLING, audiences = FAMILY),
     PROGRESS(Concern.STUDY, "진도", "progress", StudentUiLevel.SEEDLING),
     TIME(Concern.STUDY, "시간", "time", StudentUiLevel.SPROUT),
     HABITS(Concern.STUDY, "습관", "habits", StudentUiLevel.SEEDLING),
@@ -34,9 +35,9 @@ enum class ConcernSection(
     ASSIGNMENTS(Concern.PLAN, "과제", "assignments", StudentUiLevel.STEM),
     PLAN_HISTORY(Concern.PLAN, "기록", "plan-history", StudentUiLevel.SEEDLING),
     REWARDS(Concern.PLAN, "보상·배지", "rewards", StudentUiLevel.SEED),
-    BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = setOf(HubAudience.PARENT, HubAudience.STUDENT)),
-    ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED),
-    TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING);
+    BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = FAMILY),
+    ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED, audiences = FAMILY),
+    TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING, audiences = FAMILY);
 
     fun visibleFor(viewer: HubViewer): Boolean = viewer.audience in audiences && (viewer.level == null || viewer.level >= minLevel)
 
@@ -59,3 +60,6 @@ enum class ConcernSection(
 }
 
 private val ALL: Set<HubAudience> = HubAudience.entries.toSet()
+
+/** 가족의 일을 보는 자리(멘토 제외). */
+private val FAMILY: Set<HubAudience> = setOf(HubAudience.PARENT, HubAudience.STUDENT)

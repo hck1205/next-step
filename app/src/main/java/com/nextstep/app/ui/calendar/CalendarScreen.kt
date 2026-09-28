@@ -51,7 +51,7 @@ internal fun CalendarContent(state: CalendarUiState, caps: Capabilities, onEvent
     Scaffold(
         floatingActionButton = {
             if (!hosted) AddMenuFab(
-                taskLabel = if (caps.canCreateTasks) (if (caps.isStudent) "할 일 추가" else "과제 배정") else null,
+                taskLabel = caps.giveTaskLabel,
                 onAddEvent = { open(CalendarDialog.EditEvent(null)) }, onAddTask = { open(CalendarDialog.EditTask(null)) },
             )
         },
@@ -84,7 +84,7 @@ private fun LazyListScope.dayDetails(state: CalendarUiState, caps: Capabilities,
         item { SectionTitle("할 일") }
         items(state.dayTasks, key = { "t" + it.id }) { t ->
             Box(Modifier.clickable(enabled = caps.canCreateTasks) { open(CalendarDialog.EditTask(t)) }) {
-                TaskRow(t, state.subjects, onToggle = { if (caps.canCompleteTasks) onEvent(CalendarEvent.ToggleTask(t)) }, onDelete = if (caps.canCreateTasks) { { onEvent(CalendarEvent.DeleteTask(t.id)) } } else null)
+                TaskRow(t, state.subjects, onToggle = { if (caps.canCheckTask(state.stage)) onEvent(CalendarEvent.ToggleTask(t)) }, onDelete = if (caps.canCreateTasks) { { onEvent(CalendarEvent.DeleteTask(t.id)) } } else null)
             }
         }
     }

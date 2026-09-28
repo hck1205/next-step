@@ -10,17 +10,23 @@ import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.year.YearDoer
 
 /**
- * 역할별로 볼 수 있는 화면과 쓸 수 있는 기능.
+ * 역할별로 볼 수 있는 화면과 쓸 수 있는 기능. 역할 분리는 한 문장씩입니다(UX 가이드 1-1 역할 헌장):
  *
- * - 학생: 자기 학습 기록(타이머, 단원 상태, 할 일 완료), 커리큘럼 스케줄링
- * - 학부모: 모니터링·분석·재능 발견. 편집은 일정과 성적 입력 정도로 제한
- * - 멘토: 큐레이팅(로드맵), 학습 지도(단원·학급 진도·과제 배정)
- * - 학부모 겸 멘토: 학부모 기능 + 멘토 기능
+ * - 학생 = **하는 사람**. 자기 기록(타이머·단원 상태·이해도)을 만들고, 할 일을 끝낸다. 자기 기록의 주인은 학생뿐.
+ * - 학부모 = **챙기고 넘겨주는 사람**. 흐름을 지켜보고, 가족의 일(여정·활동·성장·주간 계획)을 챙기며,
+ *   자기주도 사다리로 계획의 주도권을 한 칸씩 아이에게 넘긴다. 과목 설계(과목·단원·로드맵)는 하지 않는다.
+ * - 멘토 = **담당 과목을 가르치는 사람**. 과목·단원·학급 진도·로드맵·과제를 맡고, 담당 과목만 본다
+ *   (MentorScopedStreams). 가족의 일(주간 계획·활동·재능·신체·여정)은 보거나 고치지 않는다.
+ * - 학부모 겸 멘토: 학부모 + 멘토. 기록은 학부모 자리에서 전부 보고, 멘토 화면은 따로 연다.
+ *
+ * 할 일은 누구나 줄 수 있고, 누가 줬는지가 할 일에 남는다(스스로 · 학부모가 · 멘토가).
  */
 data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val actsAsMentor: Boolean get() = role == Role.MENTOR || mentorEnabled
     val isStudent: Boolean get() = role == Role.STUDENT
     val isParent: Boolean get() = role == Role.PARENT
+    /** 가족(학생·학부모). 가족의 일(여정·활동·성장·주간 계획)은 가족만 고칩니다. */
+    val isFamily: Boolean get() = isStudent || isParent
 
     /** 과목 추가·편집·삭제. */
     val canEditSubjects: Boolean get() = isStudent || actsAsMentor
@@ -32,23 +38,29 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canEditEvents: Boolean get() = true
     /** 성적 입력은 모두 가능 (학부모가 성적표를 대신 입력하는 경우가 많음). */
     val canEditGrades: Boolean get() = true
-    /** 할 일 생성: 학생은 자기 할 일, 멘토는 과제 배정. 학부모(멘토 아님)는 지켜보기와 일정·성적 입력. */
-    val canCreateTasks: Boolean get() = isStudent || actsAsMentor
-    val canCompleteTasks: Boolean get() = isStudent
+    /**
+     * 할 일 만들기·주기(기록하기 · 목표의 세부 할 일 · 복습·분석·커리큘럼에서 할 일로): 누구나.
+     * 학생은 스스로 정한 일, 학부모는 준 일, 멘토는 과제로 남습니다([actingRoleName]).
+     */
+    val canCreateTasks: Boolean get() = true
+    /** 할 일을 주는 버튼의 말: 학생 "할 일 추가", 멘토 "과제 내기", 학부모 "할 일 주기". */
+    val giveTaskLabel: String get() = when {
+        isStudent -> "할 일 추가"
+        actsAsMentor -> "과제 내기"
+        else -> "할 일 주기"
+    }
     val canEditRoadmap: Boolean get() = actsAsMentor
     val canUpdateRoadmapProgress: Boolean get() = isStudent
     val canUseTimer: Boolean get() = isStudent
     val canGeneratePlan: Boolean get() = isStudent
-    /** 성장 여정(이정표 완료·메모·직접 추가). 학부모가 주도하지만 학생·멘토도 함께 관리합니다. */
-    val canEditJourney: Boolean get() = true
+    /** 성장 여정(이정표 완료·메모·직접 추가)은 가족의 일: 학부모가 주도하고 학생도 함께. 멘토는 보기만(자기 몫은 "올해"에서). */
+    val canEditJourney: Boolean get() = isFamily
     /** 장기 목표·단계 관리와 단계를 할 일로 보내기. 어린 자녀는 부모가, 이후엔 학생·멘토가 함께 관리합니다. */
     val canManageGoals: Boolean get() = true
-    /** 활동 기록(취미·동아리·현장학습·체험) 추가·수정·삭제. */
-    val canRecordActivities: Boolean get() = true
-    /** 성장 기록(키·몸무게·시력)과 소질 관찰 메모. 학생 본인도 기록할 수 있습니다. */
-    val canRecordGrowth: Boolean get() = true
-    /** 인사이트의 "할 일로 추가" 실행. */
-    val canApplyInsightActions: Boolean get() = isStudent || actsAsMentor
+    /** 활동 기록(취미·동아리·현장학습·체험)은 가족의 일: 학생·학부모. */
+    val canRecordActivities: Boolean get() = isFamily
+    /** 성장 기록(키·몸무게·시력)과 소질 관찰 메모도 가족의 일: 학생·학부모. */
+    val canRecordGrowth: Boolean get() = isFamily
 
     /** 가족 탭에서 "멘토 겸하기" 스위치를 보여 줄지. 학부모만. */
     val canToggleMentorMode: Boolean get() = isParent
@@ -74,11 +86,7 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     fun canApproveWeekPlan(stage: SelfDirectionStage): Boolean = isParent && stage.needsApproval
     /** 주간 계획·돌아보기의 세부 내용을 볼 수 있는지. 마지막 단계(내가 주인)에서 어른은 요약만. */
     fun seesWeekDetails(stage: SelfDirectionStage): Boolean = isStudent || stage.adultSeesDetails
-    /**
-     * 목표 트리의 목표와 세부 할 일을 만들어 주기. 학생은 스스로, 학부모·멘토는 아이에게 줍니다(누가 줬는지는 할 일에 남습니다).
-     */
-    val canAssignTasks: Boolean get() = true
-    /** 할 일을 끝냄으로 체크하기: 학생 본인, 그리고 점검을 같이 하는 어린 단계(자기주도 사다리)에서는 학부모도. */
+    /** 할 일을 끝냄으로 체크하기(모든 화면이 이 하나를 씀): 학생 본인, 그리고 점검을 같이 하는 어린 단계(자기주도 사다리)에서는 학부모도. */
     fun canCheckTask(stage: SelfDirectionStage): Boolean = isStudent || canDo(LoopStep.CHECK, stage)
     /** 목표를 달성으로 표시하거나 보관하기. 만든 사람이 아니어도 가족이면 누구나(멘토 포함). */
     val canCloseGoals: Boolean get() = true

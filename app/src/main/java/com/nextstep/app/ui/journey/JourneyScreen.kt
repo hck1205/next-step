@@ -67,7 +67,7 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
     var expandedKey by remember { mutableStateOf<String?>(null) }
     var dialog by remember { mutableStateOf<JourneyDialog?>(null) }
     val milestone: @Composable (JourneyItem) -> Unit = { item ->
-        MilestoneCard(item, state.today, expandedKey, { expandedKey = it }, onEvent, { dialog = JourneyDialog.Note(it) }, { dialog = JourneyDialog.DueDate(it) })
+        MilestoneCard(item, state.today, expandedKey, { expandedKey = it }, onEvent, { dialog = JourneyDialog.Note(it) }, { dialog = JourneyDialog.DueDate(it) }, editable = caps.canEditJourney)
     }
     Scaffold(
         topBar = { JourneyTopBar(state.studentName, actions) },

@@ -68,8 +68,8 @@ internal fun TopicRow(
                 if (caps.canCreateTasks || caps.canEditTopics) IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, contentDescription = "메뉴") }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                     if (caps.canCreateTasks) {
-                        DropdownMenuItem(text = { Text(if (caps.isStudent) "예습 할 일 추가" else "예습 과제 배정") }, onClick = { onAddTask(TaskType.PREVIEW); menu = false })
-                        DropdownMenuItem(text = { Text(if (caps.isStudent) "복습 할 일 추가" else "복습 과제 배정") }, onClick = { onAddTask(TaskType.REVIEW); menu = false })
+                        DropdownMenuItem(text = { Text("예습 · ${caps.giveTaskLabel}") }, onClick = { onAddTask(TaskType.PREVIEW); menu = false })
+                        DropdownMenuItem(text = { Text("복습 · ${caps.giveTaskLabel}") }, onClick = { onAddTask(TaskType.REVIEW); menu = false })
                     }
                     if (caps.canEditTopics) {
                         DropdownMenuItem(text = { Text("이름 변경") }, onClick = { rename = true; menu = false })

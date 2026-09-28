@@ -10,6 +10,8 @@ import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.entry.EventDraft
+import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
@@ -29,7 +31,7 @@ class CalendarViewModel(
     private val month = MutableStateFlow(YearMonth.now())
     private val selected = MutableStateFlow(DateUtils.today())
 
-    val state: StateFlow<CalendarUiState> = combine(month, selected, streams.subjects, streams.events, combine(streams.tasks, streams.sessions) { t, s -> t to s }) { m, sel, subjects, events, (tasks, sessions) ->
+    val state: StateFlow<CalendarUiState> = combine(month, selected, streams.subjects, streams.events, combine(streams.tasks, streams.sessions, streams.members) { t, s, mem -> Triple(t, s, mem) }) { m, sel, subjects, events, (tasks, sessions, members) ->
         val markers = buildMap {
             for (day in 1..m.lengthOfMonth()) {
                 val d = m.atDay(day)
@@ -49,6 +51,7 @@ class CalendarViewModel(
             dayTasks = tasks.filter { it.dueDate == sel.toEpochDay() },
             daySessions = sessions.filter { it.startAt in dayStart until dayEnd },
             dayMinutes = StudyStats.minutesBetween(sessions, sel, sel.plusDays(1)),
+            stage = DateUtils.today().let { day -> SelfDirection.stageOf(StudentContext.of(members, day).student, day) },
         )
     }.asUiState(viewModelScope, CalendarUiState())
 

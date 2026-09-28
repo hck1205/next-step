@@ -18,6 +18,7 @@ import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
+import com.nextstep.app.data.repository.MentorScopedStreams
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.PeerCurriculumRepository
 import com.nextstep.app.data.repository.ProjectRepository
@@ -88,7 +89,10 @@ class AppContainer(context: Context) {
     val projects: ProjectRepository = RoomProjectRepository(database.projectLogDao(), scope, syncManager, time)
     val weekPlans: WeekPlanRepository = RoomWeekPlanRepository(database.weekPlanDao(), scope, syncManager, time)
     val rewards: RewardRepository = RoomRewardRepository(database.rewardDao(), scope, syncManager, time)
-    val streams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, members, roadmap, contents, journey, goals, activities, growth, projects, weekPlans, rewards)
+    /** 가족 기록 원본. 멘토가 담당 과목을 고르는 화면(멘토 오늘 · 가족 설정)만 씁니다. */
+    val familyStreams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, members, roadmap, contents, journey, goals, activities, growth, projects, weekPlans, rewards)
+    /** 화면이 보는 가족 기록: 멘토는 담당 과목만(역할 분리, MentorScopedStreams). */
+    val streams: FamilyDataStreams = MentorScopedStreams(familyStreams)
 
     private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
         if (FirebaseApp.getApps(context).isEmpty()) {

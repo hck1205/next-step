@@ -65,15 +65,15 @@ class CapabilitiesTest {
     @Test
     fun studentOwnsPersonalRecordsButNotCuration() {
         assertTrue(student.canMarkTopicStatus); assertTrue(student.canUseTimer); assertTrue(student.canGeneratePlan)
-        assertTrue(student.canCompleteTasks); assertTrue(student.canUpdateRoadmapProgress); assertTrue(student.canEditTopics)
+        assertTrue(student.canCheckTask(SelfDirectionStage.OWN)); assertTrue(student.canUpdateRoadmapProgress); assertTrue(student.canEditTopics)
         assertFalse(student.canEditRoadmap); assertFalse(student.actsAsMentor)
         assertEquals("STUDENT", student.actingRoleName)
     }
 
     @Test
     fun plainParentObservesAndEncouragesOnly() {
-        assertFalse(parent.canEditSubjects); assertFalse(parent.canEditTopics); assertFalse(parent.canCreateTasks)
-        assertFalse(parent.canEditRoadmap); assertFalse(parent.canApplyInsightActions); assertFalse(parent.canUseTimer)
+        assertFalse(parent.canEditSubjects); assertFalse(parent.canEditTopics); assertTrue(parent.canCreateTasks); assertEquals("할 일 주기", parent.giveTaskLabel)
+        assertFalse(parent.canEditRoadmap); assertFalse(parent.canUseTimer)
         assertTrue(parent.canEditEvents); assertTrue(parent.canEditGrades)
         assertEquals("PARENT", parent.actingRoleName)
     }
@@ -82,13 +82,16 @@ class CapabilitiesTest {
     fun parentAsMentorGainsMentorPowersAndActsAsMentor() {
         assertTrue(parentMentor.actsAsMentor)
         assertTrue(parentMentor.canEditRoadmap); assertTrue(parentMentor.canCreateTasks); assertTrue(parentMentor.canEditTopics)
-        assertFalse(parentMentor.canMarkTopicStatus); assertFalse(parentMentor.canCompleteTasks)
+        assertFalse(parentMentor.canMarkTopicStatus); assertFalse(parentMentor.canCheckTask(SelfDirectionStage.OWN)); assertEquals("과제 내기", parentMentor.giveTaskLabel)
         assertEquals("MENTOR", parentMentor.actingRoleName)
     }
 
     @Test
     fun mentorCuratesButNeverRecordsForTheStudent() {
-        assertTrue(mentor.canEditRoadmap); assertTrue(mentor.canEditTopics); assertTrue(mentor.canApplyInsightActions)
+        assertTrue(mentor.canEditRoadmap); assertTrue(mentor.canEditTopics); assertTrue(mentor.canCreateTasks)
+        // 가족의 일(여정·활동·성장)은 멘토가 고치지 않음
+        assertFalse(mentor.canEditJourney); assertFalse(mentor.canRecordActivities); assertFalse(mentor.canRecordGrowth); assertFalse(mentor.isFamily)
+        assertTrue(parent.canEditJourney && parent.canRecordActivities && student.canRecordGrowth)
         assertFalse(mentor.canMarkTopicStatus); assertFalse(mentor.canUpdateRoadmapProgress); assertFalse(mentor.canUseTimer)
         assertEquals("MENTOR", mentor.actingRoleName)
     }

@@ -8,7 +8,7 @@ import java.time.LocalDate
 @Composable
 internal fun MilestoneCard(
     item: JourneyItem, today: LocalDate, expandedKey: String?, setExpanded: (String?) -> Unit, onEvent: (JourneyEvent) -> Unit,
-    onNote: (JourneyItem) -> Unit, onDate: (JourneyItem) -> Unit,
+    onNote: (JourneyItem) -> Unit, onDate: (JourneyItem) -> Unit, editable: Boolean,
 ) {
     val key = item.templateId ?: item.entityId ?: item.title
     MilestoneRow(
@@ -18,5 +18,6 @@ internal fun MilestoneCard(
         onEditNote = { onNote(item) },
         onEditDate = { onDate(item) },
         onDelete = if (item.isCustom) ({ onEvent(JourneyEvent.DeleteCustom(item)) }) else null,
+        editable = editable,
     )
 }
