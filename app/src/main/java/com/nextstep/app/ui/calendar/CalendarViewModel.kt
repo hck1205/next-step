@@ -15,6 +15,7 @@ import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import java.time.YearMonth
@@ -66,9 +67,9 @@ class CalendarViewModel(
 
     fun deleteEvent(id: String) { viewModelScope.launch { events.delete(id) } }
 
-    fun saveTask(existing: TaskEntity?, title: String, subjectId: String?, type: TaskType, due: LocalDate, role: String) {
+    fun saveTask(existing: TaskEntity?, title: String, subjectId: String?, type: TaskType, due: LocalDate) {
         viewModelScope.launch {
-            tasks.save(existing?.let { TaskDrafts.edited(it, title, subjectId, type, due) } ?: TaskDrafts.written(title, subjectId, type, due, role))
+            tasks.save(existing?.let { TaskDrafts.edited(it, title, subjectId, type, due) } ?: TaskDrafts.written(title, subjectId, type, due, streams.actingRoleName()))
         }
     }
 
@@ -84,7 +85,7 @@ class CalendarViewModel(
             CalendarEvent.Today -> today()
             is CalendarEvent.SaveEvent -> saveEvent(event.existing, event.draft)
             is CalendarEvent.DeleteEvent -> deleteEvent(event.id)
-            is CalendarEvent.SaveTask -> saveTask(event.existing, event.title, event.subjectId, event.type, event.due, event.role)
+            is CalendarEvent.SaveTask -> saveTask(event.existing, event.title, event.subjectId, event.type, event.due)
             is CalendarEvent.ToggleTask -> toggleTask(event.task)
             is CalendarEvent.DeleteTask -> deleteTask(event.id)
         }

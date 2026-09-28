@@ -81,7 +81,8 @@ class YearPlanViewModelTest : ViewModelTestBase() {
         val vm = vm(); val job = subscribe(vm.state)
         val view = settle(vm.state).tabs.first().sections.first().second.first()
         vm.onEvent(YearPlanEvent.Toggle(view))
-        vm.onEvent(YearPlanEvent.AddToToday(view.task, Role.PARENT.name))
+        streams.actAs(Role.PARENT) // 학부모가 누름
+        vm.onEvent(YearPlanEvent.AddToToday(view.task))
         settle(vm.state)
         assertEquals(listOf("tStatus:${view.task.storageId(yearKey)}:DONE:${view.task.term.endDate(today)}"), journey.calls)
         val saved = tasks.saved.single()

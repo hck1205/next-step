@@ -32,6 +32,9 @@ class FakeFamilyDataStreams(
 ) : FamilyDataStreams {
     override val profile = MutableStateFlow(UserProfile(role, "테스터", familyId, "ABC123", "학생", onboarded = true, memberId = "me"))
     override val syncStatus = MutableStateFlow(SyncStatus.LOCAL_ONLY)
+
+    /** 이 기기 사용자의 역할을 바꿉니다(작성자 역할을 ViewModel 이 읽는 테스트용). */
+    fun actAs(role: Role) { profile.value = profile.value.copy(role = role) }
     override val subjects = MutableStateFlow<List<SubjectEntity>>(emptyList())
     override val topics = MutableStateFlow<List<TopicEntity>>(emptyList())
     override val tasks = MutableStateFlow<List<TaskEntity>>(emptyList())

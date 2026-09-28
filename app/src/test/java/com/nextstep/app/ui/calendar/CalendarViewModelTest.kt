@@ -1,6 +1,7 @@
 package com.nextstep.app.ui.calendar
 
 import com.nextstep.app.data.model.EventType
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.entry.EventDraft
 import com.nextstep.app.domain.time.DateUtils
@@ -76,11 +77,12 @@ class CalendarViewModelTest : ViewModelTestBase() {
     @Test
     fun taskEventsCreateEditToggleAndDelete() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
-        vm.onEvent(CalendarEvent.SaveTask(null, "숙제", "math", TaskType.HOMEWORK, today, "MENTOR"))
+        streams.actAs(Role.MENTOR)
+        vm.onEvent(CalendarEvent.SaveTask(null, "숙제", "math", TaskType.HOMEWORK, today))
         settle(vm.state)
         val created = tasks.saved.single()
         assertEquals("MENTOR", created.createdByRole); assertEquals(today.toEpochDay(), created.dueDate)
-        vm.onEvent(CalendarEvent.SaveTask(created, "숙제!", null, TaskType.REVIEW, today.plusDays(1), "STUDENT"))
+        vm.onEvent(CalendarEvent.SaveTask(created, "숙제!", null, TaskType.REVIEW, today.plusDays(1)))
         vm.onEvent(CalendarEvent.ToggleTask(created))
         vm.onEvent(CalendarEvent.DeleteTask(created.id))
         settle(vm.state)

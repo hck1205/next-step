@@ -14,6 +14,7 @@ import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.domain.stats.StudyQueues
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -47,8 +48,9 @@ class SubjectDetailViewModel(
     /** 학급 진도를 이 단원까지로 설정. */
     fun setClassProgress(upToOrderIndex: Int) { viewModelScope.launch { topics.setClassProgress(subjectId, upToOrderIndex) } }
 
-    fun addTask(topic: TopicEntity, type: TaskType, createdByRole: String) {
+    fun addTask(topic: TopicEntity, type: TaskType) {
         viewModelScope.launch {
+            val createdByRole = streams.actingRoleName()
             val subject = state.value.subject ?: return@launch
             tasks.save(TaskDrafts.forTopic(subject, topic, type, TaskDrafts.topicDue(createdByRole, DateUtils.today()), createdByRole))
         }
@@ -65,7 +67,7 @@ class SubjectDetailViewModel(
             is SubjectDetailEvent.Rename -> rename(event.topic, event.title)
             is SubjectDetailEvent.Delete -> delete(event.topic)
             is SubjectDetailEvent.SetClassProgress -> setClassProgress(event.upToOrderIndex)
-            is SubjectDetailEvent.AddTask -> addTask(event.topic, event.type, event.createdByRole)
+            is SubjectDetailEvent.AddTask -> addTask(event.topic, event.type)
             is SubjectDetailEvent.UpdateSubject -> updateSubject(event.subject)
         }
     }

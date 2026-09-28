@@ -19,5 +19,5 @@ sealed interface JourneyEvent {
     data class SetBirthDate(val date: LocalDate) : JourneyEvent
     data class SetStepStatus(val step: GoalStepEntity, val status: MilestoneStatus) : JourneyEvent
     /** 단계를 이번 구간의 할 일로 보냅니다. 마감은 구간 끝. */
-    data class SendStepToTasks(val step: GoalStepEntity, val createdByRole: String) : JourneyEvent
+    data class SendStepToTasks(val step: GoalStepEntity) : JourneyEvent
 }

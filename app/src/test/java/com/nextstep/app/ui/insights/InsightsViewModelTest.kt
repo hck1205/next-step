@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.insights
 
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.insight.InsightAction
 import com.nextstep.app.domain.time.DateUtils
@@ -36,8 +37,9 @@ class InsightsViewModelTest : ViewModelTestBase() {
 
     @Test
     fun applyActionCreatesTaskDueTomorrowWithGivenRole() = runTest {
+        streams.actAs(Role.MENTOR)
         val vm = InsightsViewModel(streams, tasks); val job = subscribe(vm.state)
-        vm.onEvent(InsightsEvent.ApplyAction(InsightAction.CreateTask("수학 복습", "math", "t1", TaskType.REVIEW), "MENTOR"))
+        vm.onEvent(InsightsEvent.ApplyAction(InsightAction.CreateTask("수학 복습", "math", "t1", TaskType.REVIEW)))
         settle(vm.state)
         val t = tasks.saved.single()
         assertEquals("수학 복습", t.title); assertEquals("t1", t.topicId); assertEquals("MENTOR", t.createdByRole)

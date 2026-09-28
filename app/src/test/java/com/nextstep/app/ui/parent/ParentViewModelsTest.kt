@@ -1,7 +1,6 @@
 package com.nextstep.app.ui.parent
 
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.domain.project.ProjectCatalog
@@ -67,15 +66,6 @@ class ParentViewModelsTest : ViewModelTestBase() {
         vm.onEvent(ParentDashboardEvent.GiveReward("r1"))
         assertEquals(listOf("r3"), settle(vm.state).rewardsDue.map { it.reward.id })
         assertEquals(listOf("give:r1"), rewards.calls)
-        job.cancel()
-    }
-
-    @Test
-    fun dashboardAssignsTasks() = runTest {
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
-        vm.onEvent(ParentDashboardEvent.AssignTask("영단어", "eng", TaskType.HOMEWORK, today, "MENTOR"))
-        settle(vm.state)
-        assertEquals("MENTOR", tasks.saved.single().createdByRole)
         job.cancel()
     }
 

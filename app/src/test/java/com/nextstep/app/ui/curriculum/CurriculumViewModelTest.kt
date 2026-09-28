@@ -82,8 +82,8 @@ class CurriculumViewModelTest : ViewModelTestBase() {
         val vm = vm(); val job = subscribe(vm.state)
         val s = settle(vm.state)
         val units = s.plan!!.subjects.first { it.subject == "수학" }.units
-        vm.onEvent(CurriculumEvent.AddTask(units.first { it.unit.title.startsWith("기본 도형") }.unit, "STUDENT"))
-        vm.onEvent(CurriculumEvent.AddTask(units.first { it.unit.title == "작도와 합동" }.unit, "STUDENT"))
+        vm.onEvent(CurriculumEvent.AddTask(units.first { it.unit.title.startsWith("기본 도형") }.unit))
+        vm.onEvent(CurriculumEvent.AddTask(units.first { it.unit.title == "작도와 합동" }.unit))
         vm.onEvent(CurriculumEvent.MarkWatched("c1"))
         settle(vm.state)
         assertEquals(listOf(TaskType.REVIEW, TaskType.PREVIEW), tasks.saved.map { it.type })

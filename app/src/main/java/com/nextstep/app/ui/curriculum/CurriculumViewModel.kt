@@ -22,6 +22,7 @@ import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.PeriodCalendar
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,14 +82,14 @@ class CurriculumViewModel(
         }
     }
 
-    fun addTask(unit: CurriculumUnit, createdByRole: String) {
+    fun addTask(unit: CurriculumUnit) {
         viewModelScope.launch {
             val s = state.value
             val status = s.plan?.subjects?.flatMap { it.units }?.firstOrNull { it.unit == unit }?.status
             val type = if (status == UnitStatus.IN_CLASS) TaskType.REVIEW else TaskType.PREVIEW
             val subjectId = s.plan?.subjects?.firstOrNull { it.subject == unit.subject }?.familySubject?.id
             val due = s.selected?.end?.takeIf { !it.isBefore(today()) } ?: today().plusDays(DEFAULT_DUE_DAYS)
-            tasks.save(TaskDrafts.forCurriculum(unit, subjectId, type, due, createdByRole))
+            tasks.save(TaskDrafts.forCurriculum(unit, subjectId, type, due, streams.actingRoleName()))
         }
     }
 
@@ -101,7 +102,7 @@ class CurriculumViewModel(
             CurriculumEvent.NextPeriod -> next()
             CurriculumEvent.ThisPeriod -> thisPeriod()
             is CurriculumEvent.ImportSubject -> importSubject(event.subject)
-            is CurriculumEvent.AddTask -> addTask(event.unit, event.createdByRole)
+            is CurriculumEvent.AddTask -> addTask(event.unit)
             is CurriculumEvent.MarkWatched -> markWatched(event.contentId)
         }
     }

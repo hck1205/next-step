@@ -54,7 +54,7 @@ internal fun TodoContent(state: TodoUiState, caps: Capabilities, actions: TodoAc
             LaneCard(
                 lane = lane, goalTitle = state::goalTitle, goals = state.goals, canCheck = canCheck, canAccept = caps.canCreateTasks,
                 onToggle = { t -> onEvent(TodoEvent.Toggle(t.id, !t.done)) },
-                onAccept = { s, goalId -> onEvent(TodoEvent.Accept(s, goalId, caps.actingRoleName)) },
+                onAccept = { s, goalId -> onEvent(TodoEvent.Accept(s, goalId)) },
                 onOpenGoal = actions.onOpenGoal, onOpenSubject = actions.onOpenSubject,
             )
         }

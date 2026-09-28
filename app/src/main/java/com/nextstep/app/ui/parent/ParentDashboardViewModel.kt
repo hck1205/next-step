@@ -12,7 +12,6 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.Role
-import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.ProjectRepository
@@ -36,12 +35,10 @@ import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.stats.BalanceStats
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.TrendStats
-import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.asUiState
 import com.nextstep.app.ui.common.gameInputs
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -113,13 +110,6 @@ class ParentDashboardViewModel(
         s.copy(rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t)
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
-    /** 학부모가 자녀에게 할 일을 배정합니다. */
-    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) {
-        viewModelScope.launch {
-            tasks.save(TaskDrafts.written(title, subjectId, type, due, createdByRole))
-        }
-    }
-
     private data class Core(
         val profile: UserProfile,
         val subjects: List<SubjectEntity>,
@@ -141,7 +131,6 @@ class ParentDashboardViewModel(
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: ParentDashboardEvent) {
         when (event) {
-            is ParentDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
             is ParentDashboardEvent.ToggleRoutine -> toggleRoutine(event.progress, event.item)
             is ParentDashboardEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(DateUtils.weekStart(DateUtils.today()), event.goals, event.minutes) }
             is ParentDashboardEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }

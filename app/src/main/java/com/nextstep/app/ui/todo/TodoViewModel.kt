@@ -18,6 +18,7 @@ import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.taskboard.TaskBoard
 import com.nextstep.app.domain.taskboard.TaskSuggester
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ import kotlinx.coroutines.launch
  * 그 과목 줄 아래에 붙입니다. 추천은 눌러서 할 일로(목표에 넣기도) 바꿉니다.
  */
 class TodoViewModel(
-    streams: FamilyDataStreams,
+    private val streams: FamilyDataStreams,
     private val tasks: TaskRepository,
     private val today: () -> LocalDate = { DateUtils.today() },
 ) : ViewModel() {
@@ -56,7 +57,7 @@ class TodoViewModel(
             is TodoEvent.Toggle -> viewModelScope.launch { tasks.setDone(event.taskId, event.done) }
             is TodoEvent.Accept -> viewModelScope.launch {
                 val goal = state.value.goals.firstOrNull { it.id == event.goalId }
-                tasks.save(TaskDrafts.forSuggestion(event.suggestion, goal, event.createdByRole))
+                tasks.save(TaskDrafts.forSuggestion(event.suggestion, goal, streams.actingRoleName()))
             }
         }
     }

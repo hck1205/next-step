@@ -66,7 +66,7 @@ class QuickAddViewModelTest : ViewModelTestBase() {
         vm.onEvent(QuickAddEvent.SaveActivity(Fixtures.activity("과학관"))); var s = settle(vm.state)
         assertEquals("과학관", activities.saved.single().title); assertEquals("활동을 기록했어요", s.savedMessage)
         vm.onEvent(QuickAddEvent.ClearMessage); s = settle(vm.state); assertNull(s.savedMessage)
-        vm.onEvent(QuickAddEvent.SaveTask(" 익힘책 ", "math", TaskType.HOMEWORK, today, "PARENT")); settle(vm.state)
+        vm.onEvent(QuickAddEvent.SaveTask(" 익힘책 ", "math", TaskType.HOMEWORK, today)); settle(vm.state)
         assertEquals("익힘책", tasks.saved.single().title); assertEquals("PARENT", tasks.saved.single().createdByRole); assertEquals(today.toEpochDay(), tasks.saved.single().dueDate)
         vm.onEvent(QuickAddEvent.SaveGrade(GradeDraft("math", "중간", ExamType.MIDTERM, 88.0, 100.0, 70.0, today, ""))); settle(vm.state)
         assertEquals(88.0, grades.saved.single().score, 0.0); assertEquals(70.0, grades.saved.single().classAverage!!, 0.0)

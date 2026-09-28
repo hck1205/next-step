@@ -84,7 +84,7 @@ fun QuickAddSheet(caps: Capabilities, studentLevel: StudentUiLevel?, onDismiss: 
     when (picked) {
         QuickAddAction.ACTIVITY -> ActivityEditDialog(existing = null, today = state.today, onConfirm = { viewModel.onEvent(QuickAddEvent.SaveActivity(it)) }, onDismiss = onDismiss)
         QuickAddAction.TASK -> TaskEditDialog(existing = null, subjects = state.subjects, defaultDate = state.today, onDismiss = onDismiss) { title, subjectId, type, due ->
-            viewModel.onEvent(QuickAddEvent.SaveTask(title, subjectId, type, due, caps.actingRoleName))
+            viewModel.onEvent(QuickAddEvent.SaveTask(title, subjectId, type, due))
         }
         QuickAddAction.GRADE -> GradeEditDialog(existing = null, subjects = state.subjects, onDismiss = onDismiss, onDelete = null) { viewModel.onEvent(QuickAddEvent.SaveGrade(it)) }
         QuickAddAction.EVENT -> EventEditDialog(existing = null, subjects = state.subjects, defaultDate = state.today, onDismiss = onDismiss, onDelete = null) { viewModel.onEvent(QuickAddEvent.SaveEvent(it)) }

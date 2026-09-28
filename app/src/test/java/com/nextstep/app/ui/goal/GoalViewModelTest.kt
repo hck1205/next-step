@@ -56,7 +56,7 @@ class GoalViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("top", "other"), s.linkTargets.map { it.id }) // 자기 아래(leaf)와 자신은 이어질 수 없음
         assertEquals(SelfDirectionStage.PLAN_FIRST, s.stage)
         assertEquals(1f, s.node!!.rate, 0f) // 작은 목표 하나를 이뤘고 할 일은 없음
-        vm.onEvent(GoalEvent.AddTask("영어 단어 20개", "eng", TaskType.HOMEWORK, today.plusDays(2), "PARENT")); s = settle(vm.state)
+        vm.onEvent(GoalEvent.AddTask("영어 단어 20개", "eng", TaskType.HOMEWORK, today.plusDays(2))); s = settle(vm.state)
         val t = s.node!!.tasks.single()
         assertEquals("mid", t.goalId); assertEquals("PARENT", t.createdByRole); assertEquals("목표mid", t.note)
         assertEquals(0.5f, s.node!!.rate, 0.001f)
@@ -76,8 +76,8 @@ class GoalViewModelTest : ViewModelTestBase() {
         settle(vm.state)
         vm.onEvent(GoalEvent.Link("other"))
         vm.onEvent(GoalEvent.Edit("새 제목", "이유", null))
-        vm.onEvent(GoalEvent.AddChild("작은 것", "", GoalArea.MATH, null, "STUDENT"))
-        vm.onEvent(GoalEvent.AddNext("다음 것", "", GoalArea.MATH, null, "PARENT"))
+        vm.onEvent(GoalEvent.AddChild("작은 것", "", GoalArea.MATH, null))
+        vm.onEvent(GoalEvent.AddNext("다음 것", "", GoalArea.MATH, null))
         vm.onEvent(GoalEvent.Archive); settle(vm.state)
         assertEquals(listOf("link:mid:other", "edit:mid:새 제목:이유:null"), goals.calls.take(2))
         assertEquals(listOf("mid", "top"), goals.addedGoals.map { it.leadsTo })

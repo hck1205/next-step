@@ -7,7 +7,6 @@ import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
-import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
@@ -23,6 +22,7 @@ import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.UiDefaults
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
@@ -81,7 +81,7 @@ class MentorDashboardViewModel(
 
     fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) {
         viewModelScope.launch {
-            tasks.save(TaskDrafts.written(title, subjectId, type, due, Role.MENTOR.name))
+            tasks.save(TaskDrafts.written(title, subjectId, type, due, streams.actingRoleName()))
         }
     }
 

@@ -20,6 +20,7 @@ import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
@@ -70,10 +71,10 @@ class GoalsViewModel(
     )
 
     /** 날짜 목표를 만들고 설계된 세부 단계를 목표일에서 거꾸로 배치합니다. */
-    fun startMission(kind: MissionKind, target: LocalDate, subject: String?, createdByRole: String) {
+    fun startMission(kind: MissionKind, target: LocalDate, subject: String?) {
         viewModelScope.launch {
             val s = state.value
-            val (goal, steps) = MissionPlanner.create(kind, target, s.today, s.periods, subject?.takeIf { kind.needsSubject }, createdByRole)
+            val (goal, steps) = MissionPlanner.create(kind, target, s.today, s.periods, subject?.takeIf { kind.needsSubject }, streams.actingRoleName())
             goals.add(goal, steps)
         }
     }
@@ -113,12 +114,12 @@ class GoalsViewModel(
     }
 
     /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감·종류 규칙은 TaskDrafts.forGoalStep 참고. */
-    fun sendStepToTasks(step: GoalStepEntity, createdByRole: String) {
+    fun sendStepToTasks(step: GoalStepEntity) {
         viewModelScope.launch {
             if (step.taskId != null) return@launch
             val s = state.value
             val goal = s.goals.firstOrNull { it.goal.id == step.goalId }?.goal
-            val task = TaskDrafts.forGoalStep(step, goal, s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
+            val task = TaskDrafts.forGoalStep(step, goal, s.periods.firstOrNull { it.key == step.periodKey }, s.today, streams.actingRoleName())
             tasks.save(task)
             goals.setStepTask(step.id, task.id)
         }
@@ -132,10 +133,10 @@ class GoalsViewModel(
         when (event) {
             is GoalsEvent.StartTrack -> startTrack(event.trackId)
             is GoalsEvent.AddCustomGoal -> addCustomGoal(event.title, event.area, event.description, event.stepsByPeriod)
-            is GoalsEvent.StartMission -> startMission(event.kind, event.target, event.subject, event.createdByRole)
+            is GoalsEvent.StartMission -> startMission(event.kind, event.target, event.subject)
             is GoalsEvent.AddStep -> addStep(event.goalId, event.periodKey, event.title)
             is GoalsEvent.SetStepStatus -> setStepStatus(event.step, event.status)
-            is GoalsEvent.SendStepToTasks -> sendStepToTasks(event.step, event.createdByRole)
+            is GoalsEvent.SendStepToTasks -> sendStepToTasks(event.step)
             is GoalsEvent.SetGoalStatus -> setGoalStatus(event.goalId, event.status)
             is GoalsEvent.DeleteGoal -> deleteGoal(event.goalId)
         }

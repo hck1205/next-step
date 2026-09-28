@@ -54,7 +54,7 @@ com.nextstep.app
 │   ├── year/               YearPlans(해마다 할 일을 분류별로), YearTask, YearArea(분류 = 올해 탭), YearTerm(1학기·2학기·1년 내내)
 │   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계, 트랙·직접 만든 목표와 단계 만들기), ActivitySummary(활동 기록 요약)
 └── ui/
-    ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), AppDispatchers, Formatters, ExternalLinks
+    ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), actingRoleName(작성자 역할: ViewModel 이 저장 직전에 읽음), gameInputs, AppDispatchers, Formatters, ExternalLinks
     ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나. 관심사별 하위 패키지:
     │   ├── card/           AppCard, LinkCard(다른 화면으로), StatusCard, StatTile, StageCard, JourneyNowCard, UpcomingExamCard, InsightCard, TalentCard, SectionTitle, EmptyState …
     │   ├── chart/          ChartPalette(검증한 차트 색), ChartHeights(차트 높이 한 곳), ColumnChart, HeatCalendar, BulletBars, ShareBar, StatTile·StatGrid, Sparkline, MiniBars, MeterBar, ScoreMultiples, ChartLegend(범례는 이것 하나) + BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip

@@ -14,6 +14,7 @@ import com.nextstep.app.domain.entry.GradeDraft
 import com.nextstep.app.domain.growth.KidRecord
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ import kotlinx.coroutines.launch
 
 /** 모든 쓰기의 단일 입구. 각 저장소에 한 번 쓰고 한 줄 메시지를 남깁니다. */
 class QuickAddViewModel(
-    streams: FamilyDataStreams,
+    private val streams: FamilyDataStreams,
     private val activities: ActivityRepository,
     private val tasks: TaskRepository,
     private val grades: GradeRepository,
@@ -38,10 +39,10 @@ class QuickAddViewModel(
 
     fun saveActivity(activity: ActivityEntity) { viewModelScope.launch { activities.save(activity); message.value = "활동을 기록했어요" } }
 
-    fun saveTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, createdByRole: String) {
+    fun saveTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) {
         viewModelScope.launch {
             if (title.isBlank()) return@launch
-            tasks.save(TaskDrafts.written(title.trim(), subjectId, type, due, createdByRole))
+            tasks.save(TaskDrafts.written(title.trim(), subjectId, type, due, streams.actingRoleName()))
             message.value = "할 일을 추가했어요"
         }
     }
@@ -74,7 +75,7 @@ class QuickAddViewModel(
     fun onEvent(event: QuickAddEvent) {
         when (event) {
             is QuickAddEvent.SaveActivity -> saveActivity(event.activity)
-            is QuickAddEvent.SaveTask -> saveTask(event.title, event.subjectId, event.type, event.due, event.createdByRole)
+            is QuickAddEvent.SaveTask -> saveTask(event.title, event.subjectId, event.type, event.due)
             is QuickAddEvent.SaveGrade -> saveGrade(event.draft)
             is QuickAddEvent.SaveEvent -> saveEvent(event.draft)
             is QuickAddEvent.KidRecordTap -> kidRecord(event.record)

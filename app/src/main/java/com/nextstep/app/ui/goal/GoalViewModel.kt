@@ -16,6 +16,7 @@ import com.nextstep.app.domain.reward.RewardKind
 import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,7 @@ import kotlinx.coroutines.launch
 /** 목표 한 개(route "goal/{goalId}"): 세부 할 일 주기 · 체크 · 달성 · 이어지는 목표 바꾸기 · 작은 목표와 다음 목표 만들기. */
 class GoalViewModel(
     savedStateHandle: SavedStateHandle,
-    streams: FamilyDataStreams,
+    private val streams: FamilyDataStreams,
     private val goals: GoalRepository,
     private val tasks: TaskRepository,
     private val rewards: RewardRepository,
@@ -59,7 +60,7 @@ class GoalViewModel(
         when (event) {
             is GoalEvent.AddTask -> viewModelScope.launch {
                 if (goal == null || event.title.isBlank()) return@launch
-                tasks.save(GoalTree.subTask(goal, event.title, event.due, event.subjectId, event.type, event.createdByRole))
+                tasks.save(GoalTree.subTask(goal, event.title, event.due, event.subjectId, event.type, streams.actingRoleName()))
             }
             is GoalEvent.ToggleTask -> viewModelScope.launch { tasks.setDone(event.taskId, event.done) }
             is GoalEvent.DeleteTask -> viewModelScope.launch { tasks.delete(event.taskId) }
@@ -73,11 +74,11 @@ class GoalViewModel(
             is GoalEvent.Edit -> viewModelScope.launch { goals.edit(goalId, event.title, event.why, event.target?.toEpochDay()) }
             is GoalEvent.AddChild -> viewModelScope.launch {
                 if (event.title.isBlank()) return@launch
-                goals.add(GoalTree.create(event.title, event.why, event.area, event.target, goalId, event.createdByRole), emptyList())
+                goals.add(GoalTree.create(event.title, event.why, event.area, event.target, goalId, streams.actingRoleName()), emptyList())
             }
             is GoalEvent.AddNext -> viewModelScope.launch {
                 if (event.title.isBlank()) return@launch
-                goals.add(GoalTree.create(event.title, event.why, event.area, event.target, goal?.leadsTo, event.createdByRole), emptyList())
+                goals.add(GoalTree.create(event.title, event.why, event.area, event.target, goal?.leadsTo, streams.actingRoleName()), emptyList())
             }
         }
     }

@@ -42,8 +42,9 @@ class GoalTreeViewModelTest : ViewModelTestBase() {
     fun anyoneCanCreateAGoalLinkedToABiggerOne() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
         settle(vm.state)
-        vm.onEvent(GoalTreeEvent.Create("  ", "", GoalArea.HABIT, null, null, "PARENT"))
-        vm.onEvent(GoalTreeEvent.Create("영어 일기", "쓰기 자신감", GoalArea.LANGUAGE, today.plusDays(30), "big", "MENTOR")); settle(vm.state)
+        streams.myMember.value = Fixtures.member(Role.PARENT, "엄마", id = "me", mentorEnabled = true) // 학부모 겸 멘토는 멘토로 남음
+        vm.onEvent(GoalTreeEvent.Create("  ", "", GoalArea.HABIT, null, null))
+        vm.onEvent(GoalTreeEvent.Create("영어 일기", "쓰기 자신감", GoalArea.LANGUAGE, today.plusDays(30), "big")); settle(vm.state)
         val g = goals.addedGoals.single()
         assertTrue(GoalTree.isTreeGoal(g)); assertEquals("big", g.leadsTo); assertEquals("MENTOR", g.createdByRole); assertEquals(today.plusDays(30).toEpochDay(), g.targetDate)
         job.cancel()

@@ -16,6 +16,7 @@ import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.domain.year.YearTask
 import com.nextstep.app.domain.year.YearTerm
 import com.nextstep.app.domain.year.YearTrends
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,7 @@ import kotlinx.coroutines.launch
  * 학생·학부모·멘토가 같은 목록을 보되, 기본은 "내 할 일"(보는 사람의 몫)만 보여 줍니다.
  */
 class YearPlanViewModel(
-    streams: FamilyDataStreams,
+    private val streams: FamilyDataStreams,
     private val journey: JourneyRepository,
     private val tasks: TaskRepository,
     private val today: () -> LocalDate = { DateUtils.today() },
@@ -79,9 +80,9 @@ class YearPlanViewModel(
         }
     }
 
-    fun addToToday(task: YearTask, byRole: String) {
+    fun addToToday(task: YearTask) {
         viewModelScope.launch {
-            tasks.save(TaskDrafts.forYearTask(task, today(), byRole))
+            tasks.save(TaskDrafts.forYearTask(task, today(), streams.actingRoleName()))
         }
     }
 
@@ -89,7 +90,7 @@ class YearPlanViewModel(
     fun onEvent(event: YearPlanEvent) {
         when (event) {
             is YearPlanEvent.Toggle -> toggle(event.view)
-            is YearPlanEvent.AddToToday -> addToToday(event.task, event.byRole)
+            is YearPlanEvent.AddToToday -> addToToday(event.task)
             is YearPlanEvent.SetMine -> mine.value = event.doers
             is YearPlanEvent.ShowMine -> mineOnly.value = event.mineOnly
         }

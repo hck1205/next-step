@@ -133,7 +133,7 @@ private fun LazyListScope.periodSections(
                 GoalStepRow(
                     step = view.step, goalTitle = view.goalTitle,
                     onSetStatus = { onEvent(JourneyEvent.SetStepStatus(view.step, it)) },
-                    onSendToTasks = if (caps.canManageGoals) ({ onEvent(JourneyEvent.SendStepToTasks(view.step, caps.actingRoleName)) }) else null,
+                    onSendToTasks = if (caps.canManageGoals) ({ onEvent(JourneyEvent.SendStepToTasks(view.step)) }) else null,
                 )
             }
         }

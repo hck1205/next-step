@@ -35,7 +35,7 @@ class ReviewViewModelTest : ViewModelTestBase() {
         assertEquals(listOf("수학" to 2), s.perSubject)
 
         val next = s.sections.last().second.single()
-        vm.onEvent(ReviewEvent.AddTask(next, "STUDENT"))
+        vm.onEvent(ReviewEvent.AddTask(next))
         vm.onEvent(ReviewEvent.MarkDone(next))
         vm.onEvent(ReviewEvent.MarkDone(s.sections.first().second.single()))
         settle(vm.state)

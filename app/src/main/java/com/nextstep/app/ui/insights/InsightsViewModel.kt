@@ -10,6 +10,7 @@ import com.nextstep.app.domain.insight.TalentEngine
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -38,10 +39,10 @@ class InsightsViewModel(
         )
     }.asUiState(viewModelScope, InsightsUiState())
 
-    fun applyAction(action: InsightAction, createdByRole: String) {
+    fun applyAction(action: InsightAction) {
         viewModelScope.launch {
             when (action) {
-                is InsightAction.CreateTask -> tasks.save(TaskDrafts.forInsight(action, createdByRole, DateUtils.today()))
+                is InsightAction.CreateTask -> tasks.save(TaskDrafts.forInsight(action, streams.actingRoleName(), DateUtils.today()))
             }
         }
     }
@@ -50,7 +51,7 @@ class InsightsViewModel(
     /** 화면 이벤트 단일 진입점. */
     fun onEvent(event: InsightsEvent) {
         when (event) {
-            is InsightsEvent.ApplyAction -> applyAction(event.action, event.createdByRole)
+            is InsightsEvent.ApplyAction -> applyAction(event.action)
         }
     }
 

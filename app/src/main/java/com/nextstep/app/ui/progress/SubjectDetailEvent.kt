@@ -14,6 +14,6 @@ sealed interface SubjectDetailEvent {
     data class Rename(val topic: TopicEntity, val title: String) : SubjectDetailEvent
     data class Delete(val topic: TopicEntity) : SubjectDetailEvent
     data class SetClassProgress(val upToOrderIndex: Int) : SubjectDetailEvent
-    data class AddTask(val topic: TopicEntity, val type: TaskType, val createdByRole: String) : SubjectDetailEvent
+    data class AddTask(val topic: TopicEntity, val type: TaskType) : SubjectDetailEvent
     data class UpdateSubject(val subject: SubjectEntity) : SubjectDetailEvent
 }

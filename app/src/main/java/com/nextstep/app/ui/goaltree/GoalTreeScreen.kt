@@ -92,7 +92,7 @@ internal fun GoalTreeContent(state: GoalTreeUiState, caps: Capabilities, actions
     if (adding) {
         AddTreeGoalDialog(
             targets = GoalTree.linkTargets(null, state.nodes.map { it.goal }), today = DateUtils.today(), onDismiss = { adding = false },
-            onSave = { title, why, area, target, leadsTo -> onEvent(GoalTreeEvent.Create(title, why, area, target, leadsTo, caps.actingRoleName)) },
+            onSave = { title, why, area, target, leadsTo -> onEvent(GoalTreeEvent.Create(title, why, area, target, leadsTo)) },
         )
     }
 }

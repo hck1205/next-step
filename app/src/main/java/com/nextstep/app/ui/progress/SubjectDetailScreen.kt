@@ -87,7 +87,7 @@ internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilitie
                     onConfidence = { onEvent(SubjectDetailEvent.SetConfidence(topic, it)) },
                     onRename = { onEvent(SubjectDetailEvent.Rename(topic, it)) },
                     onDelete = { onEvent(SubjectDetailEvent.Delete(topic)) },
-                    onAddTask = { onEvent(SubjectDetailEvent.AddTask(topic, it, caps.actingRoleName)) },
+                    onAddTask = { onEvent(SubjectDetailEvent.AddTask(topic, it)) },
                 )
             }
         }

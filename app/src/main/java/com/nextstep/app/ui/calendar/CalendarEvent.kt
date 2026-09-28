@@ -15,7 +15,7 @@ sealed interface CalendarEvent {
     data object Today : CalendarEvent
     data class SaveEvent(val existing: EventEntity?, val draft: EventDraft) : CalendarEvent
     data class DeleteEvent(val id: String) : CalendarEvent
-    data class SaveTask(val existing: TaskEntity?, val title: String, val subjectId: String?, val type: TaskType, val due: LocalDate, val role: String) : CalendarEvent
+    data class SaveTask(val existing: TaskEntity?, val title: String, val subjectId: String?, val type: TaskType, val due: LocalDate) : CalendarEvent
     data class ToggleTask(val task: TaskEntity) : CalendarEvent
     data class DeleteTask(val id: String) : CalendarEvent
 }

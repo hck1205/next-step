@@ -8,6 +8,7 @@ import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 
 /** 기록 › 목표·할 일 › 목표. 목표 트리를 계산하고 새 목표를 만듭니다(학생·학부모·멘토 누구나). */
 class GoalTreeViewModel(
-    streams: FamilyDataStreams,
+    private val streams: FamilyDataStreams,
     private val goals: GoalRepository,
     private val today: () -> LocalDate = { DateUtils.today() },
 ) : ViewModel() {
@@ -38,7 +39,7 @@ class GoalTreeViewModel(
             is GoalTreeEvent.SetArea -> area.value = event.area
             is GoalTreeEvent.Create -> viewModelScope.launch {
                 if (event.title.isBlank()) return@launch
-                goals.add(GoalTree.create(event.title, event.why, event.area, event.target, event.leadsTo, event.createdByRole), emptyList())
+                goals.add(GoalTree.create(event.title, event.why, event.area, event.target, event.leadsTo, streams.actingRoleName()), emptyList())
             }
         }
     }

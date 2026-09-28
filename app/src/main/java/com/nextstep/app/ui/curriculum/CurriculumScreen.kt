@@ -77,7 +77,7 @@ internal fun CurriculumContent(state: CurriculumUiState, caps: Capabilities, act
                 SubjectPlanCard(
                     sp, caps, onOpenSubject = actions.onOpenSubject,
                     onImport = { onEvent(CurriculumEvent.ImportSubject(sp.subject)) },
-                    onAddTask = { onEvent(CurriculumEvent.AddTask(it, caps.actingRoleName)) },
+                    onAddTask = { onEvent(CurriculumEvent.AddTask(it)) },
                     onOpenUrl = openUrl, onWatched = { onEvent(CurriculumEvent.MarkWatched(it)) },
                 )
             }

@@ -77,7 +77,7 @@ internal fun GoalContent(state: GoalUiState, caps: Capabilities, actions: GoalAc
             }
         }
     }
-    GoalDialogs(dialog, state, caps, onEvent, onDismiss = { dialog = null })
+    GoalDialogs(dialog, state, onEvent, onDismiss = { dialog = null })
 }
 
 /** 목표와 달성률 · 보상 · 이어지는 목표 길 · (이뤘으면) 다음 목표 권하기. */

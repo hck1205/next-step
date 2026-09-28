@@ -71,7 +71,7 @@ internal fun CalendarContent(state: CalendarUiState, caps: Capabilities, onEvent
             dayDetails(state, caps, onEvent, open)
         }
     }
-    CalendarDialogs(dialog, state, caps, onEvent, onDismiss = { dialog = null })
+    CalendarDialogs(dialog, state, onEvent, onDismiss = { dialog = null })
 }
 
 /** 고른 날의 일정(누르면 고치기) · 할 일(만들 수 있으면 누르면 고치기) · 학습 기록. */

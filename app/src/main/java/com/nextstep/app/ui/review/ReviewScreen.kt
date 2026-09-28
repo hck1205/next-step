@@ -57,7 +57,7 @@ internal fun ReviewContent(state: ReviewUiState, caps: Capabilities, onEvent: (R
             items(rows, key = { "${reason.name}-${it.topic.id}" }) { item ->
                 ReviewRow(
                     item = item,
-                    onAddTask = if (caps.canCreateTasks) ({ onEvent(ReviewEvent.AddTask(item, caps.actingRoleName)) }) else null,
+                    onAddTask = if (caps.canCreateTasks) ({ onEvent(ReviewEvent.AddTask(item)) }) else null,
                     onDone = if (caps.canMarkTopicStatus) ({ onEvent(ReviewEvent.MarkDone(item)) }) else null,
                 )
             }

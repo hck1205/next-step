@@ -1,6 +1,7 @@
 package com.nextstep.app.ui.progress
 
 import androidx.lifecycle.SavedStateHandle
+import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.fake.FakeFamilyDataStreams
@@ -64,7 +65,8 @@ class ProgressViewModelsTest : ViewModelTestBase() {
         vm.onEvent(SubjectDetailEvent.Rename(topic, "새 이름"))
         vm.onEvent(SubjectDetailEvent.SetClassProgress(2))
         vm.onEvent(SubjectDetailEvent.Delete(topic))
-        vm.onEvent(SubjectDetailEvent.AddTask(topic, TaskType.REVIEW, "MENTOR"))
+        streams.actAs(Role.MENTOR)
+        vm.onEvent(SubjectDetailEvent.AddTask(topic, TaskType.REVIEW))
         vm.onEvent(SubjectDetailEvent.UpdateSubject(Fixtures.math.copy(weeklyGoalMinutes = 60)))
         settle(vm.state)
         assertEquals("add:math:a|b|c", topics.calls[0])
@@ -84,7 +86,7 @@ class ProgressViewModelsTest : ViewModelTestBase() {
         val vm = SubjectDetailViewModel(SavedStateHandle(mapOf("subjectId" to "ghost")), streams, subjects, topics, tasks)
         val job = subscribe(vm.state); settle(vm.state)
         assertNull(vm.state.value.subject)
-        vm.onEvent(SubjectDetailEvent.AddTask(Fixtures.topic("ghost", "x", 0), TaskType.REVIEW, "STUDENT"))
+        vm.onEvent(SubjectDetailEvent.AddTask(Fixtures.topic("ghost", "x", 0), TaskType.REVIEW))
         settle(vm.state)
         assertEquals(0, tasks.saved.size)
         job.cancel()

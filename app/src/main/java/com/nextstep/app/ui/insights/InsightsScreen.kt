@@ -49,7 +49,7 @@ internal fun InsightsContent(state: InsightsUiState, caps: Capabilities, onEvent
             if (caps.isParent) talents(state)
             item { SectionTitle(if (caps.isParent) "학습 상태 · 제안" else "강점 · 보완점 · 제안") }
             items(state.insights) { insight ->
-                InsightCard(insight, state.subjects, onAction = if (caps.canCreateTasks) { a -> onEvent(InsightsEvent.ApplyAction(a, caps.actingRoleName)) } else null)
+                InsightCard(insight, state.subjects, onAction = if (caps.canCreateTasks) { a -> onEvent(InsightsEvent.ApplyAction(a)) } else null)
             }
             charts(state)
             if (!caps.isStudent) item { AdBanner() }

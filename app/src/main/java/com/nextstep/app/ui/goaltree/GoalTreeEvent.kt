@@ -7,5 +7,5 @@ import java.time.LocalDate
 sealed interface GoalTreeEvent {
     data class SetFilter(val filter: GoalFilter) : GoalTreeEvent
     data class SetArea(val area: GoalArea?) : GoalTreeEvent
-    data class Create(val title: String, val why: String, val area: GoalArea, val target: LocalDate?, val leadsTo: String?, val createdByRole: String) : GoalTreeEvent
+    data class Create(val title: String, val why: String, val area: GoalArea, val target: LocalDate?, val leadsTo: String?) : GoalTreeEvent
 }

@@ -64,7 +64,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
             expanded = expandedGoalId == view.goal.id, onToggle = { toggle(view.goal.id) },
             canManage = caps.canManageGoals,
             onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
-            onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
+            onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it)) },
             onAddStep = { periodKey, title -> onEvent(GoalsEvent.AddStep(view.goal.id, periodKey, title)) },
             onSetGoalStatus = { onEvent(GoalsEvent.SetGoalStatus(view.goal.id, it)) },
             onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
@@ -102,7 +102,7 @@ internal fun GoalsContent(state: GoalsUiState, caps: Capabilities, actions: Goal
 
     if (showMission && state.missionKinds.isNotEmpty()) AddMissionDialog(
         kinds = state.missionKinds, subjectNames = state.subjectNames, today = state.today,
-        onConfirm = { kind, target, subject -> onEvent(GoalsEvent.StartMission(kind, target, subject, caps.actingRoleName)); showMission = false },
+        onConfirm = { kind, target, subject -> onEvent(GoalsEvent.StartMission(kind, target, subject)); showMission = false },
         onDismiss = { showMission = false },
     )
     if (showAdd) AddGoalDialog(
@@ -135,7 +135,7 @@ private fun LazyListScope.missionSection(
             onToggle = { onToggle(view.goal.id) },
             canManage = caps.canManageGoals,
             onSetStepStatus = { step, status -> onEvent(GoalsEvent.SetStepStatus(step, status)) },
-            onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it, caps.actingRoleName)) },
+            onSendToTasks = { onEvent(GoalsEvent.SendStepToTasks(it)) },
             onDelete = { onEvent(GoalsEvent.DeleteGoal(view.goal.id)) },
         )
     }

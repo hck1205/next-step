@@ -21,6 +21,7 @@ import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -116,11 +117,11 @@ class JourneyViewModel(
     fun setStepStatus(step: GoalStepEntity, status: MilestoneStatus) { viewModelScope.launch { goals.setStepStatus(step.id, status) } }
 
     /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감·종류 규칙은 TaskDrafts.forGoalStep 참고. */
-    fun sendStepToTasks(step: GoalStepEntity, createdByRole: String) {
+    fun sendStepToTasks(step: GoalStepEntity) {
         viewModelScope.launch {
             if (step.taskId != null) return@launch
             val s = state.value
-            val task = TaskDrafts.forGoalStep(step, s.goals.firstOrNull { it.id == step.goalId }, s.periods.firstOrNull { it.key == step.periodKey }, s.today, createdByRole)
+            val task = TaskDrafts.forGoalStep(step, s.goals.firstOrNull { it.id == step.goalId }, s.periods.firstOrNull { it.key == step.periodKey }, s.today, streams.actingRoleName())
             tasks.save(task)
             goals.setStepTask(step.id, task.id)
         }
@@ -147,7 +148,7 @@ class JourneyViewModel(
             is JourneyEvent.ShowPast -> showPast(event.show)
             is JourneyEvent.SetBirthDate -> setBirthDate(event.date)
             is JourneyEvent.SetStepStatus -> setStepStatus(event.step, event.status)
-            is JourneyEvent.SendStepToTasks -> sendStepToTasks(event.step, event.createdByRole)
+            is JourneyEvent.SendStepToTasks -> sendStepToTasks(event.step)
         }
     }
 }
