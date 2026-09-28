@@ -27,7 +27,7 @@ internal fun ProjectCard(p: ProjectProgress, onOpen: () -> Unit) {
                 PaceChip(p.pace)
             }
             Text(p.plan.title, style = MaterialTheme.typography.titleMedium)
-            p.kind?.let { Text("${it.label} · ${it.audience}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            p.kind?.let { Text(it.caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             Text(p.plan.goal, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             LabeledProgress(
                 label = if (p.isDone) "모든 단계 통과" else "${p.currentIndex + 1}/${p.total}단계 · ${p.current?.title}",

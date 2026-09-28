@@ -13,6 +13,9 @@ enum class ProjectKind(val assigner: Assigner, val chip: String, val label: Stri
     PARENT(Assigner.PARENT, "학부모가 준", "학부모가 준 프로젝트", "학부모와 학생만 봐요"),
     MENTOR(Assigner.MENTOR, "멘토가 준", "멘토가 준 프로젝트", "준 멘토와 학생만 봐요");
 
+    /** 카드·상세·시작 창의 한 줄: "멘토가 준 프로젝트 · 준 멘토와 학생만 봐요". */
+    val caption: String get() = "$label · $audience"
+
     companion object {
         /** 저장된 프로젝트의 종류(createdByRole). 누가 만들었는지 모르는 옛 기록이면 null. */
         fun of(goal: GoalEntity): ProjectKind? = entries.firstOrNull { it.assigner.role.name == goal.createdByRole }

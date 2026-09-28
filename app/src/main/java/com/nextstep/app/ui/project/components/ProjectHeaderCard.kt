@@ -28,7 +28,7 @@ internal fun ProjectHeaderCard(p: ProjectProgress) {
             }
             Text("목표", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(p.plan.goal, style = MaterialTheme.typography.titleMedium)
-            p.kind?.let { Text("${it.label} · ${it.audience}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            p.kind?.let { Text(it.caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             LabeledProgress(
                 label = if (p.isDone) "${p.total}단계 모두 통과" else "${p.currentIndex + 1}/${p.total}단계 · ${p.current?.title}",
                 ratio = ratio(p.currentIndex, p.total), color = MaterialTheme.colorScheme.primary,

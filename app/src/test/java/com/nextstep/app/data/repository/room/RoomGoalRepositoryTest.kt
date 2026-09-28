@@ -37,6 +37,12 @@ class RoomGoalRepositoryTest {
     }
 
     @Test
+    fun addKeepsTheActingRoleTheCallerGave() = runTest {
+        repo.add(Fixtures.goal("수학 목표", id = "m").copy(familyId = "", createdByRole = "MENTOR"), emptyList()) // 학부모 겸 멘토가 멘토 자리에서
+        assertEquals("MENTOR", goalDao.all.single().createdByRole)
+    }
+
+    @Test
     fun stepStatusTaskAndGoalStatusUpdateRows() = runTest {
         stepDao.seed(Fixtures.step("g", "g1s1", "a", id = "s1"))
         goalDao.seed(Fixtures.goal("수학", id = "g"))

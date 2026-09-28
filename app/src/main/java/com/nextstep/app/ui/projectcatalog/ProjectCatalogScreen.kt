@@ -18,7 +18,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.project.ProjectCategory
-import com.nextstep.app.domain.project.ProjectKind
 import com.nextstep.app.domain.project.ProjectPlan
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
@@ -69,10 +68,10 @@ internal fun ProjectCatalogContent(state: ProjectCatalogUiState, caps: Capabilit
     }
     starting?.let { plan ->
         StartProjectDialog(
-            plan = plan, suggestedIndex = state.suggested[plan.id] ?: 0, today = state.today, kind = ProjectKind.startedBy(caps.role),
+            plan = plan, suggestedIndex = state.suggested[plan.id] ?: 0, today = state.today, kind = state.startKind,
             onDismiss = { starting = null },
             onStart = { index ->
-                onEvent(ProjectCatalogEvent.Start(plan.id, index, caps.actingRoleName))
+                onEvent(ProjectCatalogEvent.Start(plan.id, index))
                 starting = null
                 actions.onStarted()
             },

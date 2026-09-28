@@ -78,7 +78,7 @@ private fun Group(
             Checkbox(checked = t.done, onCheckedChange = { onToggle(t) }, enabled = canCheck)
             Column(Modifier.weight(1f)) {
                 Text(t.title, style = MaterialTheme.typography.bodyMedium)
-                val who = Assigner.of(t.createdByRole)?.takeIf { it != Assigner.SELF }?.taskLabel
+                val who = Assigner.givenBy(t.createdByRole)?.taskLabel
                 val goal = goalTitle(t.goalId)
                 Text(
                     listOfNotNull(t.type.label, DateUtils.formatShortDate(DateUtils.fromEpochDay(t.dueDate)), who, goal?.let { "목표: $it" }).joinToString(" · "),

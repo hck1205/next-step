@@ -39,7 +39,7 @@ internal fun StartProjectDialog(plan: ProjectPlan, suggestedIndex: Int, today: L
         title = { Text(plan.title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("${kind.label} · ${kind.audience}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(kind.caption, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("어느 단계부터 시작할까요?", style = MaterialTheme.typography.bodyMedium)
                 Column(Modifier.heightIn(max = 320.dp).verticalScroll(rememberScrollState())) {
                     plan.phases.forEachIndexed { i, phase ->

@@ -13,5 +13,8 @@ enum class Assigner(val role: Role, val label: String, val taskLabel: String, va
     companion object {
         /** 역할 이름(createdByRole)으로. 모르는 값이면 null. */
         fun of(roleName: String?): Assigner? = entries.firstOrNull { it.role.name == roleName }
+
+        /** 어른이 준 것만(스스로 정한 것·모르는 값은 null). 할 일 줄의 "학부모가 준 일" 표시에 씁니다. */
+        fun givenBy(roleName: String?): Assigner? = of(roleName)?.takeIf { it != SELF }
     }
 }

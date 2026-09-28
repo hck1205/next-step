@@ -3,6 +3,7 @@ package com.nextstep.app.ui.projectcatalog
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.project.ProjectCategory
+import com.nextstep.app.domain.project.ProjectKind
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeGoalRepository
 import com.nextstep.app.testing.Fixtures
@@ -41,16 +42,17 @@ class ProjectCatalogViewModelTest : ViewModelTestBase() {
     fun startingSavesGoalAndScheduledStepsOnce() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
         settle(vm.state)
-        vm.onEvent(ProjectCatalogEvent.Start("english-reader", 4, "PARENT")); settle(vm.state)
+        vm.onEvent(ProjectCatalogEvent.Start("english-reader", 4)); settle(vm.state)
         val goal = goals.addedGoals.single()
         assertEquals("project:english-reader", goal.trackId)
+        assertEquals(ProjectKind.PARENT, settle(vm.state).startKind); assertEquals(ProjectKind.PARENT, ProjectKind.of(goal))
         assertEquals(10, goals.addedSteps.size)
         assertEquals(MilestoneStatus.IN_PROGRESS, goals.addedSteps[4].status)
         streams.goals.value = listOf(goal.copy(familyId = Fixtures.FAMILY))
         assertTrue("english-reader" in settle(vm.state).started)
-        vm.onEvent(ProjectCatalogEvent.Start("english-reader", 0, "PARENT")); settle(vm.state)
+        vm.onEvent(ProjectCatalogEvent.Start("english-reader", 0)); settle(vm.state)
         assertEquals(1, goals.addedGoals.size)
-        vm.onEvent(ProjectCatalogEvent.Start("nope", 0, "PARENT")); settle(vm.state)
+        vm.onEvent(ProjectCatalogEvent.Start("nope", 0)); settle(vm.state)
         assertFalse(goals.addedGoals.size > 1)
         job.cancel()
     }
