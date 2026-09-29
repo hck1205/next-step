@@ -62,7 +62,7 @@ class HomeViewModelTest : ViewModelTestBase() {
         val vm = vm(); val job = subscribe(vm.state)
         var s = settle(vm.state)
         assertEquals(StudentUiLevel.SEEDLING, s.levelUp)
-        assertEquals(listOf(StudentHomeSection.EVENTS, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION), s.newSections)
+        assertEquals(listOf(StudentHomeSection.EVENTS, StudentHomeSection.FAMILY, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION), s.newSections)
         vm.onEvent(HomeEvent.DismissLevelUp); settle(vm.state)
         assertEquals(listOf("seen:kid:SEEDLING"), members.calls)
         streams.members.value = listOf(kid.copy(uiLevel = "SPROUT", seenUiLevel = "SEEDLING"))
