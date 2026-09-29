@@ -19,6 +19,8 @@ import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.InsightEngine
 import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.mentor.MentorScope
+import com.nextstep.app.domain.report.LessonReportInput
+import com.nextstep.app.domain.report.LessonReports
 import com.nextstep.app.domain.stats.RoadmapStats
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.TrendStats
@@ -64,15 +66,29 @@ class MentorDashboardViewModel(
         val sessions = scope.own(d.sessions) { it.subjectId }
         val topics = scope.own(d.topics) { it.subjectId }
         val scopedTasks = scope.ownOrGeneral(d.tasks) { it.subjectId }
+        val today = DateUtils.today()
+        val findings = FeedbackEngine.findings(s.subjects, topics, grades, sessions, scopedTasks, today)
+        val weekly = StudyStats.weeklyMinutesBySubject(sessions, s.subjects).filter { it.subject != null }
+        val progress = StudyStats.subjectProgress(topics, s.subjects)
         s.copy(
-            weeklyBySubject = StudyStats.weeklyMinutesBySubject(sessions, s.subjects).filter { it.subject != null },
-            progress = StudyStats.subjectProgress(topics, s.subjects),
+            weeklyBySubject = weekly,
+            progress = progress,
             recentGrades = grades.take(UiDefaults.MAX_RECENT_RECORDS),
             myTasks = scopedTasks.filter { !it.done && AssignmentStats.isAssignment(it) },
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, scopedTasks, d.events).take(UiDefaults.MAX_INSIGHTS),
             roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
             trends = TrendStats.family(sessions, scopedTasks, grades, s.subjects, DateUtils.today()),
-            feedback = FeedbackVoice.lines(FeedbackEngine.findings(s.subjects, topics, grades, sessions, scopedTasks, DateUtils.today()), FeedbackAudience.MENTOR),
+            feedback = FeedbackVoice.lines(findings, FeedbackAudience.MENTOR),
+            // 리포트는 학부모가 읽으므로 같은 사실(멘토 범위)을 학부모의 말로
+            report = s.subjects.takeIf { it.isNotEmpty() }?.let { subjects ->
+                LessonReports.of(
+                    LessonReportInput(
+                        s.studentName, s.me?.name.orEmpty(), subjects, today, weekly.sumOf { it.minutes }, progress,
+                        AssignmentStats.report(scopedTasks, subjects, today),
+                        FeedbackEngine.forAudience(findings, FeedbackAudience.MENTOR).map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
+                    ),
+                )
+            },
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
 

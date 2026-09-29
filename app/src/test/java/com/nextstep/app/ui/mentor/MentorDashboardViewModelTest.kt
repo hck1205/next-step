@@ -68,6 +68,11 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         val s = settle(vm.state)
         assertTrue(s.feedback.isNotEmpty()); assertTrue(s.feedback.none { it.title.contains("영어") })
         assertTrue(s.feedback.any { it.title.startsWith("수학") }); assertTrue(MentorTodayCard.FEEDBACK in s.visibleCards)
+        // 학부모에게 보낼 수업 리포트: 같은 사실을 학부모의 말로, 담당 과목만
+        val report = s.report!!
+        assertTrue(report.title.contains("수학")); assertTrue(MentorTodayCard.REPORT in s.visibleCards)
+        val notes = report.sections.first { it.label == "이번 주 살펴본 것" }.lines
+        assertTrue(notes.any { it.startsWith("공부한 날이 줄었어요") }); assertTrue(report.sections.flatMap { it.lines }.none { it.contains("영어") })
         job.cancel()
     }
 

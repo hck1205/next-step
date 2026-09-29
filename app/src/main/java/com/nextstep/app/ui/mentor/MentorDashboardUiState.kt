@@ -9,6 +9,7 @@ import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.feedback.FeedbackLine
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.Insight
+import com.nextstep.app.domain.report.LessonReport
 import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.RoadmapSummary
 import com.nextstep.app.domain.stats.SubjectMinutes
@@ -43,6 +44,8 @@ data class MentorDashboardUiState(
     val trends: FamilyTrends = FamilyTrends(),
     /** 이번 주 피드백(멘토의 말, 담당 과목 기록으로). */
     val feedback: List<FeedbackLine> = emptyList(),
+    /** 학부모에게 보낼 수업 리포트(담당 과목이 있을 때). */
+    val report: LessonReport? = null,
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 
@@ -57,6 +60,7 @@ data class MentorDashboardUiState(
         MentorTodayCard.SCORES -> trends.scores.isNotEmpty()
         MentorTodayCard.INSIGHTS -> insights.isNotEmpty()
         MentorTodayCard.FEEDBACK -> feedback.isNotEmpty()
+        MentorTodayCard.REPORT -> report != null
         MentorTodayCard.WEEK_CHART -> weeklyBySubject.isNotEmpty()
         MentorTodayCard.PROGRESS -> progress.isNotEmpty()
         MentorTodayCard.GRADES -> recentGrades.isNotEmpty()
