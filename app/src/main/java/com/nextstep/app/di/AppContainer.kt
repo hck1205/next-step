@@ -110,7 +110,7 @@ class AppContainer(context: Context) {
     val streams: FamilyDataStreams = ProjectScopedStreams(MentorScopedStreams(familyStreams))
     val noticeSettings: NoticeSettings = DataStoreNoticeSettings(context)
     /** 산 요금제(결제를 붙일 자리). 지금은 모두 열림. */
-    val plans: PlanRepository = OpenPlanRepository()
+    val purchases: PlanRepository = OpenPlanRepository()
     val school: SchoolService = NeisSchoolService(HttpNeisApi(BuildConfig.NEIS_API_KEY), familyStreams.members, familyEvents)
 
     private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
