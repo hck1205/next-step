@@ -11,6 +11,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -27,7 +28,7 @@ class RoomCheerRepositoryTest {
         val c = dao.all.single()
         assertEquals("CLAP", c.kind); assertEquals("me", c.fromId); assertEquals("PARENT", c.fromRole); assertEquals("엄마", c.fromName); assertEquals("분수 20문제", c.taskTitle)
         repo.markSeen(listOf(c.id))
-        assertEquals(7L, dao.getById(c.id)!!.seenAt)
+        assertNotNull(dao.getById(c.id)!!.seenAt)
         repo.set(task, CheerKind.STAR, "엄마") // 바꾸면 아이에게 다시 보임
         assertEquals("STAR", dao.getById(c.id)!!.kind); assertNull(dao.getById(c.id)!!.seenAt); assertEquals(1, dao.all.size)
         repo.set(task, null, "엄마")

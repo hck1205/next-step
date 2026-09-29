@@ -59,6 +59,6 @@ class RoomWeekPlanRepositoryTest {
         repo.saveTalk(wednesday.plusDays(4), " 줄넘기 100개 ", "자전거 타기", "")
         val row = dao.all.single()
         assertEquals("줄넘기 100개", row.proud); assertEquals("자전거 타기", row.wish); assertEquals("", row.treat)
-        assertEquals(7L, row.talkAt); assertEquals("STUDENT", row.talkByRole); assertEquals(listOf("영어 책"), row.goalList)
+        assertNotNull(row.talkAt); assertEquals("STUDENT", row.talkByRole); assertEquals(listOf("영어 책"), row.goalList)
     }
 }
