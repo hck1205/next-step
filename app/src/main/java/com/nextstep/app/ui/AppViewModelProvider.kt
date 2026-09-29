@@ -52,8 +52,8 @@ object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { with(container()) { RootViewModel(onboarding, members) } }
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
-        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans) } }
-        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, game = familyStreams.gameInputs()) } }
+        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans, cheers) } }
+        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers, game = familyStreams.gameInputs()) } }
         initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }

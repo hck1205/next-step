@@ -10,6 +10,8 @@ import com.nextstep.app.domain.hub.Concern
 enum class StudentHomeSection(val label: String, val concern: Concern, val shortcut: Boolean = false) {
     TIMER("공부 시작 버튼", Concern.STUDY),
     TASKS("오늘 할 일", Concern.PLAN),
+    /** 받은 응원: 가족이 해낸 일에 붙인 응원("고마워요"를 누르면 내려감). 씨앗부터. */
+    CHEERS("받은 응원", Concern.PLAN),
     MY_WEEK("나의 이번 주", Concern.STUDY),
     /** 나의 공부 달력(5주)과 최근 7일 막대 — 남과 견주지 않고 내 기록만. 숫자를 보는 나이부터. */
     STUDY_FLOW("나의 공부 흐름", Concern.STUDY),
@@ -37,7 +39,7 @@ enum class StudentHomeSection(val label: String, val concern: Concern, val short
     PLANNER("학습 계획 만들기", Concern.PLAN, shortcut = true);
 
     companion object {
-        /** "전체"에서 먼저 펼칠 카드: 오늘 할 일. */
-        val FOCUS = listOf(TASKS)
+        /** "전체"에서 먼저 펼칠 카드: 새로 받은 응원이 있으면 그것, 없으면 오늘 할 일. */
+        val FOCUS = listOf(CHEERS, TASKS)
     }
 }

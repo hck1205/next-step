@@ -31,5 +31,7 @@ sealed interface HomeEvent {
     /** 나의 이번 주: 계획 쓰기 · 목표 체크 · 돌아보기. */
     data class SaveWeekPlan(val goals: List<String>, val minutes: Int) : HomeEvent
     data class ToggleWeekGoal(val planId: String, val index: Int) : HomeEvent
+    /** 받은 응원에 "고마워요": 확인한 것으로 남깁니다. */
+    data class ThankCheers(val ids: List<String>) : HomeEvent
     data class ReflectWeek(val week: LocalDate, val mood: Int, val good: String, val hard: String, val change: String) : HomeEvent
 }

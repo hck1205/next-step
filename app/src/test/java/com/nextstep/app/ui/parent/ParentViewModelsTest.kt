@@ -8,6 +8,7 @@ import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.ParentTodayCard
+import com.nextstep.app.fake.FakeCheerRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeProjectRepository
 import com.nextstep.app.fake.FakeRewardRepository
@@ -18,6 +19,7 @@ import com.nextstep.app.ui.ViewModelTestBase
 import java.time.LocalTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -28,6 +30,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
     private val projects = FakeProjectRepository(streams)
     private val weekPlans = FakeWeekPlanRepository(streams)
     private val rewards = FakeRewardRepository(streams)
+    private val cheers = FakeCheerRepository(streams)
     private val today = DateUtils.today()
 
     @Test
@@ -36,7 +39,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
         streams.members.value = listOf(Fixtures.member(Role.STUDENT, "나", gradeYear = 8), Fixtures.member(Role.PARENT, "엄마"), Fixtures.member(Role.PARENT, "아빠", mentorEnabled = true), Fixtures.member(Role.MENTOR, "쌤"))
         streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 40), Fixtures.session("math", today.minusDays(1), LocalTime.of(9, 0), 40))
         streams.tasks.value = listOf(Fixtures.task("지남", today.minusDays(1)))
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         val s = settle(vm.state)
         assertEquals(2, s.streak); assertEquals(1, s.overdueCount); assertEquals(listOf("지남"), s.pendingTasks.map { it.title })
         assertEquals(com.nextstep.app.domain.growth.GrowthStage.MIDDLE, s.stage)
@@ -57,7 +60,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
         streams.subjects.value = listOf(Fixtures.math)
         streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", gradeYear = 8), Fixtures.member(Role.PARENT, "엄마"))
         streams.sessions.value = (8L..12L).map { Fixtures.session("math", today.minusDays(it), LocalTime.of(9, 0), 30) }
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         val s = settle(vm.state)
         assertTrue(s.feedback.any { it.title.startsWith("공부한 날이 줄었어요") }); assertTrue(s.feedback.none { it.good })
         // 아이에게 한 말은 같은 사실의 학생 말투: 부모 문장과 다르다
@@ -72,13 +75,30 @@ class ParentViewModelsTest : ViewModelTestBase() {
             Fixtures.familyEvent("치과", today.plusDays(1), members = "kid", keeper = "mom"),
             Fixtures.familyEvent("가족 여행", today.plusDays(5), headsUp = "DAY_BEFORE"),
         )
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         val s = settle(vm.state)
         assertEquals(listOf("치과"), s.familyAhead.map { it.event.title }) // 여행은 아직 미리 보기 밖
         assertEquals(listOf("지우", "엄마"), s.familyMembers.map { it.name })
         assertTrue(com.nextstep.app.domain.today.ParentTodayCard.FAMILY in s.visibleCards)
         streams.familyEvents.value = emptyList()
         assertTrue(com.nextstep.app.domain.today.ParentTodayCard.FAMILY !in settle(vm.state).visibleCards)
+        job.cancel()
+    }
+
+    @Test
+    fun dashboardCheersRecentlyDoneTasks() = runTest {
+        val done = Fixtures.task("분수 20문제", today, done = true).copy(doneAt = System.currentTimeMillis())
+        streams.tasks.value = listOf(done, Fixtures.task("아직", today))
+        streams.myMember.value = Fixtures.member(Role.PARENT, "김엄마", id = "me").copy(title = "엄마")
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
+        val target = settle(vm.state).cheerTargets.single()
+        assertEquals("분수 20문제", target.task.title); assertNull(target.given)
+        assertTrue(com.nextstep.app.domain.today.ParentTodayCard.CHEER in settle(vm.state).visibleCards)
+        vm.onEvent(ParentDashboardEvent.Cheer(target, com.nextstep.app.domain.cheer.CheerKind.HEART))
+        val given = settle(vm.state).cheerTargets.single()
+        assertEquals(com.nextstep.app.domain.cheer.CheerKind.HEART, given.given); assertEquals("엄마", cheers.cheers.value.single().fromName)
+        vm.onEvent(ParentDashboardEvent.Cheer(given, com.nextstep.app.domain.cheer.CheerKind.HEART)) // 같은 것을 다시 누르면 거둠
+        assertNull(settle(vm.state).cheerTargets.single().given)
         job.cancel()
     }
 
@@ -91,7 +111,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
             com.nextstep.app.data.local.entity.RewardEntity(id = "r3", familyId = Fixtures.FAMILY, kind = "LEVEL", targetId = "2", title = "영화"), // 목표 달성 10 + 할 일 5개 15 = 25 XP → 레벨 2
         )
         streams.tasks.value = (1..5).map { Fixtures.task("t$it", today, done = true, by = "PARENT").copy(doneAt = System.currentTimeMillis()) }
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         assertEquals(setOf("r1", "r3"), settle(vm.state).rewardsDue.map { it.reward.id }.toSet())
         vm.onEvent(ParentDashboardEvent.GiveReward("r1"))
         assertEquals(listOf("r3"), settle(vm.state).rewardsDue.map { it.reward.id })
@@ -103,7 +123,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
     fun dashboardShowsTodaysRoutineButNotAsAMission() = runTest {
         val (goal, steps) = ProjectPlanner.start(ProjectCatalog.byId.getValue("korean-reader"), 0, today, "PARENT")
         streams.goals.value = listOf(goal.copy(familyId = Fixtures.FAMILY)); streams.goalSteps.value = steps
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         val s = settle(vm.state)
         assertTrue(s.missionFocus.isEmpty())
         val p = s.routines.single()
@@ -116,7 +136,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
     @Test
     fun parentPlansForYoungChildAndOnlyConfirmsAnOlderChildsPlan() = runTest {
         streams.members.value = listOf(Fixtures.member(Role.STUDENT, "하은", id = "kid", gradeYear = 1))
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         var s = settle(vm.state)
         assertEquals(SelfDirectionStage.CHOOSE, s.week!!.stage); assertTrue(s.weekAccess.canPlan); assertFalse(s.weekAccess.canCheck)
         weekPlans.role = "PARENT"
@@ -142,7 +162,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
             Fixtures.goal("끝난 것", trackId = GoalTree.TRACK, id = "c", status = com.nextstep.app.data.model.GoalStatus.DONE),
         )
         streams.tasks.value = listOf(Fixtures.task("3줄 쓰기", today.minusDays(1), by = "PARENT").copy(goalId = "b"))
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         val s = settle(vm.state)
         assertEquals(listOf("b", "a"), s.goalFocus.map { it.goal.id })
         assertTrue(s.missionFocus.isEmpty())
@@ -151,7 +171,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
 
     @Test
     fun todayCardsGroupByConcernInCardOrder() = runTest {
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         var s = settle(vm.state)
         assertTrue(s.visibleCards.containsAll(listOf(ParentTodayCard.JOURNEY, ParentTodayCard.TODAY)))
         assertFalse(ParentTodayCard.ROUTINE in s.visibleCards); assertFalse(ParentTodayCard.REWARDS in s.visibleCards)
@@ -165,7 +185,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
 
     @Test
     fun trendCardsAppearOnlyWithRecordsAndCarryChartValues() = runTest {
-        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers); val job = subscribe(vm.state)
         var s = settle(vm.state)
         assertFalse(ParentTodayCard.HEAT in s.visibleCards); assertFalse(ParentTodayCard.SCORES in s.visibleCards); assertFalse(ParentTodayCard.ASSIGNERS in s.visibleCards)
         streams.subjects.value = listOf(Fixtures.math)

@@ -1,6 +1,7 @@
 package com.nextstep.app.data.repository
 
 import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.FamilyEventEntity
@@ -54,4 +55,6 @@ interface FamilyDataStreams {
     val rewards: Flow<List<RewardEntity>>
     /** 가족 달력의 일정. 멘토에게는 늘 비어 있습니다(MentorScopedStreams). */
     val familyEvents: Flow<List<FamilyEventEntity>>
+    /** 해낸 일에 붙인 응원. 멘토에게는 늘 비어 있습니다(가족의 일). */
+    val cheers: Flow<List<CheerEntity>>
 }

@@ -17,6 +17,7 @@ import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.common.UiDefaults
+import com.nextstep.app.ui.components.card.CheerReceivedCard
 import com.nextstep.app.ui.components.card.CurriculumCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.FamilyAheadCard
@@ -58,6 +59,7 @@ internal fun HomeSectionBody(
         StudentHomeSection.TASKS -> TodayTasks(state, shown = if (compact) state.taskRows else FULL_ROWS, onEvent, onSpeak, onOpenAll = if (compact) null else ({ actions.onOpenRecords(ConcernSection.CALENDAR) }))
         StudentHomeSection.MY_WEEK -> state.myWeek?.let { week -> MyWeek(week, state, onEvent, onOpen = { actions.onOpenRecords(ConcernSection.SELF) }) }
         StudentHomeSection.FEEDBACK -> FeedbackCard(state.feedback, compact = compact)
+        StudentHomeSection.CHEERS -> CheerReceivedCard(state.cheers, compact, onThanks = { onEvent(HomeEvent.ThankCheers(it)) })
         StudentHomeSection.FAMILY -> FamilyAheadCard(state.familyAhead, state.familyMembers, state.today, compact, onOpen = { actions.onOpenRecords(ConcernSection.FAMILY_CALENDAR) })
         StudentHomeSection.ROUTINE -> RoutineCard(
             state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject,
@@ -158,7 +160,7 @@ internal fun homeSectionTitle(section: StudentHomeSection, state: HomeUiState): 
         StudentHomeSection.TASKS -> words.tasksTitle
         StudentHomeSection.REVIEW -> words.reviewTitle
         StudentHomeSection.PREVIEW -> words.previewTitle
-        StudentHomeSection.ROUTINE, StudentHomeSection.EVENTS, StudentHomeSection.MISSION, StudentHomeSection.RECOMMENDATION, StudentHomeSection.FEEDBACK, StudentHomeSection.FAMILY,
+        StudentHomeSection.ROUTINE, StudentHomeSection.EVENTS, StudentHomeSection.MISSION, StudentHomeSection.RECOMMENDATION, StudentHomeSection.FEEDBACK, StudentHomeSection.FAMILY, StudentHomeSection.CHEERS,
         StudentHomeSection.SUBJECTS, StudentHomeSection.ROADMAP, StudentHomeSection.STUDY_FLOW, StudentHomeSection.MY_SCORES -> section.label
         StudentHomeSection.TIMER, StudentHomeSection.YEAR, StudentHomeSection.CURRICULUM, StudentHomeSection.JOURNEY, StudentHomeSection.MY_WEEK,
         StudentHomeSection.GAME, StudentHomeSection.WEEK, StudentHomeSection.EXAM, StudentHomeSection.PLANNER -> ""

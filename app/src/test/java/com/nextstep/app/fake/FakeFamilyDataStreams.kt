@@ -1,6 +1,7 @@
 package com.nextstep.app.fake
 
 import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.FamilyEventEntity
@@ -57,4 +58,5 @@ class FakeFamilyDataStreams(
     override val weekPlans = MutableStateFlow<List<WeekPlanEntity>>(emptyList())
     override val rewards = MutableStateFlow<List<RewardEntity>>(emptyList())
     override val familyEvents = MutableStateFlow<List<FamilyEventEntity>>(emptyList())
+    override val cheers = MutableStateFlow<List<CheerEntity>>(emptyList())
 }

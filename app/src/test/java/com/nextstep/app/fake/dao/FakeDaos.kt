@@ -1,6 +1,7 @@
 package com.nextstep.app.fake.dao
 
 import com.nextstep.app.data.local.dao.ActivityDao
+import com.nextstep.app.data.local.dao.CheerDao
 import com.nextstep.app.data.local.dao.ContentDao
 import com.nextstep.app.data.local.dao.EventDao
 import com.nextstep.app.data.local.dao.FamilyEventDao
@@ -20,6 +21,7 @@ import com.nextstep.app.data.local.dao.TaskDao
 import com.nextstep.app.data.local.dao.TopicDao
 import com.nextstep.app.data.local.dao.WeekPlanDao
 import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.FamilyEventEntity
@@ -66,6 +68,10 @@ class FakeActivityDao : InMemoryTable<ActivityEntity>(), ActivityDao
 class FakeGrowthRecordDao : InMemoryTable<GrowthRecordEntity>(), GrowthRecordDao
 
 class FakeObservationDao : InMemoryTable<ObservationEntity>(), ObservationDao
+
+class FakeCheerDao : InMemoryTable<CheerEntity>(), CheerDao {
+    override suspend fun findMine(familyId: String, taskId: String, fromId: String) = all.filter { it.familyId == familyId && it.taskId == taskId && it.fromId == fromId && !it.deleted }
+}
 
 class FakeFamilyEventDao : InMemoryTable<FamilyEventEntity>(), FamilyEventDao
 

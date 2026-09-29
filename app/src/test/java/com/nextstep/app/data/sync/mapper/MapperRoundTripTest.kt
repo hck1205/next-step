@@ -1,5 +1,6 @@
 package com.nextstep.app.data.sync.mapper
 
+import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.Syncable
 import com.nextstep.app.data.local.entity.WeekPlanEntity
@@ -68,6 +69,8 @@ class MapperRoundTripTest {
             .copy(location = "체육관", bring = "수경\n수모", memo = "m", createdById = "mom", createdByRole = "PARENT", createdAt = 3L, deleted = true),
     ) { it.copy(dirty = false) }.let {}
     @Test fun familyEventOpenEnded() = roundTrip(FamilyEventMapper, Fixtures.familyEvent("외식", LocalDate.of(2029, 3, 1))) { it.copy(dirty = false) }.let { assertNull(it.repeatUntil) }
+    @Test fun cheer() = roundTrip(CheerMapper, CheerEntity(familyId = Fixtures.FAMILY, taskId = "t", taskTitle = "분수", kind = "HEART", fromId = "mom", fromRole = "PARENT", fromName = "엄마", seenAt = 4L, createdAt = 2L, deleted = true)) { it.copy(dirty = false) }.let {}
+    @Test fun cheerUnseen() = roundTrip(CheerMapper, CheerEntity(familyId = Fixtures.FAMILY, taskId = "t", taskTitle = "분수", kind = "CLAP")) { it.copy(dirty = false) }.let { assertNull(it.seenAt) }
     @Test fun memberWithoutGamifyFieldKeepsItOn() = MemberMapper.fromMap("m", MemberMapper.toMap(Fixtures.member(Role.STUDENT, "나")) - "gamify").let { assertTrue(it.gamify) }
     @Test fun projectLog() = roundTrip(ProjectLogMapper, Fixtures.projectLog("g", "p5", "파닉스 교재 한 쪽", 10, LocalDate.of(2029, 3, 4)).copy(authorRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun peerTopic() = roundTrip(PeerTopicMapper, Fixtures.peerTopic("g7s1", "수학", "정수와 유리수", 12).copy(coveredRatio = 0.4, updatedAt = 9L)) { it.copy(dirty = false) }.let { assertEquals("", it.familyId) }

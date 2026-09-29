@@ -1,6 +1,7 @@
 package com.nextstep.app.data.repository.room
 
 import com.nextstep.app.data.repository.ActivityRepository
+import com.nextstep.app.data.repository.CheerRepository
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
@@ -40,6 +41,7 @@ class CompositeFamilyDataStreams(
     weekPlans: WeekPlanRepository,
     rewards: RewardRepository,
     familyEvents: FamilyEventRepository,
+    cheers: CheerRepository,
 ) : FamilyDataStreams {
     override val profile = onboarding.profile
     override val syncStatus = onboarding.syncStatus
@@ -64,4 +66,5 @@ class CompositeFamilyDataStreams(
     override val weekPlans = weekPlans.plans
     override val rewards = rewards.rewards
     override val familyEvents = familyEvents.events
+    override val cheers = cheers.cheers
 }

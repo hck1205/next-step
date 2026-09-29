@@ -9,6 +9,7 @@ import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.data.repository.CheerRepository
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
@@ -46,6 +47,7 @@ class HomeViewModel(
     private val members: MemberRepository,
     private val projects: ProjectRepository,
     private val weekPlans: WeekPlanRepository,
+    private val cheers: CheerRepository,
 ) : ViewModel() {
 
     private val lastPlan = MutableStateFlow<StudyPlan?>(null)
@@ -116,6 +118,7 @@ class HomeViewModel(
             is HomeEvent.SaveWeekPlan -> viewModelScope.launch { weekPlans.savePlan(DateUtils.weekStart(state.value.today), event.goals, event.minutes) }
             is HomeEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
             is HomeEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }
+            is HomeEvent.ThankCheers -> viewModelScope.launch { cheers.markSeen(event.ids) }
         }
     }
 }

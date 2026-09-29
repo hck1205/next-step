@@ -25,6 +25,9 @@ class MentorScopedStreams(private val family: FamilyDataStreams) : FamilyDataStr
     /** 가족 달력은 가족의 일이라 멘토(학부모 겸 멘토는 제외)에게는 한 건도 넘기지 않습니다. */
     override val familyEvents = combine(family.profile, family.familyEvents) { profile, events -> if (profile.role == Role.MENTOR) emptyList() else events }
 
+    /** 응원도 가족 사이의 일이라 멘토에게 넘기지 않습니다. */
+    override val cheers = combine(family.profile, family.cheers) { profile, list -> if (profile.role == Role.MENTOR) emptyList() else list }
+
     private fun <T> own(flow: Flow<List<T>>, subjectId: (T) -> String?): Flow<List<T>> =
         combine(scope, flow) { s, items -> s?.own(items, subjectId) ?: items }
 

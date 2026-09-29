@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.home
 
+import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
@@ -101,6 +102,8 @@ data class HomeUiState(
     /** 가족 일정(오늘 + 미리 보기)과 "누구의 일정" 문구에 쓰는 가족 구성원. */
     val familyAhead: List<FamilyOccurrence> = emptyList(),
     val familyMembers: List<MemberEntity> = emptyList(),
+    /** 아직 "고마워요"를 누르지 않은 받은 응원(새것부터). */
+    val cheers: List<CheerEntity> = emptyList(),
     val streak: Int = 0,
 ) {
     /** 오늘 보여 줄 카드(화면 단계가 연 것 중 내용이 있는 것, 올해 프로필 순서). */
@@ -117,6 +120,7 @@ data class HomeUiState(
         StudentHomeSection.YEAR -> year != null
         StudentHomeSection.FEEDBACK -> feedback.isNotEmpty()
         StudentHomeSection.FAMILY -> familyAhead.isNotEmpty()
+        StudentHomeSection.CHEERS -> cheers.isNotEmpty()
         StudentHomeSection.CURRICULUM -> curriculum != null
         StudentHomeSection.MISSION -> missionFocus.isNotEmpty()
         StudentHomeSection.JOURNEY -> hasBirthDate || journeyNow.isNotEmpty()

@@ -102,6 +102,10 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
 
     /** 목표·레벨에 보상을 약속하고, 이뤘을 때 주기: 학부모만(보상은 가족의 일, 학부모 겸 멘토도 학부모로서). 학생은 약속된 보상을 보기만 하고, 멘토에게는 보상이 보이지 않습니다. */
     val canGiveRewards: Boolean get() = isParent
+
+    /** 해낸 일에 응원 붙이기: 학부모만(아이는 받는 쪽, 멘토에게는 가족 사이의 응원이 없음). */
+    val canCheer: Boolean get() = isParent
+
     /** 게임 요소(스티커판·레벨·배지·도전)를 켜고 끄기: 학부모, 그리고 성장 기록 모양(중등 이후)이면 학생 본인도. */
     fun canToggleGamification(style: GameStyle): Boolean = isParent || (isStudent && style.studentCanTurnOff)
 

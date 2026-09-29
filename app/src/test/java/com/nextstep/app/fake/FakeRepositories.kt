@@ -1,6 +1,7 @@
 package com.nextstep.app.fake
 
 import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
 import com.nextstep.app.data.local.entity.FamilyEventEntity
@@ -15,6 +16,7 @@ import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.GoalStatus
@@ -26,6 +28,7 @@ import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.ActivityRepository
+import com.nextstep.app.data.repository.CheerRepository
 import com.nextstep.app.data.repository.ContentDraft
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
@@ -44,6 +47,7 @@ import com.nextstep.app.data.repository.StudySessionRepository
 import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
 import com.nextstep.app.data.sync.FamilyInfo
+import com.nextstep.app.domain.cheer.CheerKind
 import com.nextstep.app.domain.content.ContentClassification
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.planner.StudyPlan
@@ -273,6 +277,15 @@ class FakeFamilyEventRepository(streams: FakeFamilyDataStreams? = null) : Family
         events.value = events.value.filter { it.id != e.id } + e
     }
     override suspend fun delete(id: String) { events.value = events.value.filter { it.id != id } }
+}
+
+class FakeCheerRepository(streams: FakeFamilyDataStreams? = null) : CheerRepository {
+    override val cheers: MutableStateFlow<List<CheerEntity>> = streams?.cheers ?: MutableStateFlow(emptyList())
+    override suspend fun set(task: TaskEntity, kind: CheerKind?, fromName: String) {
+        val others = cheers.value.filter { !(it.taskId == task.id && it.fromId == "me") }
+        cheers.value = others + listOfNotNull(kind?.let { CheerEntity(id = "c-${task.id}", familyId = "fam", taskId = task.id, taskTitle = task.title, kind = it.name, fromId = "me", fromName = fromName) })
+    }
+    override suspend fun markSeen(ids: List<String>) { cheers.value = cheers.value.map { if (it.id in ids) it.copy(seenAt = 1L) else it } }
 }
 
 class FakePeerCurriculumRepository : PeerCurriculumRepository {

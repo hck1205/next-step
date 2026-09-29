@@ -13,6 +13,7 @@ import com.nextstep.app.domain.project.ProjectCatalog
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.fake.FakeCheerRepository
 import com.nextstep.app.fake.FakeContentRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeMemberRepository
@@ -39,9 +40,10 @@ class HomeViewModelTest : ViewModelTestBase() {
     private val members = FakeMemberRepository()
     private val projects = FakeProjectRepository(streams)
     private val weekPlans = FakeWeekPlanRepository(streams)
+    private val cheers = FakeCheerRepository(streams)
     private val today = DateUtils.today()
 
-    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans)
+    private fun vm() = HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans, cheers)
 
     @Test
     fun youngStudentGetsSproutScreenWeekStarsAndSeenLevelIsRecorded() = runTest {
@@ -113,6 +115,18 @@ class HomeViewModelTest : ViewModelTestBase() {
         streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 3))
         val older = settle(vm.state)
         assertTrue(older.level.shows(StudentHomeSection.FAMILY)); assertTrue(StudentHomeSection.FAMILY in older.homeOrder); assertTrue(older.hasContent(StudentHomeSection.FAMILY))
+        job.cancel()
+    }
+
+    @Test
+    fun receivedCheersComeFirstUntilThanked() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 1))
+        streams.cheers.value = listOf(com.nextstep.app.data.local.entity.CheerEntity(id = "c1", familyId = "fam", taskId = "t", taskTitle = "그림책", kind = "CLAP", fromName = "엄마"))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(listOf("c1"), s.cheers.map { it.id }); assertTrue(s.level.shows(StudentHomeSection.CHEERS)); assertTrue(s.hasContent(StudentHomeSection.CHEERS))
+        vm.onEvent(HomeEvent.ThankCheers(listOf("c1")))
+        assertTrue(settle(vm.state).cheers.isEmpty())
         job.cancel()
     }
 

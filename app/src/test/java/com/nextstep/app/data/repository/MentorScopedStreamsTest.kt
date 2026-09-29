@@ -19,6 +19,7 @@ class MentorScopedStreamsTest {
         tasks.value = listOf(Fixtures.task("수학 과제", today, "math", by = "MENTOR"), Fixtures.task("영어", today, "eng"), Fixtures.task("과목 없음", today))
         myMember.value = Fixtures.member(role, "나", id = "me", subjectIds = "math")
         familyEvents.value = listOf(Fixtures.familyEvent("할머니 댁", today))
+        cheers.value = listOf(com.nextstep.app.data.local.entity.CheerEntity(familyId = Fixtures.FAMILY, taskId = "t", taskTitle = "분수", kind = "CLAP"))
     }
 
     @Test
@@ -28,6 +29,7 @@ class MentorScopedStreamsTest {
         assertEquals(listOf("math"), s.grades.first().map { it.subjectId })
         assertEquals(listOf("수학 과제", "과목 없음"), s.tasks.first().map { it.title })
         assertTrue(s.familyEvents.first().isEmpty()) // 가족 달력은 멘토에게 한 건도 넘기지 않음
+        assertTrue(s.cheers.first().isEmpty()) // 응원도 가족 사이의 일
     }
 
     @Test
@@ -36,6 +38,7 @@ class MentorScopedStreamsTest {
         assertEquals(3, MentorScopedStreams(family(Role.STUDENT)).tasks.first().size)
         assertEquals(listOf("할머니 댁"), MentorScopedStreams(family(Role.PARENT)).familyEvents.first().map { it.title })
         assertEquals(1, MentorScopedStreams(family(Role.STUDENT)).familyEvents.first().size)
+        assertEquals(1, MentorScopedStreams(family(Role.STUDENT)).cheers.first().size)
         val noChoice = family(Role.MENTOR).apply { myMember.value = Fixtures.member(Role.MENTOR, "나", id = "me") }
         assertEquals(2, MentorScopedStreams(noChoice).subjects.first().size)
     }

@@ -1,6 +1,8 @@
 package com.nextstep.app.ui.parent
 
 import androidx.lifecycle.ViewModel
+import com.nextstep.app.domain.cheer.CheerKind
+import com.nextstep.app.domain.cheer.CheerTarget
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.project.RoutineItem
 import java.time.LocalDate
@@ -15,5 +17,7 @@ sealed interface ParentDashboardEvent {
     data class ApproveWeek(val planId: String) : ParentDashboardEvent
     /** 받을 차례가 된 보상을 줬다고 남깁니다. */
     data class GiveReward(val id: String) : ParentDashboardEvent
+    /** 해낸 일에 응원 누르기: 붙인 것과 같으면 거두고, 다르면 바꿉니다. */
+    data class Cheer(val target: CheerTarget, val pressed: CheerKind) : ParentDashboardEvent
     data class ReflectWeek(val week: LocalDate, val mood: Int, val good: String, val hard: String, val change: String) : ParentDashboardEvent
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
@@ -13,17 +14,21 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.prefs.UserProfile
+import com.nextstep.app.data.repository.CheerRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.ProjectRepository
 import com.nextstep.app.data.repository.RewardRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.cheer.CheerTarget
+import com.nextstep.app.domain.cheer.Cheers
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackEngine
 import com.nextstep.app.domain.feedback.FeedbackVoice
+import com.nextstep.app.domain.feedback.Finding
 import com.nextstep.app.domain.gamify.GameInputs
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.goaltree.GoalTree
@@ -37,6 +42,7 @@ import com.nextstep.app.domain.reward.Rewards
 import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.stats.BalanceStats
+import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.time.DateUtils
@@ -47,6 +53,7 @@ import com.nextstep.app.ui.common.weekFindings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -59,6 +66,7 @@ class ParentDashboardViewModel(
     private val projects: ProjectRepository,
     private val weekPlans: WeekPlanRepository,
     private val rewards: RewardRepository,
+    private val cheers: CheerRepository,
     /** 레벨·보상 계산은 학생의 모든 기록으로(학생이 보는 것과 같게). 보이는 프로젝트 범위와 상관없습니다. */
     game: Flow<GameInputs> = streams.gameInputs(),
 ) : ViewModel() {
@@ -109,10 +117,15 @@ class ParentDashboardViewModel(
         TrendStats.family(sessions, tasks, grades, subjects, DateUtils.today())
     }
 
-    /** 차트 값과 이번 주 피드백의 사실(같은 기록에서), 그리고 가족 일정. */
-    private val charts = combine(trends, streams.weekFindings { DateUtils.today() }, streams.familyEvents) { t, f, family -> Triple(t, f, family) }
+    /** 응원할 수 있는 최근 해낸 일(내가 붙인 응원과 함께). */
+    private val cheerTargets = combine(streams.tasks, streams.cheers, streams.profile) { tasks, list, profile ->
+        Cheers.targets(tasks, list, profile.memberId.orEmpty(), DateUtils.today())
+    }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, charts) { s, members, input, list, (t, findings, family) ->
+    /** 차트 값과 이번 주 피드백의 사실(같은 기록에서), 가족 일정, 응원. */
+    private val charts = combine(trends, streams.weekFindings { DateUtils.today() }, streams.familyEvents, cheerTargets) { t, f, family, cheer -> Extras(t, f, family, cheer) }
+
+    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, charts) { s, members, input, list, (t, findings, family, cheer) ->
         val level = StudentScreen.of(members.firstOrNull { it.isStudent }, s.today).level
         val profile = Gamify.profile(input, s.today, style = level.game)
         val mine = FeedbackEngine.forAudience(findings, FeedbackAudience.PARENT)
@@ -120,7 +133,7 @@ class ParentDashboardViewModel(
             rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t,
             feedback = mine.map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
             feedbackEcho = mine.firstOrNull()?.let { FeedbackVoice.line(it, FeedbackAudience.STUDENT, numbers = level.showsNumbers) },
-            familyAhead = FamilyCalendar.ahead(family, s.today), familyMembers = FamilyCalendar.family(members),
+            familyAhead = FamilyCalendar.ahead(family, s.today), familyMembers = FamilyCalendar.family(members), cheerTargets = cheer,
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
@@ -131,6 +144,8 @@ class ParentDashboardViewModel(
         val tasks: List<TaskEntity>,
         val events: List<EventEntity>,
     )
+
+    private data class Extras(val trends: FamilyTrends, val findings: List<Finding>, val family: List<FamilyEventEntity>, val cheers: List<CheerTarget>)
 
     private data class Side(
         val members: List<MemberEntity>,
@@ -150,6 +165,9 @@ class ParentDashboardViewModel(
             is ParentDashboardEvent.ToggleWeekGoal -> viewModelScope.launch { weekPlans.toggleGoal(event.planId, event.index) }
             is ParentDashboardEvent.ApproveWeek -> viewModelScope.launch { weekPlans.approve(event.planId) }
             is ParentDashboardEvent.GiveReward -> viewModelScope.launch { rewards.give(event.id) }
+            is ParentDashboardEvent.Cheer -> viewModelScope.launch {
+                cheers.set(event.target.task, Cheers.toggle(event.target.given, event.pressed), streams.myMember.first()?.roleLabel.orEmpty())
+            }
             is ParentDashboardEvent.ReflectWeek -> viewModelScope.launch { weekPlans.reflect(event.week, event.mood, event.good, event.hard, event.change) }
         }
     }

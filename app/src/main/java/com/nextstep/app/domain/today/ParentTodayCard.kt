@@ -10,6 +10,8 @@ enum class ParentTodayCard(val title: String, val concern: Concern) {
     /** 이번 주 지표 네 칸(공부 · 할 일 · 점수 · 스스로). 상태 카드 아래에 늘 펼쳐 두지 않고 한눈에 묶음 안에. */
     KPIS("이번 주 숫자", Concern.OVERVIEW),
     REWARDS("약속한 보상", Concern.PLAN),
+    /** 최근 해낸 일에 응원 붙이기(아이 오늘 화면의 "받은 응원"으로). */
+    CHEER("해낸 일 응원하기", Concern.PLAN),
     GOALS("목표 진행", Concern.PLAN),
     WEEK_RATES("주별 할 일 달성", Concern.PLAN),
     ASSIGNERS("누가 준 할 일", Concern.PLAN),
