@@ -25,6 +25,8 @@ sealed interface SettingsEvent {
     data class SearchSchool(val name: String) : SettingsEvent
     data class PickSchool(val school: com.nextstep.app.domain.school.School) : SettingsEvent
     data object SyncSchool : SettingsEvent
+    /** 멘토의 수업 리포트 서명. */
+    data class SetSignature(val text: String) : SettingsEvent
     /** 다자녀 */
     data class SwitchChild(val familyId: String) : SettingsEvent
     data class AddChild(val name: String, val birthDate: java.time.LocalDate?) : SettingsEvent

@@ -39,6 +39,9 @@ class RoomMemberRepository(
     override suspend fun setMentorEnabled(memberId: String, enabled: Boolean) =
         modify(memberId) { it.copy(mentorEnabled = if (it.isMentor) true else enabled) }
 
+    override suspend fun setSignature(memberId: String, signature: String) =
+        modify(memberId) { it.copy(signature = signature.trim()) }
+
     override suspend fun setSchool(memberId: String, schoolCode: String, schoolName: String) =
         modify(memberId) { it.copy(schoolCode = schoolCode, schoolName = schoolName.trim()) }
 

@@ -11,4 +11,5 @@ internal sealed interface SettingsDialog {
     data object MyInfo : SettingsDialog
     data object PairingCode : SettingsDialog
     data object School : SettingsDialog
+    data object Signature : SettingsDialog
 }

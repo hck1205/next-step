@@ -13,6 +13,7 @@ import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
+import com.nextstep.app.data.local.entity.ReportLogEntity
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
@@ -59,4 +60,5 @@ class FakeFamilyDataStreams(
     override val rewards = MutableStateFlow<List<RewardEntity>>(emptyList())
     override val familyEvents = MutableStateFlow<List<FamilyEventEntity>>(emptyList())
     override val cheers = MutableStateFlow<List<CheerEntity>>(emptyList())
+    override val reportLogs = MutableStateFlow<List<ReportLogEntity>>(emptyList())
 }

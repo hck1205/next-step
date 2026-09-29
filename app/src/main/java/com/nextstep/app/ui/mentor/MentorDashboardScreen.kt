@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.plan.Feature
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.ui.AppViewModelProvider
@@ -87,6 +88,8 @@ internal fun MentorDashboardContent(state: MentorDashboardUiState, actions: Ment
         AssignTaskDialog(
             subjects = state.subjects, title = "과제 내기", label = "과제 내용",
             defaultSubjectId = state.subjects.firstOrNull()?.id, defaultDue = DateUtils.today().plusDays(1),
+            others = if (state.entitlements.has(Feature.BULK_ASSIGN)) state.students.filter { it.familyId != state.activeFamilyId } else emptyList(),
+            onSaveTo = { title, subjectId, type, due, alsoTo -> onEvent(MentorDashboardEvent.AssignTask(title, subjectId, type, due, alsoTo)) },
             onDismiss = { showAssign = false },
         ) { title, subjectId, type, due -> onEvent(MentorDashboardEvent.AssignTask(title, subjectId, type, due)) }
     }

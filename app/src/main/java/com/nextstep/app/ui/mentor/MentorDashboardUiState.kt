@@ -2,6 +2,7 @@ package com.nextstep.app.ui.mentor
 
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.ReportLogEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
@@ -9,6 +10,7 @@ import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.feedback.FeedbackLine
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.Insight
+import com.nextstep.app.domain.plan.Entitlements
 import com.nextstep.app.domain.report.LessonReport
 import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.RoadmapSummary
@@ -46,6 +48,11 @@ data class MentorDashboardUiState(
     val feedback: List<FeedbackLine> = emptyList(),
     /** 학부모에게 보낼 수업 리포트(담당 과목이 있을 때). */
     val report: LessonReport? = null,
+    /** 이번 달 수업 리포트와 보낸 기록(내가 보낸 것, 최근 것부터). */
+    val monthReport: LessonReport? = null,
+    val reportLogs: List<ReportLogEntity> = emptyList(),
+    /** 요금제로 나눌 수 있는 기능(멘토 화면에는 caps 가 없어 상태로 받음). 지금은 모두 열림. */
+    val entitlements: Entitlements = Entitlements.OPEN,
 ) {
     val needsSubjectSetup: Boolean get() = me != null && me.subjectIdList.isEmpty() && allSubjects.isNotEmpty()
 

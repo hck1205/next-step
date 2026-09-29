@@ -44,4 +44,15 @@ class LessonReportsTest {
         val r = LessonReports.of(input(minutes = 0).copy(progress = emptyList()))
         assertEquals(listOf("이번 주 공부"), r.sections.map { it.label }); assertEquals(listOf("아직 기록이 없어요"), r.sections[0].lines)
     }
+
+    @Test
+    fun monthlyReportAndSignature() {
+        val r = LessonReports.of(input(minutes = 600).copy(kind = ReportKind.MONTH, span = "3월"))
+        assertTrue(r.title.contains("수학 월간 수업 리포트 · 3월")); assertEquals("3월 공부", r.sections[0].label); assertEquals(listOf("10시간"), r.sections[0].lines)
+        val text = LessonReports.text(r, "", "김쌤 · 010-0000-0000")
+        assertTrue(text.contains("\n김쌤 · 010-0000-0000\n")); assertTrue(text.endsWith("— NextStep에서 보냄"))
+        val doc = LessonReports.doc(r, "잘했어요", "김쌤")
+        assertEquals(listOf("선생님 한마디", "선생님"), doc.sections.takeLast(2).map { it.label }); assertEquals("NextStep에서 보냄", doc.footer)
+        assertEquals(ReportKind.MONTH, ReportKind.from("MONTH")); assertEquals(ReportKind.WEEK, ReportKind.from(null))
+    }
 }

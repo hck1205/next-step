@@ -123,6 +123,7 @@ class SettingsViewModel(
             is SettingsEvent.SearchSchool -> searchSchool(event.name)
             is SettingsEvent.PickSchool -> pickSchool(event.school)
             SettingsEvent.SyncSchool -> viewModelScope.launch { syncSchool() }
+            is SettingsEvent.SetSignature -> viewModelScope.launch { state.value.me?.let { members.setSignature(it.id, event.text) } }
             is SettingsEvent.SwitchChild -> switchChild(event.familyId)
             is SettingsEvent.AddChild -> addChild(event.name, event.birthDate)
             is SettingsEvent.LinkChild -> linkChild(event.code)

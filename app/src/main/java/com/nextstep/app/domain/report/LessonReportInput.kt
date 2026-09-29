@@ -12,8 +12,12 @@ data class LessonReportInput(
     val mentorName: String,
     val subjects: List<SubjectEntity>,
     val today: LocalDate,
-    val weekMinutes: Int,
+    /** 그 기간(주·달)의 담당 과목 공부 시간(분). */
+    val minutes: Int,
     val progress: List<SubjectProgress>,
     val assignments: AssignmentReport,
     val notes: List<FeedbackLine>,
+    /** 주간이면 "이번 주", 월간이면 그 달("9월"). */
+    val kind: ReportKind = ReportKind.WEEK,
+    val span: String = "이번 주",
 )

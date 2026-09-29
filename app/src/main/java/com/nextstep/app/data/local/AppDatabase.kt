@@ -19,8 +19,10 @@ import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.dao.ObservationDao
 import com.nextstep.app.data.local.dao.PeerTopicDao
 import com.nextstep.app.data.local.dao.ProjectLogDao
+import com.nextstep.app.data.local.dao.ReportLogDao
 import com.nextstep.app.data.local.dao.RewardDao
 import com.nextstep.app.data.local.dao.RoadmapDao
+import com.nextstep.app.data.local.dao.RoadmapTemplateDao
 import com.nextstep.app.data.local.dao.StudySessionDao
 import com.nextstep.app.data.local.dao.SubjectDao
 import com.nextstep.app.data.local.dao.TaskDao
@@ -40,8 +42,10 @@ import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.PeerTopicEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
+import com.nextstep.app.data.local.entity.ReportLogEntity
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.RoadmapTemplateEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
@@ -71,8 +75,10 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
         RewardEntity::class,
         FamilyEventEntity::class,
         CheerEntity::class,
+        ReportLogEntity::class,
+        RoadmapTemplateEntity::class,
     ],
-    version = 22,
+    version = 23,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -98,6 +104,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun rewardDao(): RewardDao
     abstract fun familyEventDao(): FamilyEventDao
     abstract fun cheerDao(): CheerDao
+    abstract fun reportLogDao(): ReportLogDao
+    abstract fun roadmapTemplateDao(): RoadmapTemplateDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

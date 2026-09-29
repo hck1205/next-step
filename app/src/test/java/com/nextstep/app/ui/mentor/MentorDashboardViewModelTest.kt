@@ -7,8 +7,10 @@ import com.nextstep.app.domain.hub.Concern
 import com.nextstep.app.domain.stats.Submissions
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
+import com.nextstep.app.fake.FakeBulkTaskRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeMemberRepository
+import com.nextstep.app.fake.FakeReportLogRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
@@ -25,7 +27,8 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
     private val members = FakeMemberRepository(); private val tasks = FakeTaskRepository()
     private val today = DateUtils.today()
 
-    private fun vm() = MentorDashboardViewModel(streams, members, tasks)
+    private val logs = FakeReportLogRepository(streams); private val bulk = FakeBulkTaskRepository()
+    private fun vm() = MentorDashboardViewModel(streams, members, tasks, logs, bulk)
 
     @Test
     fun scopedToAssignedSubjectsAndFlagsSetupWhenNone() = runTest {
@@ -73,6 +76,24 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         assertTrue(report.title.contains("수학")); assertTrue(MentorTodayCard.REPORT in s.visibleCards)
         val notes = report.sections.first { it.label == "이번 주 살펴본 것" }.lines
         assertTrue(notes.any { it.startsWith("공부한 날이 줄었어요") }); assertTrue(report.sections.flatMap { it.lines }.none { it.contains("영어") })
+        job.cancel()
+    }
+
+    @Test
+    fun monthlyReportSendLogAndAssigningToOtherStudents() = runTest {
+        streams.subjects.value = listOf(Fixtures.math)
+        val me = Fixtures.member(Role.MENTOR, "김쌤", id = "me", subjectIds = "math")
+        streams.myMember.value = me
+        streams.profile.value = streams.profile.value.copy(children = listOf(com.nextstep.app.data.prefs.LinkedChild("fam", "지우", "A", "me"), com.nextstep.app.data.prefs.LinkedChild("famB", "하은", "B", "me2")))
+        streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 45))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertTrue(s.monthReport!!.title.contains("월간 수업 리포트")); assertEquals("${today.monthValue}월 공부", s.monthReport!!.sections[0].label)
+        vm.onEvent(MentorDashboardEvent.ReportSent(com.nextstep.app.domain.report.ReportKind.MONTH, s.monthReport!!.title))
+        assertEquals(listOf("MONTH"), settle(vm.state).reportLogs.map { it.kind })
+        vm.onEvent(MentorDashboardEvent.AssignTask("약분 20문제", "math", TaskType.HOMEWORK, today, alsoTo = listOf("famB")))
+        settle(vm.state)
+        assertEquals("약분 20문제", tasks.saved.single().title); assertEquals(listOf("bulk:약분 20문제:famB:수학"), bulk.calls)
         job.cancel()
     }
 

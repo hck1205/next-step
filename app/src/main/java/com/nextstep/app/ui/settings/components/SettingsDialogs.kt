@@ -43,6 +43,10 @@ internal fun SettingsDialogs(dialog: SettingsDialog?, state: SettingsUiState, ca
             onSearch = { onEvent(SettingsEvent.SearchSchool(it)) }, onPick = { onEvent(SettingsEvent.PickSchool(it)) },
             onSync = { onEvent(SettingsEvent.SyncSchool) }, onDismiss = onDismiss,
         )
+        SettingsDialog.Signature -> TextInputDialog(
+            title = "리포트 서명", label = "예: 김쌤 수학 · 010-0000-0000", initial = state.me?.signature.orEmpty(),
+            hint = "수업 리포트 끝에 붙어요", onConfirm = { onEvent(SettingsEvent.SetSignature(it)) }, onDismiss = onDismiss,
+        )
         SettingsDialog.Subjects ->
             SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = onDismiss) { onEvent(SettingsEvent.SetMySubjects(it)) }
     }

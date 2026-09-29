@@ -3,11 +3,13 @@ package com.nextstep.app.ui.roadmap
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeRoadmapRepository
+import com.nextstep.app.fake.FakeRoadmapTemplateRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -15,7 +17,8 @@ class RoadmapViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams()
     private val roadmap = FakeRoadmapRepository()
 
-    private fun vm() = RoadmapViewModel(streams, roadmap)
+    private val templates = FakeRoadmapTemplateRepository()
+    private fun vm() = RoadmapViewModel(streams, roadmap, templates)
 
     @Test
     fun stateSplitsActiveDoneAndBuildsSuggestions() = runTest {
@@ -47,6 +50,26 @@ class RoadmapViewModelTest : ViewModelTestBase() {
         assertEquals(existing.id, roadmap.saved[1].id); assertEquals("x2", roadmap.saved[1].title); assertNull(roadmap.saved[1].targetDate)
         assertEquals(listOf("r-x" to RoadmapStatus.IN_PROGRESS), roadmap.statuses); assertEquals(listOf("r-y"), roadmap.deleted)
         assertEquals("math", roadmap.saved[2].subjectId); assertEquals(LocalDate.now().plusDays(7).toEpochDay(), roadmap.saved[2].targetDate)
+        job.cancel()
+    }
+
+    @Test
+    fun saveATemplateAndApplyItFromToday() = runTest {
+        streams.subjects.value = listOf(Fixtures.math)
+        streams.roadmap.value = listOf(
+            Fixtures.roadmap("약분", "math", RoadmapStatus.DONE, java.time.LocalDate.of(2029, 3, 10)).copy(orderIndex = 0),
+            Fixtures.roadmap("통분", "math", RoadmapStatus.PLANNED, java.time.LocalDate.of(2029, 3, 17)).copy(orderIndex = 1),
+        )
+        val vm = RoadmapViewModel(streams, roadmap, templates, today = { java.time.LocalDate.of(2029, 9, 1) }); val job = subscribe(vm.state)
+        settle(vm.state)
+        vm.onEvent(RoadmapEvent.SaveTemplate("초5 수학"))
+        val t = settle(vm.state).templates.single()
+        assertEquals("수학", t.subjectName); assertEquals(2, t.count)
+        vm.onEvent(RoadmapEvent.ApplyTemplate(t)); settle(vm.state)
+        assertEquals(listOf("약분", "통분"), roadmap.saved.map { it.title })
+        assertEquals(listOf(java.time.LocalDate.of(2029, 9, 1).toEpochDay(), java.time.LocalDate.of(2029, 9, 8).toEpochDay()), roadmap.saved.map { it.targetDate })
+        assertEquals(listOf(2, 3), roadmap.saved.map { it.orderIndex }); assertEquals(setOf(RoadmapStatus.PLANNED), roadmap.saved.map { it.status }.toSet())
+        vm.onEvent(RoadmapEvent.DeleteTemplate(t.id)); assertTrue(settle(vm.state).templates.isEmpty())
         job.cancel()
     }
 }

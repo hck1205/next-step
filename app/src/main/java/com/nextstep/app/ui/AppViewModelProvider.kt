@@ -57,7 +57,7 @@ object AppViewModelProvider {
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
         initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans, cheers) } }
         initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers, game = familyStreams.gameInputs()) } }
-        initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks) } }
+        initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks, reportLogs, bulkTasks) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
         initializer { with(container()) { CalendarViewModel(streams, events, tasks) } }
@@ -69,7 +69,7 @@ object AppViewModelProvider {
         initializer { with(container()) { InsightsViewModel(streams, tasks) } }
         initializer { with(container()) { TimerViewModel(streams, sessions) } }
         initializer { with(container()) { SettingsViewModel(familyStreams, onboarding, members, noticeSettings, school) } }
-        initializer { with(container()) { RoadmapViewModel(streams, roadmap) } }
+        initializer { with(container()) { RoadmapViewModel(streams, roadmap, roadmapTemplates) } }
         initializer { with(container()) { ContentViewModel(streams, contents) } }
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
         initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }

@@ -2,6 +2,7 @@ package com.nextstep.app.ui.roadmap
 
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.RoadmapTemplateEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.RoadmapStatus
@@ -23,6 +24,8 @@ data class RoadmapUiState(
     /** 멘토가 로드맵을 짤 때 참고할 추천: 복습 밀린 단원, 다음 예습 단원. */
     val suggestions: List<Pair<SubjectEntity, String>> = emptyList(),
     private val contentById: Map<String, ContentEntity> = emptyMap(),
+    /** 멘토 기기의 로드맵 템플릿(여러 학생에게 복사). */
+    val templates: List<RoadmapTemplateEntity> = emptyList(),
 ) {
     fun contentOf(item: RoadmapItemEntity): ContentEntity? = item.contentId?.let { contentById[it] }
 

@@ -39,6 +39,8 @@ data class MemberEntity(
     /** 학생이 다니는 학교(NEIS 교육청코드:학교코드)와 이름. 학부모가 가족 탭에서 고르면 학사일정이 가족 달력에 들어옵니다. */
     val schoolCode: String = "",
     val schoolName: String = "",
+    /** 멘토가 수업 리포트 끝에 붙이는 서명(연락처·한 줄 소개). */
+    val signature: String = "",
     val joinedAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,

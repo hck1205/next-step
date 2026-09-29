@@ -13,8 +13,10 @@ import com.nextstep.app.data.local.dao.JourneyDao
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.dao.ObservationDao
 import com.nextstep.app.data.local.dao.ProjectLogDao
+import com.nextstep.app.data.local.dao.ReportLogDao
 import com.nextstep.app.data.local.dao.RewardDao
 import com.nextstep.app.data.local.dao.RoadmapDao
+import com.nextstep.app.data.local.dao.RoadmapTemplateDao
 import com.nextstep.app.data.local.dao.StudySessionDao
 import com.nextstep.app.data.local.dao.SubjectDao
 import com.nextstep.app.data.local.dao.TaskDao
@@ -33,8 +35,10 @@ import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
+import com.nextstep.app.data.local.entity.ReportLogEntity
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.RoadmapTemplateEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
@@ -42,6 +46,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.ContentScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
 class FakeSubjectDao : InMemoryTable<SubjectEntity>(), SubjectDao {
@@ -68,6 +73,17 @@ class FakeActivityDao : InMemoryTable<ActivityEntity>(), ActivityDao
 class FakeGrowthRecordDao : InMemoryTable<GrowthRecordEntity>(), GrowthRecordDao
 
 class FakeObservationDao : InMemoryTable<ObservationEntity>(), ObservationDao
+
+class FakeReportLogDao : InMemoryTable<ReportLogEntity>(), ReportLogDao
+
+class FakeRoadmapTemplateDao : RoadmapTemplateDao {
+    private val rows = MutableStateFlow<List<RoadmapTemplateEntity>>(emptyList())
+    val all: List<RoadmapTemplateEntity> get() = rows.value
+    override fun observeAll(): Flow<List<RoadmapTemplateEntity>> = rows
+    override suspend fun getById(id: String) = rows.value.firstOrNull { it.id == id }
+    override suspend fun upsert(item: RoadmapTemplateEntity) { rows.value = rows.value.filter { it.id != item.id } + item }
+    override suspend fun delete(id: String) { rows.value = rows.value.filter { it.id != id } }
+}
 
 class FakeCheerDao : InMemoryTable<CheerEntity>(), CheerDao {
     override suspend fun findMine(familyId: String, taskId: String, fromId: String) = all.filter { it.familyId == familyId && it.taskId == taskId && it.fromId == fromId && !it.deleted }

@@ -13,8 +13,10 @@ import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.PeerTopicEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
+import com.nextstep.app.data.local.entity.ReportLogEntity
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.RoadmapTemplateEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
@@ -28,6 +30,7 @@ import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.ActivityRepository
+import com.nextstep.app.data.repository.BulkTaskRepository
 import com.nextstep.app.data.repository.CheerRepository
 import com.nextstep.app.data.repository.ContentDraft
 import com.nextstep.app.data.repository.ContentRepository
@@ -40,8 +43,10 @@ import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.PeerCurriculumRepository
 import com.nextstep.app.data.repository.ProjectRepository
+import com.nextstep.app.data.repository.ReportLogRepository
 import com.nextstep.app.data.repository.RewardRepository
 import com.nextstep.app.data.repository.RoadmapRepository
+import com.nextstep.app.data.repository.RoadmapTemplateRepository
 import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.StudySessionRepository
 import com.nextstep.app.data.repository.TopicRepository
@@ -51,6 +56,9 @@ import com.nextstep.app.domain.cheer.CheerKind
 import com.nextstep.app.domain.content.ContentClassification
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.planner.StudyPlan
+import com.nextstep.app.domain.report.ReportKind
+import com.nextstep.app.domain.roadmap.RoadmapTemplates
+import com.nextstep.app.domain.roadmap.TemplateItem
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
@@ -143,6 +151,7 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?) { calls += "self:$memberId:${stage?.name}" }
     override suspend fun setGamify(memberId: String, enabled: Boolean) { calls += "gamify:$memberId:$enabled" }
     override suspend fun setSchool(memberId: String, schoolCode: String, schoolName: String) { calls += "school:$memberId:$schoolCode:$schoolName" }
+    override suspend fun setSignature(memberId: String, signature: String) { calls += "signature:$memberId:$signature" }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 
@@ -297,6 +306,29 @@ class FakeCheerRepository(streams: FakeFamilyDataStreams? = null) : CheerReposit
         cheers.value = others + listOfNotNull(kind?.let { CheerEntity(id = "c-${task.id}", familyId = "fam", taskId = task.id, taskTitle = task.title, kind = it.name, fromId = "me", fromName = fromName) })
     }
     override suspend fun markSeen(ids: List<String>) { cheers.value = cheers.value.map { if (it.id in ids) it.copy(seenAt = 1L) else it } }
+}
+
+class FakeReportLogRepository(streams: FakeFamilyDataStreams? = null) : ReportLogRepository {
+    override val logs: MutableStateFlow<List<ReportLogEntity>> = streams?.reportLogs ?: MutableStateFlow(emptyList())
+    override suspend fun record(kind: ReportKind, title: String, byName: String) {
+        logs.value = listOf(ReportLogEntity(familyId = "fam", kind = kind.name, title = title, sentById = "me", sentByName = byName)) + logs.value
+    }
+}
+
+class FakeRoadmapTemplateRepository : RoadmapTemplateRepository {
+    override val templates = MutableStateFlow<List<RoadmapTemplateEntity>>(emptyList())
+    override suspend fun save(name: String, subjectName: String, items: List<TemplateItem>) {
+        templates.value = templates.value + RoadmapTemplateEntity(id = "tpl-$name", name = name, subjectName = subjectName, items = RoadmapTemplates.encode(items), count = items.size)
+    }
+    override suspend fun delete(id: String) { templates.value = templates.value.filter { it.id != id } }
+}
+
+class FakeBulkTaskRepository : BulkTaskRepository {
+    val calls = mutableListOf<String>()
+    override suspend fun assign(task: TaskEntity, familyIds: List<String>, subjectName: String?): Int {
+        calls += "bulk:${task.title}:${familyIds.joinToString("|")}:$subjectName"
+        return familyIds.size
+    }
 }
 
 class FakePeerCurriculumRepository : PeerCurriculumRepository {

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.plan.Feature
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.SectionTitle
@@ -101,6 +102,9 @@ private fun SettingsRows(state: SettingsUiState, caps: Capabilities, onEvent: (S
         val mine = state.me?.subjectIdList.orEmpty()
         val names = state.subjects.filter { it.id in mine }.joinToString(", ") { it.name }.ifBlank { "전 과목" }
         SettingRow("담당 과목", names, onClick = { open(SettingsDialog.Subjects) })
+    }
+    if (caps.actsAsMentor && caps.has(Feature.REPORT_SIGNATURE)) {
+        SettingRow("리포트 서명", state.me?.signature?.ifBlank { null } ?: "수업 리포트 끝에 붙일 한 줄(연락처 등)", onClick = { open(SettingsDialog.Signature) })
     }
     if (caps.canToggleMentorMode) {
         SettingRow("멘토 역할 겸하기", "직접 가르친다면 켜요. 로드맵·과제·진도 관리가 열려요.") {

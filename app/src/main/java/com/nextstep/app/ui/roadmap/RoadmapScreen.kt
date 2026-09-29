@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -26,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.plan.Feature
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.components.card.EmptyCard
@@ -37,6 +39,7 @@ import com.nextstep.app.ui.roadmap.components.DoneToggleRow
 import com.nextstep.app.ui.roadmap.components.RoadmapEditDialog
 import com.nextstep.app.ui.roadmap.components.RoadmapRow
 import com.nextstep.app.ui.roadmap.components.RoadmapSummaryCard
+import com.nextstep.app.ui.roadmap.components.RoadmapTemplatesCard
 import com.nextstep.app.ui.roadmap.components.SuggestionChips
 
 /**
@@ -97,6 +100,7 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
                 item { DoneToggleRow(state.done.size, showDone, onToggle = { showDone = it }) }
                 if (showDone) items(state.done, key = { it.id }) { row(it) }
             }
+            if (caps.canEditRoadmap && caps.has(Feature.ROADMAP_TEMPLATES)) templateSection(state, onEvent)
         }
     }
 
@@ -104,5 +108,16 @@ internal fun RoadmapContent(state: RoadmapUiState, caps: Capabilities, actions: 
         RoadmapEditDialog(editing, state.subjects, state.contents, onDismiss = { showEdit = false }, onDelete = editing?.let { e -> { onEvent(RoadmapEvent.Delete(e.id)) } }) { subjectId, title, desc, res, date, contentId ->
             onEvent(RoadmapEvent.Save(editing, subjectId, title, desc, res, date, contentId))
         }
+    }
+}
+
+/** 로드맵 템플릿(멘토): 저장 · 불러오기 · 지우기. */
+private fun LazyListScope.templateSection(state: RoadmapUiState, onEvent: (RoadmapEvent) -> Unit) {
+    item { SectionTitle("템플릿") }
+    item {
+        RoadmapTemplatesCard(
+            state.templates, canSave = state.items.isNotEmpty(), onSave = { onEvent(RoadmapEvent.SaveTemplate(it)) },
+            onApply = { onEvent(RoadmapEvent.ApplyTemplate(it)) }, onDelete = { onEvent(RoadmapEvent.DeleteTemplate(it)) },
+        )
     }
 }

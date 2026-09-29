@@ -30,5 +30,7 @@ interface MemberRepository {
     suspend fun setGamify(memberId: String, enabled: Boolean)
     /** 학생이 다니는 학교(NEIS 코드 · 이름). 빈 값이면 지움. */
     suspend fun setSchool(memberId: String, schoolCode: String, schoolName: String)
+    /** 멘토의 수업 리포트 서명. */
+    suspend fun setSignature(memberId: String, signature: String)
     suspend fun remove(memberId: String)
 }

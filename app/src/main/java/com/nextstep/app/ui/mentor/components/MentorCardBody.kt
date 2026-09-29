@@ -32,7 +32,11 @@ internal fun MentorCardBody(
     val rows = if (compact) UiDefaults.MAX_ROWS else FULL_ROWS
     when (card) {
         MentorTodayCard.FEEDBACK -> FeedbackCard(state.feedback, compact = compact)
-        MentorTodayCard.REPORT -> state.report?.let { LessonReportCard(it, compact) }
+        MentorTodayCard.REPORT -> state.report?.let { week ->
+            LessonReportCard(week, state.monthReport, state.me?.signature.orEmpty(), state.reportLogs, state.entitlements, compact) { kind, title ->
+                onEvent(MentorDashboardEvent.ReportSent(kind, title))
+            }
+        }
         MentorTodayCard.STAGE -> StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null, onSetGrade = actions.onOpenJourney)
         MentorTodayCard.INSIGHTS -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.insights.take(if (compact) 1 else rows).forEach { InsightCard(it, state.allSubjects, onAction = null) }

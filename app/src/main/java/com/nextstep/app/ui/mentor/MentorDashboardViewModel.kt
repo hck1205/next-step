@@ -8,21 +8,29 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.data.repository.BulkTaskRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
+import com.nextstep.app.data.repository.ReportLogRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackEngine
 import com.nextstep.app.domain.feedback.FeedbackVoice
+import com.nextstep.app.domain.feedback.Finding
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.InsightEngine
 import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.mentor.MentorScope
+import com.nextstep.app.domain.period.PeriodKind
+import com.nextstep.app.domain.period.Periods
+import com.nextstep.app.domain.report.LessonReport
 import com.nextstep.app.domain.report.LessonReportInput
 import com.nextstep.app.domain.report.LessonReports
+import com.nextstep.app.domain.report.ReportKind
 import com.nextstep.app.domain.stats.RoadmapStats
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
@@ -39,6 +47,8 @@ class MentorDashboardViewModel(
     private val streams: FamilyDataStreams,
     private val members: MemberRepository,
     private val tasks: TaskRepository,
+    private val reportLogs: ReportLogRepository,
+    private val bulk: BulkTaskRepository,
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.myMember, streams.members, streams.subjects, streams.syncStatus) { profile, me, members, subjects, sync ->
@@ -60,7 +70,7 @@ class MentorDashboardViewModel(
 
     private val data = combine(streams.topics, streams.grades, streams.sessions, streams.tasks, streams.events) { t, g, s, ta, e -> Data(t, g, s, ta, e) }
 
-    val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.roadmap) { s, d, roadmap ->
+    val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.roadmap, streams.reportLogs) { s, d, roadmap, logs ->
         val scope = MentorScope(s.subjects)
         val grades = scope.own(d.grades) { it.subjectId }
         val sessions = scope.own(d.sessions) { it.subjectId }
@@ -79,18 +89,33 @@ class MentorDashboardViewModel(
             roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
             trends = TrendStats.family(sessions, scopedTasks, grades, s.subjects, DateUtils.today()),
             feedback = FeedbackVoice.lines(findings, FeedbackAudience.MENTOR),
-            // 리포트는 학부모가 읽으므로 같은 사실(멘토 범위)을 학부모의 말로
-            report = s.subjects.takeIf { it.isNotEmpty() }?.let { subjects ->
-                LessonReports.of(
-                    LessonReportInput(
-                        s.studentName, s.me?.name.orEmpty(), subjects, today, weekly.sumOf { it.minutes }, progress,
-                        AssignmentStats.report(scopedTasks, subjects, today),
-                        FeedbackEngine.forAudience(findings, FeedbackAudience.MENTOR).map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
-                    ),
-                )
-            },
+            report = lessonReport(s, ReportKind.WEEK, weekly.sumOf { it.minutes }, progress, scopedTasks, findings, today),
+            monthReport = monthReport(s, sessions, progress, scopedTasks, findings, today),
+            reportLogs = logs.filter { it.sentById == s.me?.id }.take(UiDefaults.MAX_ROWS), // 멘토 화면은 원본 스트림이라 여기서 내 것만
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
+
+    /** 수업 리포트(학부모가 읽으므로 같은 사실 — 멘토 범위 — 을 학부모의 말로). 담당 과목이 없으면 null. */
+    private fun lessonReport(
+        s: MentorDashboardUiState, kind: ReportKind, minutes: Int, progress: List<SubjectProgress>, tasks: List<TaskEntity>, findings: List<Finding>, today: LocalDate,
+    ): LessonReport? = s.subjects.takeIf { it.isNotEmpty() }?.let { subjects ->
+        LessonReports.of(
+            LessonReportInput(
+                s.studentName, s.me?.name.orEmpty(), subjects, today, minutes, progress, AssignmentStats.report(tasks, subjects, today),
+                FeedbackEngine.forAudience(findings, FeedbackAudience.MENTOR).map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
+                kind, if (kind == ReportKind.MONTH) "${today.monthValue}월" else "이번 주",
+            ),
+        )
+    }
+
+    /** 이번 달 수업 리포트: 이번 달 공부 시간과 이번 달 마감인 과제로. */
+    private fun monthReport(
+        s: MentorDashboardUiState, sessions: List<StudySessionEntity>, progress: List<SubjectProgress>, tasks: List<TaskEntity>, findings: List<Finding>, today: LocalDate,
+    ): LessonReport? {
+        val month = Periods.current(PeriodKind.MONTH, today)
+        val minutes = sessions.filter { DateUtils.toLocalDate(it.startAt) in month }.sumOf { it.durationMinutes }
+        return lessonReport(s, ReportKind.MONTH, minutes, progress, tasks.filter { DateUtils.fromEpochDay(it.dueDate) in month }, findings, today)
+    }
 
     fun setSubjects(ids: List<String>) {
         viewModelScope.launch {
@@ -99,9 +124,12 @@ class MentorDashboardViewModel(
         }
     }
 
-    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate) {
+    /** 과제 내기. [alsoTo] 가 있으면 맡은 다른 학생들(가족 id)에게도 같은 과제를(과목은 이름으로 맞춤). */
+    fun assignTask(title: String, subjectId: String?, type: TaskType, due: LocalDate, alsoTo: List<String> = emptyList()) {
         viewModelScope.launch {
-            tasks.save(TaskDrafts.written(title, subjectId, type, due, streams.actingRoleName()))
+            val draft = TaskDrafts.written(title, subjectId, type, due, streams.actingRoleName())
+            tasks.save(draft)
+            if (alsoTo.isNotEmpty()) bulk.assign(draft, alsoTo, state.value.allSubjects.firstOrNull { it.id == subjectId }?.name)
         }
     }
 
@@ -119,7 +147,8 @@ class MentorDashboardViewModel(
     fun onEvent(event: MentorDashboardEvent) {
         when (event) {
             is MentorDashboardEvent.SetSubjects -> setSubjects(event.ids)
-            is MentorDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due)
+            is MentorDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due, event.alsoTo)
+            is MentorDashboardEvent.ReportSent -> viewModelScope.launch { reportLogs.record(event.kind, event.title, state.value.me?.name.orEmpty()) }
             is MentorDashboardEvent.DeleteTask -> deleteTask(event.id)
         }
     }
