@@ -21,6 +21,10 @@ sealed interface SettingsEvent {
     data class SetGamify(val enabled: Boolean) : SettingsEvent
     /** 이 기기의 하루 알림(아침 · 일요일 저녁) 켜고 끄기. */
     data class SetNotices(val enabled: Boolean) : SettingsEvent
+    /** 학교: 이름으로 찾기 · 고르기(고르면 바로 학사일정 받기) · 다시 받기. */
+    data class SearchSchool(val name: String) : SettingsEvent
+    data class PickSchool(val school: com.nextstep.app.domain.school.School) : SettingsEvent
+    data object SyncSchool : SettingsEvent
     /** 다자녀 */
     data class SwitchChild(val familyId: String) : SettingsEvent
     data class AddChild(val name: String, val birthDate: java.time.LocalDate?) : SettingsEvent

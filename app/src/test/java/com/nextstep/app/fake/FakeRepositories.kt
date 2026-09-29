@@ -142,6 +142,7 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun markUiLevelSeen(memberId: String, level: StudentUiLevel) { calls += "seen:$memberId:${level.name}" }
     override suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?) { calls += "self:$memberId:${stage?.name}" }
     override suspend fun setGamify(memberId: String, enabled: Boolean) { calls += "gamify:$memberId:$enabled" }
+    override suspend fun setSchool(memberId: String, schoolCode: String, schoolName: String) { calls += "school:$memberId:$schoolCode:$schoolName" }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 
@@ -282,6 +283,11 @@ class FakeFamilyEventRepository(streams: FakeFamilyDataStreams? = null) : Family
         events.value = events.value.filter { it.id != e.id } + e
     }
     override suspend fun delete(id: String) { events.value = events.value.filter { it.id != id } }
+    override suspend fun addMissing(events: List<FamilyEventEntity>): Int {
+        val fresh = events.filter { e -> this.events.value.none { it.id == e.id } }
+        this.events.value = this.events.value + fresh.map { it.copy(familyId = "fam") }
+        return fresh.size
+    }
 }
 
 class FakeCheerRepository(streams: FakeFamilyDataStreams? = null) : CheerRepository {

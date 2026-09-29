@@ -64,7 +64,7 @@ object AppViewModelProvider {
         initializer { with(container()) { GradesViewModel(streams, grades) } }
         initializer { with(container()) { InsightsViewModel(streams, tasks) } }
         initializer { with(container()) { TimerViewModel(streams, sessions) } }
-        initializer { with(container()) { SettingsViewModel(familyStreams, onboarding, members, noticeSettings) } }
+        initializer { with(container()) { SettingsViewModel(familyStreams, onboarding, members, noticeSettings, school) } }
         initializer { with(container()) { RoadmapViewModel(streams, roadmap) } }
         initializer { with(container()) { ContentViewModel(streams, contents) } }
         initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }

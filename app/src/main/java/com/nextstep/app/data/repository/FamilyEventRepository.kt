@@ -11,4 +11,6 @@ interface FamilyEventRepository {
     suspend fun save(event: FamilyEventEntity)
     /** 지웁니다(소프트 삭제, 반복 일정이면 전체). */
     suspend fun delete(id: String)
+    /** 밖에서 받아 온 일정(학교 학사일정)을 넣되 같은 id 가 이미 있으면(고쳤거나 지웠어도) 건너뜁니다. 새로 넣은 수. */
+    suspend fun addMissing(events: List<FamilyEventEntity>): Int
 }

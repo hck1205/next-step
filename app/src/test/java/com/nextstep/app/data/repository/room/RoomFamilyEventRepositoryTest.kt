@@ -33,4 +33,14 @@ class RoomFamilyEventRepositoryTest {
         assertTrue(dao.getById(e.id)!!.deleted); assertTrue(repo.events.first().isEmpty())
         assertTrue(sync.pushRequests >= 3)
     }
+
+    @Test
+    fun addMissingSkipsIdsAlreadyThereEvenIfEditedOrDeleted() = runTest {
+        val a = Fixtures.familyEvent("여름방학", day, id = "neis-a").copy(familyId = ""); val b = Fixtures.familyEvent("중간고사", day.plusDays(9), id = "neis-b").copy(familyId = "")
+        assertEquals(2, repo.addMissing(listOf(a, b)))
+        assertEquals(Fixtures.FAMILY, dao.getById("neis-a")!!.familyId)
+        repo.save(dao.getById("neis-a")!!.copy(title = "여름방학 (할머니 댁)")); repo.delete("neis-b")
+        assertEquals(0, repo.addMissing(listOf(a, b))) // 고친 것·지운 것은 다시 덮지 않음
+        assertEquals("여름방학 (할머니 댁)", dao.getById("neis-a")!!.title); assertTrue(dao.getById("neis-b")!!.deleted)
+    }
 }

@@ -29,6 +29,9 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Build debug APK and run unit tests
+        # 저장소 비밀값 NEIS_API_KEY 가 있으면 APK 에서 학교 학사일정 받기가 켜집니다(없으면 꺼진 채로 빌드).
+        env:
+          NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
         run: ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest
 
       - name: Upload debug APK

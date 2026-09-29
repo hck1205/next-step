@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.nextstep.app.BuildConfig
 import com.nextstep.app.data.local.AppDatabase
 import com.nextstep.app.data.notice.DataStoreNoticeSettings
 import com.nextstep.app.data.notice.NoticeSettings
@@ -60,6 +61,9 @@ import com.nextstep.app.data.repository.room.RoomSubjectRepository
 import com.nextstep.app.data.repository.room.RoomTaskRepository
 import com.nextstep.app.data.repository.room.RoomTopicRepository
 import com.nextstep.app.data.repository.room.RoomWeekPlanRepository
+import com.nextstep.app.data.school.HttpNeisApi
+import com.nextstep.app.data.school.NeisSchoolService
+import com.nextstep.app.data.school.SchoolService
 import com.nextstep.app.data.sync.FirestoreSyncManager
 import com.nextstep.app.data.sync.NoOpSyncManager
 import com.nextstep.app.data.sync.SyncManager
@@ -103,6 +107,7 @@ class AppContainer(context: Context) {
     /** 화면이 보는 가족 기록: 멘토는 담당 과목만(MentorScopedStreams), 교육 프로젝트는 만든 사람과 학생만(ProjectScopedStreams). */
     val streams: FamilyDataStreams = ProjectScopedStreams(MentorScopedStreams(familyStreams))
     val noticeSettings: NoticeSettings = DataStoreNoticeSettings(context)
+    val school: SchoolService = NeisSchoolService(HttpNeisApi(BuildConfig.NEIS_API_KEY), familyStreams.members, familyEvents)
 
     private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
         if (FirebaseApp.getApps(context).isEmpty()) {

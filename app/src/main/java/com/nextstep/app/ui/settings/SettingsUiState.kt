@@ -30,6 +30,9 @@ data class SettingsUiState(
     val yearLabel: String? = null,
     /** 이 기기의 하루 알림이 켜져 있는지. */
     val noticesOn: Boolean = true,
+    /** 학교 학사일정 받기를 쓸 수 있는지(NEIS 인증키가 있는지)와 "학교" 창의 찾기 상태. */
+    val schoolAvailable: Boolean = false,
+    val schoolSearch: SchoolSearchState = SchoolSearchState(),
 ) {
     val children: List<LinkedChild> get() = profile?.children.orEmpty()
     /** 아이 나이에 맞춘 게임 모양(학부모가 고른 화면 단계가 있으면 그 단계). 성장 기록 모양이면 학생도 스스로 끌 수 있습니다. */

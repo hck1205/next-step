@@ -6,6 +6,7 @@ import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeMemberRepository
 import com.nextstep.app.fake.FakeNoticeSettings
 import com.nextstep.app.fake.FakeOnboardingRepository
+import com.nextstep.app.fake.FakeSchoolService
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
@@ -19,8 +20,9 @@ class SettingsViewModelTest : ViewModelTestBase() {
     private val onboarding = FakeOnboardingRepository(syncAvailable = true)
     private val members = FakeMemberRepository()
     private val notices = FakeNoticeSettings()
+    private val school = FakeSchoolService()
 
-    private fun vm() = SettingsViewModel(streams, onboarding, members, notices)
+    private fun vm() = SettingsViewModel(streams, onboarding, members, notices, school)
 
     @Test
     fun stateCombinesProfileMembersAndSync() = runTest {
@@ -38,6 +40,25 @@ class SettingsViewModelTest : ViewModelTestBase() {
         assertTrue(settle(vm.state).noticesOn)
         vm.onEvent(SettingsEvent.SetNotices(false))
         assertFalse(settle(vm.state).noticesOn); assertFalse(notices.enabled.value)
+        job.cancel()
+    }
+
+    @Test
+    fun pickingASchoolSavesItOnTheStudentAndFetchesTheSchedule() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 5))
+        school.found = listOf(com.nextstep.app.domain.school.School("B10", "7010057", "서울대치초등학교", "초등학교"))
+        school.synced = Result.success(12)
+        val vm = vm(); val job = subscribe(vm.state)
+        assertTrue(settle(vm.state).schoolAvailable)
+        vm.onEvent(SettingsEvent.SearchSchool("대치초"))
+        assertEquals(listOf("서울대치초등학교"), settle(vm.state).schoolSearch.results.map { it.name })
+        vm.onEvent(SettingsEvent.PickSchool(school.found.single()))
+        val s = settle(vm.state)
+        assertEquals(listOf("school:kid:B10:7010057:서울대치초등학교"), members.calls); assertEquals(listOf("search:대치초", "sync"), school.calls)
+        assertEquals("학교 일정 12개를 가족 달력에 넣었어요", s.schoolSearch.message)
+        school.synced = Result.failure(IllegalStateException())
+        vm.onEvent(SettingsEvent.SyncSchool)
+        assertEquals("학교 일정을 받지 못했어요. 잠시 뒤 다시 받아 주세요.", settle(vm.state).schoolSearch.message)
         job.cancel()
     }
 

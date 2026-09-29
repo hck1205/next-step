@@ -113,6 +113,15 @@ private fun SettingsRows(state: SettingsUiState, caps: Capabilities, onEvent: (S
             Switch(checked = state.student?.gamify ?: true, onCheckedChange = { onEvent(SettingsEvent.SetGamify(it)) }, enabled = state.student != null)
         }
     }
+    if (caps.isFamily) {
+        val school = state.student?.schoolName.orEmpty()
+        val value = when {
+            !state.schoolAvailable -> "학교 학사일정 받기가 아직 꺼져 있어요"
+            school.isNotBlank() -> "$school · 학사일정이 가족 달력에 들어와요"
+            else -> "고르면 방학·시험·행사가 가족 달력에 들어와요"
+        }
+        SettingRow("학교", value, onClick = if (caps.canEditStudentYear && state.schoolAvailable && state.student != null) ({ open(SettingsDialog.School) }) else null)
+    }
     SettingRow("알림", if (caps.isFamily) "아침에 오늘 챙길 것, 일요일 저녁에 주말 이야기를 한 번씩" else "아침에 오늘 챙길 것을 한 번") {
         Switch(checked = state.noticesOn, onCheckedChange = { onEvent(SettingsEvent.SetNotices(it)) })
     }

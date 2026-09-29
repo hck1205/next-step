@@ -34,6 +34,14 @@ class RoomFamilyEventRepository(
         pushLater()
     }
 
+    override suspend fun addMissing(events: List<FamilyEventEntity>): Int {
+        val now = now()
+        val fresh = events.filter { dao.getById(it.id) == null }
+        fresh.forEach { dao.upsert(it.copy(familyId = familyIdOr(it.familyId), createdAt = now, updatedAt = now, dirty = true)) }
+        if (fresh.isNotEmpty()) pushLater()
+        return fresh.size
+    }
+
     override suspend fun delete(id: String) {
         val e = dao.getById(id) ?: return
         dao.upsert(e.copy(deleted = true, updatedAt = now(), dirty = true))

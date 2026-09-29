@@ -38,6 +38,11 @@ internal fun SettingsDialogs(dialog: SettingsDialog?, state: SettingsUiState, ca
         SettingsDialog.PairingCode -> DetailSheet("연결 코드", onDismiss = onDismiss) {
             PairingCodeCard(code = state.profile?.pairingCode, isStudent = caps.isStudent, syncStatus = state.syncStatus, syncAvailable = state.syncAvailable, onRequestSync = { onEvent(SettingsEvent.RequestSync) })
         }
+        SettingsDialog.School -> SchoolSheet(
+            current = state.student?.schoolName.orEmpty(), search = state.schoolSearch,
+            onSearch = { onEvent(SettingsEvent.SearchSchool(it)) }, onPick = { onEvent(SettingsEvent.PickSchool(it)) },
+            onSync = { onEvent(SettingsEvent.SyncSchool) }, onDismiss = onDismiss,
+        )
         SettingsDialog.Subjects ->
             SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = onDismiss) { onEvent(SettingsEvent.SetMySubjects(it)) }
     }

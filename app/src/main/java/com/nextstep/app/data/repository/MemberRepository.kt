@@ -28,5 +28,7 @@ interface MemberRepository {
     suspend fun setSelfDirection(memberId: String, stage: SelfDirectionStage?)
     /** 게임 요소를 켜거나 끕니다(학생 행). */
     suspend fun setGamify(memberId: String, enabled: Boolean)
+    /** 학생이 다니는 학교(NEIS 코드 · 이름). 빈 값이면 지움. */
+    suspend fun setSchool(memberId: String, schoolCode: String, schoolName: String)
     suspend fun remove(memberId: String)
 }
