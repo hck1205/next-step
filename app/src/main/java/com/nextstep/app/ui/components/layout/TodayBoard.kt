@@ -35,7 +35,7 @@ fun <T> LazyListScope.todayBoard(
     if (filter != null) {
         item(key = "back") { TitleBackRow(filter.label, filter.question, backLabel = "오늘", onBack = { onFilter(null) }) }
         TodayLayout.cardsOf(groups, filter).forEach { card ->
-            item(key = "only-${key(card)}") { TodayCardFrame(title(card), onExpand = null) { body(card, false) } }
+            item(key = "only-${key(card)}") { TodayCardFrame(title(card)) { body(card, false) } }
         }
         return
     }
@@ -45,7 +45,7 @@ fun <T> LazyListScope.todayBoard(
     val concernOf = { card: T -> groups.first { card in it.cards }.concern }
     if (focus != null) item(key = "focus-${key(focus)}") {
         Column {
-            GroupHeader(concernOf(focus), 1, onSeeAll = null, subtitle = title(focus).ifBlank { null }, onExpand = { onExpand(focus) }, label = "먼저 볼 것")
+            FocusHeader(concernOf(focus), subtitle = title(focus).ifBlank { null }, onExpand = { onExpand(focus) })
             body(focus, true)
         }
     }

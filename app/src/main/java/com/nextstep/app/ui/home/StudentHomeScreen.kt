@@ -79,7 +79,7 @@ internal fun HomeContent(state: HomeUiState, actions: HomeActions, onEvent: (Hom
                 // 아이 화면: 접지 않고 큰 카드 한 줄로.
                 item(key = "today-lead") { lead() }
                 state.visibleSections.filter { it != StudentHomeSection.TIMER }.forEach { section ->
-                    item(key = "one-${section.name}") { TodayCardFrame(homeSectionTitle(section, state), onExpand = null) { body(section, false) } }
+                    item(key = "one-${section.name}") { TodayCardFrame(homeSectionTitle(section, state)) { body(section, false) } }
                 }
             } else {
                 // 머리 카드 → "먼저 볼 것"(오늘 할 일) → "더 보기"(관심사마다 한 줄, 올해 프로필 순서). 펼치기는 자세히 시트로.

@@ -20,10 +20,9 @@ import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.journey.MilestoneCategory
-import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
+import com.nextstep.app.ui.common.saveStepAsTask
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -118,14 +117,11 @@ class JourneyViewModel(
 
     fun setStepStatus(step: GoalStepEntity, status: MilestoneStatus) { viewModelScope.launch { goals.setStepStatus(step.id, status) } }
 
-    /** 단계를 할 일로 보냅니다. 이미 보냈으면 다시 만들지 않습니다. 마감·종류 규칙은 TaskDrafts.forGoalStep 참고. */
+    /** 단계를 할 일로 보냅니다(saveStepAsTask: 이미 보냈으면 다시 만들지 않음). */
     fun sendStepToTasks(step: GoalStepEntity) {
         viewModelScope.launch {
-            if (step.taskId != null) return@launch
             val s = state.value
-            val task = TaskDrafts.forGoalStep(step, s.goals.firstOrNull { it.id == step.goalId }, s.periods.firstOrNull { it.key == step.periodKey }, s.today, streams.actingRoleName())
-            tasks.save(task)
-            goals.setStepTask(step.id, task.id)
+            streams.saveStepAsTask(step, s.goals.firstOrNull { it.id == step.goalId }, s.periods, s.today, tasks, goals)
         }
     }
 
