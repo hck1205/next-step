@@ -20,6 +20,7 @@ import com.nextstep.app.ui.goals.GoalsViewModel
 import com.nextstep.app.ui.goaltree.GoalTreeViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
 import com.nextstep.app.ui.growth.GrowthViewModel
+import com.nextstep.app.ui.growthalbum.GrowthAlbumViewModel
 import com.nextstep.app.ui.habits.HabitsViewModel
 import com.nextstep.app.ui.home.HomeViewModel
 import com.nextstep.app.ui.insights.InsightsViewModel
@@ -31,6 +32,7 @@ import com.nextstep.app.ui.navigation.RootViewModel
 import com.nextstep.app.ui.onboarding.OnboardingViewModel
 import com.nextstep.app.ui.overview.OverviewViewModel
 import com.nextstep.app.ui.parent.ParentDashboardViewModel
+import com.nextstep.app.ui.periodreport.PeriodReportViewModel
 import com.nextstep.app.ui.planhistory.PlanHistoryViewModel
 import com.nextstep.app.ui.progress.ProgressViewModel
 import com.nextstep.app.ui.progress.SubjectDetailViewModel
@@ -61,6 +63,8 @@ object AppViewModelProvider {
         initializer { with(container()) { CalendarViewModel(streams, events, tasks) } }
         initializer { with(container()) { FamilyCalendarViewModel(streams, familyEvents) } }
         initializer { with(container()) { FamilyTalkViewModel(streams, weekPlans) } }
+        initializer { with(container()) { PeriodReportViewModel(streams) } }
+        initializer { with(container()) { GrowthAlbumViewModel(streams) } }
         initializer { with(container()) { GradesViewModel(streams, grades) } }
         initializer { with(container()) { InsightsViewModel(streams, tasks) } }
         initializer { with(container()) { TimerViewModel(streams, sessions) } }

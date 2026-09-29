@@ -17,6 +17,7 @@ enum class ConcernSection(
     val audiences: Set<HubAudience> = ALL,
 ) {
     OVERVIEW(Concern.OVERVIEW, "한눈에", "overview", StudentUiLevel.SEED),
+    PERIOD_REPORT(Concern.OVERVIEW, "월간·학기 리포트", "period-report", StudentUiLevel.SEED, audiences = PARENTS),
     SELF(Concern.STUDY, "스스로 하는 힘", "self", StudentUiLevel.SEEDLING, audiences = FAMILY),
     PROGRESS(Concern.STUDY, "진도", "progress", StudentUiLevel.SEEDLING),
     TIME(Concern.STUDY, "공부 시간", "time", StudentUiLevel.SPROUT),
@@ -37,6 +38,7 @@ enum class ConcernSection(
     REWARDS(Concern.PLAN, "보상·배지", "rewards", StudentUiLevel.SEED, audiences = FAMILY),
     FAMILY_CALENDAR(Concern.FAMILY, "가족 달력", "family-calendar", StudentUiLevel.SEED, audiences = FAMILY),
     FAMILY_TALK(Concern.FAMILY, "주말 이야기", "family-talk", StudentUiLevel.SEED, audiences = FAMILY),
+    GROWTH_ALBUM(Concern.FAMILY, "성장 앨범", "growth-album", StudentUiLevel.SEED, audiences = FAMILY),
     BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = FAMILY),
     ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED, audiences = FAMILY),
     TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING, audiences = FAMILY);
@@ -62,6 +64,9 @@ enum class ConcernSection(
 }
 
 private val ALL: Set<HubAudience> = HubAudience.entries.toSet()
+
+/** 학부모만 보는 자리(월간·학기 리포트). */
+private val PARENTS: Set<HubAudience> = setOf(HubAudience.PARENT)
 
 /** 가족의 일을 보는 자리(멘토 제외). */
 private val FAMILY: Set<HubAudience> = setOf(HubAudience.PARENT, HubAudience.STUDENT)
