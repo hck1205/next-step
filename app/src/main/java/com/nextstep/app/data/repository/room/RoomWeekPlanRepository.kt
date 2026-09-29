@@ -67,6 +67,18 @@ class RoomWeekPlanRepository(
         pushLater()
     }
 
+    override suspend fun saveTalk(weekStart: LocalDate, proud: String, wish: String, treat: String) {
+        val week = DateUtils.weekStart(weekStart)
+        val base = dao.findByWeek(familyIdOr(""), week.toEpochDay()) ?: WeekPlanEntity(familyId = familyIdOr(""), weekStart = week.toEpochDay())
+        dao.upsert(
+            base.copy(
+                proud = proud.trim(), wish = wish.trim(), treat = treat.trim(),
+                talkByRole = scope.currentProfile().role?.name ?: "", talkAt = now(), updatedAt = now(), dirty = true,
+            ),
+        )
+        pushLater()
+    }
+
     private companion object {
         const val MAX_MINUTES = 3000
         const val MAX_MOOD = 3

@@ -52,4 +52,13 @@ class RoomWeekPlanRepositoryTest {
         assertEquals(3, row.mood); assertEquals("매일 읽었다", row.good); assertEquals("아침에 하기", row.change)
         assertEquals("STUDENT", row.reflectedByRole); assertTrue(row.isReflected); assertFalse(row.hasPlan)
     }
+
+    @Test
+    fun weekendTalkKeepsThePlanAndTrims() = runTest {
+        repo.savePlan(wednesday, listOf("영어 책"), 60)
+        repo.saveTalk(wednesday.plusDays(4), " 줄넘기 100개 ", "자전거 타기", "")
+        val row = dao.all.single()
+        assertEquals("줄넘기 100개", row.proud); assertEquals("자전거 타기", row.wish); assertEquals("", row.treat)
+        assertEquals(7L, row.talkAt); assertEquals("STUDENT", row.talkByRole); assertEquals(listOf("영어 책"), row.goalList)
+    }
 }

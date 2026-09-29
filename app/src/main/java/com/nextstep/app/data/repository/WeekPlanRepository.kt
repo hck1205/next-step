@@ -16,4 +16,6 @@ interface WeekPlanRepository {
     suspend fun approve(planId: String)
     /** 그 주 돌아보기. 계획이 없던 주도 돌아볼 수 있습니다. 기분은 1~3. */
     suspend fun reflect(weekStart: LocalDate, mood: Int, good: String, hard: String, change: String)
+    /** 그 주의 주말 이야기(자랑 · 해 보고 싶은 것 · 가족 즐거움). 모두 비어 있어도 이야기를 나눈 것으로 남깁니다. */
+    suspend fun saveTalk(weekStart: LocalDate, proud: String, wish: String, treat: String)
 }

@@ -14,6 +14,7 @@ import com.nextstep.app.ui.components.card.AssignerCard
 import com.nextstep.app.ui.components.card.CheerGiveCard
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.FamilyAheadCard
+import com.nextstep.app.ui.components.card.FamilyTalkCard
 import com.nextstep.app.ui.components.card.FeedbackCard
 import com.nextstep.app.ui.components.card.GoalFocusCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
@@ -39,6 +40,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
     when (card) {
         ParentTodayCard.JOURNEY -> JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney)
         ParentTodayCard.KPIS -> ParentKpis(state.trends)
+        ParentTodayCard.TALK -> FamilyTalkCard(state.talk, onOpen = { actions.onOpenRecords(ConcernSection.FAMILY_TALK) })
         ParentTodayCard.FAMILY -> FamilyAheadCard(state.familyAhead, state.familyMembers, state.today, compact, onOpen = { actions.onOpenRecords(ConcernSection.FAMILY_CALENDAR) })
         ParentTodayCard.FEEDBACK -> FeedbackCard(state.feedback, echo = state.feedbackEcho, echoName = state.studentName.ifBlank { "아이" }, compact = compact)
         ParentTodayCard.CHEER -> CheerGiveCard(state.cheerTargets, compact, onCheer = { target, kind -> onEvent(ParentDashboardEvent.Cheer(target, kind)) })
@@ -82,7 +84,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
 /** 카드 틀의 제목. 스스로 머리를 가진 카드(약속한 보상·이번 주 계획·다가오는 시험)는 빈 문자열. */
 internal fun parentCardTitle(card: ParentTodayCard, state: ParentDashboardUiState): String = when (card) {
     ParentTodayCard.TODAY -> "오늘의 ${state.studentName.ifBlank { "아이" }}"
-    ParentTodayCard.REWARDS, ParentTodayCard.WEEK, ParentTodayCard.EXAM -> ""
+    ParentTodayCard.REWARDS, ParentTodayCard.WEEK, ParentTodayCard.EXAM, ParentTodayCard.TALK -> ""
     ParentTodayCard.JOURNEY, ParentTodayCard.KPIS, ParentTodayCard.FEEDBACK, ParentTodayCard.FAMILY, ParentTodayCard.CHEER, ParentTodayCard.GOALS, ParentTodayCard.ROUTINE, ParentTodayCard.MISSIONS,
     ParentTodayCard.WEEK_RATES, ParentTodayCard.ASSIGNERS, ParentTodayCard.HEAT, ParentTodayCard.DAYS, ParentTodayCard.SUBJECT_TIME, ParentTodayCard.SCORES,
     -> card.title

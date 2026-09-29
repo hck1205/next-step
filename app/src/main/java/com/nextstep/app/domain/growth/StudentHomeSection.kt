@@ -23,6 +23,8 @@ enum class StudentHomeSection(val label: String, val concern: Concern, val short
     WEEK("이번 주 별", Concern.STUDY),
     YEAR("올해의 공부", Concern.LEARN),
     EVENTS("오늘 일정", Concern.STUDY),
+    /** 주말 이야기: 금~일 초대, 나눈 뒤에는 이번 주 기대되는 것. 씨앗부터. */
+    TALK("주말 이야기", Concern.FAMILY),
     /** 가족 일정(가족 달력): 오늘 것과 미리 보기에 든 다가오는 것. */
     FAMILY("가족 일정", Concern.FAMILY),
     REVIEW("다시 보기", Concern.LEARN),

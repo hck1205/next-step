@@ -72,7 +72,7 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
         FamilyEventEntity::class,
         CheerEntity::class,
     ],
-    version = 20,
+    version = 21,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)

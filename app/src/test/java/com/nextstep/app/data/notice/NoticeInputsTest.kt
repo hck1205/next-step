@@ -23,7 +23,9 @@ class NoticeInputsTest {
         val input = NoticeInputs.of(streams, today)
         assertTrue(input.family); assertFalse(input.isStudent)
         assertEquals(listOf("외식"), input.familyAhead.map { it.event.title }); assertEquals(listOf("캠핑"), input.nextWeek.map { it.event.title })
-        assertEquals(1, input.dueToday); assertEquals(1, input.overdue)
+        assertEquals(1, input.dueToday); assertEquals(1, input.overdue); assertFalse(input.talkDone)
+        streams.weekPlans.value = listOf(com.nextstep.app.data.local.entity.WeekPlanEntity(familyId = "fam", weekStart = com.nextstep.app.domain.familytalk.FamilyTalk.talkWeek(today).toEpochDay(), talkAt = 1L))
+        assertTrue(NoticeInputs.of(streams, today).talkDone)
         // 멘토: 가족이 아니고 가족 일정도 넘어오지 않음
         val mentor = NoticeInputs.of(MentorScopedStreams(FakeFamilyDataStreams(role = Role.MENTOR).apply { familyEvents.value = streams.familyEvents.value }), today)
         assertFalse(mentor.family); assertTrue(mentor.familyAhead.isEmpty())

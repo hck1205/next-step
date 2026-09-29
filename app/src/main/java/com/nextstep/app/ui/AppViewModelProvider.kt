@@ -14,6 +14,7 @@ import com.nextstep.app.ui.common.gameInputs
 import com.nextstep.app.ui.content.ContentViewModel
 import com.nextstep.app.ui.curriculum.CurriculumViewModel
 import com.nextstep.app.ui.familycalendar.FamilyCalendarViewModel
+import com.nextstep.app.ui.familytalk.FamilyTalkViewModel
 import com.nextstep.app.ui.goal.GoalViewModel
 import com.nextstep.app.ui.goals.GoalsViewModel
 import com.nextstep.app.ui.goaltree.GoalTreeViewModel
@@ -59,6 +60,7 @@ object AppViewModelProvider {
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
         initializer { with(container()) { CalendarViewModel(streams, events, tasks) } }
         initializer { with(container()) { FamilyCalendarViewModel(streams, familyEvents) } }
+        initializer { with(container()) { FamilyTalkViewModel(streams, weekPlans) } }
         initializer { with(container()) { GradesViewModel(streams, grades) } }
         initializer { with(container()) { InsightsViewModel(streams, tasks) } }
         initializer { with(container()) { TimerViewModel(streams, sessions) } }

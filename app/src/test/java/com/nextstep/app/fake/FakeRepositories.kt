@@ -249,6 +249,11 @@ class FakeWeekPlanRepository(streams: FakeFamilyDataStreams? = null, var role: S
         val base = find(weekStart) ?: WeekPlanEntity(familyId = "fam", weekStart = weekStart.toEpochDay())
         upsert(base.copy(mood = mood, good = good, hard = hard, change = change, reflectedByRole = role, reflectedAt = 1L))
     }
+    override suspend fun saveTalk(weekStart: LocalDate, proud: String, wish: String, treat: String) {
+        calls += "talk:$weekStart:$proud:$wish:$treat"
+        val base = find(weekStart) ?: WeekPlanEntity(familyId = "fam", weekStart = weekStart.toEpochDay())
+        upsert(base.copy(proud = proud, wish = wish, treat = treat, talkByRole = role, talkAt = 1L))
+    }
 }
 
 /** [streams] 를 주면 쓰기가 그 파사드의 rewards 에도 보입니다. 약속한 사람은 [role]. */

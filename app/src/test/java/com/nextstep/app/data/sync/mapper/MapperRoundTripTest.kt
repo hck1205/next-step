@@ -56,6 +56,7 @@ class MapperRoundTripTest {
         WeekPlanEntity(
             id = "w", familyId = Fixtures.FAMILY, weekStart = 100L, goals = "영어 책 3권\n줄넘기 매일", doneMask = 2, plannedMinutes = 180, authorRole = "STUDENT",
             approvedAt = 5L, mood = 3, good = "매일 했다", hard = "월요일", change = "아침에", reflectedByRole = "STUDENT", reflectedAt = 9L,
+            proud = "줄넘기 100개", wish = "자전거 타기", treat = "보드게임 밤", talkByRole = "PARENT", talkAt = 11L,
         ),
     ) { it.copy(dirty = false) }.let {}
     @Test fun weekPlanWithoutApprovalOrReflection() = roundTrip(WeekPlanMapper, WeekPlanEntity(familyId = Fixtures.FAMILY, weekStart = 7L)) { it.copy(dirty = false) }

@@ -7,6 +7,8 @@ import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.cheer.CheerTarget
 import com.nextstep.app.domain.familycalendar.FamilyOccurrence
+import com.nextstep.app.domain.familytalk.TalkCard
+import com.nextstep.app.domain.familytalk.TalkPhase
 import com.nextstep.app.domain.feedback.FeedbackLine
 import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.growth.GrowthStage
@@ -71,6 +73,8 @@ data class ParentDashboardUiState(
     val familyMembers: List<MemberEntity> = emptyList(),
     /** 응원할 수 있는 최근 해낸 일과 내가 붙인 응원. */
     val cheerTargets: List<CheerTarget> = emptyList(),
+    /** 주말 이야기 카드(초대 · 이번 주 기대되는 것). */
+    val talk: TalkCard = TalkCard(TalkPhase.NONE),
 ) {
     /** 첫 화면의 상태 문장: 균형 판단 + 챙길 것 수. 숫자 대신 문장으로. */
     val statusHeadline: String get() {
@@ -94,6 +98,7 @@ data class ParentDashboardUiState(
         ParentTodayCard.FAMILY -> familyAhead.isNotEmpty()
         ParentTodayCard.REWARDS -> rewardsDue.isNotEmpty()
         ParentTodayCard.CHEER -> cheerTargets.isNotEmpty()
+        ParentTodayCard.TALK -> talk.phase != TalkPhase.NONE
         ParentTodayCard.GOALS -> goalFocus.isNotEmpty()
         ParentTodayCard.WEEK -> week != null
         ParentTodayCard.ROUTINE -> routines.isNotEmpty()

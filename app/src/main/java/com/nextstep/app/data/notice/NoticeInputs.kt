@@ -5,6 +5,7 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
+import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.journey.JourneyPlanner
 import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.notice.NoticeInput
@@ -31,6 +32,7 @@ object NoticeInputs {
             journey = if (caps.isFamily) JourneyPlanner.actionable(JourneyPlanner.build(birth, streams.journeyItems.first(), today), today) else emptyList(),
             dueToday = tasks.count { !it.deleted && !it.done && it.dueDate == today.toEpochDay() },
             overdue = StudyStats.overdueTasks(tasks).size,
+            talkDone = FamilyTalk.talked(streams.weekPlans.first(), FamilyTalk.talkWeek(today)),
         )
     }
 

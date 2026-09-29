@@ -25,6 +25,7 @@ import com.nextstep.app.domain.cheer.CheerTarget
 import com.nextstep.app.domain.cheer.Cheers
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
+import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackEngine
 import com.nextstep.app.domain.feedback.FeedbackVoice
@@ -109,6 +110,7 @@ class ParentDashboardViewModel(
             week = SelfDirection.week(selfStage, plans, c.sessions, today),
             weekAccess = WeekAccess.of(Capabilities.of(role ?: Role.PARENT, me), selfStage),
             routines = ProjectPlanner.progressAll(x.goals, x.goalSteps, logs, today).filter { !it.isDone }.take(UiDefaults.MAX_ROWS),
+            talk = FamilyTalk.card(today, plans),
         )
     }
 

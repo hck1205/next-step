@@ -15,6 +15,8 @@ enum class ParentTodayCard(val title: String, val concern: Concern) {
     GOALS("목표 진행", Concern.PLAN),
     WEEK_RATES("주별 할 일 달성", Concern.PLAN),
     ASSIGNERS("누가 준 할 일", Concern.PLAN),
+    /** 주말 이야기: 금~일 초대, 나눈 뒤에는 이번 주 기대되는 것. */
+    TALK("주말 이야기", Concern.FAMILY),
     /** 가족 일정: 오늘 것과 미리 보기에 든 다가오는 것(가족 달력). */
     FAMILY("가족 일정", Concern.FAMILY),
     HEAT("공부 달력 · 최근 5주", Concern.STUDY),

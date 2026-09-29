@@ -30,6 +30,12 @@ data class WeekPlanEntity(
     val change: String = "",
     val reflectedByRole: String = "",
     val reflectedAt: Long? = null,
+    /** 주말 이야기(FamilyTalk): 가장 자랑하고 싶은 것 · 다음 주에 해 보고 싶은 것 · 가족이 함께 할 즐거움. */
+    val proud: String = "",
+    val wish: String = "",
+    val treat: String = "",
+    val talkByRole: String = "",
+    val talkAt: Long? = null,
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,
     override val dirty: Boolean = true,

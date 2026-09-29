@@ -9,6 +9,7 @@ import com.nextstep.app.domain.content.ContentRecommender
 import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
+import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackVoice
 import com.nextstep.app.domain.gamify.Gamify
@@ -136,10 +137,13 @@ internal object HomeStateFlow {
             )
         }
 
-    /** 가족 일정: 오늘 것과 미리 보기에 든 다가오는 것(가족 달력), 그리고 받은 응원. */
+    /** 가족 일정: 오늘 것과 미리 보기에 든 다가오는 것(가족 달력), 받은 응원, 주말 이야기 카드. */
     private fun withFamily(trends: Flow<HomeUiState>, streams: FamilyDataStreams): Flow<HomeUiState> =
-        combine(trends, streams.familyEvents, streams.members, streams.cheers) { s, family, members, cheers ->
-            s.copy(familyAhead = FamilyCalendar.ahead(family, s.today), familyMembers = FamilyCalendar.family(members), cheers = Cheers.unseen(cheers))
+        combine(trends, streams.familyEvents, streams.members, streams.cheers, streams.weekPlans) { s, family, members, cheers, plans ->
+            s.copy(
+                familyAhead = FamilyCalendar.ahead(family, s.today), familyMembers = FamilyCalendar.family(members), cheers = Cheers.unseen(cheers),
+                talk = FamilyTalk.card(s.today, plans),
+            )
         }
 
     private const val DAYS_IN_WEEK = 7
