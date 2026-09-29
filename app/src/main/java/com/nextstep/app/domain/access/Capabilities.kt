@@ -5,6 +5,8 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.hub.HubAudience
 import com.nextstep.app.domain.journey.MilestoneCategory
+import com.nextstep.app.domain.plan.Entitlements
+import com.nextstep.app.domain.plan.Feature
 import com.nextstep.app.domain.selfdirection.LoopStep
 import com.nextstep.app.domain.selfdirection.Owner
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
@@ -22,7 +24,15 @@ import com.nextstep.app.domain.year.YearDoer
  *
  * 할 일은 누구나 줄 수 있고, 누가 줬는지가 할 일에 남는다(스스로 · 학부모가 · 멘토가).
  */
-data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
+data class Capabilities(
+    val role: Role,
+    val mentorEnabled: Boolean,
+    /** 요금제로 나눌 수 있는 기능(domain/plan). 지금은 모두 열려 있습니다. */
+    val entitlements: Entitlements = Entitlements.OPEN,
+) {
+    /** 요금제 기능을 쓸 수 있는지. 화면은 요금제 이름이 아니라 이것만 묻습니다. */
+    fun has(feature: Feature): Boolean = entitlements.has(feature)
+
     val actsAsMentor: Boolean get() = role == Role.MENTOR || mentorEnabled
     val isStudent: Boolean get() = role == Role.STUDENT
     val isParent: Boolean get() = role == Role.PARENT

@@ -9,6 +9,8 @@ import com.nextstep.app.BuildConfig
 import com.nextstep.app.data.local.AppDatabase
 import com.nextstep.app.data.notice.DataStoreNoticeSettings
 import com.nextstep.app.data.notice.NoticeSettings
+import com.nextstep.app.data.plan.OpenPlanRepository
+import com.nextstep.app.data.plan.PlanRepository
 import com.nextstep.app.data.prefs.UserPreferences
 import com.nextstep.app.data.remote.YouTubeMetadataFetcher
 import com.nextstep.app.data.repository.ActivityRepository
@@ -107,6 +109,8 @@ class AppContainer(context: Context) {
     /** 화면이 보는 가족 기록: 멘토는 담당 과목만(MentorScopedStreams), 교육 프로젝트는 만든 사람과 학생만(ProjectScopedStreams). */
     val streams: FamilyDataStreams = ProjectScopedStreams(MentorScopedStreams(familyStreams))
     val noticeSettings: NoticeSettings = DataStoreNoticeSettings(context)
+    /** 산 요금제(결제를 붙일 자리). 지금은 모두 열림. */
+    val plans: PlanRepository = OpenPlanRepository()
     val school: SchoolService = NeisSchoolService(HttpNeisApi(BuildConfig.NEIS_API_KEY), familyStreams.members, familyEvents)
 
     private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
