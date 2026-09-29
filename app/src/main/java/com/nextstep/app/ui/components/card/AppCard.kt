@@ -12,9 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/** 앱의 기본 카드. */
+/** 앱의 기본 카드. [padded] 가 false 면 안쪽 여백 없이(줄마다 자기 여백을 가진 목록용). */
 @Composable
-fun AppCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
+fun AppCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, padded: Boolean = true, content: @Composable () -> Unit) {
     val base = modifier.fillMaxWidth()
     val m = if (onClick != null) base.clickable { onClick() } else base
     Card(
@@ -23,6 +23,6 @@ fun AppCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, conten
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Box(Modifier.padding(16.dp)) { content() }
+        Box(if (padded) Modifier.padding(16.dp) else Modifier) { content() }
     }
 }

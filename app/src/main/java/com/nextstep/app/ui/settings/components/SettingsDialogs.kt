@@ -5,6 +5,7 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.components.dialog.ConfirmDialog
 import com.nextstep.app.ui.components.dialog.SubjectSelectDialog
 import com.nextstep.app.ui.components.dialog.TextInputDialog
+import com.nextstep.app.ui.components.layout.DetailSheet
 import com.nextstep.app.ui.settings.SettingsEvent
 import com.nextstep.app.ui.settings.SettingsUiState
 
@@ -31,6 +32,12 @@ internal fun SettingsDialogs(dialog: SettingsDialog?, state: SettingsUiState, ca
         )
         SettingsDialog.LinkChild ->
             TextInputDialog(title = "코드로 연결", label = "연결 코드 6자리", confirmLabel = "연결", onConfirm = { onEvent(SettingsEvent.LinkChild(it)) }, onDismiss = onDismiss)
+        SettingsDialog.MyInfo -> DetailSheet("내 정보", onDismiss = onDismiss) {
+            MyInfoCard(state.profile, state.me, showsRelation = caps.isParent, onRelation = { me, label -> onEvent(SettingsEvent.UpdateMyProfile(me.name, label)) })
+        }
+        SettingsDialog.PairingCode -> DetailSheet("연결 코드", onDismiss = onDismiss) {
+            PairingCodeCard(code = state.profile?.pairingCode, isStudent = caps.isStudent, syncStatus = state.syncStatus, syncAvailable = state.syncAvailable, onRequestSync = { onEvent(SettingsEvent.RequestSync) })
+        }
         SettingsDialog.Subjects ->
             SubjectSelectDialog(state.subjects, state.me?.subjectIdList ?: emptyList(), onDismiss = onDismiss) { onEvent(SettingsEvent.SetMySubjects(it)) }
     }

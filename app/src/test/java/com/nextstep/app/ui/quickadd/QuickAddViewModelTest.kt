@@ -37,8 +37,9 @@ class QuickAddViewModelTest : ViewModelTestBase() {
     fun actionsFollowCapabilitiesAndStayUnderFive() {
         assertEquals(listOf(QuickAddAction.TIMER, QuickAddAction.ACTIVITY, QuickAddAction.TASK, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.STUDENT, false)))
         // 역할 헌장: 할 일은 누구나 주고(학부모도), 활동 기록은 가족의 일이라 멘토에게는 없음
-        assertEquals(listOf(QuickAddAction.ACTIVITY, QuickAddAction.TASK, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.PARENT, false)))
-        assertEquals(listOf(QuickAddAction.ACTIVITY, QuickAddAction.TASK, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.PARENT, true)))
+        // 어른은 가장 자주 쓰는 할 일 주기가 맨 위
+        assertEquals(listOf(QuickAddAction.TASK, QuickAddAction.ACTIVITY, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.PARENT, false)))
+        assertEquals(listOf(QuickAddAction.TASK, QuickAddAction.ACTIVITY, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.PARENT, true)))
         assertEquals(listOf(QuickAddAction.TASK, QuickAddAction.GRADE, QuickAddAction.EVENT), QuickAddAction.availableFor(Capabilities(Role.MENTOR, true)))
         assertTrue(Role.entries.all { QuickAddAction.availableFor(Capabilities(it, true)).size <= QuickAddAction.MAX_ITEMS })
         // 학생은 화면 단계만큼: 새싹 = 타이머·활동, 떡잎 = + 할 일, 줄기부터 전부

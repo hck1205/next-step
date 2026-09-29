@@ -8,4 +8,6 @@ internal sealed interface SettingsDialog {
     data object AddChild : SettingsDialog
     data object LinkChild : SettingsDialog
     data object EditYear : SettingsDialog
+    data object MyInfo : SettingsDialog
+    data object PairingCode : SettingsDialog
 }

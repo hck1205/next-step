@@ -75,7 +75,8 @@ fun QuickAddSheet(caps: Capabilities, studentLevel: StudentUiLevel?, onDismiss: 
             Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 24.dp)) {
                 Text("무엇을 남길까요?", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
                 QuickAddAction.availableFor(caps, studentLevel).forEach { action ->
-                    QuickAddItem(action) { if (action == QuickAddAction.TIMER) { onDismiss(); onOpenTimer() } else picked = action }
+                    // 할 일은 역할의 말로: 할 일 추가 · 할 일 주기 · 과제 내기
+                    QuickAddItem(action, title = if (action == QuickAddAction.TASK) caps.giveTaskLabel else action.title) { if (action == QuickAddAction.TIMER) { onDismiss(); onOpenTimer() } else picked = action }
                 }
             }
         }
@@ -93,12 +94,12 @@ fun QuickAddSheet(caps: Capabilities, studentLevel: StudentUiLevel?, onDismiss: 
 }
 
 @Composable
-private fun QuickAddItem(action: QuickAddAction, onClick: () -> Unit) {
+private fun QuickAddItem(action: QuickAddAction, title: String, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(iconFor(action), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
         Spacer(Modifier.size(14.dp))
         Column(Modifier.weight(1f)) {
-            Text(action.title, style = MaterialTheme.typography.titleMedium)
+            Text(title, style = MaterialTheme.typography.titleMedium)
             Text(action.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

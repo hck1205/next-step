@@ -14,16 +14,22 @@ enum class QuickAddAction(val title: String, val subtitle: String) {
 
     companion object {
         /**
-         * 권한에 따라 보이는 항목. 순서가 곧 화면 순서입니다.
-         * 학생은 화면 단계만큼만(씨앗: 활동, 새싹: 타이머·활동, 떡잎: + 할 일) 보여 줍니다. 타이머는 그 단계에 타이머가 있을 때만.
+         * 권한에 따라 보이는 항목. 순서가 곧 화면 순서이고, 가장 자주 쓰는 것이 맨 위입니다.
+         * 학생은 타이머 → 활동 → 할 일 순이고 화면 단계만큼만(씨앗: 활동, 새싹: 타이머·활동, 떡잎: + 할 일, 타이머는 그 단계에 있을 때만).
+         * 어른(학부모·멘토)은 할 일 주기·과제 내기가 맨 위입니다.
          */
-        fun availableFor(caps: Capabilities, level: StudentUiLevel? = null): List<QuickAddAction> = buildList {
-            if (caps.canUseTimer && level?.shows(StudentHomeSection.TIMER) != false) add(TIMER)
-            if (caps.canRecordActivities) add(ACTIVITY)
-            if (caps.canCreateTasks) add(TASK)
-            if (caps.canEditGrades) add(GRADE)
-            if (caps.canEditEvents) add(EVENT)
-        }.take(minOf(MAX_ITEMS, level?.recordChoices ?: MAX_ITEMS))
+        fun availableFor(caps: Capabilities, level: StudentUiLevel? = null): List<QuickAddAction> {
+            val order = if (caps.isStudent) listOf(TIMER, ACTIVITY, TASK, GRADE, EVENT) else listOf(TASK, ACTIVITY, GRADE, EVENT)
+            return order.filter { allowed(it, caps, level) }.take(minOf(MAX_ITEMS, level?.recordChoices ?: MAX_ITEMS))
+        }
+
+        private fun allowed(action: QuickAddAction, caps: Capabilities, level: StudentUiLevel?): Boolean = when (action) {
+            TIMER -> caps.canUseTimer && level?.shows(StudentHomeSection.TIMER) != false
+            ACTIVITY -> caps.canRecordActivities
+            TASK -> caps.canCreateTasks
+            GRADE -> caps.canEditGrades
+            EVENT -> caps.canEditEvents
+        }
 
         const val MAX_ITEMS = 5
     }
