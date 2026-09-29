@@ -3,6 +3,7 @@ package com.nextstep.app.domain.access
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.hub.HubAudience
+import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.domain.selfdirection.LoopStep
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import com.nextstep.app.domain.year.YearDoer
@@ -55,6 +56,19 @@ class CapabilitiesTest {
         assertTrue(parent.canToggleMentorMode); assertTrue(parentMentor.canToggleMentorMode)
         assertFalse(student.canToggleMentorMode); assertFalse(mentor.canToggleMentorMode)
         assertTrue(parent.canChooseStudentScreen); assertFalse(student.canChooseStudentScreen); assertFalse(mentor.canChooseStudentScreen)
+    }
+
+    @Test
+    fun familyMattersStayWithTheFamily() {
+        // 학년·생년월일은 학부모만 고치고, 학생·멘토는 보기만
+        assertTrue(parent.canEditStudentYear); assertTrue(parentMentor.canEditStudentYear)
+        assertFalse(student.canEditStudentYear); assertFalse(mentor.canEditStudentYear)
+        // 보호자 목록·균형(수면·운동)·건강·재정 이정표는 가족만
+        assertTrue(student.canSeeGuardians); assertTrue(parent.canSeeGuardians); assertFalse(mentor.canSeeGuardians)
+        assertTrue(parentMentor.canSeeBalance); assertFalse(mentor.canSeeBalance)
+        assertTrue(parent.canSeeMilestone(MilestoneCategory.HEALTH)); assertFalse(mentor.canSeeMilestone(MilestoneCategory.HEALTH))
+        assertFalse(mentor.canSeeMilestone(MilestoneCategory.FINANCE)); assertTrue(mentor.canSeeMilestone(MilestoneCategory.LEARNING))
+        assertEquals(listOf(MilestoneCategory.HEALTH, MilestoneCategory.FINANCE), MilestoneCategory.entries.filter { it.familyOnly })
     }
 
     private val student = Capabilities(Role.STUDENT, mentorEnabled = false)

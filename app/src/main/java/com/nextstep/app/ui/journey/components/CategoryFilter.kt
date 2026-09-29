@@ -11,11 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.journey.MilestoneCategory
 
+/** 이정표 종류 칩. [categories] 는 보는 사람이 볼 수 있는 종류만(멘토에게는 건강·재정 없음). */
 @Composable
-internal fun CategoryFilter(selected: MilestoneCategory?, onSelect: (MilestoneCategory?) -> Unit) {
+internal fun CategoryFilter(categories: List<MilestoneCategory>, selected: MilestoneCategory?, onSelect: (MilestoneCategory?) -> Unit) {
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         FilterChip(selected = selected == null, onClick = { onSelect(null) }, label = { Text("전체") })
-        MilestoneCategory.entries.forEach { c ->
+        categories.forEach { c ->
             FilterChip(selected = selected == c, onClick = { onSelect(if (selected == c) null else c) }, label = { Text(c.label) })
         }
     }

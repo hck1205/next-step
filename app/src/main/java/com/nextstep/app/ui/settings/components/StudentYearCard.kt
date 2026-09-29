@@ -17,10 +17,10 @@ import java.time.LocalDate
 
 /**
  * 자녀의 올해 학년 요약 한 줄. 학년은 한 번 정하면 1년을 가므로 고르는 칩을 늘어놓지 않고,
- * "고치기"를 눌러야 바꾸는 창이 열립니다([StudentYearDialog]).
+ * "고치기"를 눌러야 바꾸는 창이 열립니다([StudentYearDialog]). [onEdit] 이 없으면(학생·멘토) 보기만.
  */
 @Composable
-internal fun StudentYearCard(yearLabel: String?, birthDate: LocalDate?, ageLabel: String?, level: StudentUiLevel?, chosen: Boolean, onEdit: () -> Unit) {
+internal fun StudentYearCard(yearLabel: String?, birthDate: LocalDate?, ageLabel: String?, level: StudentUiLevel?, chosen: Boolean, onEdit: (() -> Unit)?) {
     AppCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -40,7 +40,7 @@ internal fun StudentYearCard(yearLabel: String?, birthDate: LocalDate?, ageLabel
                     )
                 }
             }
-            TextButton(onClick = onEdit) { Text(if (birthDate == null) "넣기" else "고치기") }
+            if (onEdit != null) TextButton(onClick = onEdit) { Text(if (birthDate == null) "넣기" else "고치기") }
         }
     }
 }

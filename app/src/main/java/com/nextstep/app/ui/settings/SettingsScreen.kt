@@ -65,7 +65,7 @@ internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions
             FamilySection(state, caps, onEvent, open)
             RoleSection(state, caps, onEvent, open)
             SectionTitle("연결된 구성원")
-            MembersCard(state.members, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { open(SettingsDialog.RemoveMember(it)) })
+            MembersCard(state.members.filter { caps.canSeeGuardians || !it.isParent }, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { open(SettingsDialog.RemoveMember(it)) })
             SectionTitle("연결 코드")
             PairingCodeCard(code = state.profile?.pairingCode, isStudent = caps.isStudent, syncStatus = state.syncStatus, syncAvailable = state.syncAvailable, onRequestSync = { onEvent(SettingsEvent.RequestSync) })
             SectionTitle("계정")
@@ -102,12 +102,12 @@ private fun RoleSection(state: SettingsUiState, caps: Capabilities, onEvent: (Se
         SectionTitle("담당 과목", action = { TextButton(onClick = { open(SettingsDialog.Subjects) }) { Text("변경") } })
         MySubjectsCard(state.subjects, state.me?.subjectIdList ?: emptyList())
     }
-    // 학년은 한 번 정하면 1년을 가므로 요약만 보이고, 바꾸려면 "고치기"로 창을 엽니다.
+    // 학년은 한 번 정하면 1년을 가므로 요약만 보이고, 학부모만 "고치기"로 창을 엽니다(학생·멘토는 보기만).
     SectionTitle("자녀 학년")
     StudentYearCard(
         yearLabel = state.yearLabel, birthDate = state.birthDate, ageLabel = state.ageLabel,
         level = state.chosenStudentLevel ?: state.autoStudentLevel, chosen = state.chosenStudentLevel != null,
-        onEdit = { open(SettingsDialog.EditYear) },
+        onEdit = if (caps.canEditStudentYear) ({ open(SettingsDialog.EditYear) }) else null,
     )
     if (caps.canToggleGamification(state.gameStyle)) {
         SectionTitle("레벨·배지")

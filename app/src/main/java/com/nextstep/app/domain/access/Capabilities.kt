@@ -4,6 +4,7 @@ import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.hub.HubAudience
+import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.domain.selfdirection.LoopStep
 import com.nextstep.app.domain.selfdirection.Owner
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
@@ -70,6 +71,14 @@ data class Capabilities(val role: Role, val mentorEnabled: Boolean) {
     val canLinkChildren: Boolean get() = !isStudent
     /** 학생 화면 단계(새싹~나무)를 직접 고를 수 있는지. 아이의 속도를 가장 잘 아는 학부모만. */
     val canChooseStudentScreen: Boolean get() = isParent
+    /** 자녀의 학년·생년월일은 1년을 가는 값이라 학부모만 넣고 고칩니다(학생·멘토는 보기만). */
+    val canEditStudentYear: Boolean get() = isParent
+    /** 보호자 목록(엄마·아빠·조부모)은 가족만 봅니다. 멘토에게는 학생과 멘토만. */
+    val canSeeGuardians: Boolean get() = isFamily
+    /** 기록 › 한눈에의 균형(학습·주도·경험·수면·운동)은 가족의 일이라 가족만. */
+    val canSeeBalance: Boolean get() = isFamily
+    /** 여정 이정표: 건강·검진, 재정·지원([MilestoneCategory.familyOnly])은 가족만 봅니다. */
+    fun canSeeMilestone(category: MilestoneCategory): Boolean = isFamily || !category.familyOnly
     /** 연결된 학부모·멘토를 목록에서 제거할 수 있는지. 학생 본인과 학부모만. */
     val canRemoveMembers: Boolean get() = isStudent || isParent
 

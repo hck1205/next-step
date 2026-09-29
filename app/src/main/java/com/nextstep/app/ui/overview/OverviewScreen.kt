@@ -22,20 +22,20 @@ import com.nextstep.app.ui.overview.components.BalanceCard
 import com.nextstep.app.ui.overview.components.ConcernTile
 
 /**
- * 기록 › 한눈에. 균형 카드 한 장 + 관심사 타일 2열 격자.
+ * 기록 › 한눈에. 균형 카드 한 장(가족만, [showsBalance]) + 관심사 타일 2열 격자.
  * [concerns] 는 지금 보이는 관심사(학생 화면 단계에 따라 줄어듦)이며, 그 타일만 그립니다.
  */
 @Composable
-fun OverviewScreen(concerns: List<Concern>, actions: OverviewActions, viewModel: OverviewViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+fun OverviewScreen(concerns: List<Concern>, showsBalance: Boolean, actions: OverviewActions, viewModel: OverviewViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    OverviewContent(state = state, concerns = concerns, actions = actions)
+    OverviewContent(state = state, concerns = concerns, showsBalance = showsBalance, actions = actions)
 }
 
 @Composable
-internal fun OverviewContent(state: OverviewUiState, concerns: List<Concern>, actions: OverviewActions) {
+internal fun OverviewContent(state: OverviewUiState, concerns: List<Concern>, showsBalance: Boolean, actions: OverviewActions) {
     val tiles = concerns.mapNotNull { c -> state.digests.firstOrNull { it.concern == c } }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = ScreenPadding.list, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        item {
+        if (showsBalance) item {
             val b = state.balance
             if (b != null) BalanceCard(b, state.yearLabel ?: state.stage?.label) else EmptyCard("기록이 쌓이면 균형을 보여 드려요")
         }

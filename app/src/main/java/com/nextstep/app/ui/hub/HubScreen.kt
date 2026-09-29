@@ -154,7 +154,7 @@ private fun HubHeader(current: Concern, onIndex: () -> Unit) {
 @Composable
 private fun SectionContent(section: ConcernSection, caps: Capabilities, viewer: HubViewer, concerns: List<Concern>, actions: HubActions, open: (ConcernSection) -> Unit, openConcern: (Concern) -> Unit) {
     when (section) {
-        ConcernSection.OVERVIEW -> OverviewScreen(concerns = concerns, actions = OverviewActions(onOpenConcern = openConcern))
+        ConcernSection.OVERVIEW -> OverviewScreen(concerns = concerns, showsBalance = caps.canSeeBalance, actions = OverviewActions(onOpenConcern = openConcern))
         ConcernSection.SELF -> SelfDirectionScreen(caps = caps)
         ConcernSection.PROGRESS -> ProgressScreen(caps = caps, actions = ProgressActions(onOpenSubject = actions.onOpenSubject))
         ConcernSection.TIME -> InsightsScreen(caps = caps)

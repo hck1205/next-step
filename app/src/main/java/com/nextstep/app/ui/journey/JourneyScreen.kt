@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.journey.JourneyItem
+import com.nextstep.app.domain.journey.MilestoneCategory
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.CurriculumCard
@@ -83,10 +84,10 @@ internal fun JourneyContent(state: JourneyUiState, caps: Capabilities, actions: 
             // 분류 칩은 이 화면의 거르기라 상단 바 바로 아래에 붙여 둡니다(스크롤해도 남음). 그 아래 지금 나이 요약.
             if (state.hasBirthDate || state.items.isNotEmpty()) stickyHeader(key = "journey-filter") {
                 Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxWidth()) {
-                    CategoryFilter(state.filter) { onEvent(JourneyEvent.SetFilter(it)) }
+                    CategoryFilter(MilestoneCategory.entries.filter(caps::canSeeMilestone), state.filter) { onEvent(JourneyEvent.SetFilter(it)) }
                 }
             }
-            item { JourneyHeader(state, onEvent) }
+            item { JourneyHeader(state, canSetBirthDate = caps.canEditStudentYear, onEvent = onEvent) }
             if (state.loaded && state.items.isEmpty() && state.steps.isEmpty()) {
                 item { EmptyCard(if (state.hasBirthDate) "표시할 이정표가 없어요" else "생년월일을 입력하면 나이대별 준비 항목이 자동으로 채워져요") }
             }

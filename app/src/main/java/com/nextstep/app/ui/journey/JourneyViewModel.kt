@@ -13,6 +13,7 @@ import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.growth.GrowthStage
@@ -52,7 +53,8 @@ class JourneyViewModel(
     private val built = combine(base, streams.activities) { (profile, members, stored, goals, steps), activities ->
         val day = today()
         val ctx = StudentContext.of(members, day)
-        val items = JourneyPlanner.build(ctx.birthDate, stored, day)
+        val viewer = profile.role?.let { Capabilities.of(it, null) }
+        val items = JourneyPlanner.build(ctx.birthDate, stored, day).filter { viewer?.canSeeMilestone(it.category) ?: true }
         JourneyUiState(
             studentName = profile.studentName,
             studentMemberId = ctx.student?.id,

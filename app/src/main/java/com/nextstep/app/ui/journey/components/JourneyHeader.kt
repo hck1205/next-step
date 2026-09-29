@@ -15,14 +15,15 @@ import com.nextstep.app.ui.journey.JourneyEvent
 import com.nextstep.app.ui.journey.JourneyUiState
 
 @Composable
-internal fun JourneyHeader(state: JourneyUiState, onEvent: (JourneyEvent) -> Unit) {
+internal fun JourneyHeader(state: JourneyUiState, canSetBirthDate: Boolean, onEvent: (JourneyEvent) -> Unit) {
     AppCard {
         Column {
             if (!state.hasBirthDate) {
                 Text("생년월일로 여정을 시작해요", style = MaterialTheme.typography.titleMedium)
                 Text("어린이집 대기, 예방접종, 유치원 지원, 언어 민감기, 학기별 목표, 입시 일정까지 나이에 맞춰 미리 알려 드려요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
-                DateField(label = "생년월일", date = state.today.minusYears(3), onChange = { onEvent(JourneyEvent.SetBirthDate(it)) })
+                if (canSetBirthDate) DateField(label = "생년월일", date = state.today.minusYears(3), onChange = { onEvent(JourneyEvent.SetBirthDate(it)) })
+                else Text("생년월일은 학부모가 가족 탭에서 넣어요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             } else {
                 Text("${state.ageLabel} · ${state.stage?.label ?: ""}", style = MaterialTheme.typography.titleMedium)
                 state.stage?.let { Text(it.focus, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }

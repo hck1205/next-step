@@ -44,6 +44,18 @@ class JourneyViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun mentorsDoNotSeeHealthOrFinanceMilestones() = runTest {
+        streams.actAs(Role.MENTOR)
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "아이", id = "kid", birthDate = LocalDate.of(2026, 7, 1)))
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertTrue(s.items.isNotEmpty())
+        assertTrue(s.items.none { it.category.familyOnly })
+        assertEquals(MilestoneCatalog.templates.count { !it.category.familyOnly }, s.items.size)
+        job.cancel()
+    }
+
+    @Test
     fun birthDateBuildsTimelineSectionsAndFilters() = runTest {
         streams.members.value = listOf(Fixtures.member(Role.STUDENT, "아이", id = "kid", birthDate = LocalDate.of(2026, 7, 1)))
         // 저장된 마감일(2026-09-01)이 카탈로그 계산값과 같아야 같은 구간(age-0)에 남습니다
