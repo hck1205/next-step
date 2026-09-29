@@ -59,7 +59,7 @@ enum class StudentUiLevel(
     ),
     STEM(
         "줄기", 5, 1.1f, 3, true, 52, true, 5, StudentWords.STANDARD, KidMode.NONE, GameStyle.LEVELS,
-        setOf(StudentHomeSection.PREVIEW, StudentHomeSection.MISSION, StudentHomeSection.EXAM, StudentHomeSection.CURRICULUM, StudentHomeSection.STUDY_FLOW),
+        setOf(StudentHomeSection.PREVIEW, StudentHomeSection.MISSION, StudentHomeSection.EXAM, StudentHomeSection.CURRICULUM, StudentHomeSection.STUDY_FLOW, StudentHomeSection.FEEDBACK),
     ),
     BRANCH(
         "가지", 7, 1.0f, 3, true, 48, true, 5, StudentWords.STANDARD, KidMode.NONE, GameStyle.GROWTH,

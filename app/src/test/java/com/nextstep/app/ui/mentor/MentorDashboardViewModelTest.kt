@@ -58,6 +58,20 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun weeklyFeedbackSpeaksOnlyAboutMySubjects() = runTest {
+        streams.subjects.value = listOf(Fixtures.math, Fixtures.english)
+        streams.myMember.value = Fixtures.member(Role.MENTOR, "쌤", id = "me", subjectIds = "math")
+        // 수학은 지난주 닷새 하고 이번 주엔 없음, 영어는 이번 주 닷새(멘토 범위 밖)
+        streams.sessions.value = (8L..12L).map { Fixtures.session("math", today.minusDays(it), LocalTime.of(9, 0), 30) } +
+            (0L..4L).map { Fixtures.session("eng", today.minusDays(it), LocalTime.of(10, 0), 30) }
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertTrue(s.feedback.isNotEmpty()); assertTrue(s.feedback.none { it.title.contains("영어") })
+        assertTrue(s.feedback.any { it.title.startsWith("수학") }); assertTrue(MentorTodayCard.FEEDBACK in s.visibleCards)
+        job.cancel()
+    }
+
+    @Test
     fun eventsDelegateAndSetSubjectsNeedsMyMember() = runTest {
         val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
         vm.onEvent(MentorDashboardEvent.SetSubjects(listOf("a")))

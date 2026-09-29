@@ -13,6 +13,8 @@ enum class StudentHomeSection(val label: String, val concern: Concern, val short
     MY_WEEK("나의 이번 주", Concern.STUDY),
     /** 나의 공부 달력(5주)과 최근 7일 막대 — 남과 견주지 않고 내 기록만. 숫자를 보는 나이부터. */
     STUDY_FLOW("나의 공부 흐름", Concern.STUDY),
+    /** 이번 주 한마디: 부모·멘토와 같은 사실을 학생의 말로(격려와 다음 한 걸음). 숫자를 보는 나이부터. */
+    FEEDBACK("이번 주 한마디", Concern.OVERVIEW),
     ROUTINE("오늘의 루틴", Concern.PROJECT),
     /** 레벨·이번 주 도전·배지. 학부모가 게임 요소를 끄면(MemberEntity.gamify) 보이지 않습니다. */
     GAME("나의 레벨", Concern.PLAN),

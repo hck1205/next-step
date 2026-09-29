@@ -19,6 +19,7 @@ import com.nextstep.app.ui.common.ExternalLinks
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.card.CurriculumCard
 import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.card.FeedbackCard
 import com.nextstep.app.ui.components.card.GameCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
 import com.nextstep.app.ui.components.card.LinkCard
@@ -55,6 +56,7 @@ internal fun HomeSectionBody(
         StudentHomeSection.JOURNEY -> JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney)
         StudentHomeSection.TASKS -> TodayTasks(state, shown = if (compact) state.taskRows else FULL_ROWS, onEvent, onSpeak, onOpenAll = if (compact) null else ({ actions.onOpenRecords(ConcernSection.CALENDAR) }))
         StudentHomeSection.MY_WEEK -> state.myWeek?.let { week -> MyWeek(week, state, onEvent, onOpen = { actions.onOpenRecords(ConcernSection.SELF) }) }
+        StudentHomeSection.FEEDBACK -> FeedbackCard(state.feedback, compact = compact)
         StudentHomeSection.ROUTINE -> RoutineCard(
             state.routines, onToggle = { p, item -> onEvent(HomeEvent.ToggleRoutine(p, item)) }, onOpen = actions.onOpenProject,
             big = !level.showsNumbers, compact = compact,
@@ -154,7 +156,7 @@ internal fun homeSectionTitle(section: StudentHomeSection, state: HomeUiState): 
         StudentHomeSection.TASKS -> words.tasksTitle
         StudentHomeSection.REVIEW -> words.reviewTitle
         StudentHomeSection.PREVIEW -> words.previewTitle
-        StudentHomeSection.ROUTINE, StudentHomeSection.EVENTS, StudentHomeSection.MISSION, StudentHomeSection.RECOMMENDATION,
+        StudentHomeSection.ROUTINE, StudentHomeSection.EVENTS, StudentHomeSection.MISSION, StudentHomeSection.RECOMMENDATION, StudentHomeSection.FEEDBACK,
         StudentHomeSection.SUBJECTS, StudentHomeSection.ROADMAP, StudentHomeSection.STUDY_FLOW, StudentHomeSection.MY_SCORES -> section.label
         StudentHomeSection.TIMER, StudentHomeSection.YEAR, StudentHomeSection.CURRICULUM, StudentHomeSection.JOURNEY, StudentHomeSection.MY_WEEK,
         StudentHomeSection.GAME, StudentHomeSection.WEEK, StudentHomeSection.EXAM, StudentHomeSection.PLANNER -> ""

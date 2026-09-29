@@ -11,6 +11,9 @@ import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.feedback.FeedbackAudience
+import com.nextstep.app.domain.feedback.FeedbackEngine
+import com.nextstep.app.domain.feedback.FeedbackVoice
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.InsightEngine
@@ -69,6 +72,7 @@ class MentorDashboardViewModel(
             insights = InsightEngine.analyze(s.subjects, topics, grades, sessions, scopedTasks, d.events).take(UiDefaults.MAX_INSIGHTS),
             roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
             trends = TrendStats.family(sessions, scopedTasks, grades, s.subjects, DateUtils.today()),
+            feedback = FeedbackVoice.lines(FeedbackEngine.findings(s.subjects, topics, grades, sessions, scopedTasks, DateUtils.today()), FeedbackAudience.MENTOR),
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
 

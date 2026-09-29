@@ -8,6 +8,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.domain.content.ContentRecommendation
 import com.nextstep.app.domain.curriculum.TermCurriculum
+import com.nextstep.app.domain.feedback.FeedbackLine
 import com.nextstep.app.domain.gamify.GameProfile
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.growth.StudentHomeSection
@@ -93,6 +94,8 @@ data class HomeUiState(
     val studyHeat: List<HeatWeek> = emptyList(),
     /** 과목별 내 점수 흐름. */
     val scoreSeries: List<ScoreSeries> = emptyList(),
+    /** 이번 주 한마디(학생의 말). */
+    val feedback: List<FeedbackLine> = emptyList(),
     val streak: Int = 0,
 ) {
     /** 오늘 보여 줄 카드(화면 단계가 연 것 중 내용이 있는 것, 올해 프로필 순서). */
@@ -107,6 +110,7 @@ data class HomeUiState(
     fun hasContent(section: StudentHomeSection): Boolean = when (section) {
         StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.EVENTS, StudentHomeSection.PLANNER -> true
         StudentHomeSection.YEAR -> year != null
+        StudentHomeSection.FEEDBACK -> feedback.isNotEmpty()
         StudentHomeSection.CURRICULUM -> curriculum != null
         StudentHomeSection.MISSION -> missionFocus.isNotEmpty()
         StudentHomeSection.JOURNEY -> hasBirthDate || journeyNow.isNotEmpty()

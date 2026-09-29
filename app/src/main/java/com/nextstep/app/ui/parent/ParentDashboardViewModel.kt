@@ -20,6 +20,9 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.feedback.FeedbackAudience
+import com.nextstep.app.domain.feedback.FeedbackEngine
+import com.nextstep.app.domain.feedback.FeedbackVoice
 import com.nextstep.app.domain.gamify.GameInputs
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.goaltree.GoalTree
@@ -39,6 +42,7 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.asUiState
 import com.nextstep.app.ui.common.gameInputs
+import com.nextstep.app.ui.common.weekFindings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -104,10 +108,18 @@ class ParentDashboardViewModel(
         TrendStats.family(sessions, tasks, grades, subjects, DateUtils.today())
     }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, trends) { s, members, input, list, t ->
-        val style = StudentScreen.of(members.firstOrNull { it.isStudent }, s.today).level.game
-        val profile = Gamify.profile(input, s.today, style = style)
-        s.copy(rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t)
+    /** 차트 값과 이번 주 피드백의 사실(같은 기록에서). */
+    private val charts = combine(trends, streams.weekFindings { DateUtils.today() }) { t, f -> t to f }
+
+    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, charts) { s, members, input, list, (t, findings) ->
+        val level = StudentScreen.of(members.firstOrNull { it.isStudent }, s.today).level
+        val profile = Gamify.profile(input, s.today, style = level.game)
+        val mine = FeedbackEngine.forAudience(findings, FeedbackAudience.PARENT)
+        s.copy(
+            rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t,
+            feedback = mine.map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
+            feedbackEcho = mine.firstOrNull()?.let { FeedbackVoice.line(it, FeedbackAudience.STUDENT, numbers = level.showsNumbers) },
+        )
     }.asUiState(viewModelScope, ParentDashboardUiState())
 
     private data class Core(

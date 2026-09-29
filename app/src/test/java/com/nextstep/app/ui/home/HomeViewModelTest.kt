@@ -88,6 +88,22 @@ class HomeViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun weeklyWordAppearsFromStemAndSpeaksInTheStudentsVoice() = runTest {
+        streams.subjects.value = listOf(Fixtures.math)
+        streams.sessions.value = (8L..12L).map { Fixtures.session("math", today.minusDays(it), LocalTime.of(9, 0), 30) }
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 3))
+        val vm = vm(); val job = subscribe(vm.state)
+        val young = settle(vm.state)
+        assertTrue(young.feedback.isNotEmpty()); assertFalse(young.level.shows(StudentHomeSection.FEEDBACK))
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 8))
+        val older = settle(vm.state)
+        assertTrue(older.level.shows(StudentHomeSection.FEEDBACK)); assertTrue(StudentHomeSection.FEEDBACK in older.homeOrder)
+        // 같은 사실이라도 학생에게는 부모·멘토와 다른 말
+        assertTrue(older.feedback.none { it.title.startsWith("공부한 날이 줄었어요") || it.title.startsWith("공부 일수") })
+        job.cancel()
+    }
+
+    @Test
     fun withoutStudentInfoTheFullScreenIsUsed() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
         assertEquals(StudentUiLevel.TREE, settle(vm.state).level); assertTrue(members.calls.isEmpty())

@@ -53,6 +53,19 @@ class ParentViewModelsTest : ViewModelTestBase() {
     }
 
     @Test
+    fun dashboardFeedbackAndWhatTheChildHeard() = runTest {
+        streams.subjects.value = listOf(Fixtures.math)
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", gradeYear = 8), Fixtures.member(Role.PARENT, "엄마"))
+        streams.sessions.value = (8L..12L).map { Fixtures.session("math", today.minusDays(it), LocalTime.of(9, 0), 30) }
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertTrue(s.feedback.any { it.title.startsWith("공부한 날이 줄었어요") }); assertTrue(s.feedback.none { it.good })
+        // 아이에게 한 말은 같은 사실의 학생 말투: 부모 문장과 다르다
+        assertTrue(s.feedbackEcho != null); assertTrue(s.feedbackEcho!!.title != s.feedback.first().title)
+        job.cancel()
+    }
+
+    @Test
     fun dashboardListsRewardsThatAreDueAndGivesThem() = runTest {
         streams.goals.value = listOf(Fixtures.goal("분수", trackId = GoalTree.TRACK, id = "g1", status = com.nextstep.app.data.model.GoalStatus.DONE), Fixtures.goal("일기", trackId = GoalTree.TRACK, id = "g2"))
         streams.rewards.value = listOf(

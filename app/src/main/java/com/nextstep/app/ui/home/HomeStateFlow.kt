@@ -7,6 +7,8 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.content.ContentRecommender
 import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.feedback.FeedbackAudience
+import com.nextstep.app.domain.feedback.FeedbackVoice
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.StudentScreen
@@ -26,6 +28,7 @@ import com.nextstep.app.domain.year.AheadPlans
 import com.nextstep.app.domain.year.YearPlans
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.gameInputs
+import com.nextstep.app.ui.common.weekFindings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
@@ -122,10 +125,13 @@ internal object HomeStateFlow {
             s.copy(game = profile, nextReward = Rewards.next(Rewards.views(rewards, input.goals, profile.level.number, profile.boards)))
         }
 
-    /** 나의 공부 흐름·점수 흐름 카드의 값(내 기록만, 남과 견주지 않음). */
+    /** 나의 공부 흐름·점수 흐름 카드의 값(내 기록만, 남과 견주지 않음)과 이번 주 한마디(부모·멘토와 같은 사실을 학생의 말로). */
     private fun withTrends(game: Flow<HomeUiState>, streams: FamilyDataStreams): Flow<HomeUiState> =
-        combine(game, streams.sessions, streams.grades) { s, sessions, grades ->
-            s.copy(studyHeat = TrendStats.heatCalendar(sessions, s.today), scoreSeries = TrendStats.scoreSeries(grades, s.subjects))
+        combine(game, streams.sessions, streams.grades, streams.weekFindings { DateUtils.today() }) { s, sessions, grades, findings ->
+            s.copy(
+                studyHeat = TrendStats.heatCalendar(sessions, s.today), scoreSeries = TrendStats.scoreSeries(grades, s.subjects),
+                feedback = FeedbackVoice.lines(findings, FeedbackAudience.STUDENT, numbers = s.level.showsNumbers),
+            )
         }
 
     private const val DAYS_IN_WEEK = 7

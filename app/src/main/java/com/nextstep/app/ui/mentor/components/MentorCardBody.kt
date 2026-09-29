@@ -11,6 +11,7 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.card.FeedbackCard
 import com.nextstep.app.ui.components.card.InsightCard
 import com.nextstep.app.ui.components.card.LinkCard
 import com.nextstep.app.ui.components.card.ScoreTrendCard
@@ -30,6 +31,7 @@ internal fun MentorCardBody(
 ) {
     val rows = if (compact) UiDefaults.MAX_ROWS else FULL_ROWS
     when (card) {
+        MentorTodayCard.FEEDBACK -> FeedbackCard(state.feedback, compact = compact)
         MentorTodayCard.STAGE -> StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null, onSetGrade = actions.onOpenJourney)
         MentorTodayCard.INSIGHTS -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.insights.take(if (compact) 1 else rows).forEach { InsightCard(it, state.allSubjects, onAction = null) }
@@ -77,7 +79,7 @@ internal fun MentorCardBody(
 internal fun mentorCardTitle(card: MentorTodayCard): String = when (card) {
     MentorTodayCard.STAGE, MentorTodayCard.ROADMAP, MentorTodayCard.CONTENT -> ""
     MentorTodayCard.PROGRESS -> "진도 · 학급 진도 대비 복습률"
-    MentorTodayCard.INSIGHTS, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.GRADES, MentorTodayCard.WEEK_CHART,
+    MentorTodayCard.INSIGHTS, MentorTodayCard.FEEDBACK, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.GRADES, MentorTodayCard.WEEK_CHART,
     MentorTodayCard.SUBMISSIONS, MentorTodayCard.STUDY_WEEKS, MentorTodayCard.SCORES,
     -> card.title
 }

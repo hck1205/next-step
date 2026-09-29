@@ -5,6 +5,8 @@ import com.nextstep.app.domain.hub.Concern
 /** 학부모 오늘 화면의 카드(상태 카드 아래). 이 순서가 곧 화면 순서이고, [concern] 으로 묶입니다. 묶음마다 흐름을 보여 주는 차트 카드가 앞에 옵니다. */
 enum class ParentTodayCard(val title: String, val concern: Concern) {
     JOURNEY("지금 챙길 것", Concern.OVERVIEW),
+    /** 이번 주 피드백: 같은 사실을 학부모의 말로(FeedbackVoice) + 아이가 들은 말. */
+    FEEDBACK("이번 주 피드백", Concern.OVERVIEW),
     /** 이번 주 지표 네 칸(공부 · 할 일 · 점수 · 스스로). 상태 카드 아래에 늘 펼쳐 두지 않고 한눈에 묶음 안에. */
     KPIS("이번 주 숫자", Concern.OVERVIEW),
     REWARDS("약속한 보상", Concern.PLAN),

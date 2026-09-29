@@ -5,6 +5,8 @@ import com.nextstep.app.domain.hub.Concern
 /** 멘토 오늘 화면의 카드. 이 순서가 곧 화면 순서이고, [concern] 으로 묶입니다. 이번 주 숫자 요약은 카드가 아니라 맨 위 지표 칸(MentorKpis). */
 enum class MentorTodayCard(val title: String, val concern: Concern, val shortcut: Boolean = false) {
     STAGE("이 시기의 기준", Concern.OVERVIEW),
+    /** 이번 주 피드백: 담당 과목 기록으로 찾은 사실을 멘토의 말로(가족의 일은 빠짐). */
+    FEEDBACK("이번 주 피드백", Concern.OVERVIEW),
     INSIGHTS("분석", Concern.OVERVIEW),
     SUBJECTS("담당 과목", Concern.OVERVIEW),
     SUBMISSIONS("과제 제출", Concern.PLAN),
