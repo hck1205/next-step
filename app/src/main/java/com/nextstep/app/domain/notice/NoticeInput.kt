@@ -2,6 +2,7 @@ package com.nextstep.app.domain.notice
 
 import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.journey.JourneyItem
+import com.nextstep.app.domain.lesson.TuitionDue
 import com.nextstep.app.domain.mission.MissionFocus
 import com.nextstep.app.domain.stats.UpcomingExam
 
@@ -20,6 +21,10 @@ data class NoticeInput(
     val journey: List<JourneyItem> = emptyList(),
     val dueToday: Int = 0,
     val overdue: Int = 0,
+    /** 멘토: 오늘 수업의 시작 시각(분). 없으면 null. */
+    val lessonAt: Int? = null,
+    /** 다가오는 수업료(멘토는 받을 날, 학부모는 낼 날). 학생에게는 비어 있음. */
+    val tuition: List<TuitionDue> = emptyList(),
     /** 이번 주 주말 이야기를 이미 나눴는지. */
     val talkDone: Boolean = false,
 )

@@ -7,18 +7,27 @@ import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.journey.JourneyPlanner
+import com.nextstep.app.domain.lesson.LessonPlan
+import com.nextstep.app.domain.lesson.Lessons
 import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.notice.NoticeInput
+import com.nextstep.app.domain.plan.Feature
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
+import java.time.YearMonth
 import kotlinx.coroutines.flow.first
 
 /** 알림 재료를 지금 기록에서 한 번 읽어 모읍니다. 보는 범위는 [streams](멘토 범위·프로젝트 범위가 이미 적용된 것) 그대로입니다. */
 object NoticeInputs {
     suspend fun of(streams: FamilyDataStreams, today: LocalDate): NoticeInput {
         val profile = streams.profile.first()
-        val caps = Capabilities.of(profile.role ?: Role.STUDENT, streams.myMember.first())
+        val me = streams.myMember.first()
+        val caps = Capabilities.of(profile.role ?: Role.STUDENT, me)
+        val lessons = caps.has(Feature.LESSONS) && !caps.isStudent
+        val records = streams.lessons.first()
+        // 수업료: 멘토는 자기 것만, 학부모는 모든 멘토의 것
+        val tutors = if (caps.canKeepLessons) listOfNotNull(me) else streams.members.first()
         val family = streams.familyEvents.first()
         val tasks = streams.tasks.first()
         val nextMonday = DateUtils.weekStart(today).plusWeeks(1)
@@ -32,6 +41,8 @@ object NoticeInputs {
             journey = if (caps.isFamily) JourneyPlanner.actionable(JourneyPlanner.build(birth, streams.journeyItems.first(), today), today) else emptyList(),
             dueToday = tasks.count { !it.deleted && !it.done && it.dueDate == today.toEpochDay() },
             overdue = StudyStats.overdueTasks(tasks).size,
+            lessonAt = if (lessons) me?.takeIf { caps.canKeepLessons }?.let { m -> Lessons.today(LessonPlan.of(m), records.filter { it.mentorId == m.id }, today)?.let { m.lessonStart } } else null,
+            tuition = if (lessons) Lessons.books(tutors, records, YearMonth.from(today), today).mapNotNull { it.tuition } else emptyList(),
             talkDone = FamilyTalk.talked(streams.weekPlans.first(), FamilyTalk.talkWeek(today)),
         )
     }

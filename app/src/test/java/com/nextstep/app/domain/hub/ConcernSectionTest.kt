@@ -16,7 +16,7 @@ class ConcernSectionTest {
         assertEquals(ConcernSection.entries.size, ConcernSection.entries.map { it.route }.toSet().size)
         assertEquals(listOf(ConcernSection.SELF, ConcernSection.PROGRESS, ConcernSection.TIME, ConcernSection.HABITS, ConcernSection.CALENDAR), ConcernSection.sectionsOf(Concern.STUDY, v))
         assertEquals(listOf(ConcernSection.CURRICULUM, ConcernSection.REVIEW, ConcernSection.CONTENT, ConcernSection.ROADMAP), ConcernSection.sectionsOf(Concern.LEARN, v))
-        assertEquals(listOf(ConcernSection.GOAL_TREE, ConcernSection.TODO, ConcernSection.ASSIGNMENTS, ConcernSection.PLAN_HISTORY, ConcernSection.REWARDS), ConcernSection.sectionsOf(Concern.PLAN, v))
+        assertEquals(listOf(ConcernSection.GOAL_TREE, ConcernSection.TODO, ConcernSection.ASSIGNMENTS, ConcernSection.PLAN_HISTORY, ConcernSection.LESSONS, ConcernSection.REWARDS), ConcernSection.sectionsOf(Concern.PLAN, v))
         assertEquals(listOf(ConcernSection.PROJECTS, ConcernSection.PROJECT_CATALOG), ConcernSection.sectionsOf(Concern.PROJECT, v))
         assertEquals(listOf(ConcernSection.FAMILY_CALENDAR, ConcernSection.FAMILY_TALK, ConcernSection.GROWTH_ALBUM), ConcernSection.sectionsOf(Concern.FAMILY, v))
         assertEquals(listOf(ConcernSection.OVERVIEW, ConcernSection.PERIOD_REPORT), ConcernSection.sectionsOf(Concern.OVERVIEW, v))
@@ -33,12 +33,13 @@ class ConcernSectionTest {
         assertEquals(ConcernSection.OVERVIEW, ConcernSection.from("body", v))
         assertEquals(ConcernSection.OVERVIEW, ConcernSection.from("family-calendar", v)) // 가족 달력은 멘토에게 없음
         assertEquals(ConcernSection.GOAL_TREE, ConcernSection.visibleFor(v)[1])
+        assertEquals(ConcernSection.LESSONS, ConcernSection.from("lessons", v)) // 수업·출결은 학부모·멘토
     }
 
     @Test
     fun studentsPutLearningFirstAndTheHubGrowsWithLevel() {
         assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.FAMILY, Concern.LEARN, Concern.PROJECT, Concern.STUDY, Concern.EXAMS, Concern.DISCOVER, Concern.GROWTH), ConcernSection.concernsFor(HubViewer.student(StudentUiLevel.BRANCH)))
-        assertEquals(ConcernSection.entries.toSet() - ConcernSection.PERIOD_REPORT, ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.BRANCH)).toSet()) // 월간·학기 리포트는 학부모만
+        assertEquals(ConcernSection.entries.toSet() - ConcernSection.PERIOD_REPORT - ConcernSection.LESSONS, ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.BRANCH)).toSet()) // 월간·학기 리포트는 학부모만, 수업료가 걸린 수업·출결은 어른만
         assertEquals(listOf(ConcernSection.OVERVIEW, ConcernSection.REWARDS, ConcernSection.FAMILY_CALENDAR, ConcernSection.FAMILY_TALK, ConcernSection.GROWTH_ALBUM, ConcernSection.PROJECTS, ConcernSection.TIME, ConcernSection.ACTIVITIES, ConcernSection.BODY), ConcernSection.visibleFor(HubViewer.student(StudentUiLevel.SPROUT)))
         // 학령 전(씨앗): 공부·배울 것 관심사 자체가 없고, 교육 프로젝트는 진행 중인 것만(새로 시작은 줄기부터).
         // 오늘의 "나의 레벨" 카드가 여는 보상·배지는 씨앗부터 보임

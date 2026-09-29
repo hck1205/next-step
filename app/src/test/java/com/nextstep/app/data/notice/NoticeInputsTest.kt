@@ -30,4 +30,15 @@ class NoticeInputsTest {
         val mentor = NoticeInputs.of(MentorScopedStreams(FakeFamilyDataStreams(role = Role.MENTOR).apply { familyEvents.value = streams.familyEvents.value }), today)
         assertFalse(mentor.family); assertTrue(mentor.familyAhead.isEmpty())
     }
+
+    @Test
+    fun lessonsAndTuitionForAdults() = runTest {
+        val kim = Fixtures.member(Role.MENTOR, "김쌤", id = "me").copy(lessonDays = "${today.dayOfWeek.value}", lessonStart = 960, lessonEnd = 1050, tuitionFee = 100, tuitionDay = today.dayOfMonth)
+        val mentor = NoticeInputs.of(FakeFamilyDataStreams(role = Role.MENTOR).apply { myMember.value = kim; members.value = listOf(kim) }, today)
+        assertEquals(960, mentor.lessonAt); assertEquals(0, mentor.tuition.single().daysLeft)
+        val parent = NoticeInputs.of(FakeFamilyDataStreams(role = Role.PARENT).apply { members.value = listOf(kim) }, today)
+        assertEquals(null, parent.lessonAt); assertEquals(1, parent.tuition.size) // 학부모는 수업료 낼 날만
+        val student = NoticeInputs.of(FakeFamilyDataStreams(role = Role.STUDENT).apply { members.value = listOf(kim) }, today)
+        assertTrue(student.tuition.isEmpty())
+    }
 }

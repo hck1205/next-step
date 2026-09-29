@@ -11,6 +11,8 @@ enum class MentorTodayCard(val title: String, val concern: Concern, val shortcut
     REPORT("수업 리포트 보내기", Concern.OVERVIEW),
     INSIGHTS("분석", Concern.OVERVIEW),
     SUBJECTS("담당 과목", Concern.OVERVIEW),
+    /** 오늘 수업의 출결 · 이 달 수업 · 수업료 받을 날(수업 일정이 없으면 정하기). */
+    LESSONS("수업·출결", Concern.PLAN),
     SUBMISSIONS("과제 제출", Concern.PLAN),
     TASKS("내가 낸 과제", Concern.PLAN),
     STUDY_WEEKS("담당 과목 · 최근 8주", Concern.STUDY),

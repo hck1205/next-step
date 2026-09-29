@@ -9,6 +9,7 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.LessonEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.PeerTopicEntity
@@ -39,6 +40,7 @@ import com.nextstep.app.data.repository.FamilyEventRepository
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
+import com.nextstep.app.data.repository.LessonRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.PeerCurriculumRepository
@@ -55,6 +57,8 @@ import com.nextstep.app.data.sync.FamilyInfo
 import com.nextstep.app.domain.cheer.CheerKind
 import com.nextstep.app.domain.content.ContentClassification
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.lesson.LessonPlan
+import com.nextstep.app.domain.lesson.LessonStatus
 import com.nextstep.app.domain.planner.StudyPlan
 import com.nextstep.app.domain.report.ReportKind
 import com.nextstep.app.domain.roadmap.RoadmapTemplates
@@ -152,6 +156,9 @@ class FakeMemberRepository : MemberRepository {
     override suspend fun setGamify(memberId: String, enabled: Boolean) { calls += "gamify:$memberId:$enabled" }
     override suspend fun setSchool(memberId: String, schoolCode: String, schoolName: String) { calls += "school:$memberId:$schoolCode:$schoolName" }
     override suspend fun setSignature(memberId: String, signature: String) { calls += "signature:$memberId:$signature" }
+    override suspend fun setLessonPlan(memberId: String, plan: LessonPlan) {
+        calls += "lessonPlan:$memberId:${LessonPlan.encodeDays(plan.days)}:${plan.startMinute}-${plan.endMinute}:${plan.fee}@${plan.feeDay}"
+    }
     override suspend fun remove(memberId: String) { calls += "remove:$memberId" }
 }
 
@@ -312,6 +319,14 @@ class FakeReportLogRepository(streams: FakeFamilyDataStreams? = null) : ReportLo
     override val logs: MutableStateFlow<List<ReportLogEntity>> = streams?.reportLogs ?: MutableStateFlow(emptyList())
     override suspend fun record(kind: ReportKind, title: String, byName: String) {
         logs.value = listOf(ReportLogEntity(familyId = "fam", kind = kind.name, title = title, sentById = "me", sentByName = byName)) + logs.value
+    }
+}
+
+class FakeLessonRepository(streams: FakeFamilyDataStreams? = null) : LessonRepository {
+    override val lessons: MutableStateFlow<List<LessonEntity>> = streams?.lessons ?: MutableStateFlow(emptyList())
+    override suspend fun mark(date: LocalDate, status: LessonStatus?, note: String) {
+        val others = lessons.value.filter { !(it.mentorId == "me" && it.date == date.toEpochDay()) }
+        lessons.value = others + listOfNotNull(status?.let { LessonEntity(id = "l-$date", familyId = "fam", mentorId = "me", date = date.toEpochDay(), status = it.name, note = note) })
     }
 }
 

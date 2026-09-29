@@ -27,6 +27,7 @@ import com.nextstep.app.ui.insights.InsightsViewModel
 import com.nextstep.app.ui.journey.JourneyViewModel
 import com.nextstep.app.ui.kidfamily.KidFamilyViewModel
 import com.nextstep.app.ui.kidme.KidMeViewModel
+import com.nextstep.app.ui.lessons.LessonsViewModel
 import com.nextstep.app.ui.mentor.MentorDashboardViewModel
 import com.nextstep.app.ui.navigation.RootViewModel
 import com.nextstep.app.ui.onboarding.OnboardingViewModel
@@ -57,13 +58,14 @@ object AppViewModelProvider {
         initializer { with(container()) { OnboardingViewModel(onboarding) } }
         initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans, cheers) } }
         initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers, game = familyStreams.gameInputs()) } }
-        initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks, reportLogs, bulkTasks) } }
+        initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks, reportLogs, bulkTasks, lessons) } }
         initializer { with(container()) { ProgressViewModel(streams, subjects) } }
         initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
         initializer { with(container()) { CalendarViewModel(streams, events, tasks) } }
         initializer { with(container()) { FamilyCalendarViewModel(streams, familyEvents) } }
         initializer { with(container()) { FamilyTalkViewModel(streams, weekPlans) } }
         initializer { with(container()) { PeriodReportViewModel(streams) } }
+        initializer { with(container()) { LessonsViewModel(streams, members, lessons) } }
         initializer { with(container()) { GrowthAlbumViewModel(streams) } }
         initializer { with(container()) { GradesViewModel(streams, grades) } }
         initializer { with(container()) { InsightsViewModel(streams, tasks) } }

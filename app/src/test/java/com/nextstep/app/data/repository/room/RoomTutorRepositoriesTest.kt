@@ -1,8 +1,10 @@
 package com.nextstep.app.data.repository.room
 
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.lesson.LessonStatus
 import com.nextstep.app.domain.report.ReportKind
 import com.nextstep.app.domain.roadmap.TemplateItem
+import com.nextstep.app.fake.dao.FakeLessonDao
 import com.nextstep.app.fake.dao.FakeReportLogDao
 import com.nextstep.app.fake.dao.FakeRoadmapTemplateDao
 import com.nextstep.app.fake.dao.FakeSubjectDao
@@ -28,6 +30,20 @@ class RoomTutorRepositoriesTest {
         val log = repo.logs.first().single()
         assertEquals("MONTH", log.kind); assertEquals("me", log.sentById); assertEquals("김쌤", log.sentByName); assertEquals(Fixtures.FAMILY, log.familyId)
         assertTrue(sync.pushRequests >= 1)
+    }
+
+    @Test
+    fun lessonMarkKeepsOneRowPerMentorPerDay() = runTest {
+        val dao = FakeLessonDao(); val sync = RecordingSyncManager()
+        val repo = RoomLessonRepository(dao, FakeFamilyScope(Role.MENTOR), sync, FakeTimeSource(5L))
+        val day = LocalDate.of(2029, 3, 6)
+        repo.mark(day, LessonStatus.DONE)
+        repo.mark(day, LessonStatus.MAKEUP, " 감기 ")
+        val row = repo.lessons.first().single()
+        assertEquals("MAKEUP", row.status); assertEquals("감기", row.note); assertEquals("me", row.mentorId); assertEquals(day.toEpochDay(), row.date)
+        repo.mark(day, null)
+        assertTrue(repo.lessons.first().isEmpty()); assertTrue(dao.all.single().deleted) // 소프트 삭제
+        assertTrue(sync.pushRequests >= 3)
     }
 
     @Test

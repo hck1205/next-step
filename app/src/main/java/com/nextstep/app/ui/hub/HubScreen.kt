@@ -52,6 +52,7 @@ import com.nextstep.app.ui.growth.GrowthScreen
 import com.nextstep.app.ui.growthalbum.GrowthAlbumScreen
 import com.nextstep.app.ui.habits.HabitsScreen
 import com.nextstep.app.ui.insights.InsightsScreen
+import com.nextstep.app.ui.lessons.LessonsScreen
 import com.nextstep.app.ui.overview.OverviewActions
 import com.nextstep.app.ui.overview.OverviewScreen
 import com.nextstep.app.ui.periodreport.PeriodReportScreen
@@ -178,6 +179,7 @@ private fun SectionContent(section: ConcernSection, caps: Capabilities, viewer: 
         ConcernSection.TODO -> TodoScreen(caps = caps, actions = TodoActions(onOpenGoal = actions.onOpenGoal, onOpenSubject = actions.onOpenSubject))
         ConcernSection.ASSIGNMENTS -> AssignmentsScreen()
         ConcernSection.PLAN_HISTORY -> PlanHistoryScreen(actions = PlanHistoryActions(onOpenGoal = actions.onOpenGoal))
+        ConcernSection.LESSONS -> LessonsScreen(caps = caps)
         ConcernSection.REWARDS -> RewardsScreen(caps = caps, showsNumbers = viewer.level?.showsNumbers ?: true, actions = RewardsActions(onOpenGoal = actions.onOpenGoal))
         ConcernSection.FAMILY_CALENDAR -> FamilyCalendarScreen(caps = caps)
         ConcernSection.FAMILY_TALK -> FamilyTalkScreen(caps = caps)

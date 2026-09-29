@@ -41,6 +41,12 @@ data class MemberEntity(
     val schoolName: String = "",
     /** 멘토가 수업 리포트 끝에 붙이는 서명(연락처·한 줄 소개). */
     val signature: String = "",
+    /** 멘토의 수업 일정(LessonPlan): 요일(ISO 1=월 … 7=일, 쉼표) · 시작·끝(분) · 한 달 수업료(원) · 받는 날(1~31). */
+    val lessonDays: String = "",
+    val lessonStart: Int = 0,
+    val lessonEnd: Int = 0,
+    val tuitionFee: Int = 0,
+    val tuitionDay: Int = 0,
     val joinedAt: Long = System.currentTimeMillis(),
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,

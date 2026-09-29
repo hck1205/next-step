@@ -10,6 +10,7 @@ import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.dao.GradeDao
 import com.nextstep.app.data.local.dao.GrowthRecordDao
 import com.nextstep.app.data.local.dao.JourneyDao
+import com.nextstep.app.data.local.dao.LessonDao
 import com.nextstep.app.data.local.dao.MemberDao
 import com.nextstep.app.data.local.dao.ObservationDao
 import com.nextstep.app.data.local.dao.ProjectLogDao
@@ -32,6 +33,7 @@ import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.LessonEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
@@ -75,6 +77,10 @@ class FakeGrowthRecordDao : InMemoryTable<GrowthRecordEntity>(), GrowthRecordDao
 class FakeObservationDao : InMemoryTable<ObservationEntity>(), ObservationDao
 
 class FakeReportLogDao : InMemoryTable<ReportLogEntity>(), ReportLogDao
+
+class FakeLessonDao : InMemoryTable<LessonEntity>(), LessonDao {
+    override suspend fun find(familyId: String, mentorId: String, date: Long) = all.filter { it.familyId == familyId && it.mentorId == mentorId && it.date == date && !it.deleted }
+}
 
 class FakeRoadmapTemplateDao : RoadmapTemplateDao {
     private val rows = MutableStateFlow<List<RoadmapTemplateEntity>>(emptyList())

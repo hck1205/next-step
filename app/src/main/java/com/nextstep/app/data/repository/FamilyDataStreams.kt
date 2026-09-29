@@ -10,6 +10,7 @@ import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.LessonEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.local.entity.ProjectLogEntity
@@ -60,4 +61,6 @@ interface FamilyDataStreams {
     val cheers: Flow<List<CheerEntity>>
     /** 수업 리포트 보낸 기록. 멘토에게는 자기가 보낸 것만. */
     val reportLogs: Flow<List<ReportLogEntity>>
+    /** 수업 출결 기록. 멘토에게는 자기 수업만. */
+    val lessons: Flow<List<LessonEntity>>
 }

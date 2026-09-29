@@ -10,6 +10,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.repository.BulkTaskRepository
 import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.LessonRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.ReportLogRepository
 import com.nextstep.app.data.repository.TaskRepository
@@ -20,6 +21,8 @@ import com.nextstep.app.domain.feedback.Finding
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.InsightEngine
+import com.nextstep.app.domain.lesson.LessonPlan
+import com.nextstep.app.domain.lesson.Lessons
 import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.mentor.MentorScope
 import com.nextstep.app.domain.period.PeriodKind
@@ -38,6 +41,7 @@ import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
+import java.time.YearMonth
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -49,6 +53,7 @@ class MentorDashboardViewModel(
     private val tasks: TaskRepository,
     private val reportLogs: ReportLogRepository,
     private val bulk: BulkTaskRepository,
+    private val lessons: LessonRepository,
 ) : ViewModel() {
 
     private val core = combine(streams.profile, streams.myMember, streams.members, streams.subjects, streams.syncStatus) { profile, me, members, subjects, sync ->
@@ -70,7 +75,7 @@ class MentorDashboardViewModel(
 
     private val data = combine(streams.topics, streams.grades, streams.sessions, streams.tasks, streams.events) { t, g, s, ta, e -> Data(t, g, s, ta, e) }
 
-    val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.roadmap, streams.reportLogs) { s, d, roadmap, logs ->
+    val state: StateFlow<MentorDashboardUiState> = combine(core, data, streams.roadmap, streams.reportLogs, streams.lessons) { s, d, roadmap, logs, lessonRecords ->
         val scope = MentorScope(s.subjects)
         val grades = scope.own(d.grades) { it.subjectId }
         val sessions = scope.own(d.sessions) { it.subjectId }
@@ -92,6 +97,8 @@ class MentorDashboardViewModel(
             report = lessonReport(s, ReportKind.WEEK, weekly.sumOf { it.minutes }, progress, scopedTasks, findings, today),
             monthReport = monthReport(s, sessions, progress, scopedTasks, findings, today),
             reportLogs = logs.filter { it.sentById == s.me?.id }.take(UiDefaults.MAX_ROWS), // 멘토 화면은 원본 스트림이라 여기서 내 것만
+            lessons = s.me?.let { me -> Lessons.books(listOf(me), lessonRecords, YearMonth.from(today), today).firstOrNull() },
+            lessonToday = s.me?.let { me -> Lessons.today(LessonPlan.of(me), lessonRecords.filter { it.mentorId == me.id }, today) },
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
 
@@ -150,6 +157,8 @@ class MentorDashboardViewModel(
             is MentorDashboardEvent.AssignTask -> assignTask(event.title, event.subjectId, event.type, event.due, event.alsoTo)
             is MentorDashboardEvent.ReportSent -> viewModelScope.launch { reportLogs.record(event.kind, event.title, state.value.me?.name.orEmpty()) }
             is MentorDashboardEvent.DeleteTask -> deleteTask(event.id)
+            is MentorDashboardEvent.MarkLesson -> viewModelScope.launch { lessons.mark(event.date, event.status) }
+            is MentorDashboardEvent.SaveLessonPlan -> viewModelScope.launch { state.value.me?.let { members.setLessonPlan(it.id, event.plan) } }
         }
     }
 }

@@ -35,6 +35,7 @@ enum class ConcernSection(
     TODO(Concern.PLAN, "할 일", "todo", StudentUiLevel.SEEDLING),
     ASSIGNMENTS(Concern.PLAN, "과제", "assignments", StudentUiLevel.STEM),
     PLAN_HISTORY(Concern.PLAN, "지난 기록", "plan-history", StudentUiLevel.SEEDLING),
+    LESSONS(Concern.PLAN, "수업·출결", "lessons", StudentUiLevel.SEED, audiences = TUTORING),
     REWARDS(Concern.PLAN, "보상·배지", "rewards", StudentUiLevel.SEED, audiences = FAMILY),
     FAMILY_CALENDAR(Concern.FAMILY, "가족 달력", "family-calendar", StudentUiLevel.SEED, audiences = FAMILY),
     FAMILY_TALK(Concern.FAMILY, "주말 이야기", "family-talk", StudentUiLevel.SEED, audiences = FAMILY),
@@ -67,6 +68,9 @@ private val ALL: Set<HubAudience> = HubAudience.entries.toSet()
 
 /** 학부모만 보는 자리(월간·학기 리포트). */
 private val PARENTS: Set<HubAudience> = setOf(HubAudience.PARENT)
+
+/** 수업을 주고받는 어른(학부모·멘토). 수업료가 걸려 있어 학생에게는 보이지 않습니다. */
+private val TUTORING: Set<HubAudience> = setOf(HubAudience.PARENT, HubAudience.MENTOR)
 
 /** 가족의 일을 보는 자리(멘토 제외). */
 private val FAMILY: Set<HubAudience> = setOf(HubAudience.PARENT, HubAudience.STUDENT)

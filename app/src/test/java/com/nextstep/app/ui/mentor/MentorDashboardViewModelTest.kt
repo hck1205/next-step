@@ -1,19 +1,24 @@
 package com.nextstep.app.ui.mentor
 
+import com.nextstep.app.data.local.entity.LessonEntity
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.lesson.LessonPlan
+import com.nextstep.app.domain.lesson.LessonStatus
 import com.nextstep.app.domain.stats.Submissions
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.fake.FakeBulkTaskRepository
 import com.nextstep.app.fake.FakeFamilyDataStreams
+import com.nextstep.app.fake.FakeLessonRepository
 import com.nextstep.app.fake.FakeMemberRepository
 import com.nextstep.app.fake.FakeReportLogRepository
 import com.nextstep.app.fake.FakeTaskRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
+import java.time.DayOfWeek
 import java.time.LocalTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -27,8 +32,8 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
     private val members = FakeMemberRepository(); private val tasks = FakeTaskRepository()
     private val today = DateUtils.today()
 
-    private val logs = FakeReportLogRepository(streams); private val bulk = FakeBulkTaskRepository()
-    private fun vm() = MentorDashboardViewModel(streams, members, tasks, logs, bulk)
+    private val logs = FakeReportLogRepository(streams); private val bulk = FakeBulkTaskRepository(); private val lessons = FakeLessonRepository(streams)
+    private fun vm() = MentorDashboardViewModel(streams, members, tasks, logs, bulk, lessons)
 
     @Test
     fun scopedToAssignedSubjectsAndFlagsSetupWhenNone() = runTest {
@@ -94,6 +99,24 @@ class MentorDashboardViewModelTest : ViewModelTestBase() {
         vm.onEvent(MentorDashboardEvent.AssignTask("약분 20문제", "math", TaskType.HOMEWORK, today, alsoTo = listOf("famB")))
         settle(vm.state)
         assertEquals("약분 20문제", tasks.saved.single().title); assertEquals(listOf("bulk:약분 20문제:famB:수학"), bulk.calls)
+        job.cancel()
+    }
+
+    @Test
+    fun todaysLessonIsMarkedFromTheCardAndOnlyMineCount() = runTest {
+        val me = Fixtures.member(Role.MENTOR, "김쌤", id = "me").copy(lessonDays = "${today.dayOfWeek.value}", lessonStart = 960, lessonEnd = 1050)
+        streams.myMember.value = me
+        streams.lessons.value = listOf(LessonEntity(familyId = "fam", mentorId = "other", date = today.toEpochDay(), status = "ABSENT"))
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertTrue(MentorTodayCard.LESSONS in s.visibleCards)
+        assertEquals(today, s.lessonToday!!.date); assertNull(s.lessonToday!!.status) // 다른 멘토의 결석은 내 수업이 아님
+        vm.onEvent(MentorDashboardEvent.MarkLesson(today, LessonStatus.DONE))
+        s = settle(vm.state)
+        assertEquals(LessonStatus.DONE, s.lessonToday!!.status); assertEquals(1, s.lessons!!.summary.done)
+        vm.onEvent(MentorDashboardEvent.SaveLessonPlan(LessonPlan(setOf(DayOfWeek.MONDAY), 600, 660, 200_000, 5)))
+        settle(vm.state)
+        assertEquals(listOf("lessonPlan:me:1:600-660:200000@5"), members.calls)
         job.cancel()
     }
 

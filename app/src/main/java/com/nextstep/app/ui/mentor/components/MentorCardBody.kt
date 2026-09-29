@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.lesson.LessonPlan
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
 import com.nextstep.app.ui.common.UiDefaults
@@ -37,6 +38,10 @@ internal fun MentorCardBody(
                 onEvent(MentorDashboardEvent.ReportSent(kind, title))
             }
         }
+        MentorTodayCard.LESSONS -> LessonTodayCard(
+            state.lessons, state.lessonToday, state.me?.let(LessonPlan::of) ?: LessonPlan(emptySet(), 0, 0),
+            onMark = { d, s -> onEvent(MentorDashboardEvent.MarkLesson(d, s)) }, onSavePlan = { onEvent(MentorDashboardEvent.SaveLessonPlan(it)) },
+        )
         MentorTodayCard.STAGE -> StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null, onSetGrade = actions.onOpenJourney)
         MentorTodayCard.INSIGHTS -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             state.insights.take(if (compact) 1 else rows).forEach { InsightCard(it, state.allSubjects, onAction = null) }
@@ -84,7 +89,7 @@ internal fun MentorCardBody(
 internal fun mentorCardTitle(card: MentorTodayCard): String = when (card) {
     MentorTodayCard.STAGE, MentorTodayCard.ROADMAP, MentorTodayCard.CONTENT -> ""
     MentorTodayCard.PROGRESS -> "진도 · 학급 진도 대비 복습률"
-    MentorTodayCard.INSIGHTS, MentorTodayCard.FEEDBACK, MentorTodayCard.REPORT, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.GRADES, MentorTodayCard.WEEK_CHART,
+    MentorTodayCard.INSIGHTS, MentorTodayCard.FEEDBACK, MentorTodayCard.REPORT, MentorTodayCard.LESSONS, MentorTodayCard.SUBJECTS, MentorTodayCard.TASKS, MentorTodayCard.GRADES, MentorTodayCard.WEEK_CHART,
     MentorTodayCard.SUBMISSIONS, MentorTodayCard.STUDY_WEEKS, MentorTodayCard.SCORES,
     -> card.title
 }

@@ -10,6 +10,7 @@ import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.GradeRepository
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
+import com.nextstep.app.data.repository.LessonRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.repository.ProjectRepository
@@ -44,6 +45,7 @@ class CompositeFamilyDataStreams(
     familyEvents: FamilyEventRepository,
     cheers: CheerRepository,
     reportLogs: ReportLogRepository,
+    lessons: LessonRepository,
 ) : FamilyDataStreams {
     override val profile = onboarding.profile
     override val syncStatus = onboarding.syncStatus
@@ -70,4 +72,5 @@ class CompositeFamilyDataStreams(
     override val familyEvents = familyEvents.events
     override val cheers = cheers.cheers
     override val reportLogs = reportLogs.logs
+    override val lessons = lessons.lessons
 }

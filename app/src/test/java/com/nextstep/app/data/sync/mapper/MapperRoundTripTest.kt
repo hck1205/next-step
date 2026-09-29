@@ -1,6 +1,7 @@
 package com.nextstep.app.data.sync.mapper
 
 import com.nextstep.app.data.local.entity.CheerEntity
+import com.nextstep.app.data.local.entity.LessonEntity
 import com.nextstep.app.data.local.entity.ReportLogEntity
 import com.nextstep.app.data.local.entity.RewardEntity
 import com.nextstep.app.data.local.entity.Syncable
@@ -44,7 +45,7 @@ class MapperRoundTripTest {
     @Test fun event() = roundTrip(EventMapper, Fixtures.event("학원", LocalDate.of(2026, 9, 1), LocalTime.of(9, 0), LocalTime.of(10, 30), EventType.ACADEMY, "s", weekly = true).copy(location = "역삼", memo = "m")) { it.copy(dirty = false) }.let {}
     @Test fun grade() = roundTrip(GradeMapper, Fixtures.grade("s", 87.5, 10, classAvg = 70.25).copy(examType = ExamType.MOCK, maxScore = 90.0, memo = "m")) { it.copy(dirty = false) }.let {}
     @Test fun session() = roundTrip(StudySessionMapper, Fixtures.session("s", LocalDate.of(2026, 9, 1), LocalTime.of(20, 0), 45).copy(note = "n", fromTimer = true)) { it.copy(dirty = false) }.let {}
-    @Test fun member() = roundTrip(MemberMapper, Fixtures.member(Role.PARENT, "엄마", subjectIds = "a,b", mentorEnabled = true, gradeYear = 9, birthDate = LocalDate.of(2015, 3, 2)).copy(title = "t", uiLevel = "STEM", seenUiLevel = "SPROUT", selfDirection = "PLAN_FIRST", gamify = false, schoolCode = "B10:7010057", schoolName = "대치초", signature = "김쌤 · 010")) { it.copy(dirty = false) }.let {}
+    @Test fun member() = roundTrip(MemberMapper, Fixtures.member(Role.PARENT, "엄마", subjectIds = "a,b", mentorEnabled = true, gradeYear = 9, birthDate = LocalDate.of(2015, 3, 2)).copy(title = "t", uiLevel = "STEM", seenUiLevel = "SPROUT", selfDirection = "PLAN_FIRST", gamify = false, schoolCode = "B10:7010057", schoolName = "대치초", signature = "김쌤 · 010", lessonDays = "2,4", lessonStart = 960, lessonEnd = 1050, tuitionFee = 300000, tuitionDay = 25)) { it.copy(dirty = false) }.let {}
     @Test fun memberWithoutBirthDate() = roundTrip(MemberMapper, Fixtures.member(Role.STUDENT, "나")) { it.copy(dirty = false) }.let { assertNull(it.birthDate) }
     @Test fun journeyTemplate() = roundTrip(JourneyItemMapper, Fixtures.journeyItem("daycare-waitlist", MilestoneStatus.DONE, note = "완료").copy(doneAt = 5L, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun activity() = roundTrip(ActivityMapper, Fixtures.activity("과학관", ActivityType.CLUB, LocalDate.of(2029, 3, 2), LocalDate.of(2029, 12, 20), place = "학교", note = "n", rating = 4).copy(createdByRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}
@@ -73,6 +74,7 @@ class MapperRoundTripTest {
     @Test fun familyEventOpenEnded() = roundTrip(FamilyEventMapper, Fixtures.familyEvent("외식", LocalDate.of(2029, 3, 1))) { it.copy(dirty = false) }.let { assertNull(it.repeatUntil) }
     @Test fun cheer() = roundTrip(CheerMapper, CheerEntity(familyId = Fixtures.FAMILY, taskId = "t", taskTitle = "분수", kind = "HEART", fromId = "mom", fromRole = "PARENT", fromName = "엄마", seenAt = 4L, createdAt = 2L, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun cheerUnseen() = roundTrip(CheerMapper, CheerEntity(familyId = Fixtures.FAMILY, taskId = "t", taskTitle = "분수", kind = "CLAP")) { it.copy(dirty = false) }.let { assertNull(it.seenAt) }
+    @Test fun lesson() = roundTrip(LessonMapper, LessonEntity(familyId = Fixtures.FAMILY, mentorId = "t", date = 20_000L, status = "MAKEUP", note = "감기", deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun reportLog() = roundTrip(ReportLogMapper, ReportLogEntity(familyId = Fixtures.FAMILY, kind = "MONTH", title = "3월 리포트", sentById = "t", sentByName = "김쌤", sentAt = 5L, deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun memberWithoutGamifyFieldKeepsItOn() = MemberMapper.fromMap("m", MemberMapper.toMap(Fixtures.member(Role.STUDENT, "나")) - "gamify").let { assertTrue(it.gamify) }
     @Test fun projectLog() = roundTrip(ProjectLogMapper, Fixtures.projectLog("g", "p5", "파닉스 교재 한 쪽", 10, LocalDate.of(2029, 3, 4)).copy(authorRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}

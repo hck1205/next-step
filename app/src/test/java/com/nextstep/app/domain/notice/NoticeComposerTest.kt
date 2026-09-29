@@ -4,6 +4,7 @@ import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.journey.JourneyItem
 import com.nextstep.app.domain.journey.MilestoneCategory
+import com.nextstep.app.domain.lesson.TuitionDue
 import com.nextstep.app.domain.stats.UpcomingExam
 import com.nextstep.app.testing.Fixtures
 import org.junit.Assert.assertEquals
@@ -43,6 +44,16 @@ class NoticeComposerTest {
         assertTrue(NoticeComposer.morning(student.copy(dueToday = 1), today)!!.title.endsWith("하나씩 해 봐요"))
         val mentor = NoticeInput(family = false, isStudent = false, familyAhead = FamilyCalendar.ahead(family, today))
         assertNull(NoticeComposer.morning(mentor, today))
+    }
+
+    @Test
+    fun lessonsAndTuitionGoToAdultsOnly() {
+        val due = TuitionDue(today.plusDays(2), 2, 300_000)
+        val mentor = NoticeComposer.morning(NoticeInput(family = false, isStudent = false, lessonAt = 16 * 60, tuition = listOf(due)), today)!!
+        assertEquals(listOf("오늘 16:00 수업", "수업료 받을 날 D-2 · 300,000원"), mentor.lines)
+        val parent = NoticeComposer.morning(NoticeInput(family = true, isStudent = false, tuition = listOf(due, due.copy(daysLeft = 10))), today)!!
+        assertEquals(listOf("수업료 낼 날 D-2 · 300,000원"), parent.lines) // 아직 먼 수업료는 알리지 않음
+        assertNull(NoticeComposer.morning(NoticeInput(family = true, isStudent = true, lessonAt = 600, tuition = listOf(due)), today)) // 학생에게는 수업료 없음
     }
 
     @Test

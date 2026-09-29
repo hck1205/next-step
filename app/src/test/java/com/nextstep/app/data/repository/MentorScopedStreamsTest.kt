@@ -24,6 +24,10 @@ class MentorScopedStreamsTest {
             com.nextstep.app.data.local.entity.ReportLogEntity(familyId = Fixtures.FAMILY, kind = "WEEK", title = "내 리포트", sentById = "me"),
             com.nextstep.app.data.local.entity.ReportLogEntity(familyId = Fixtures.FAMILY, kind = "WEEK", title = "다른 쌤", sentById = "other"),
         )
+        lessons.value = listOf(
+            com.nextstep.app.data.local.entity.LessonEntity(familyId = Fixtures.FAMILY, mentorId = "me", date = 1L, status = "DONE"),
+            com.nextstep.app.data.local.entity.LessonEntity(familyId = Fixtures.FAMILY, mentorId = "other", date = 1L, status = "ABSENT"),
+        )
     }
 
     @Test
@@ -35,6 +39,7 @@ class MentorScopedStreamsTest {
         assertTrue(s.familyEvents.first().isEmpty()) // 가족 달력은 멘토에게 한 건도 넘기지 않음
         assertTrue(s.cheers.first().isEmpty()) // 응원도 가족 사이의 일
         assertEquals(listOf("내 리포트"), s.reportLogs.first().map { it.title }) // 보낸 기록은 내 것만
+        assertEquals(listOf("me"), s.lessons.first().map { it.mentorId }) // 출결도 내 수업만
     }
 
     @Test
@@ -45,6 +50,7 @@ class MentorScopedStreamsTest {
         assertEquals(1, MentorScopedStreams(family(Role.STUDENT)).familyEvents.first().size)
         assertEquals(1, MentorScopedStreams(family(Role.STUDENT)).cheers.first().size)
         assertEquals(2, MentorScopedStreams(family(Role.PARENT)).reportLogs.first().size)
+        assertEquals(2, MentorScopedStreams(family(Role.PARENT)).lessons.first().size)
         val noChoice = family(Role.MENTOR).apply { myMember.value = Fixtures.member(Role.MENTOR, "나", id = "me") }
         assertEquals(2, MentorScopedStreams(noChoice).subjects.first().size)
     }

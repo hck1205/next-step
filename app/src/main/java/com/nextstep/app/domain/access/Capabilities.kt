@@ -113,6 +113,9 @@ data class Capabilities(
     /** 목표·레벨에 보상을 약속하고, 이뤘을 때 주기: 학부모만(보상은 가족의 일, 학부모 겸 멘토도 학부모로서). 학생은 약속된 보상을 보기만 하고, 멘토에게는 보상이 보이지 않습니다. */
     val canGiveRewards: Boolean get() = isParent
 
+    /** 수업 일정·출결·수업료를 적기: 멘토 본인만(학부모는 보기만, 학부모 겸 멘토는 자기 아이라 수업료가 없어 학부모로). */
+    val canKeepLessons: Boolean get() = role == Role.MENTOR
+
     /** 해낸 일에 응원 붙이기: 학부모만(아이는 받는 쪽, 멘토에게는 가족 사이의 응원이 없음). */
     val canCheer: Boolean get() = isParent
 

@@ -2,6 +2,7 @@ package com.nextstep.app.data.repository
 
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.lesson.LessonPlan
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import kotlinx.coroutines.flow.Flow
 
@@ -32,5 +33,7 @@ interface MemberRepository {
     suspend fun setSchool(memberId: String, schoolCode: String, schoolName: String)
     /** 멘토의 수업 리포트 서명. */
     suspend fun setSignature(memberId: String, signature: String)
+    /** 멘토의 수업 일정과 수업료. */
+    suspend fun setLessonPlan(memberId: String, plan: LessonPlan)
     suspend fun remove(memberId: String)
 }

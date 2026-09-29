@@ -2,6 +2,8 @@ package com.nextstep.app.ui.mentor
 
 import androidx.lifecycle.ViewModel
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.lesson.LessonPlan
+import com.nextstep.app.domain.lesson.LessonStatus
 import com.nextstep.app.domain.report.ReportKind
 import java.time.LocalDate
 
@@ -13,4 +15,7 @@ sealed interface MentorDashboardEvent {
     /** 수업 리포트를 보냈다고 남깁니다(보낸 기록). */
     data class ReportSent(val kind: ReportKind, val title: String) : MentorDashboardEvent
     data class DeleteTask(val id: String) : MentorDashboardEvent
+    /** 오늘(그날) 수업 출결. [status] 가 null 이면 지우기. */
+    data class MarkLesson(val date: LocalDate, val status: LessonStatus?) : MentorDashboardEvent
+    data class SaveLessonPlan(val plan: LessonPlan) : MentorDashboardEvent
 }

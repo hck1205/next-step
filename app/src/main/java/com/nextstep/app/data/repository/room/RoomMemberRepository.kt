@@ -9,6 +9,7 @@ import com.nextstep.app.data.repository.scopedList
 import com.nextstep.app.data.sync.SyncManager
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.lesson.LessonPlan
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -38,6 +39,10 @@ class RoomMemberRepository(
 
     override suspend fun setMentorEnabled(memberId: String, enabled: Boolean) =
         modify(memberId) { it.copy(mentorEnabled = if (it.isMentor) true else enabled) }
+
+    override suspend fun setLessonPlan(memberId: String, plan: LessonPlan) = modify(memberId) {
+        it.copy(lessonDays = LessonPlan.encodeDays(plan.days), lessonStart = plan.startMinute, lessonEnd = plan.endMinute, tuitionFee = plan.fee.coerceAtLeast(0), tuitionDay = plan.feeDay)
+    }
 
     override suspend fun setSignature(memberId: String, signature: String) =
         modify(memberId) { it.copy(signature = signature.trim()) }

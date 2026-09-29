@@ -10,7 +10,10 @@ import com.nextstep.app.data.prefs.LinkedChild
 import com.nextstep.app.domain.feedback.FeedbackLine
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.Insight
+import com.nextstep.app.domain.lesson.LessonBook
+import com.nextstep.app.domain.lesson.LessonDay
 import com.nextstep.app.domain.plan.Entitlements
+import com.nextstep.app.domain.plan.Feature
 import com.nextstep.app.domain.report.LessonReport
 import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.RoadmapSummary
@@ -51,6 +54,9 @@ data class MentorDashboardUiState(
     /** 이번 달 수업 리포트와 보낸 기록(내가 보낸 것, 최근 것부터). */
     val monthReport: LessonReport? = null,
     val reportLogs: List<ReportLogEntity> = emptyList(),
+    /** 내 수업의 이 달(일정 · 수업 날 · 요약 · 수업료)과 오늘 수업. 일정도 기록도 없으면 null. */
+    val lessons: LessonBook? = null,
+    val lessonToday: LessonDay? = null,
     /** 요금제로 나눌 수 있는 기능(멘토 화면에는 caps 가 없어 상태로 받음). 지금은 모두 열림. */
     val entitlements: Entitlements = Entitlements.OPEN,
 ) {
@@ -68,6 +74,7 @@ data class MentorDashboardUiState(
         MentorTodayCard.INSIGHTS -> insights.isNotEmpty()
         MentorTodayCard.FEEDBACK -> feedback.isNotEmpty()
         MentorTodayCard.REPORT -> report != null
+        MentorTodayCard.LESSONS -> entitlements.has(Feature.LESSONS)
         MentorTodayCard.WEEK_CHART -> weeklyBySubject.isNotEmpty()
         MentorTodayCard.PROGRESS -> progress.isNotEmpty()
         MentorTodayCard.GRADES -> recentGrades.isNotEmpty()

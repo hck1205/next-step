@@ -33,6 +33,11 @@ class MentorScopedStreams(private val family: FamilyDataStreams) : FamilyDataStr
         if (profile.role == Role.MENTOR) list.filter { it.sentById == profile.memberId } else list
     }
 
+    /** 수업 출결: 멘토는 자기 수업만(다른 멘토의 수업은 보지 않음). */
+    override val lessons = combine(family.profile, family.lessons) { profile, list ->
+        if (profile.role == Role.MENTOR) list.filter { it.mentorId == profile.memberId } else list
+    }
+
     private fun <T> own(flow: Flow<List<T>>, subjectId: (T) -> String?): Flow<List<T>> =
         combine(scope, flow) { s, items -> s?.own(items, subjectId) ?: items }
 
