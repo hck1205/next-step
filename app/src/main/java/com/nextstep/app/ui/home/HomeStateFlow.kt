@@ -7,6 +7,7 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.content.ContentRecommender
 import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackVoice
 import com.nextstep.app.domain.gamify.Gamify
@@ -39,7 +40,7 @@ import kotlinx.coroutines.flow.combine
 internal object HomeStateFlow {
     fun of(streams: FamilyDataStreams, lastPlan: Flow<StudyPlan?>): Flow<HomeUiState> {
         val progress = withProgress(base(streams), streams, lastPlan)
-        return withTrends(withGame(withPlans(withStudent(progress, streams), streams), streams), streams)
+        return withFamily(withTrends(withGame(withPlans(withStudent(progress, streams), streams), streams), streams), streams)
     }
 
     private fun base(streams: FamilyDataStreams): Flow<HomeUiState> =
@@ -132,6 +133,12 @@ internal object HomeStateFlow {
                 studyHeat = TrendStats.heatCalendar(sessions, s.today), scoreSeries = TrendStats.scoreSeries(grades, s.subjects),
                 feedback = FeedbackVoice.lines(findings, FeedbackAudience.STUDENT, numbers = s.level.showsNumbers),
             )
+        }
+
+    /** 가족 일정: 오늘 것과 미리 보기에 든 다가오는 것(가족 달력). */
+    private fun withFamily(trends: Flow<HomeUiState>, streams: FamilyDataStreams): Flow<HomeUiState> =
+        combine(trends, streams.familyEvents, streams.members) { s, family, members ->
+            s.copy(familyAhead = FamilyCalendar.ahead(family, s.today), familyMembers = FamilyCalendar.family(members))
         }
 
     private const val DAYS_IN_WEEK = 7

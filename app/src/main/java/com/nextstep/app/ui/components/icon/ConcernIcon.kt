@@ -3,6 +3,7 @@ package com.nextstep.app.ui.components.icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Flag
@@ -20,6 +21,7 @@ fun concernIcon(concern: Concern): ImageVector = when (concern) {
     Concern.PROJECT -> Icons.Default.Flag
     Concern.EXAMS -> Icons.Default.EmojiEvents
     Concern.PLAN -> Icons.Default.AccountTree
+    Concern.FAMILY -> Icons.Default.CalendarMonth
     Concern.GROWTH -> Icons.Default.Height
     Concern.DISCOVER -> Icons.Default.Palette
 }

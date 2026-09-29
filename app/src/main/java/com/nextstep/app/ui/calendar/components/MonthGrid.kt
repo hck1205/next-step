@@ -9,11 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.calendar.CalendarUiState
 import com.nextstep.app.ui.calendar.DayMarker
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.ColorDot
+import com.nextstep.app.ui.components.layout.MonthHeader
+import com.nextstep.app.ui.components.layout.WeekdayRow
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -63,28 +59,6 @@ internal fun MonthGrid(state: CalendarUiState, onPrev: () -> Unit, onNext: () ->
                 LegendItem("할 일", MaterialTheme.colorScheme.tertiary)
                 LegendItem("학습 기록", MaterialTheme.colorScheme.secondary)
             }
-        }
-    }
-}
-
-@Composable
-private fun MonthHeader(title: String, onPrev: () -> Unit, onNext: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = onPrev) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "이전 달") }
-        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-        IconButton(onClick = onNext) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "다음 달") }
-    }
-}
-
-@Composable
-private fun WeekdayRow() {
-    Row(Modifier.fillMaxWidth()) {
-        DayOfWeek.entries.forEach { d ->
-            Text(
-                DateUtils.dayOfWeekLabel(d), style = MaterialTheme.typography.labelSmall,
-                color = when (d) { DayOfWeek.SUNDAY -> MaterialTheme.colorScheme.error; DayOfWeek.SATURDAY -> MaterialTheme.colorScheme.primary; else -> MaterialTheme.colorScheme.onSurfaceVariant },
-                modifier = Modifier.weight(1f), textAlign = TextAlign.Center,
-            )
         }
     }
 }

@@ -3,6 +3,7 @@ package com.nextstep.app.fake
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
@@ -28,6 +29,7 @@ import com.nextstep.app.data.repository.ActivityRepository
 import com.nextstep.app.data.repository.ContentDraft
 import com.nextstep.app.data.repository.ContentRepository
 import com.nextstep.app.data.repository.EventRepository
+import com.nextstep.app.data.repository.FamilyEventRepository
 import com.nextstep.app.data.repository.GoalRepository
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.data.repository.JourneyRepository
@@ -259,6 +261,18 @@ class FakeRewardRepository(streams: FakeFamilyDataStreams? = null, var role: Str
         rewards.value = rewards.value.map { if (it.id == id) it.copy(givenAt = 1L, givenByRole = role) else it }
     }
     override suspend fun cancel(id: String) { calls += "cancel:$id"; rewards.value = rewards.value.filter { it.id != id } }
+}
+
+class FakeFamilyEventRepository(streams: FakeFamilyDataStreams? = null) : FamilyEventRepository {
+    override val events: MutableStateFlow<List<FamilyEventEntity>> = streams?.familyEvents ?: MutableStateFlow(emptyList())
+    val saved = mutableListOf<FamilyEventEntity>()
+    override suspend fun save(event: FamilyEventEntity) {
+        if (event.title.isBlank()) return
+        val e = event.copy(familyId = event.familyId.ifEmpty { "fam" })
+        saved += e
+        events.value = events.value.filter { it.id != e.id } + e
+    }
+    override suspend fun delete(id: String) { events.value = events.value.filter { it.id != id } }
 }
 
 class FakePeerCurriculumRepository : PeerCurriculumRepository {

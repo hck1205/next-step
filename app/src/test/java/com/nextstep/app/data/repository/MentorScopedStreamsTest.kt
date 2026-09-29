@@ -7,6 +7,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MentorScopedStreamsTest {
@@ -17,6 +18,7 @@ class MentorScopedStreamsTest {
         grades.value = listOf(Fixtures.grade("math", 80.0, 1), Fixtures.grade("eng", 90.0, 1))
         tasks.value = listOf(Fixtures.task("수학 과제", today, "math", by = "MENTOR"), Fixtures.task("영어", today, "eng"), Fixtures.task("과목 없음", today))
         myMember.value = Fixtures.member(role, "나", id = "me", subjectIds = "math")
+        familyEvents.value = listOf(Fixtures.familyEvent("할머니 댁", today))
     }
 
     @Test
@@ -25,12 +27,15 @@ class MentorScopedStreamsTest {
         assertEquals(listOf("수학"), s.subjects.first().map { it.name })
         assertEquals(listOf("math"), s.grades.first().map { it.subjectId })
         assertEquals(listOf("수학 과제", "과목 없음"), s.tasks.first().map { it.title })
+        assertTrue(s.familyEvents.first().isEmpty()) // 가족 달력은 멘토에게 한 건도 넘기지 않음
     }
 
     @Test
     fun familyAndMentorWithoutChosenSubjectsSeeEverything() = runTest {
         assertEquals(2, MentorScopedStreams(family(Role.PARENT)).grades.first().size) // 학부모 겸 멘토라도 학부모 자리
         assertEquals(3, MentorScopedStreams(family(Role.STUDENT)).tasks.first().size)
+        assertEquals(listOf("할머니 댁"), MentorScopedStreams(family(Role.PARENT)).familyEvents.first().map { it.title })
+        assertEquals(1, MentorScopedStreams(family(Role.STUDENT)).familyEvents.first().size)
         val noChoice = family(Role.MENTOR).apply { myMember.value = Fixtures.member(Role.MENTOR, "나", id = "me") }
         assertEquals(2, MentorScopedStreams(noChoice).subjects.first().size)
     }

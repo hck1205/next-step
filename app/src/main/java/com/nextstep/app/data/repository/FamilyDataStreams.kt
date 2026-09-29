@@ -3,6 +3,7 @@ package com.nextstep.app.data.repository
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
@@ -51,4 +52,6 @@ interface FamilyDataStreams {
     val projectLogs: Flow<List<ProjectLogEntity>>
     val weekPlans: Flow<List<WeekPlanEntity>>
     val rewards: Flow<List<RewardEntity>>
+    /** 가족 달력의 일정. 멘토에게는 늘 비어 있습니다(MentorScopedStreams). */
+    val familyEvents: Flow<List<FamilyEventEntity>>
 }

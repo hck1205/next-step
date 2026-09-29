@@ -45,7 +45,7 @@ class StudentUiLevelTest {
 
     @Test
     fun newSinceListsOnlyOpenedCardsInScreenOrder() {
-        assertEquals(listOf(StudentHomeSection.EVENTS, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION), StudentUiLevel.SEEDLING.newSince(StudentUiLevel.SPROUT))
+        assertEquals(listOf(StudentHomeSection.EVENTS, StudentHomeSection.FAMILY, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION), StudentUiLevel.SEEDLING.newSince(StudentUiLevel.SPROUT))
         assertEquals(StudentUiLevel.SEEDLING.opens + StudentUiLevel.STEM.opens, StudentUiLevel.STEM.newSince(StudentUiLevel.SPROUT).toSet())
         assertTrue(StudentUiLevel.TREE.newSince(StudentUiLevel.TREE).isEmpty())
         assertTrue(StudentUiLevel.SPROUT.newSince(StudentUiLevel.TREE).isEmpty())

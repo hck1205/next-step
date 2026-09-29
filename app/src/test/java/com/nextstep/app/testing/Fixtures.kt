@@ -3,6 +3,7 @@ package com.nextstep.app.testing
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
@@ -64,6 +65,16 @@ object Fixtures {
 
     fun member(role: Role, name: String, id: String = "m-$name", subjectIds: String = "", mentorEnabled: Boolean = role == Role.MENTOR, gradeYear: Int = 0, birthDate: LocalDate? = null) =
         MemberEntity(id = id, familyId = FAMILY, role = role.name, name = name, subjectIds = subjectIds, mentorEnabled = mentorEnabled, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())
+
+    /** 가족 일정. [end] 가 있으면 여러 날, [minutes] 가 있으면 그 시각(없으면 하루 종일). */
+    fun familyEvent(
+        title: String, date: LocalDate, end: LocalDate = date, kind: String = "FAMILY", repeat: String = "NONE", until: LocalDate? = null,
+        members: String = "", keeper: String = "", headsUp: String = "DAY_BEFORE", minutes: Pair<Int, Int>? = null, id: String = "fe-$title",
+    ) = FamilyEventEntity(
+        id = id, familyId = FAMILY, title = title, kind = kind, startDate = date.toEpochDay(), endDate = end.toEpochDay(), allDay = minutes == null,
+        startMinute = minutes?.first ?: 0, endMinute = minutes?.second ?: 0, memberIds = members, keeperId = keeper, repeat = repeat,
+        repeatUntil = until?.toEpochDay(), headsUp = headsUp,
+    )
 
     fun activity(title: String, type: ActivityType = ActivityType.FIELD_TRIP, date: LocalDate = LocalDate.of(2029, 10, 1), end: LocalDate? = null, id: String = "a-$title", place: String = "", note: String = "", rating: Int = 0) =
         ActivityEntity(id = id, familyId = FAMILY, type = type, title = title, date = date.toEpochDay(), endDate = end?.toEpochDay(), place = place, note = note, rating = rating)

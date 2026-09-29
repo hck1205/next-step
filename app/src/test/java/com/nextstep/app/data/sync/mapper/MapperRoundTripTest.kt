@@ -62,6 +62,12 @@ class MapperRoundTripTest {
     @Test fun reward() = roundTrip(
         RewardMapper, RewardEntity(id = "r", familyId = Fixtures.FAMILY, kind = "GOAL", targetId = "g", title = "보드게임", createdByRole = "PARENT", givenAt = 5L, givenByRole = "MENTOR", createdAt = 2L),
     ) { it.copy(dirty = false) }.let {}
+    @Test fun familyEvent() = roundTrip(
+        FamilyEventMapper,
+        Fixtures.familyEvent("수영", LocalDate.of(2029, 3, 1), end = LocalDate.of(2029, 3, 2), kind = "LESSON", repeat = "WEEKLY", until = LocalDate.of(2029, 6, 1), members = "kid,mom", keeper = "mom", headsUp = "WEEK", minutes = 1020 to 1080)
+            .copy(location = "체육관", bring = "수경\n수모", memo = "m", createdById = "mom", createdByRole = "PARENT", createdAt = 3L, deleted = true),
+    ) { it.copy(dirty = false) }.let {}
+    @Test fun familyEventOpenEnded() = roundTrip(FamilyEventMapper, Fixtures.familyEvent("외식", LocalDate.of(2029, 3, 1))) { it.copy(dirty = false) }.let { assertNull(it.repeatUntil) }
     @Test fun memberWithoutGamifyFieldKeepsItOn() = MemberMapper.fromMap("m", MemberMapper.toMap(Fixtures.member(Role.STUDENT, "나")) - "gamify").let { assertTrue(it.gamify) }
     @Test fun projectLog() = roundTrip(ProjectLogMapper, Fixtures.projectLog("g", "p5", "파닉스 교재 한 쪽", 10, LocalDate.of(2029, 3, 4)).copy(authorRole = "PARENT", deleted = true)) { it.copy(dirty = false) }.let {}
     @Test fun peerTopic() = roundTrip(PeerTopicMapper, Fixtures.peerTopic("g7s1", "수학", "정수와 유리수", 12).copy(coveredRatio = 0.4, updatedAt = 9L)) { it.copy(dirty = false) }.let { assertEquals("", it.familyId) }

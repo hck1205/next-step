@@ -4,6 +4,7 @@ import com.nextstep.app.data.local.AppDatabase
 import com.nextstep.app.data.sync.mapper.ActivityMapper
 import com.nextstep.app.data.sync.mapper.ContentMapper
 import com.nextstep.app.data.sync.mapper.EventMapper
+import com.nextstep.app.data.sync.mapper.FamilyEventMapper
 import com.nextstep.app.data.sync.mapper.GoalMapper
 import com.nextstep.app.data.sync.mapper.GoalStepMapper
 import com.nextstep.app.data.sync.mapper.GradeMapper
@@ -45,6 +46,7 @@ object SyncRegistry {
         SyncedCollection.of(ProjectLogMapper, db.projectLogDao()),
         SyncedCollection.of(WeekPlanMapper, db.weekPlanDao()),
         SyncedCollection.of(RewardMapper, db.rewardDao()),
+        SyncedCollection.of(FamilyEventMapper, db.familyEventDao()),
     )
 
     /** 최상위 공용 컬렉션(읽기 전용) 전부. 새 공용 데이터는 여기 한 줄. */

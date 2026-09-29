@@ -41,6 +41,7 @@ import com.nextstep.app.ui.content.ContentActions
 import com.nextstep.app.ui.content.ContentLibraryScreen
 import com.nextstep.app.ui.curriculum.CurriculumActions
 import com.nextstep.app.ui.curriculum.CurriculumScreen
+import com.nextstep.app.ui.familycalendar.FamilyCalendarScreen
 import com.nextstep.app.ui.goals.GoalsActions
 import com.nextstep.app.ui.goals.GoalsScreen
 import com.nextstep.app.ui.goaltree.GoalTreeActions
@@ -175,6 +176,7 @@ private fun SectionContent(section: ConcernSection, caps: Capabilities, viewer: 
         ConcernSection.ASSIGNMENTS -> AssignmentsScreen()
         ConcernSection.PLAN_HISTORY -> PlanHistoryScreen(actions = PlanHistoryActions(onOpenGoal = actions.onOpenGoal))
         ConcernSection.REWARDS -> RewardsScreen(caps = caps, showsNumbers = viewer.level?.showsNumbers ?: true, actions = RewardsActions(onOpenGoal = actions.onOpenGoal))
+        ConcernSection.FAMILY_CALENDAR -> FamilyCalendarScreen(caps = caps)
         ConcernSection.BODY -> GrowthScreen(caps = caps)
         ConcernSection.ACTIVITIES -> ActivitiesScreen(caps = caps, actions = ActivitiesActions(onOpenJourney = actions.onOpenJourney))
         ConcernSection.TALENT -> TalentScreen(caps = caps)

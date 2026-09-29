@@ -104,6 +104,19 @@ class HomeViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun familyEventsCardOpensFromSeedlingAndShowsWhatIsAhead() = runTest {
+        streams.familyEvents.value = listOf(Fixtures.familyEvent("할머니 댁", today), Fixtures.familyEvent("먼 여행", today.plusDays(6)))
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 1))
+        val vm = vm(); val job = subscribe(vm.state)
+        val young = settle(vm.state)
+        assertEquals(listOf("할머니 댁"), young.familyAhead.map { it.event.title }); assertFalse(young.level.shows(StudentHomeSection.FAMILY))
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 3))
+        val older = settle(vm.state)
+        assertTrue(older.level.shows(StudentHomeSection.FAMILY)); assertTrue(StudentHomeSection.FAMILY in older.homeOrder); assertTrue(older.hasContent(StudentHomeSection.FAMILY))
+        job.cancel()
+    }
+
+    @Test
     fun withoutStudentInfoTheFullScreenIsUsed() = runTest {
         val vm = vm(); val job = subscribe(vm.state)
         assertEquals(StudentUiLevel.TREE, settle(vm.state).level); assertTrue(members.calls.isEmpty())

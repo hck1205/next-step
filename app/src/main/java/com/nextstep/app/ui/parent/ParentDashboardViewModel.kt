@@ -20,6 +20,7 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
 import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackEngine
 import com.nextstep.app.domain.feedback.FeedbackVoice
@@ -108,10 +109,10 @@ class ParentDashboardViewModel(
         TrendStats.family(sessions, tasks, grades, subjects, DateUtils.today())
     }
 
-    /** 차트 값과 이번 주 피드백의 사실(같은 기록에서). */
-    private val charts = combine(trends, streams.weekFindings { DateUtils.today() }) { t, f -> t to f }
+    /** 차트 값과 이번 주 피드백의 사실(같은 기록에서), 그리고 가족 일정. */
+    private val charts = combine(trends, streams.weekFindings { DateUtils.today() }, streams.familyEvents) { t, f, family -> Triple(t, f, family) }
 
-    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, charts) { s, members, input, list, (t, findings) ->
+    val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, charts) { s, members, input, list, (t, findings, family) ->
         val level = StudentScreen.of(members.firstOrNull { it.isStudent }, s.today).level
         val profile = Gamify.profile(input, s.today, style = level.game)
         val mine = FeedbackEngine.forAudience(findings, FeedbackAudience.PARENT)
@@ -119,6 +120,7 @@ class ParentDashboardViewModel(
             rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t,
             feedback = mine.map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
             feedbackEcho = mine.firstOrNull()?.let { FeedbackVoice.line(it, FeedbackAudience.STUDENT, numbers = level.showsNumbers) },
+            familyAhead = FamilyCalendar.ahead(family, s.today), familyMembers = FamilyCalendar.family(members),
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())
 

@@ -66,6 +66,23 @@ class ParentViewModelsTest : ViewModelTestBase() {
     }
 
     @Test
+    fun dashboardShowsFamilyEventsWithinTheirHeadsUp() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "지우", id = "kid", gradeYear = 8), Fixtures.member(Role.PARENT, "엄마", id = "mom"))
+        streams.familyEvents.value = listOf(
+            Fixtures.familyEvent("치과", today.plusDays(1), members = "kid", keeper = "mom"),
+            Fixtures.familyEvent("가족 여행", today.plusDays(5), headsUp = "DAY_BEFORE"),
+        )
+        val vm = ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertEquals(listOf("치과"), s.familyAhead.map { it.event.title }) // 여행은 아직 미리 보기 밖
+        assertEquals(listOf("지우", "엄마"), s.familyMembers.map { it.name })
+        assertTrue(com.nextstep.app.domain.today.ParentTodayCard.FAMILY in s.visibleCards)
+        streams.familyEvents.value = emptyList()
+        assertTrue(com.nextstep.app.domain.today.ParentTodayCard.FAMILY !in settle(vm.state).visibleCards)
+        job.cancel()
+    }
+
+    @Test
     fun dashboardListsRewardsThatAreDueAndGivesThem() = runTest {
         streams.goals.value = listOf(Fixtures.goal("분수", trackId = GoalTree.TRACK, id = "g1", status = com.nextstep.app.data.model.GoalStatus.DONE), Fixtures.goal("일기", trackId = GoalTree.TRACK, id = "g2"))
         streams.rewards.value = listOf(

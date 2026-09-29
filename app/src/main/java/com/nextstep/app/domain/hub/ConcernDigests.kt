@@ -2,6 +2,7 @@ package com.nextstep.app.domain.hub
 
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.goaltree.WeekRate
 import com.nextstep.app.domain.health.GrowthSignalLevel
@@ -16,6 +17,7 @@ import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.text.compact
 import com.nextstep.app.domain.time.DateUtils
+import java.time.LocalDate
 import kotlin.math.roundToInt
 
 /** 관심사마다 타일 한 장을 만듭니다. 숫자는 타일당 하나, 비교 대상은 지난 기록뿐입니다. */
@@ -55,6 +57,21 @@ object ConcernDigests {
         attention = summary?.signals.orEmpty().any { it.level == GrowthSignalLevel.CHECK },
         chart = heights.takeIf { it.size >= 2 }?.let { h -> DigestChart.Line(h.map { (it * TENTHS).roundToInt() }) },
     )
+
+    /** 우리 가족: 오늘 가족 일정 수(없으면 다가오는 일정 수)와 가장 가까운 한 건. 주의 점은 없습니다(가족 일정은 챙길 일이 아니라 알 일). */
+    fun family(ahead: List<FamilyOccurrence>, today: LocalDate): ConcernDigest {
+        val todays = ahead.count { it.date == today }
+        val first = ahead.firstOrNull()
+        return ConcernDigest(
+            concern = Concern.FAMILY,
+            headline = when {
+                todays > 0 -> "오늘 가족 일정 ${todays}개"
+                ahead.isNotEmpty() -> "다가오는 가족 일정 ${ahead.size}개"
+                else -> "다가오는 가족 일정 없음"
+            },
+            detail = first?.let { "${if (it.date == today) "오늘" else DateUtils.formatShortDate(it.start)} · ${it.event.title}" },
+        )
+    }
 
     fun discover(activitiesThisPeriod: Int, signals: List<AptitudeSignal>): ConcernDigest = ConcernDigest(
         concern = Concern.DISCOVER,

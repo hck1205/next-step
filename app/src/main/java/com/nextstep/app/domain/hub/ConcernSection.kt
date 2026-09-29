@@ -35,6 +35,7 @@ enum class ConcernSection(
     ASSIGNMENTS(Concern.PLAN, "과제", "assignments", StudentUiLevel.STEM),
     PLAN_HISTORY(Concern.PLAN, "지난 기록", "plan-history", StudentUiLevel.SEEDLING),
     REWARDS(Concern.PLAN, "보상·배지", "rewards", StudentUiLevel.SEED, audiences = FAMILY),
+    FAMILY_CALENDAR(Concern.FAMILY, "가족 달력", "family-calendar", StudentUiLevel.SEED, audiences = FAMILY),
     BODY(Concern.GROWTH, "신체", "body", StudentUiLevel.SEED, audiences = FAMILY),
     ACTIVITIES(Concern.DISCOVER, "활동", "activities", StudentUiLevel.SEED, audiences = FAMILY),
     TALENT(Concern.DISCOVER, "재능", "talent", StudentUiLevel.SEEDLING, audiences = FAMILY);

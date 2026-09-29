@@ -3,6 +3,7 @@ package com.nextstep.app.fake.dao
 import com.nextstep.app.data.local.dao.ActivityDao
 import com.nextstep.app.data.local.dao.ContentDao
 import com.nextstep.app.data.local.dao.EventDao
+import com.nextstep.app.data.local.dao.FamilyEventDao
 import com.nextstep.app.data.local.dao.GoalDao
 import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.dao.GradeDao
@@ -21,6 +22,7 @@ import com.nextstep.app.data.local.dao.WeekPlanDao
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
@@ -64,6 +66,8 @@ class FakeActivityDao : InMemoryTable<ActivityEntity>(), ActivityDao
 class FakeGrowthRecordDao : InMemoryTable<GrowthRecordEntity>(), GrowthRecordDao
 
 class FakeObservationDao : InMemoryTable<ObservationEntity>(), ObservationDao
+
+class FakeFamilyEventDao : InMemoryTable<FamilyEventEntity>(), FamilyEventDao
 
 class FakeRewardDao : InMemoryTable<RewardEntity>(), RewardDao {
     override suspend fun findOpen(familyId: String, kind: String, targetId: String) =

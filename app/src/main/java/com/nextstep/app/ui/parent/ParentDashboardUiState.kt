@@ -1,9 +1,11 @@
 package com.nextstep.app.ui.parent
 
+import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.SyncStatus
 import com.nextstep.app.data.prefs.LinkedChild
+import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.feedback.FeedbackLine
 import com.nextstep.app.domain.goaltree.GoalNode
 import com.nextstep.app.domain.growth.GrowthStage
@@ -63,6 +65,9 @@ data class ParentDashboardUiState(
     /** 이번 주 피드백(학부모의 말)과 그 첫 사실을 아이가 들은 말. */
     val feedback: List<FeedbackLine> = emptyList(),
     val feedbackEcho: FeedbackLine? = null,
+    /** 가족 일정(오늘 + 미리 보기)과 "누구의 일정" 문구에 쓰는 가족 구성원. */
+    val familyAhead: List<FamilyOccurrence> = emptyList(),
+    val familyMembers: List<MemberEntity> = emptyList(),
 ) {
     /** 첫 화면의 상태 문장: 균형 판단 + 챙길 것 수. 숫자 대신 문장으로. */
     val statusHeadline: String get() {
@@ -83,6 +88,7 @@ data class ParentDashboardUiState(
     fun hasContent(card: ParentTodayCard): Boolean = when (card) {
         ParentTodayCard.JOURNEY, ParentTodayCard.TODAY, ParentTodayCard.KPIS -> true
         ParentTodayCard.FEEDBACK -> feedback.isNotEmpty()
+        ParentTodayCard.FAMILY -> familyAhead.isNotEmpty()
         ParentTodayCard.REWARDS -> rewardsDue.isNotEmpty()
         ParentTodayCard.GOALS -> goalFocus.isNotEmpty()
         ParentTodayCard.WEEK -> week != null

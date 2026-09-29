@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import com.nextstep.app.data.local.dao.ActivityDao
 import com.nextstep.app.data.local.dao.ContentDao
 import com.nextstep.app.data.local.dao.EventDao
+import com.nextstep.app.data.local.dao.FamilyEventDao
 import com.nextstep.app.data.local.dao.GoalDao
 import com.nextstep.app.data.local.dao.GoalStepDao
 import com.nextstep.app.data.local.dao.GradeDao
@@ -27,6 +28,7 @@ import com.nextstep.app.data.local.dao.WeekPlanDao
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.GradeEntity
@@ -65,8 +67,9 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
         ProjectLogEntity::class,
         WeekPlanEntity::class,
         RewardEntity::class,
+        FamilyEventEntity::class,
     ],
-    version = 18,
+    version = 19,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -90,6 +93,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun projectLogDao(): ProjectLogDao
     abstract fun weekPlanDao(): WeekPlanDao
     abstract fun rewardDao(): RewardDao
+    abstract fun familyEventDao(): FamilyEventDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

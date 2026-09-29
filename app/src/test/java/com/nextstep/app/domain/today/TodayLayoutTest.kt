@@ -54,8 +54,10 @@ class TodayLayoutTest {
         assertEquals(Concern.EXAMS, StudentHomeSection.MISSION.concern); assertEquals(Concern.LEARN, StudentHomeSection.REVIEW.concern)
         assertEquals(Concern.PROJECT, ParentTodayCard.ROUTINE.concern); assertEquals(Concern.STUDY, ParentTodayCard.WEEK.concern)
         assertEquals(Concern.PLAN, MentorTodayCard.TASKS.concern); assertEquals(Concern.EXAMS, MentorTodayCard.GRADES.concern)
-        // 학부모·멘토 카드 순서대로 묶으면 한눈에 → 목표·할 일 → 공부 순
-        assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.STUDY, Concern.PROJECT, Concern.EXAMS), TodayLayout.group(ParentTodayCard.entries) { it.concern }.map { it.concern })
+        // 학부모·멘토 카드 순서대로 묶으면 한눈에 → 목표·할 일 → (가족: 우리 가족) → 공부 순. 가족 일정은 학생·학부모 카드에만
+        assertEquals(Concern.FAMILY, ParentTodayCard.FAMILY.concern); assertEquals(Concern.FAMILY, StudentHomeSection.FAMILY.concern)
+        assertTrue(MentorTodayCard.entries.none { it.concern == Concern.FAMILY })
+        assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.FAMILY, Concern.STUDY, Concern.PROJECT, Concern.EXAMS), TodayLayout.group(ParentTodayCard.entries) { it.concern }.map { it.concern })
         assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.STUDY, Concern.LEARN, Concern.EXAMS), TodayLayout.group(MentorTodayCard.entries) { it.concern }.map { it.concern })
     }
 

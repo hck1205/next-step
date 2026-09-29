@@ -12,6 +12,7 @@ import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.AssignerCard
 import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.card.FamilyAheadCard
 import com.nextstep.app.ui.components.card.FeedbackCard
 import com.nextstep.app.ui.components.card.GoalFocusCard
 import com.nextstep.app.ui.components.card.JourneyNowCard
@@ -37,6 +38,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
     when (card) {
         ParentTodayCard.JOURNEY -> JourneyNowCard(items = state.journeyNow, today = state.today, hasBirthDate = state.hasBirthDate, onOpen = actions.onOpenJourney)
         ParentTodayCard.KPIS -> ParentKpis(state.trends)
+        ParentTodayCard.FAMILY -> FamilyAheadCard(state.familyAhead, state.familyMembers, state.today, compact, onOpen = { actions.onOpenRecords(ConcernSection.FAMILY_CALENDAR) })
         ParentTodayCard.FEEDBACK -> FeedbackCard(state.feedback, echo = state.feedbackEcho, echoName = state.studentName.ifBlank { "아이" }, compact = compact)
         ParentTodayCard.REWARDS -> RewardDueCard(state.rewardsDue, onGive = { onEvent(ParentDashboardEvent.GiveReward(it)) }, onOpenGoal = actions.onOpenGoal)
         ParentTodayCard.GOALS -> Column {
@@ -79,7 +81,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
 internal fun parentCardTitle(card: ParentTodayCard, state: ParentDashboardUiState): String = when (card) {
     ParentTodayCard.TODAY -> "오늘의 ${state.studentName.ifBlank { "아이" }}"
     ParentTodayCard.REWARDS, ParentTodayCard.WEEK, ParentTodayCard.EXAM -> ""
-    ParentTodayCard.JOURNEY, ParentTodayCard.KPIS, ParentTodayCard.FEEDBACK, ParentTodayCard.GOALS, ParentTodayCard.ROUTINE, ParentTodayCard.MISSIONS,
+    ParentTodayCard.JOURNEY, ParentTodayCard.KPIS, ParentTodayCard.FEEDBACK, ParentTodayCard.FAMILY, ParentTodayCard.GOALS, ParentTodayCard.ROUTINE, ParentTodayCard.MISSIONS,
     ParentTodayCard.WEEK_RATES, ParentTodayCard.ASSIGNERS, ParentTodayCard.HEAT, ParentTodayCard.DAYS, ParentTodayCard.SUBJECT_TIME, ParentTodayCard.SCORES,
     -> card.title
 }

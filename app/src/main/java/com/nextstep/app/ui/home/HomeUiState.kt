@@ -1,6 +1,7 @@
 package com.nextstep.app.ui.home
 
 import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
@@ -8,6 +9,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.prefs.RunningTimer
 import com.nextstep.app.domain.content.ContentRecommendation
 import com.nextstep.app.domain.curriculum.TermCurriculum
+import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.feedback.FeedbackLine
 import com.nextstep.app.domain.gamify.GameProfile
 import com.nextstep.app.domain.growth.GrowthStage
@@ -96,6 +98,9 @@ data class HomeUiState(
     val scoreSeries: List<ScoreSeries> = emptyList(),
     /** 이번 주 한마디(학생의 말). */
     val feedback: List<FeedbackLine> = emptyList(),
+    /** 가족 일정(오늘 + 미리 보기)과 "누구의 일정" 문구에 쓰는 가족 구성원. */
+    val familyAhead: List<FamilyOccurrence> = emptyList(),
+    val familyMembers: List<MemberEntity> = emptyList(),
     val streak: Int = 0,
 ) {
     /** 오늘 보여 줄 카드(화면 단계가 연 것 중 내용이 있는 것, 올해 프로필 순서). */
@@ -111,6 +116,7 @@ data class HomeUiState(
         StudentHomeSection.TIMER, StudentHomeSection.TASKS, StudentHomeSection.EVENTS, StudentHomeSection.PLANNER -> true
         StudentHomeSection.YEAR -> year != null
         StudentHomeSection.FEEDBACK -> feedback.isNotEmpty()
+        StudentHomeSection.FAMILY -> familyAhead.isNotEmpty()
         StudentHomeSection.CURRICULUM -> curriculum != null
         StudentHomeSection.MISSION -> missionFocus.isNotEmpty()
         StudentHomeSection.JOURNEY -> hasBirthDate || journeyNow.isNotEmpty()

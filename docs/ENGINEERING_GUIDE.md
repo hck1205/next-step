@@ -33,6 +33,7 @@ com.nextstep.app
 │   ├── time/               DateUtils
 │   ├── stats/              StudyStats, StudyQueues(예습·복습 대기열), BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats, TrendStats(학부모·멘토 차트 값 → FamilyTrends: 8주 흐름·공부 달력·과목별 점수·과제 제출, 할 일의 주별·준 사람별 달성은 PlanHistory 그대로) + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
+│   ├── familycalendar/     FamilyCalendar(반복·여러 날·오늘 화면 미리 보기·누구 문구) + FamilyEventKind·FamilyRepeat·FamilyHeadsUp·FamilyOccurrence (입력은 entry/FamilyEventDraft)
 │   ├── feedback/           FeedbackEngine(이번 주 vs 지난주 사실 한 벌 + 보는 사람별 추림), FeedbackVoice(학생·학부모·멘토 말투)
 │   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
 │   ├── mission/            MissionKind(단계별 종류), MissionCatalog(날짜에서 거꾸로 쪼갠 단계 설계), MissionPlanner(생성·압축·다음 단계·오늘 카드)

@@ -55,7 +55,7 @@ enum class StudentUiLevel(
     ),
     SEEDLING(
         "떡잎", 3, 1.2f, 3, false, 56, false, 3, StudentWords.EASY, KidMode.MIDDLE, GameStyle.LEVELS,
-        setOf(StudentHomeSection.EVENTS, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION),
+        setOf(StudentHomeSection.EVENTS, StudentHomeSection.FAMILY, StudentHomeSection.REVIEW, StudentHomeSection.RECOMMENDATION),
     ),
     STEM(
         "줄기", 5, 1.1f, 3, true, 52, true, 5, StudentWords.STANDARD, KidMode.NONE, GameStyle.LEVELS,
