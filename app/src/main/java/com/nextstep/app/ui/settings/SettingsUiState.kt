@@ -28,6 +28,8 @@ data class SettingsUiState(
     val chosenStudentLevel: StudentUiLevel? = null,
     /** 올해 학년 표기(예: "초5", "만 4세"). 생년월일·학년이 없으면 null. */
     val yearLabel: String? = null,
+    /** 이 기기의 하루 알림이 켜져 있는지. */
+    val noticesOn: Boolean = true,
 ) {
     val children: List<LinkedChild> get() = profile?.children.orEmpty()
     /** 아이 나이에 맞춘 게임 모양(학부모가 고른 화면 단계가 있으면 그 단계). 성장 기록 모양이면 학생도 스스로 끌 수 있습니다. */

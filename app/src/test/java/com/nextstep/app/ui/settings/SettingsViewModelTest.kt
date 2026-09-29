@@ -4,11 +4,13 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.fake.FakeFamilyDataStreams
 import com.nextstep.app.fake.FakeMemberRepository
+import com.nextstep.app.fake.FakeNoticeSettings
 import com.nextstep.app.fake.FakeOnboardingRepository
 import com.nextstep.app.testing.Fixtures
 import com.nextstep.app.ui.ViewModelTestBase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -16,8 +18,9 @@ class SettingsViewModelTest : ViewModelTestBase() {
     private val streams = FakeFamilyDataStreams(role = Role.PARENT)
     private val onboarding = FakeOnboardingRepository(syncAvailable = true)
     private val members = FakeMemberRepository()
+    private val notices = FakeNoticeSettings()
 
-    private fun vm() = SettingsViewModel(streams, onboarding, members)
+    private fun vm() = SettingsViewModel(streams, onboarding, members, notices)
 
     @Test
     fun stateCombinesProfileMembersAndSync() = runTest {
@@ -26,6 +29,15 @@ class SettingsViewModelTest : ViewModelTestBase() {
         val vm = vm(); val job = subscribe(vm.state)
         val s = settle(vm.state)
         assertEquals(Role.PARENT, s.profile!!.role); assertTrue(s.syncAvailable); assertEquals(2, s.members.size); assertEquals("나", s.me!!.name)
+        job.cancel()
+    }
+
+    @Test
+    fun noticesSwitchIsPerDevice() = runTest {
+        val vm = vm(); val job = subscribe(vm.state)
+        assertTrue(settle(vm.state).noticesOn)
+        vm.onEvent(SettingsEvent.SetNotices(false))
+        assertFalse(settle(vm.state).noticesOn); assertFalse(notices.enabled.value)
         job.cancel()
     }
 

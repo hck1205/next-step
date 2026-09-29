@@ -19,6 +19,8 @@ sealed interface SettingsEvent {
     data class SaveStudentYear(val birthDate: java.time.LocalDate?, val gradeYear: Int, val level: StudentUiLevel?) : SettingsEvent
     /** 아이 화면의 레벨·배지(게임 요소) 켜고 끄기. 학부모만. */
     data class SetGamify(val enabled: Boolean) : SettingsEvent
+    /** 이 기기의 하루 알림(아침 · 일요일 저녁) 켜고 끄기. */
+    data class SetNotices(val enabled: Boolean) : SettingsEvent
     /** 다자녀 */
     data class SwitchChild(val familyId: String) : SettingsEvent
     data class AddChild(val name: String, val birthDate: java.time.LocalDate?) : SettingsEvent

@@ -2,6 +2,7 @@ package com.nextstep.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.notice.NoticeSettings
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
@@ -20,6 +21,7 @@ class SettingsViewModel(
     private val streams: FamilyDataStreams,
     private val onboarding: OnboardingRepository,
     private val members: MemberRepository,
+    private val notices: NoticeSettings,
 ) : ViewModel() {
     private val childError = MutableStateFlow<String?>(null)
 
@@ -33,6 +35,7 @@ class SettingsViewModel(
             yearLabel = student?.let { YearProfiles.of(it)?.label },
         )
     }.combine(childError) { s, e -> s.copy(childError = e) }
+        .combine(notices.enabled) { s, on -> s.copy(noticesOn = on) }
         .asUiState(viewModelScope, SettingsUiState())
 
     fun switchChild(familyId: String) { viewModelScope.launch { onboarding.switchChild(familyId) } }
@@ -82,6 +85,7 @@ class SettingsViewModel(
             is SettingsEvent.SetBirthDate -> setBirthDate(event.date)
             is SettingsEvent.SaveStudentYear -> saveStudentYear(event.birthDate, event.gradeYear, event.level)
             is SettingsEvent.SetGamify -> setGamify(event.enabled)
+            is SettingsEvent.SetNotices -> viewModelScope.launch { notices.setEnabled(event.enabled) }
             is SettingsEvent.SwitchChild -> switchChild(event.familyId)
             is SettingsEvent.AddChild -> addChild(event.name, event.birthDate)
             is SettingsEvent.LinkChild -> linkChild(event.code)

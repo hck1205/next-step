@@ -113,6 +113,9 @@ private fun SettingsRows(state: SettingsUiState, caps: Capabilities, onEvent: (S
             Switch(checked = state.student?.gamify ?: true, onCheckedChange = { onEvent(SettingsEvent.SetGamify(it)) }, enabled = state.student != null)
         }
     }
+    SettingRow("알림", if (caps.isFamily) "아침에 오늘 챙길 것, 일요일 저녁에 주말 이야기를 한 번씩" else "아침에 오늘 챙길 것을 한 번") {
+        Switch(checked = state.noticesOn, onCheckedChange = { onEvent(SettingsEvent.SetNotices(it)) })
+    }
     SettingRow("연결 코드", state.profile?.pairingCode ?: "------", onClick = { open(SettingsDialog.PairingCode) })
 }
 
