@@ -7,7 +7,6 @@ import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.journey.JourneyPlanner
-import com.nextstep.app.domain.lesson.LessonPlan
 import com.nextstep.app.domain.lesson.Lessons
 import com.nextstep.app.domain.mission.MissionPlanner
 import com.nextstep.app.domain.notice.NoticeInput
@@ -24,10 +23,10 @@ object NoticeInputs {
         val profile = streams.profile.first()
         val me = streams.myMember.first()
         val caps = Capabilities.of(profile.role ?: Role.STUDENT, me)
-        val lessons = caps.has(Feature.LESSONS) && !caps.isStudent
-        val records = streams.lessons.first()
-        // 수업료: 멘토는 자기 것만, 학부모는 모든 멘토의 것
-        val tutors = if (caps.canKeepLessons) listOfNotNull(me) else streams.members.first()
+        // 수업·수업료(어른만): 멘토는 자기 수업, 학부모는 멘토마다
+        val books = if (caps.has(Feature.LESSONS) && !caps.isStudent) {
+            Lessons.booksFor(caps.canKeepLessons, me, streams.members.first(), streams.lessons.first(), YearMonth.from(today), today)
+        } else emptyList()
         val family = streams.familyEvents.first()
         val tasks = streams.tasks.first()
         val nextMonday = DateUtils.weekStart(today).plusWeeks(1)
@@ -41,8 +40,8 @@ object NoticeInputs {
             journey = if (caps.isFamily) JourneyPlanner.actionable(JourneyPlanner.build(birth, streams.journeyItems.first(), today), today) else emptyList(),
             dueToday = tasks.count { !it.deleted && !it.done && it.dueDate == today.toEpochDay() },
             overdue = StudyStats.overdueTasks(tasks).size,
-            lessonAt = if (lessons) me?.takeIf { caps.canKeepLessons }?.let { m -> Lessons.today(LessonPlan.of(m), records.filter { it.mentorId == m.id }, today)?.let { m.lessonStart } } else null,
-            tuition = if (lessons) Lessons.books(tutors, records, YearMonth.from(today), today).mapNotNull { it.tuition } else emptyList(),
+            lessonAt = books.takeIf { caps.canKeepLessons }?.firstOrNull()?.takeIf { it.on(today) != null }?.plan?.startMinute,
+            tuition = books.mapNotNull { it.tuition },
             talkDone = FamilyTalk.talked(streams.weekPlans.first(), FamilyTalk.talkWeek(today)),
         )
     }

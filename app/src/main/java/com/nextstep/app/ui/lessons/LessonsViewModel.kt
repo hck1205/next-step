@@ -30,11 +30,10 @@ class LessonsViewModel(
 
     val state: StateFlow<LessonsUiState> = combine(month, streams.profile, streams.myMember, streams.members, streams.lessons) { ym, profile, me, all, records ->
         val caps = Capabilities.of(profile.role ?: Role.STUDENT, me)
-        val books = Lessons.books(all, records, ym, today())
         LessonsUiState(
             month = ym,
-            books = if (caps.canKeepLessons) books.filter { it.mentorId == me?.id } else books, // 멘토는 다른 멘토의 일정·수업료를 보지 않음
-            myPlan = me?.let(LessonPlan::of) ?: LessonsUiState().myPlan,
+            books = Lessons.booksFor(caps.canKeepLessons, me, all, records, ym, today()),
+            myPlan = me?.let(LessonPlan::of) ?: LessonPlan.NONE,
             loaded = true,
         )
     }.asUiState(viewModelScope, LessonsUiState(month = YearMonth.from(today())))

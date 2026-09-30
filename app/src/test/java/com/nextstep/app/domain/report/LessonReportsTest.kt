@@ -9,6 +9,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
+import java.time.LocalTime
 
 class LessonReportsTest {
     private val today = LocalDate.of(2029, 3, 7)
@@ -54,5 +55,24 @@ class LessonReportsTest {
         val doc = LessonReports.doc(r, "잘했어요", "김쌤")
         assertEquals(listOf("선생님 한마디", "선생님"), doc.sections.takeLast(2).map { it.label }); assertEquals("NextStep에서 보냄", doc.footer)
         assertEquals(ReportKind.MONTH, ReportKind.from("MONTH")); assertEquals(ReportKind.WEEK, ReportKind.from(null))
+    }
+
+    @Test
+    fun weekAndMonthGatherTheMentorsScopedRecords() {
+        val study = MentorStudy(
+            "지우", "김쌤", listOf(Fixtures.math),
+            sessions = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 40), Fixtures.session("math", LocalDate.of(2029, 3, 2), LocalTime.of(9, 0), 50)),
+            progress = emptyList(),
+            tasks = listOf(Fixtures.task("3월 과제", today.plusDays(3), "math", by = "MENTOR"), Fixtures.task("4월 과제", LocalDate.of(2029, 4, 2), "math", by = "MENTOR")),
+            findings = emptyList(),
+        )
+        val week = LessonReports.week(study, today)!!
+        assertEquals("이번 주 공부", week.sections[0].label); assertEquals(listOf("40분"), week.sections[0].lines) // 이번 주(3/5~)만
+        assertTrue(week.sections.first { it.label == "과제" }.lines[0].contains("남음 2"))
+        val month = LessonReports.month(study, today)!!
+        assertTrue(month.title.contains("월간 수업 리포트 · 3월")); assertEquals(listOf("1시간 30분"), month.sections[0].lines)
+        assertEquals("3월 공부", month.sections[0].label)
+        assertTrue(month.sections.first { it.label == "과제" }.lines[0].contains("남음 1")) // 이번 달 마감만
+        assertEquals(null, LessonReports.week(study.copy(subjects = emptyList()), today)) // 담당 과목이 없으면 없음
     }
 }

@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.period.PeriodKind
-import com.nextstep.app.domain.period.PeriodRecords
 import com.nextstep.app.domain.period.PeriodReports
 import com.nextstep.app.domain.period.Periods
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import com.nextstep.app.ui.common.periodRecords
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,10 +20,7 @@ class PeriodReportViewModel(
     private val today: () -> LocalDate = { DateUtils.today() },
 ) : ViewModel() {
     private val kind = MutableStateFlow(PeriodKind.MONTH)
-    private val study = combine(streams.sessions, streams.tasks, streams.grades, streams.subjects) { s, t, g, sub -> PeriodRecords(s, t, g, sub) }
-    private val records = combine(study, streams.activities, streams.goals, streams.cheers) { r, a, g, c -> r.copy(activities = a, goals = g, cheers = c) }
-
-    val state: StateFlow<PeriodReportUiState> = combine(kind, records, streams.profile) { k, r, profile ->
+    val state: StateFlow<PeriodReportUiState> = combine(kind, streams.periodRecords(), streams.profile) { k, r, profile ->
         val day = today()
         val now = Periods.current(k, day)
         val before = Periods.previous(now)

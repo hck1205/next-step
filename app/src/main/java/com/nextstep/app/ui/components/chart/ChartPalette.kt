@@ -3,7 +3,7 @@ package com.nextstep.app.ui.components.chart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
+import com.nextstep.app.ui.theme.isDark
 
 /**
  * 차트 색. 역할이 다른 색은 섞지 않습니다: [series] 는 서로 다른 것(누가 준 할 일 등, 3색까지),
@@ -26,11 +26,9 @@ data class ChartPalette(
         @Composable
         fun current(): ChartPalette {
             val cs = MaterialTheme.colorScheme
-            val base = if (cs.surface.luminance() < DARK_LUMINANCE) DARK else LIGHT
+            val base = if (cs.isDark) DARK else LIGHT
             return base.copy(grid = cs.outlineVariant, ink = cs.onSurface)
         }
-
-        private const val DARK_LUMINANCE = 0.5f
 
         private val LIGHT = ChartPalette(
             series = listOf(Color(0xFF4F46E5), Color(0xFFC2610C), Color(0xFF0E8A5F)),

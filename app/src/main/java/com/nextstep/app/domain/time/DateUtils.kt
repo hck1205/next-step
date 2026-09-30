@@ -41,6 +41,16 @@ object DateUtils {
     fun formatTime(millis: Long): String = toLocalDateTime(millis).format(timeFmt)
     fun formatTime(time: LocalTime): String = time.format(timeFmt)
     fun formatDate(date: LocalDate): String = date.format(dateFmt)
+
+    /** 하루 안의 분(0~1439, 넘치면 하루로 감음) ↔ 시각. 가족 일정·수업 일정이 시각을 분으로 저장합니다. */
+    fun timeOfMinute(minute: Int): LocalTime = LocalTime.of(minute / MINUTES_IN_HOUR % HOURS_IN_DAY, minute % MINUTES_IN_HOUR)
+    fun minuteOf(time: LocalTime): Int = time.hour * MINUTES_IN_HOUR + time.minute
+
+    /** 하루 안의 분을 "16:00" 으로. */
+    fun formatClock(minute: Int): String = formatTime(timeOfMinute(minute))
+
+    /** 한 주(월~일)를 "4/6 – 4/12" 로. */
+    fun formatWeek(monday: LocalDate): String = "${formatShortDate(monday)} – ${formatShortDate(monday.plusDays(DAYS_IN_WEEK - 1))}"
     fun formatFullDate(date: LocalDate): String = date.format(fullDateFmt)
 
     /** 상단 바 제목 옆에 붙는 짧은 날짜(예: "4월 14일 화"). 연도는 뺍니다. */
@@ -75,4 +85,8 @@ object DateUtils {
             else -> "D+${-diff}"
         }
     }
+
+    private const val MINUTES_IN_HOUR = 60
+    private const val HOURS_IN_DAY = 24
+    private const val DAYS_IN_WEEK = 7L
 }

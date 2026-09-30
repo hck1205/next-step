@@ -4,6 +4,7 @@ import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familycalendar.FamilyEventKind
 import com.nextstep.app.domain.journey.JourneyPhase
 import com.nextstep.app.domain.lesson.Lessons
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -42,7 +43,7 @@ object NoticeComposer {
 
     /** 1-1. 수업: 멘토에게 오늘 수업 시각, 어른에게 [Lessons.TUITION_HEADS_UP] 일 안의 수업료(멘토 받을 날 · 학부모 낼 날). */
     private fun lessons(input: NoticeInput): List<String> = if (input.isStudent) emptyList() else
-        listOfNotNull(input.lessonAt?.let { "오늘 %02d:%02d 수업".format(it / MINUTES_IN_HOUR, it % MINUTES_IN_HOUR) }) +
+        listOfNotNull(input.lessonAt?.let { "오늘 ${DateUtils.formatClock(it)} 수업" }) +
             input.tuition.mapNotNull { Lessons.tuitionLine(it, payer = input.family) }
 
     /** 2. 시험: [EXAM_DAYS] 안의 날(D-7 · D-3 · D-1 · 오늘)에만. */
@@ -71,6 +72,5 @@ object NoticeComposer {
     const val MAX_LINES = 4
     private val EXAM_DAYS = setOf(0, 1, 3, 7)
     private const val JOURNEY_DAYS = 7L
-    private const val MINUTES_IN_HOUR = 60
     private val LOOK_FORWARD = setOf(FamilyEventKind.OUTING, FamilyEventKind.CELEBRATION, FamilyEventKind.FAMILY)
 }

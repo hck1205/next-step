@@ -1,7 +1,16 @@
 package com.nextstep.app.domain.report
 
+import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.domain.export.ExportDoc
+import com.nextstep.app.domain.feedback.FeedbackAudience
+import com.nextstep.app.domain.feedback.FeedbackEngine
+import com.nextstep.app.domain.feedback.FeedbackVoice
+import com.nextstep.app.domain.mentor.AssignmentStats
+import com.nextstep.app.domain.period.PeriodKind
+import com.nextstep.app.domain.period.Periods
+import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
+import java.time.LocalDate
 
 /**
  * 멘토 → 학부모 수업 리포트: 담당 과목의 이번 주 공부 · 진도 · 과제 · 살펴본 것을 한 장으로 모아 카톡·문자로 보냅니다.
@@ -14,6 +23,32 @@ object LessonReports {
         val span = if (input.kind == ReportKind.MONTH) input.span else DateUtils.formatDay(input.today)
         val title = "${input.studentName.ifBlank { "학생" }} $subjects ${if (input.kind == ReportKind.MONTH) "월간 " else ""}수업 리포트 · $span"
         return LessonReport(title, "${input.mentorName.ifBlank { "담당" }} 선생님", listOfNotNull(study(input), progress(input), assignments(input), notes(input)))
+    }
+
+    /** 이번 주 수업 리포트(이번 주 담당 과목 공부 시간 · 진도 · 과제 · 살펴본 것). 담당 과목이 없으면 null. */
+    fun week(study: MentorStudy, today: LocalDate): LessonReport? {
+        val minutes = StudyStats.weeklyMinutesBySubject(study.sessions, study.subjects, today).filter { it.subject != null }.sumOf { it.minutes }
+        return mentorReport(study, ReportKind.WEEK, "이번 주", minutes, study.tasks, today)
+    }
+
+    /** 이번 달 수업 리포트: 이번 달 공부 시간과 이번 달 마감인 과제로. 담당 과목이 없으면 null. */
+    fun month(study: MentorStudy, today: LocalDate): LessonReport? {
+        val month = Periods.current(PeriodKind.MONTH, today)
+        val minutes = study.sessions.filter { DateUtils.toLocalDate(it.startAt) in month }.sumOf { it.durationMinutes }
+        val tasks = study.tasks.filter { DateUtils.fromEpochDay(it.dueDate) in month }
+        return mentorReport(study, ReportKind.MONTH, "${today.monthValue}월", minutes, tasks, today)
+    }
+
+    /** 멘토 범위의 사실을 학부모가 읽을 말로(같은 사실 — 멘토 범위 — 을 학부모의 말로 옮김). */
+    private fun mentorReport(study: MentorStudy, kind: ReportKind, span: String, minutes: Int, tasks: List<TaskEntity>, today: LocalDate): LessonReport? {
+        if (study.subjects.isEmpty()) return null
+        val notes = FeedbackEngine.forAudience(study.findings, FeedbackAudience.MENTOR).map { FeedbackVoice.line(it, FeedbackAudience.PARENT) }
+        return of(
+            LessonReportInput(
+                study.studentName, study.mentorName, study.subjects, today, minutes, study.progress,
+                AssignmentStats.report(tasks, study.subjects, today), notes, kind, span,
+            ),
+        )
     }
 
     /** PDF 로 보낼 문서: 덩어리 + (있으면) 선생님 한마디 · 서명. */

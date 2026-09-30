@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.album.GrowthAlbums
-import com.nextstep.app.domain.period.PeriodRecords
+import com.nextstep.app.domain.period.PeriodReports
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
+import com.nextstep.app.ui.common.periodRecords
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,15 +19,13 @@ class GrowthAlbumViewModel(
     private val today: () -> LocalDate = { DateUtils.today() },
 ) : ViewModel() {
     private val yearsBack = MutableStateFlow(0)
-    private val study = combine(streams.sessions, streams.tasks, streams.activities, streams.goals, streams.cheers) { s, t, a, g, c ->
-        PeriodRecords(sessions = s, tasks = t, activities = a, goals = g, cheers = c)
-    }
     private val family = combine(streams.weekPlans, streams.growthRecords, streams.members) { p, g, m -> Triple(p, g, m) }
 
-    val state: StateFlow<GrowthAlbumUiState> = combine(yearsBack, study, family) { back, r, (plans, growth, members) ->
+    val state: StateFlow<GrowthAlbumUiState> = combine(yearsBack, streams.periodRecords(), family) { back, r, (plans, growth, members) ->
         val name = members.firstOrNull { it.isStudent && !it.deleted }?.name.orEmpty()
         val year = GrowthAlbums.year(today(), back)
-        GrowthAlbumUiState(back, GrowthAlbums.book(name, year, r, plans, growth, today()), GrowthAlbums.album(name, year, r, plans, growth), loaded = true)
+        val book = GrowthAlbums.book(name, year, r, plans, growth, today())
+        GrowthAlbumUiState(back, book, GrowthAlbums.doc(book, PeriodReports.stats(year, r)), loaded = true)
     }.asUiState(viewModelScope, GrowthAlbumUiState())
 
     fun onEvent(event: GrowthAlbumEvent) {

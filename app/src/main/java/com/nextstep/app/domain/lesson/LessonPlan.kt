@@ -13,7 +13,7 @@ data class LessonPlan(val days: Set<DayOfWeek>, val startMinute: Int, val endMin
 
     /** "매주 화·목 16:00–17:30". */
     val label: String get() = if (!isSet) "수업 일정 없음" else
-        "매주 ${days.sorted().joinToString("·") { DateUtils.dayOfWeekLabel(it) }} ${clock(startMinute)}–${clock(endMinute)}"
+        "매주 ${days.sorted().joinToString("·") { DateUtils.dayOfWeekLabel(it) }} ${DateUtils.formatClock(startMinute)}–${DateUtils.formatClock(endMinute)}"
 
     companion object {
         fun of(member: MemberEntity): LessonPlan = LessonPlan(
@@ -21,12 +21,13 @@ data class LessonPlan(val days: Set<DayOfWeek>, val startMinute: Int, val endMin
             startMinute = member.lessonStart, endMinute = member.lessonEnd, fee = member.tuitionFee, feeDay = member.tuitionDay,
         )
 
+        /** 일정이 없는 멘토. */
+        val NONE = LessonPlan(emptySet(), 0, 0)
+
         /** 저장할 요일 글("2,4"). */
         fun encodeDays(days: Set<DayOfWeek>): String = days.map { it.value }.sorted().joinToString(",")
 
-        private fun clock(minute: Int) = "%02d:%02d".format(minute / MINUTES_IN_HOUR, minute % MINUTES_IN_HOUR)
-
         private const val DAYS = 7
-        private const val MINUTES_IN_HOUR = 60
+
     }
 }

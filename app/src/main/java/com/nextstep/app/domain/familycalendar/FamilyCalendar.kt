@@ -4,7 +4,6 @@ import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 
@@ -72,7 +71,7 @@ object FamilyCalendar {
     fun timeLabel(occurrence: FamilyOccurrence): String {
         val e = occurrence.event
         val days = if (occurrence.isMultiDay) "${DateUtils.formatShortDate(occurrence.start)}–${DateUtils.formatShortDate(occurrence.end)}" else null
-        val hours = if (e.allDay) null else "${clock(e.startMinute)}–${clock(e.endMinute)}"
+        val hours = if (e.allDay) null else "${DateUtils.formatClock(e.startMinute)}–${DateUtils.formatClock(e.endMinute)}"
         return listOfNotNull(days, hours).joinToString(" ").ifEmpty { ALL_DAY }
     }
 
@@ -88,8 +87,6 @@ object FamilyCalendar {
 
     private fun spanDays(event: FamilyEventEntity): Long = (event.endDate - event.startDate).coerceIn(0L, MAX_SPAN_DAYS)
 
-    private fun clock(minute: Int): String = DateUtils.formatTime(LocalTime.of(minute / MINUTES_IN_HOUR % HOURS_IN_DAY, minute % MINUTES_IN_HOUR))
-
     const val EVERYONE = "가족 모두"
     const val ALL_DAY = "하루 종일"
     /** 오늘 화면이 미리 보는 가장 먼 날(미리 보기의 가장 긴 값). */
@@ -97,6 +94,4 @@ object FamilyCalendar {
     /** 한 회차가 이어질 수 있는 가장 긴 날 수(여행 등). */
     const val MAX_SPAN_DAYS = 60L
     private const val DAYS_IN_WEEK = 7L
-    private const val MINUTES_IN_HOUR = 60
-    private const val HOURS_IN_DAY = 24
 }

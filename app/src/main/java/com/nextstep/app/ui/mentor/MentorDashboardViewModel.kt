@@ -17,23 +17,16 @@ import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackEngine
 import com.nextstep.app.domain.feedback.FeedbackVoice
-import com.nextstep.app.domain.feedback.Finding
 import com.nextstep.app.domain.growth.GrowthGuide
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.insight.InsightEngine
-import com.nextstep.app.domain.lesson.LessonPlan
 import com.nextstep.app.domain.lesson.Lessons
 import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.mentor.MentorScope
-import com.nextstep.app.domain.period.PeriodKind
-import com.nextstep.app.domain.period.Periods
-import com.nextstep.app.domain.report.LessonReport
-import com.nextstep.app.domain.report.LessonReportInput
 import com.nextstep.app.domain.report.LessonReports
-import com.nextstep.app.domain.report.ReportKind
+import com.nextstep.app.domain.report.MentorStudy
 import com.nextstep.app.domain.stats.RoadmapStats
 import com.nextstep.app.domain.stats.StudyStats
-import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.TrendStats
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
@@ -84,7 +77,9 @@ class MentorDashboardViewModel(
         val today = DateUtils.today()
         val findings = FeedbackEngine.findings(s.subjects, topics, grades, sessions, scopedTasks, today)
         val weekly = StudyStats.weeklyMinutesBySubject(sessions, s.subjects).filter { it.subject != null }
+        val book = s.me?.let { Lessons.bookOf(it, lessonRecords, YearMonth.from(today), today) }
         val progress = StudyStats.subjectProgress(topics, s.subjects)
+        val study = MentorStudy(s.studentName, s.me?.name.orEmpty(), s.subjects, sessions, progress, scopedTasks, findings)
         s.copy(
             weeklyBySubject = weekly,
             progress = progress,
@@ -94,35 +89,13 @@ class MentorDashboardViewModel(
             roadmap = RoadmapStats.summarize(roadmap, DateUtils.today()),
             trends = TrendStats.family(sessions, scopedTasks, grades, s.subjects, DateUtils.today()),
             feedback = FeedbackVoice.lines(findings, FeedbackAudience.MENTOR),
-            report = lessonReport(s, ReportKind.WEEK, weekly.sumOf { it.minutes }, progress, scopedTasks, findings, today),
-            monthReport = monthReport(s, sessions, progress, scopedTasks, findings, today),
+            report = LessonReports.week(study, today),
+            monthReport = LessonReports.month(study, today),
             reportLogs = logs.filter { it.sentById == s.me?.id }.take(UiDefaults.MAX_ROWS), // 멘토 화면은 원본 스트림이라 여기서 내 것만
-            lessons = s.me?.let { me -> Lessons.books(listOf(me), lessonRecords, YearMonth.from(today), today).firstOrNull() },
-            lessonToday = s.me?.let { me -> Lessons.today(LessonPlan.of(me), lessonRecords.filter { it.mentorId == me.id }, today) },
+            lessons = book,
+            lessonToday = book?.on(today),
         )
     }.asUiState(viewModelScope, MentorDashboardUiState())
-
-    /** 수업 리포트(학부모가 읽으므로 같은 사실 — 멘토 범위 — 을 학부모의 말로). 담당 과목이 없으면 null. */
-    private fun lessonReport(
-        s: MentorDashboardUiState, kind: ReportKind, minutes: Int, progress: List<SubjectProgress>, tasks: List<TaskEntity>, findings: List<Finding>, today: LocalDate,
-    ): LessonReport? = s.subjects.takeIf { it.isNotEmpty() }?.let { subjects ->
-        LessonReports.of(
-            LessonReportInput(
-                s.studentName, s.me?.name.orEmpty(), subjects, today, minutes, progress, AssignmentStats.report(tasks, subjects, today),
-                FeedbackEngine.forAudience(findings, FeedbackAudience.MENTOR).map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
-                kind, if (kind == ReportKind.MONTH) "${today.monthValue}월" else "이번 주",
-            ),
-        )
-    }
-
-    /** 이번 달 수업 리포트: 이번 달 공부 시간과 이번 달 마감인 과제로. */
-    private fun monthReport(
-        s: MentorDashboardUiState, sessions: List<StudySessionEntity>, progress: List<SubjectProgress>, tasks: List<TaskEntity>, findings: List<Finding>, today: LocalDate,
-    ): LessonReport? {
-        val month = Periods.current(PeriodKind.MONTH, today)
-        val minutes = sessions.filter { DateUtils.toLocalDate(it.startAt) in month }.sumOf { it.durationMinutes }
-        return lessonReport(s, ReportKind.MONTH, minutes, progress, tasks.filter { DateUtils.fromEpochDay(it.dueDate) in month }, findings, today)
-    }
 
     fun setSubjects(ids: List<String>) {
         viewModelScope.launch {

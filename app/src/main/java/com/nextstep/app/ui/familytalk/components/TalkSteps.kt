@@ -31,7 +31,7 @@ internal fun TalkSteps(state: FamilyTalkUiState, onSave: (String, String, String
     var proud by rememberSaveable(state.saved?.id) { mutableStateOf(state.saved?.proud.orEmpty()) }
     var wish by rememberSaveable(state.saved?.id) { mutableStateOf(state.saved?.wish.orEmpty()) }
     var treat by rememberSaveable(state.saved?.id) { mutableStateOf(state.saved?.treat.orEmpty()) }
-    val weekLabel = "${DateUtils.formatShortDate(state.week)} – ${DateUtils.formatShortDate(state.week.plusDays(LAST_DAY))}"
+    val weekLabel = DateUtils.formatWeek(state.week)
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         TalkPath(step)
         when (step) {
@@ -49,4 +49,3 @@ internal fun TalkSteps(state: FamilyTalkUiState, onSave: (String, String, String
 }
 
 private const val LAST = 3
-private const val LAST_DAY = 6L

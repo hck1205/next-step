@@ -39,7 +39,7 @@ internal fun MentorCardBody(
             }
         }
         MentorTodayCard.LESSONS -> LessonTodayCard(
-            state.lessons, state.lessonToday, state.me?.let(LessonPlan::of) ?: LessonPlan(emptySet(), 0, 0),
+            state.lessons, state.lessonToday, state.me?.let(LessonPlan::of) ?: LessonPlan.NONE,
             onMark = { d, s -> onEvent(MentorDashboardEvent.MarkLesson(d, s)) }, onSavePlan = { onEvent(MentorDashboardEvent.SaveLessonPlan(it)) },
         )
         MentorTodayCard.STAGE -> StageCard(stage = state.stage, gradeLabel = null, headline = state.stage?.let { "이 시기의 큐레이팅 기준" }, body = state.mentorTip, experience = null, onSetGrade = actions.onOpenJourney)

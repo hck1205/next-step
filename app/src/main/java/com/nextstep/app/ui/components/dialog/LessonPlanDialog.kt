@@ -22,7 +22,6 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.input.ChipRow
 import com.nextstep.app.ui.components.input.TimeField
 import java.time.DayOfWeek
-import java.time.LocalTime
 
 /** 멘토의 수업 일정 정하기: 요일 · 시작·끝 시각 · 한 달 수업료 · 받는 날(비우면 수업료 알림 없음). */
 @Composable
@@ -39,8 +38,8 @@ fun LessonPlanDialog(initial: LessonPlan, onDismiss: () -> Unit, onSave: (Lesson
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 ChipRow(DayOfWeek.entries, { it in days }, { DateUtils.dayOfWeekLabel(it) }, { d -> days = if (d in days) days - d else days + d }, title = "요일")
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TimeField("시작", start.asTime(), { start = it.toMinute() }, Modifier.weight(1f))
-                    TimeField("끝", end.asTime(), { end = it.toMinute() }, Modifier.weight(1f))
+                    TimeField("시작", DateUtils.timeOfMinute(start), { start = DateUtils.minuteOf(it) }, Modifier.weight(1f))
+                    TimeField("끝", DateUtils.timeOfMinute(end), { end = DateUtils.minuteOf(it) }, Modifier.weight(1f))
                 }
                 OutlinedTextField(fee, { fee = it.filter(Char::isDigit) }, label = { Text("한 달 수업료(원)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(feeDay, { feeDay = it.filter(Char::isDigit).take(2) }, label = { Text("받는 날(1~31일)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth())
@@ -55,11 +54,7 @@ fun LessonPlanDialog(initial: LessonPlan, onDismiss: () -> Unit, onSave: (Lesson
     )
 }
 
-private fun Int.asTime(): LocalTime = LocalTime.of(this / MINUTES_IN_HOUR % HOURS_IN_DAY, this % MINUTES_IN_HOUR)
-private fun LocalTime.toMinute(): Int = hour * MINUTES_IN_HOUR + minute
-
 private const val MINUTES_IN_HOUR = 60
-private const val HOURS_IN_DAY = 24
 private const val DEFAULT_START = 16 * MINUTES_IN_HOUR
 private const val DEFAULT_LENGTH = 90
 private const val MAX_DAY = 31

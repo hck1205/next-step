@@ -9,6 +9,6 @@ data class LessonsUiState(
     /** 멘토마다 이 달 수업(멘토에게는 자기 것 하나). */
     val books: List<LessonBook> = emptyList(),
     /** 멘토 본인의 수업 일정(일정 정하기 창의 처음 값). */
-    val myPlan: LessonPlan = LessonPlan(emptySet(), 0, 0),
+    val myPlan: LessonPlan = LessonPlan.NONE,
     val loaded: Boolean = false,
 )

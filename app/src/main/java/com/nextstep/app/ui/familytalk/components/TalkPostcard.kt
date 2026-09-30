@@ -48,7 +48,7 @@ internal fun TalkPostcard(saved: WeekPlanEntity, week: LocalDate, next: FamilyOc
         next?.let { TalkTicket(it, today) }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "${DateUtils.formatShortDate(week)} – ${DateUtils.formatShortDate(week.plusDays(LAST_DAY))} 주에 나눈 이야기",
+                "${DateUtils.formatWeek(week)} 주에 나눈 이야기",
                 style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, modifier = Modifier.weight(1f),
             )
             if (onEdit != null) TextButton(onClick = onEdit) { Text("다시 이야기하기") }
@@ -70,5 +70,4 @@ private fun Stamp(nextWeek: LocalDate) {
     }
 }
 
-private const val LAST_DAY = 6L
 private const val STAMP_TILT = 5f

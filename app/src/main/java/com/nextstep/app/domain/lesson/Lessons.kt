@@ -23,9 +23,6 @@ object Lessons {
     fun summary(days: List<LessonDay>): LessonSummary =
         LessonSummary(days.size, days.count { it.status == LessonStatus.DONE }, days.count { it.status == LessonStatus.ABSENT }, days.count { it.status == LessonStatus.MAKEUP })
 
-    /** 오늘 수업(정해진 요일이거나 오늘 기록이 있으면). */
-    fun today(plan: LessonPlan, records: List<LessonEntity>, today: LocalDate): LessonDay? = month(plan, records, YearMonth.from(today)).firstOrNull { it.date == today }
-
     /** 다음 수업료 받을 날(수업료와 받을 날이 정해져 있을 때). 그 달에 그날이 없으면 말일. */
     fun tuition(plan: LessonPlan, today: LocalDate): TuitionDue? {
         if (plan.fee <= 0 || plan.feeDay !in 1..MAX_DAY) return null
@@ -44,11 +41,21 @@ object Lessons {
 
     /** 수업을 맡은 멘토마다 한 달 수업(일정이 있거나 그 달 기록이 있는 멘토만). */
     fun books(members: List<MemberEntity>, records: List<LessonEntity>, month: YearMonth, today: LocalDate): List<LessonBook> =
-        members.filter { it.isMentor }.mapNotNull { m ->
-            val plan = LessonPlan.of(m)
-            val days = month(plan, records.filter { it.mentorId == m.id }, month)
-            if (!plan.isSet && days.isEmpty()) null else LessonBook(m.id, m.name, plan, days, summary(days), tuition(plan, today))
-        }
+        members.filter { it.isMentor }.mapNotNull { bookOf(it, records, month, today) }
+
+    /**
+     * 보는 사람의 수업 책: 수업을 적는 멘토([keepsOwn], caps.canKeepLessons)는 자기 것 하나만(다른 멘토의 일정·수업료는 보지 않음),
+     * 학부모는 멘토마다.
+     */
+    fun booksFor(keepsOwn: Boolean, me: MemberEntity?, members: List<MemberEntity>, records: List<LessonEntity>, month: YearMonth, today: LocalDate): List<LessonBook> =
+        if (keepsOwn) listOfNotNull(me?.let { bookOf(it, records, month, today) }) else books(members, records, month, today)
+
+    /** 멘토 한 명의 한 달 수업. 일정도 그 달 기록도 없으면 null. */
+    fun bookOf(mentor: MemberEntity, records: List<LessonEntity>, month: YearMonth, today: LocalDate): LessonBook? {
+        val plan = LessonPlan.of(mentor)
+        val days = month(plan, records.filter { it.mentorId == mentor.id }, month)
+        return if (!plan.isSet && days.isEmpty()) null else LessonBook(mentor.id, mentor.name, plan, days, summary(days), tuition(plan, today))
+    }
 
     private fun day(date: LocalDate, record: LessonEntity?, extra: Boolean) = LessonDay(date, LessonStatus.from(record?.status), extra, record?.note.orEmpty())
 

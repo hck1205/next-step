@@ -57,4 +57,11 @@ class DateUtilsTest {
         assertEquals("9월 22일 화", DateUtils.formatDay(d))
         assertEquals("월", DateUtils.dayOfWeekLabel(DayOfWeek.MONDAY))
     }
+
+    @Test
+    fun minutesOfTheDayAndWeekRanges() {
+        assertEquals("16:00", DateUtils.formatClock(960)); assertEquals("00:30", DateUtils.formatClock(24 * 60 + 30)) // 하루를 넘치면 감음
+        assertEquals(1050, DateUtils.minuteOf(DateUtils.timeOfMinute(1050)))
+        assertEquals("4/6 – 4/12", DateUtils.formatWeek(LocalDate.of(2026, 4, 6)))
+    }
 }

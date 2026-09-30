@@ -32,8 +32,11 @@ class LessonsTest {
         val records = listOf(record(LocalDate.of(2029, 3, 6), LessonStatus.DONE).copy(deleted = true), record(LocalDate.of(2029, 4, 3), LessonStatus.MAKEUP))
         val days = Lessons.month(plan, records, march)
         assertEquals(9, days.size); assertTrue(days.all { it.status == null })
-        assertEquals(LessonStatus.MAKEUP, Lessons.today(plan, records, LocalDate.of(2029, 4, 3))?.status)
-        assertNull(Lessons.today(plan, records, LocalDate.of(2029, 4, 4)))
+        val mentor = Fixtures.member(Role.MENTOR, "김쌤", id = "t").copy(lessonDays = "2,4")
+        val april = Lessons.bookOf(mentor, records, YearMonth.of(2029, 4), LocalDate.of(2029, 4, 3))!!
+        assertEquals(LessonStatus.MAKEUP, april.on(LocalDate.of(2029, 4, 3))?.status)
+        assertNull(april.on(LocalDate.of(2029, 4, 4)))
+        assertNull(Lessons.bookOf(Fixtures.member(Role.MENTOR, "새쌤", id = "new"), records, YearMonth.of(2029, 4), LocalDate.of(2029, 4, 3))) // 일정도 기록도 없음
     }
 
     @Test
@@ -60,5 +63,15 @@ class LessonsTest {
         assertEquals("2,4", LessonPlan.encodeDays(p.days))
         assertTrue(p.isSet); assertTrue(!LessonPlan.of(Fixtures.member(Role.MENTOR, "새쌤")).isSet)
         assertNull(LessonStatus.from("??")); assertEquals("보강 필요 1", LessonSummary(1, 0, 0, 1).line.substringAfter(" · "))
+    }
+
+    @Test
+    fun booksForShowsAMentorOnlyTheirOwnBook() {
+        val kim = Fixtures.member(Role.MENTOR, "김쌤", id = "kim").copy(lessonDays = "2")
+        val lee = Fixtures.member(Role.MENTOR, "이쌤", id = "lee").copy(lessonDays = "4")
+        val all = listOf(kim, lee, Fixtures.member(Role.PARENT, "엄마"))
+        assertEquals(listOf("김쌤", "이쌤"), Lessons.booksFor(false, null, all, emptyList(), march, LocalDate.of(2029, 3, 1)).map { it.mentorName })
+        assertEquals(listOf("이쌤"), Lessons.booksFor(true, lee, all, emptyList(), march, LocalDate.of(2029, 3, 1)).map { it.mentorName })
+        assertTrue(Lessons.booksFor(true, null, all, emptyList(), march, LocalDate.of(2029, 3, 1)).isEmpty())
     }
 }

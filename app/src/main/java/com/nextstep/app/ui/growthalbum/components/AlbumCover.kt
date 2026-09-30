@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -38,12 +37,13 @@ import com.nextstep.app.ui.theme.IndigoDark
 import com.nextstep.app.ui.theme.IndigoDeep
 import com.nextstep.app.ui.theme.IndigoLight
 import com.nextstep.app.ui.theme.IndigoNight
+import com.nextstep.app.ui.theme.isDark
 import com.nextstep.app.ui.theme.storyStyle
 
 /** 앨범 표지: 짙은 두 빛깔 바탕 · 아이 이름 첫 글자 · 큰 글씨 "지우의 2029학년도" · 기간 · 한 해 숫자 네 칸(이룬 목표 · 공부한 날 · 해 본 것 · 자란 키). */
 @Composable
 internal fun AlbumCover(book: GrowthAlbum) {
-    val dark = MaterialTheme.colorScheme.surface.luminance() < DARK_LUMINANCE
+    val dark = MaterialTheme.colorScheme.isDark
     val (top, bottom, ink) = if (dark) Triple(IndigoDark, IndigoNight, IndigoLight) else Triple(Indigo, IndigoDeep, Color.White)
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp)).background(Brush.linearGradient(listOf(top, bottom))).padding(horizontal = 20.dp, vertical = 22.dp),
@@ -75,6 +75,5 @@ internal fun AlbumCover(book: GrowthAlbum) {
     }
 }
 
-private const val DARK_LUMINANCE = 0.5f
 private const val SUB = 0.75f
 private const val LINE = 0.3f
