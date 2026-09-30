@@ -25,11 +25,10 @@ class RoomWeekPlanRepository(
         val clean = SelfDirection.cleanGoals(goals)
         val minutes = plannedMinutes.coerceIn(0, MAX_MINUTES)
         if (clean.isEmpty() && minutes == 0) return
-        val week = DateUtils.weekStart(weekStart)
-        val existing = dao.findByWeek(familyIdOr(""), week.toEpochDay())
+        val existing = findWeek(weekStart)
         val text = clean.joinToString("\n")
         val changed = existing == null || existing.goals != text
-        val base = existing ?: WeekPlanEntity(familyId = familyIdOr(""), weekStart = week.toEpochDay())
+        val base = existing ?: newWeek(weekStart)
         dao.upsert(
             base.copy(
                 goals = text, plannedMinutes = minutes, doneMask = if (changed) 0 else base.doneMask,
@@ -50,34 +49,40 @@ class RoomWeekPlanRepository(
     override suspend fun approve(planId: String) {
         val plan = dao.getById(planId) ?: return
         if (plan.approvedAt != null) return
-        dao.upsert(plan.copy(approvedAt = now(), updatedAt = now(), dirty = true))
+        val now = now()
+        dao.upsert(plan.copy(approvedAt = now, updatedAt = now, dirty = true))
         pushLater()
     }
 
     override suspend fun reflect(weekStart: LocalDate, mood: Int, good: String, hard: String, change: String) {
         if (mood !in 1..MAX_MOOD) return
-        val week = DateUtils.weekStart(weekStart)
-        val base = dao.findByWeek(familyIdOr(""), week.toEpochDay()) ?: WeekPlanEntity(familyId = familyIdOr(""), weekStart = week.toEpochDay())
+        val base = findWeek(weekStart) ?: newWeek(weekStart)
+        val now = now()
         dao.upsert(
             base.copy(
                 mood = mood, good = good.trim(), hard = hard.trim(), change = change.trim(),
-                reflectedByRole = myRole(), reflectedAt = now(), updatedAt = now(), dirty = true,
+                reflectedByRole = myRole(), reflectedAt = now, updatedAt = now, dirty = true,
             ),
         )
         pushLater()
     }
 
     override suspend fun saveTalk(weekStart: LocalDate, proud: String, wish: String, treat: String) {
-        val week = DateUtils.weekStart(weekStart)
-        val base = dao.findByWeek(familyIdOr(""), week.toEpochDay()) ?: WeekPlanEntity(familyId = familyIdOr(""), weekStart = week.toEpochDay())
+        val base = findWeek(weekStart) ?: newWeek(weekStart)
+        val now = now()
         dao.upsert(
             base.copy(
                 proud = proud.trim(), wish = wish.trim(), treat = treat.trim(),
-                talkByRole = myRole(), talkAt = now(), updatedAt = now(), dirty = true,
+                talkByRole = myRole(), talkAt = now, updatedAt = now, dirty = true,
             ),
         )
         pushLater()
     }
+
+    /** [day] 가 속한 주(월요일 시작)의 행. 없으면 null. */
+    private suspend fun findWeek(day: LocalDate): WeekPlanEntity? = dao.findByWeek(familyIdOr(""), DateUtils.weekStart(day).toEpochDay())
+
+    private suspend fun newWeek(day: LocalDate): WeekPlanEntity = WeekPlanEntity(familyId = familyIdOr(""), weekStart = DateUtils.weekStart(day).toEpochDay())
 
     private companion object {
         const val MAX_MINUTES = 3000
