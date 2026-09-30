@@ -8,9 +8,9 @@ object GoalStepMapper : EntityMapper<GoalStepEntity> {
     override val collection = "goalSteps"
 
     override fun toMap(entity: GoalStepEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "goalId" to goalId, "periodKey" to periodKey, "orderIndex" to orderIndex, "title" to title,
-            "detail" to detail, "status" to status.name, "taskId" to taskId, "dueDate" to dueDate, "doneAt" to doneAt, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "goalId" to goalId, "periodKey" to periodKey, "orderIndex" to orderIndex, "title" to title,
+            "detail" to detail, "status" to status.name, "taskId" to taskId, "dueDate" to dueDate, "doneAt" to doneAt,
         )
     }
 

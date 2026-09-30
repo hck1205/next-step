@@ -22,7 +22,7 @@ class RoomLessonRepository(
 
     override suspend fun mark(date: LocalDate, status: LessonStatus?, note: String) {
         val familyId = familyIdOr("")
-        val mentorId = scope.currentProfile().memberId.orEmpty()
+        val mentorId = myId()
         val old = dao.find(familyId, mentorId, date.toEpochDay()).firstOrNull()
         val now = now()
         when {

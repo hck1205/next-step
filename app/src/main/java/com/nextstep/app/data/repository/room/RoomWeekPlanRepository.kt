@@ -34,7 +34,7 @@ class RoomWeekPlanRepository(
             base.copy(
                 goals = text, plannedMinutes = minutes, doneMask = if (changed) 0 else base.doneMask,
                 approvedAt = if (changed || existing?.plannedMinutes != minutes) null else base.approvedAt,
-                authorRole = scope.currentProfile().role?.name ?: "", updatedAt = now(), dirty = true,
+                authorRole = myRole(), updatedAt = now(), dirty = true,
             ),
         )
         pushLater()
@@ -61,7 +61,7 @@ class RoomWeekPlanRepository(
         dao.upsert(
             base.copy(
                 mood = mood, good = good.trim(), hard = hard.trim(), change = change.trim(),
-                reflectedByRole = scope.currentProfile().role?.name ?: "", reflectedAt = now(), updatedAt = now(), dirty = true,
+                reflectedByRole = myRole(), reflectedAt = now(), updatedAt = now(), dirty = true,
             ),
         )
         pushLater()
@@ -73,7 +73,7 @@ class RoomWeekPlanRepository(
         dao.upsert(
             base.copy(
                 proud = proud.trim(), wish = wish.trim(), treat = treat.trim(),
-                talkByRole = scope.currentProfile().role?.name ?: "", talkAt = now(), updatedAt = now(), dirty = true,
+                talkByRole = myRole(), talkAt = now(), updatedAt = now(), dirty = true,
             ),
         )
         pushLater()

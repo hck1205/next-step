@@ -115,9 +115,31 @@ class AppContainer(context: Context) {
     val reportLogs: ReportLogRepository = RoomReportLogRepository(database.reportLogDao(), scope, syncManager, time)
     val lessons: LessonRepository = RoomLessonRepository(database.lessonDao(), scope, syncManager, time)
     val roadmapTemplates: RoadmapTemplateRepository = RoomRoadmapTemplateRepository(database.roadmapTemplateDao(), time)
-    val bulkTasks: BulkTaskRepository = RoomBulkTaskRepository(database.taskDao(), database.subjectDao(), time)
+    val bulkTasks: BulkTaskRepository = RoomBulkTaskRepository(database.taskDao(), database.subjectDao(), scope, syncManager, time)
     /** 가족 기록 원본. 멘토가 담당 과목을 고르는 화면(멘토 오늘 · 가족 설정)만 씁니다. */
-    val familyStreams: FamilyDataStreams = CompositeFamilyDataStreams(onboarding, subjects, topics, tasks, events, grades, sessions, members, roadmap, contents, journey, goals, activities, growth, projects, weekPlans, rewards, familyEvents, cheers, reportLogs, lessons)
+    val familyStreams: FamilyDataStreams = CompositeFamilyDataStreams(
+        onboarding = onboarding,
+        subjects = subjects,
+        topics = topics,
+        tasks = tasks,
+        events = events,
+        grades = grades,
+        sessions = sessions,
+        members = members,
+        roadmap = roadmap,
+        contents = contents,
+        journey = journey,
+        goals = goals,
+        activities = activities,
+        growth = growth,
+        projects = projects,
+        weekPlans = weekPlans,
+        rewards = rewards,
+        familyEvents = familyEvents,
+        cheers = cheers,
+        reportLogs = reportLogs,
+        lessons = lessons,
+    )
     /** 화면이 보는 가족 기록: 멘토는 담당 과목만(MentorScopedStreams), 교육 프로젝트는 만든 사람과 학생만(ProjectScopedStreams). */
     val streams: FamilyDataStreams = ProjectScopedStreams(MentorScopedStreams(familyStreams))
     val noticeSettings: NoticeSettings = DataStoreNoticeSettings(context)

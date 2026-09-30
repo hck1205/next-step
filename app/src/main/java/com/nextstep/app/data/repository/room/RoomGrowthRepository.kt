@@ -25,7 +25,7 @@ class RoomGrowthRepository(
     override suspend fun saveRecord(record: GrowthRecordEntity) {
         if (record.isEmpty) return
         val existing = recordDao.getById(record.id)
-        val author = existing?.createdByRole?.ifEmpty { null } ?: scope.currentProfile().role?.name ?: ""
+        val author = existing?.createdByRole?.ifEmpty { null } ?: myRole()
         recordDao.upsert(
             record.copy(
                 familyId = familyIdOr(record.familyId), heightCm = record.heightCm?.takeIf { it > 0 }, weightKg = record.weightKg?.takeIf { it > 0 },

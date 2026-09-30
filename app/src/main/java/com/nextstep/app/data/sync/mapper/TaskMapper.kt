@@ -8,9 +8,9 @@ object TaskMapper : EntityMapper<TaskEntity> {
     override val collection = "tasks"
 
     override fun toMap(entity: TaskEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "subjectId" to subjectId, "topicId" to topicId, "title" to title, "type" to type.name,
-            "dueDate" to dueDate, "done" to done, "createdByRole" to createdByRole, "note" to note, "goalId" to goalId, "doneAt" to doneAt, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "subjectId" to subjectId, "topicId" to topicId, "title" to title, "type" to type.name,
+            "dueDate" to dueDate, "done" to done, "createdByRole" to createdByRole, "note" to note, "goalId" to goalId, "doneAt" to doneAt,
         )
     }
 

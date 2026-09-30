@@ -7,9 +7,9 @@ object MemberMapper : EntityMapper<MemberEntity> {
     override val collection = "members"
 
     override fun toMap(entity: MemberEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "role" to role, "name" to name, "title" to title, "subjectIds" to subjectIds,
-            "mentorEnabled" to mentorEnabled, "gradeYear" to gradeYear, "birthDate" to birthDate, "uiLevel" to uiLevel, "seenUiLevel" to seenUiLevel, "selfDirection" to selfDirection, "gamify" to gamify, "schoolCode" to schoolCode, "schoolName" to schoolName, "signature" to signature, "lessonDays" to lessonDays, "lessonStart" to lessonStart, "lessonEnd" to lessonEnd, "tuitionFee" to tuitionFee, "tuitionDay" to tuitionDay, "joinedAt" to joinedAt, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "role" to role, "name" to name, "title" to title, "subjectIds" to subjectIds,
+            "mentorEnabled" to mentorEnabled, "gradeYear" to gradeYear, "birthDate" to birthDate, "uiLevel" to uiLevel, "seenUiLevel" to seenUiLevel, "selfDirection" to selfDirection, "gamify" to gamify, "schoolCode" to schoolCode, "schoolName" to schoolName, "signature" to signature, "lessonDays" to lessonDays, "lessonStart" to lessonStart, "lessonEnd" to lessonEnd, "tuitionFee" to tuitionFee, "tuitionDay" to tuitionDay, "joinedAt" to joinedAt,
         )
     }
 

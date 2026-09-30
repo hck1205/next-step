@@ -35,11 +35,7 @@ class RoomOnboardingRepository(
         val info = FamilyInfo(familyId = newId(), pairingCode = generatePairingCode(), studentName = studentName)
         sync.createFamily(info).onFailure { return Result.failure(it) }
         val member = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = studentName, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())
-        memberDao.upsert(member)
-        prefs.completeOnboarding(Role.STUDENT, studentName, info.familyId, info.pairingCode, studentName, member.id)
-        seedDefaultSubjects(info.familyId)
-        sync.start(info.familyId)
-        return Result.success(info)
+        return enter(info, Role.STUDENT, member) { seedDefaultSubjects(info.familyId) }
     }
 
     override suspend fun createFamilyAsParent(parentName: String, childName: String, birthDate: LocalDate?, relation: String): Result<FamilyInfo> =
@@ -51,23 +47,13 @@ class RoomOnboardingRepository(
         val child = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = childName, birthDate = birthDate?.toEpochDay())
         val parent = MemberEntity(familyId = info.familyId, role = Role.PARENT.name, name = parentName, title = relation, mentorEnabled = mentorEnabled)
         memberDao.upsert(child)
-        memberDao.upsert(parent)
-        prefs.completeOnboarding(Role.PARENT, parentName, info.familyId, info.pairingCode, childName, parent.id)
-        sync.start(info.familyId)
-        return Result.success(info)
+        return enter(info, Role.PARENT, parent)
     }
 
     override suspend fun joinFamily(role: Role, name: String, code: String, title: String): Result<FamilyInfo> {
-        require(role != Role.STUDENT) { "학생은 코드로 참여할 수 없습니다" }
-        if (!sync.isAvailable) return Result.failure(IllegalStateException(NO_SYNC_MESSAGE))
-        val info = sync.findFamilyByCode(code.trim().uppercase(Locale.ROOT))
-            .getOrElse { return Result.failure(it) }
-            ?: return Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
-        val member = MemberEntity(familyId = info.familyId, role = role.name, name = name, title = title, mentorEnabled = role == Role.MENTOR)
-        memberDao.upsert(member)
-        prefs.completeOnboarding(role, name, info.familyId, info.pairingCode, info.studentName, member.id)
-        sync.start(info.familyId)
-        return Result.success(info)
+        if (role == Role.STUDENT) return Result.failure(IllegalArgumentException("학생은 코드로 참여할 수 없습니다"))
+        val info = findFamily(code).getOrElse { return Result.failure(it) }
+        return enter(info, role, MemberEntity(familyId = info.familyId, role = role.name, name = name, title = title, mentorEnabled = role == Role.MENTOR))
     }
 
     override suspend fun addChildAsParent(childName: String, birthDate: LocalDate?): Result<FamilyInfo> {
@@ -80,17 +66,11 @@ class RoomOnboardingRepository(
     override suspend fun linkChild(code: String): Result<FamilyInfo> {
         val profile = prefs.profile.first()
         val role = profile.role?.takeIf { it != Role.STUDENT } ?: return Result.failure(IllegalStateException("학생은 다른 자녀를 연결할 수 없습니다"))
-        if (!sync.isAvailable) return Result.failure(IllegalStateException(NO_SYNC_MESSAGE))
-        val info = sync.findFamilyByCode(code.trim().uppercase(Locale.ROOT))
-            .getOrElse { return Result.failure(it) }
-            ?: return Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
+        val info = findFamily(code).getOrElse { return Result.failure(it) }
         if (profile.children.any { it.familyId == info.familyId }) { switchChild(info.familyId); return Result.success(info) }
         val me = profile.memberId?.let { memberDao.getById(it) }
         val member = MemberEntity(familyId = info.familyId, role = role.name, name = profile.displayName, title = me?.title.orEmpty(), mentorEnabled = role == Role.MENTOR || (me?.mentorEnabled ?: false))
-        memberDao.upsert(member)
-        prefs.completeOnboarding(role, profile.displayName, info.familyId, info.pairingCode, info.studentName, member.id)
-        sync.start(info.familyId)
-        return Result.success(info)
+        return enter(info, role, member)
     }
 
     override suspend fun switchChild(familyId: String) {
@@ -108,6 +88,22 @@ class RoomOnboardingRepository(
     }
 
     override fun requestSync() = sync.requestPush()
+
+    /** 연결 코드로 가족 찾기. 동기화가 없거나 코드가 없으면 실패. */
+    private suspend fun findFamily(code: String): Result<FamilyInfo> {
+        if (!sync.isAvailable) return Result.failure(IllegalStateException(NO_SYNC_MESSAGE))
+        val info = sync.findFamilyByCode(code.trim().uppercase(Locale.ROOT)).getOrElse { return Result.failure(it) }
+        return info?.let { Result.success(it) } ?: Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
+    }
+
+    /** 내 구성원 행을 넣고 그 가족으로 들어갑니다(프로필 저장 → [beforeSync] → 동기화 시작). */
+    private suspend fun enter(info: FamilyInfo, role: Role, me: MemberEntity, beforeSync: suspend () -> Unit = {}): Result<FamilyInfo> {
+        memberDao.upsert(me)
+        prefs.completeOnboarding(role, me.name, info.familyId, info.pairingCode, info.studentName, me.id)
+        beforeSync()
+        sync.start(info.familyId)
+        return Result.success(info)
+    }
 
     private fun generatePairingCode(): String =
         (1..PAIRING_CODE_LENGTH).map { PAIRING_ALPHABET[random.nextInt(PAIRING_ALPHABET.length)] }.joinToString("")

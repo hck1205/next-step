@@ -66,9 +66,7 @@ class FakeTaskDao : InMemoryTable<TaskEntity>(), TaskDao
 class FakeEventDao : InMemoryTable<EventEntity>(), EventDao
 class FakeGradeDao : InMemoryTable<GradeEntity>(), GradeDao
 
-class FakeStudySessionDao : InMemoryTable<StudySessionEntity>(), StudySessionDao {
-    override fun observeSince(familyId: String, fromMillis: Long): Flow<List<StudySessionEntity>> = observeAll(familyId).map { l -> l.filter { it.startAt >= fromMillis } }
-}
+class FakeStudySessionDao : InMemoryTable<StudySessionEntity>(), StudySessionDao
 
 class FakeActivityDao : InMemoryTable<ActivityEntity>(), ActivityDao
 

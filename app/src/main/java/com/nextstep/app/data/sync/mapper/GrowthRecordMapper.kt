@@ -7,9 +7,9 @@ object GrowthRecordMapper : EntityMapper<GrowthRecordEntity> {
     override val collection = "growth"
 
     override fun toMap(entity: GrowthRecordEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "date" to date, "heightCm" to heightCm, "weightKg" to weightKg, "visionLeft" to visionLeft,
-            "visionRight" to visionRight, "note" to note, "createdByRole" to createdByRole, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "date" to date, "heightCm" to heightCm, "weightKg" to weightKg, "visionLeft" to visionLeft,
+            "visionRight" to visionRight, "note" to note, "createdByRole" to createdByRole,
         )
     }
 

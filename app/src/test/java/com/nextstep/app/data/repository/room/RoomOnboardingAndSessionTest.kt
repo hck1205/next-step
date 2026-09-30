@@ -122,6 +122,7 @@ class RoomOnboardingAndSessionTest {
         val offline = RoomOnboardingRepository(FakePreferences(), FakeMemberDao(), FakeSubjectDao(), RecordingSyncManager(isAvailable = false))
         assertTrue(offline.joinFamily(Role.PARENT, "엄마", "ABCDEF").isFailure)
         assertTrue(onboarding().joinFamily(Role.PARENT, "엄마", "ZZZZZZ").isFailure)
+        assertTrue(onboarding().joinFamily(Role.STUDENT, "지우", "ABCDEF").isFailure) // 학생은 코드로 참여하지 않음(던지지 않고 실패)
     }
 
     @Test

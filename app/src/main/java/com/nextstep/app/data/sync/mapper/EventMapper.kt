@@ -8,9 +8,9 @@ object EventMapper : EntityMapper<EventEntity> {
     override val collection = "events"
 
     override fun toMap(entity: EventEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "subjectId" to subjectId, "title" to title, "type" to type.name, "startAt" to startAt,
-            "endAt" to endAt, "repeatWeekly" to repeatWeekly, "location" to location, "memo" to memo, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "subjectId" to subjectId, "title" to title, "type" to type.name, "startAt" to startAt,
+            "endAt" to endAt, "repeatWeekly" to repeatWeekly, "location" to location, "memo" to memo,
         )
     }
 

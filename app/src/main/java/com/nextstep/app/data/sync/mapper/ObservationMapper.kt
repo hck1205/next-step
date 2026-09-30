@@ -8,9 +8,9 @@ object ObservationMapper : EntityMapper<ObservationEntity> {
     override val collection = "observations"
 
     override fun toMap(entity: ObservationEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "domain" to domain.name, "text" to text, "strength" to strength, "date" to date,
-            "authorRole" to authorRole, "authorName" to authorName, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "domain" to domain.name, "text" to text, "strength" to strength, "date" to date,
+            "authorRole" to authorRole, "authorName" to authorName,
         )
     }
 

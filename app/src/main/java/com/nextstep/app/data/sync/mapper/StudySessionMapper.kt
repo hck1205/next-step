@@ -7,9 +7,9 @@ object StudySessionMapper : EntityMapper<StudySessionEntity> {
     override val collection = "sessions"
 
     override fun toMap(entity: StudySessionEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "subjectId" to subjectId, "startAt" to startAt, "endAt" to endAt,
-            "durationMinutes" to durationMinutes, "note" to note, "fromTimer" to fromTimer, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "subjectId" to subjectId, "startAt" to startAt, "endAt" to endAt,
+            "durationMinutes" to durationMinutes, "note" to note, "fromTimer" to fromTimer,
         )
     }
 

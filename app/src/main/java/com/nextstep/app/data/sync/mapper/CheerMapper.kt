@@ -7,9 +7,9 @@ object CheerMapper : EntityMapper<CheerEntity> {
     override val collection = "cheers"
 
     override fun toMap(entity: CheerEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "taskId" to taskId, "taskTitle" to taskTitle, "kind" to kind, "fromId" to fromId, "fromRole" to fromRole,
-            "fromName" to fromName, "seenAt" to seenAt, "createdAt" to createdAt, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "taskId" to taskId, "taskTitle" to taskTitle, "kind" to kind, "fromId" to fromId, "fromRole" to fromRole,
+            "fromName" to fromName, "seenAt" to seenAt, "createdAt" to createdAt,
         )
     }
 

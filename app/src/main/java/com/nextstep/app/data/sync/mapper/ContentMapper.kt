@@ -13,12 +13,11 @@ import com.nextstep.app.data.sync.EntityMapper
 class ContentMapper private constructor(override val collection: String, private val scope: ContentScope) : EntityMapper<ContentEntity> {
 
     override fun toMap(entity: ContentEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "scope" to scope.name, "url" to url, "videoId" to videoId, "title" to title, "channel" to channel,
+        syncFields() + mapOf(
+            "scope" to scope.name, "url" to url, "videoId" to videoId, "title" to title, "channel" to channel,
             "thumbnailUrl" to thumbnailUrl, "subjectKey" to subjectKey, "gradeLevel" to gradeLevel.name, "contentType" to contentType.name,
             "keywords" to keywords, "summary" to summary, "durationMinutes" to durationMinutes, "ratingSum" to ratingSum, "ratingCount" to ratingCount,
             "watched" to watched, "createdByName" to createdByName, "createdByRole" to createdByRole, "createdAt" to createdAt,
-            "updatedAt" to updatedAt, "deleted" to deleted,
         )
     }
 

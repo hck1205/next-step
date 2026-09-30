@@ -8,9 +8,9 @@ object ActivityMapper : EntityMapper<ActivityEntity> {
     override val collection = "activities"
 
     override fun toMap(entity: ActivityEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "type" to type.name, "title" to title, "date" to date, "endDate" to endDate, "place" to place,
-            "note" to note, "rating" to rating, "createdByRole" to createdByRole, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "type" to type.name, "title" to title, "date" to date, "endDate" to endDate, "place" to place,
+            "note" to note, "rating" to rating, "createdByRole" to createdByRole,
         )
     }
 

@@ -8,9 +8,9 @@ object TopicMapper : EntityMapper<TopicEntity> {
     override val collection = "topics"
 
     override fun toMap(entity: TopicEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "subjectId" to subjectId, "title" to title, "orderIndex" to orderIndex,
-            "classCovered" to classCovered, "status" to status.name, "confidence" to confidence, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "subjectId" to subjectId, "title" to title, "orderIndex" to orderIndex,
+            "classCovered" to classCovered, "status" to status.name, "confidence" to confidence,
         )
     }
 

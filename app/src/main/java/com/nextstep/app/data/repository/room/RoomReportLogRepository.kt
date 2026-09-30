@@ -21,7 +21,7 @@ class RoomReportLogRepository(
 
     override suspend fun record(kind: ReportKind, title: String, byName: String) {
         val now = now()
-        dao.upsert(ReportLogEntity(familyId = familyIdOr(""), kind = kind.name, title = title, sentById = scope.currentProfile().memberId.orEmpty(), sentByName = byName, sentAt = now, updatedAt = now))
+        dao.upsert(ReportLogEntity(familyId = familyIdOr(""), kind = kind.name, title = title, sentById = myId(), sentByName = byName, sentAt = now, updatedAt = now))
         pushLater()
     }
 }

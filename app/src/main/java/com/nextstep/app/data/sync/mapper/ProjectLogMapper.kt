@@ -7,9 +7,9 @@ object ProjectLogMapper : EntityMapper<ProjectLogEntity> {
     override val collection = "projectLogs"
 
     override fun toMap(entity: ProjectLogEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "goalId" to goalId, "phaseKey" to phaseKey, "item" to item, "minutes" to minutes,
-            "date" to date, "authorRole" to authorRole, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "goalId" to goalId, "phaseKey" to phaseKey, "item" to item, "minutes" to minutes,
+            "date" to date, "authorRole" to authorRole,
         )
     }
 

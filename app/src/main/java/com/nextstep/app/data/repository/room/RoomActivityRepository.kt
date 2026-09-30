@@ -22,7 +22,7 @@ class RoomActivityRepository(
         val title = activity.title.trim()
         if (title.isEmpty()) return
         val existing = dao.getById(activity.id)
-        val author = existing?.createdByRole?.ifEmpty { null } ?: scope.currentProfile().role?.name ?: ""
+        val author = existing?.createdByRole?.ifEmpty { null } ?: myRole()
         dao.upsert(
             activity.copy(
                 familyId = familyIdOr(activity.familyId), title = title, place = activity.place.trim(), note = activity.note.trim(),

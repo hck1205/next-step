@@ -12,9 +12,6 @@ interface StudySessionDao : SyncDao<StudySessionEntity> {
     @Query("SELECT * FROM study_sessions WHERE familyId = :familyId AND deleted = 0 ORDER BY startAt DESC")
     fun observeAll(familyId: String): Flow<List<StudySessionEntity>>
 
-    @Query("SELECT * FROM study_sessions WHERE familyId = :familyId AND deleted = 0 AND startAt >= :fromMillis ORDER BY startAt DESC")
-    fun observeSince(familyId: String, fromMillis: Long): Flow<List<StudySessionEntity>>
-
     @Query("SELECT * FROM study_sessions WHERE id = :id")
     override suspend fun getById(id: String): StudySessionEntity?
 

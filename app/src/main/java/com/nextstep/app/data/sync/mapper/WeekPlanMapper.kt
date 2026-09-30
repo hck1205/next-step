@@ -7,11 +7,11 @@ object WeekPlanMapper : EntityMapper<WeekPlanEntity> {
     override val collection = "weekPlans"
 
     override fun toMap(entity: WeekPlanEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "weekStart" to weekStart, "goals" to goals, "doneMask" to doneMask, "plannedMinutes" to plannedMinutes,
+        syncFields() + mapOf(
+            "weekStart" to weekStart, "goals" to goals, "doneMask" to doneMask, "plannedMinutes" to plannedMinutes,
             "authorRole" to authorRole, "approvedAt" to approvedAt, "mood" to mood, "good" to good, "hard" to hard, "change" to change,
             "reflectedByRole" to reflectedByRole, "reflectedAt" to reflectedAt, "proud" to proud, "wish" to wish, "treat" to treat,
-            "talkByRole" to talkByRole, "talkAt" to talkAt, "updatedAt" to updatedAt, "deleted" to deleted,
+            "talkByRole" to talkByRole, "talkAt" to talkAt,
         )
     }
 

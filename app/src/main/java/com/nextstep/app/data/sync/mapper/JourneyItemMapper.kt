@@ -8,10 +8,10 @@ object JourneyItemMapper : EntityMapper<JourneyItemEntity> {
     override val collection = "journey"
 
     override fun toMap(entity: JourneyItemEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "templateId" to templateId, "title" to title, "description" to description,
+        syncFields() + mapOf(
+            "templateId" to templateId, "title" to title, "description" to description,
             "category" to category, "dueDate" to dueDate, "leadMonths" to leadMonths, "priority" to priority, "status" to status.name,
-            "note" to note, "doneAt" to doneAt, "updatedAt" to updatedAt, "deleted" to deleted,
+            "note" to note, "doneAt" to doneAt,
         )
     }
 

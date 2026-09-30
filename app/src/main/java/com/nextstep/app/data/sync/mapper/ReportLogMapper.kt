@@ -7,9 +7,9 @@ object ReportLogMapper : EntityMapper<ReportLogEntity> {
     override val collection = "reportLogs"
 
     override fun toMap(entity: ReportLogEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "kind" to kind, "title" to title, "sentById" to sentById, "sentByName" to sentByName,
-            "sentAt" to sentAt, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "kind" to kind, "title" to title, "sentById" to sentById, "sentByName" to sentByName,
+            "sentAt" to sentAt,
         )
     }
 

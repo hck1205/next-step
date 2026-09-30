@@ -7,9 +7,9 @@ object SubjectMapper : EntityMapper<SubjectEntity> {
     override val collection = "subjects"
 
     override fun toMap(entity: SubjectEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "name" to name, "color" to color, "teacher" to teacher,
-            "weeklyGoalMinutes" to weeklyGoalMinutes, "orderIndex" to orderIndex, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "name" to name, "color" to color, "teacher" to teacher,
+            "weeklyGoalMinutes" to weeklyGoalMinutes, "orderIndex" to orderIndex,
         )
     }
 

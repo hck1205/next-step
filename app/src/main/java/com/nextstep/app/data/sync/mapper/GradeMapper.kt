@@ -8,9 +8,9 @@ object GradeMapper : EntityMapper<GradeEntity> {
     override val collection = "grades"
 
     override fun toMap(entity: GradeEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "subjectId" to subjectId, "title" to title, "examType" to examType.name, "score" to score,
-            "maxScore" to maxScore, "classAverage" to classAverage, "date" to date, "memo" to memo, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "subjectId" to subjectId, "title" to title, "examType" to examType.name, "score" to score,
+            "maxScore" to maxScore, "classAverage" to classAverage, "date" to date, "memo" to memo,
         )
     }
 

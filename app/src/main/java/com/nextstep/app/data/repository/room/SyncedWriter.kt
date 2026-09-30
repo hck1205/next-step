@@ -20,4 +20,10 @@ abstract class SyncedWriter(
 
     /** 비어 있는 familyId 를 현재 가족으로 채웁니다. */
     protected suspend fun familyIdOr(existing: String): String = existing.ifEmpty { scope.requireFamilyId() }
+
+    /** 지금 쓰는 사람의 역할 이름(작성자·준 사람 기록용). 온보딩 전이면 빈 문자열. */
+    protected suspend fun myRole(): String = scope.currentProfile().role?.name.orEmpty()
+
+    /** 지금 쓰는 사람의 구성원 id. 온보딩 전이면 빈 문자열. */
+    protected suspend fun myId(): String = scope.currentProfile().memberId.orEmpty()
 }

@@ -1,6 +1,7 @@
 package com.nextstep.app.data.notice
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.nextstep.app.NextStepApp
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.first
 class NoticeWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        runCatching { deliver(NoticeKind.from(inputData.getString(KEY_KIND))) }
+        runCatching { deliver(NoticeKind.from(inputData.getString(KEY_KIND))) }.onFailure { Log.w(TAG, "notice delivery failed", it) }
         NoticeScheduler.scheduleNext(applicationContext)
         return Result.success()
     }
@@ -36,5 +37,6 @@ class NoticeWorker(context: Context, params: WorkerParameters) : CoroutineWorker
 
     companion object {
         const val KEY_KIND = "kind"
+        private const val TAG = "NoticeWorker"
     }
 }

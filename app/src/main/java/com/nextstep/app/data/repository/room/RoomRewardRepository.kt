@@ -22,7 +22,7 @@ class RoomRewardRepository(
         val text = title.trim()
         if (text.isEmpty() || targetId.isBlank()) return
         val familyId = familyIdOr("")
-        val role = scope.currentProfile().role?.name ?: ""
+        val role = myRole()
         val open = dao.findOpen(familyId, kind, targetId).firstOrNull()
         val now = now()
         dao.upsert(
@@ -36,7 +36,7 @@ class RoomRewardRepository(
         val r = dao.getById(id) ?: return
         if (r.givenAt != null) return
         val now = now()
-        dao.upsert(r.copy(givenAt = now, givenByRole = scope.currentProfile().role?.name ?: "", updatedAt = now, dirty = true))
+        dao.upsert(r.copy(givenAt = now, givenByRole = myRole(), updatedAt = now, dirty = true))
         pushLater()
     }
 

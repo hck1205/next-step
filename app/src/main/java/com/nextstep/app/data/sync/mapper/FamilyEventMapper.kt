@@ -7,11 +7,11 @@ object FamilyEventMapper : EntityMapper<FamilyEventEntity> {
     override val collection = "familyEvents"
 
     override fun toMap(entity: FamilyEventEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "title" to title, "kind" to kind, "startDate" to startDate, "endDate" to endDate,
+        syncFields() + mapOf(
+            "title" to title, "kind" to kind, "startDate" to startDate, "endDate" to endDate,
             "allDay" to allDay, "startMinute" to startMinute, "endMinute" to endMinute, "memberIds" to memberIds, "keeperId" to keeperId,
             "repeat" to repeat, "repeatUntil" to repeatUntil, "headsUp" to headsUp, "location" to location, "bring" to bring, "memo" to memo,
-            "createdById" to createdById, "createdByRole" to createdByRole, "createdAt" to createdAt, "updatedAt" to updatedAt, "deleted" to deleted,
+            "createdById" to createdById, "createdByRole" to createdByRole, "createdAt" to createdAt,
         )
     }
 

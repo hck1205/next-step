@@ -8,10 +8,10 @@ object RoadmapItemMapper : EntityMapper<RoadmapItemEntity> {
     override val collection = "roadmap"
 
     override fun toMap(entity: RoadmapItemEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "subjectId" to subjectId, "title" to title, "description" to description, "resource" to resource,
+        syncFields() + mapOf(
+            "subjectId" to subjectId, "title" to title, "description" to description, "resource" to resource,
             "contentId" to contentId, "targetDate" to targetDate, "orderIndex" to orderIndex, "status" to status.name,
-            "createdByName" to createdByName, "createdByRole" to createdByRole, "updatedAt" to updatedAt, "deleted" to deleted,
+            "createdByName" to createdByName, "createdByRole" to createdByRole,
         )
     }
 

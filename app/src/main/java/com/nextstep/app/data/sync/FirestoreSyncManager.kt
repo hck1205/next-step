@@ -7,6 +7,7 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.nextstep.app.data.model.SyncStatus
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -16,6 +17,8 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -42,7 +45,8 @@ class FirestoreSyncManager(
     private var pushJob: Job? = null
     private var familyId: String? = null
 
-    override val status = MutableStateFlow(SyncStatus.CONNECTING)
+    private val _status = MutableStateFlow(SyncStatus.CONNECTING)
+    override val status: StateFlow<SyncStatus> = _status.asStateFlow()
     override val isAvailable: Boolean = true
 
     override suspend fun createFamily(info: FamilyInfo): Result<Unit> = runCatching {
@@ -63,7 +67,7 @@ class FirestoreSyncManager(
         if (this.familyId == familyId && listeners.isNotEmpty()) return
         stop()
         this.familyId = familyId
-        status.value = SyncStatus.CONNECTING
+        _status.value = SyncStatus.CONNECTING
         scope.launch {
             if (!ensureSignedIn()) return@launch
             val family = firestore.collection(FAMILIES).document(familyId)
@@ -89,9 +93,11 @@ class FirestoreSyncManager(
     private suspend fun ensureSignedIn(): Boolean = try {
         if (auth.currentUser == null) auth.signInAnonymously().await()
         true
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         Log.w(TAG, "anonymous sign-in failed", e)
-        status.value = SyncStatus.ERROR
+        _status.value = SyncStatus.ERROR
         false
     }
 
@@ -99,14 +105,14 @@ class FirestoreSyncManager(
         listeners += ref.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 Log.w(TAG, "listen ${collection.name} failed", error)
-                status.value = SyncStatus.ERROR
+                _status.value = SyncStatus.ERROR
                 return@addSnapshotListener
             }
             if (snapshot == null) return@addSnapshotListener
             val changes = snapshot.documentChanges.filter { it.type != DocumentChange.Type.REMOVED }
             scope.launch {
                 changes.forEach { collection.mergeRemote(it.document.id, it.document.data) }
-                if (!snapshot.metadata.isFromCache) status.value = SyncStatus.SYNCED
+                if (!snapshot.metadata.isFromCache) _status.value = SyncStatus.SYNCED
             }
         }
     }
@@ -116,11 +122,13 @@ class FirestoreSyncManager(
         repeat(MAX_PUSH_ATTEMPTS) { attempt ->
             try {
                 pushAll(familyId)
-                if (status.value != SyncStatus.SYNCED) status.value = SyncStatus.SYNCED
+                if (_status.value != SyncStatus.SYNCED) _status.value = SyncStatus.SYNCED
                 return
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.w(TAG, "push attempt ${attempt + 1} failed", e)
-                if (attempt == MAX_PUSH_ATTEMPTS - 1) { status.value = SyncStatus.ERROR; return }
+                if (attempt == MAX_PUSH_ATTEMPTS - 1) { _status.value = SyncStatus.ERROR; return }
                 delay(delayMs)
                 delayMs *= 2
             }

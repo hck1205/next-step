@@ -7,7 +7,7 @@ object LessonMapper : EntityMapper<LessonEntity> {
     override val collection = "lessons"
 
     override fun toMap(entity: LessonEntity): Map<String, Any?> = with(entity) {
-        mapOf("id" to id, "familyId" to familyId, "mentorId" to mentorId, "date" to date, "status" to status, "note" to note, "updatedAt" to updatedAt, "deleted" to deleted)
+        syncFields() + mapOf("mentorId" to mentorId, "date" to date, "status" to status, "note" to note)
     }
 
     override fun fromMap(id: String, data: Map<String, Any?>): LessonEntity = LessonEntity(

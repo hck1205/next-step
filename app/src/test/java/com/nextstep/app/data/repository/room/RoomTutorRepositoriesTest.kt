@@ -62,12 +62,13 @@ class RoomTutorRepositoriesTest {
     fun bulkAssignMatchesSubjectsByNameInEachFamily() = runTest {
         val tasks = FakeTaskDao(); val subjects = FakeSubjectDao()
         subjects.seed(Fixtures.math.copy(id = "m-b", familyId = "famB"))
-        val repo = RoomBulkTaskRepository(tasks, subjects, FakeTimeSource(9L))
+        val sync = RecordingSyncManager()
+        val repo = RoomBulkTaskRepository(tasks, subjects, FakeFamilyScope(Role.MENTOR), sync, FakeTimeSource(9L))
         val draft = Fixtures.task("약분 20문제", LocalDate.of(2029, 3, 9), "math", by = "MENTOR")
         assertEquals(2, repo.assign(draft, listOf("famB", "famC", "famB"), "수학"))
         val b = tasks.all.single { it.familyId == "famB" }; val c = tasks.all.single { it.familyId == "famC" }
         assertEquals("m-b", b.subjectId); assertNull(c.subjectId) // 같은 이름 과목이 없으면 과목 없이
-        assertTrue(b.id != draft.id && b.dirty); assertEquals("MENTOR", c.createdByRole)
+        assertTrue(b.id != draft.id && b.dirty); assertEquals("MENTOR", c.createdByRole); assertEquals(1, sync.pushRequests)
         assertEquals(0, repo.assign(draft.copy(title = " "), listOf("famB"), null))
     }
 }

@@ -23,7 +23,7 @@ class RoomProjectRepository(
         dao.upsert(
             ProjectLogEntity(
                 familyId = familyIdOr(""), goalId = goalId, phaseKey = phaseKey, item = item.trim(), minutes = minutes.coerceAtMost(MAX_MINUTES),
-                date = date, authorRole = scope.currentProfile().role?.name ?: "", updatedAt = now(), dirty = true,
+                date = date, authorRole = myRole(), updatedAt = now(), dirty = true,
             ),
         )
         pushLater()

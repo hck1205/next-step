@@ -7,9 +7,9 @@ object RewardMapper : EntityMapper<RewardEntity> {
     override val collection = "rewards"
 
     override fun toMap(entity: RewardEntity): Map<String, Any?> = with(entity) {
-        mapOf(
-            "id" to id, "familyId" to familyId, "kind" to kind, "targetId" to targetId, "title" to title, "createdByRole" to createdByRole,
-            "givenAt" to givenAt, "givenByRole" to givenByRole, "createdAt" to createdAt, "updatedAt" to updatedAt, "deleted" to deleted,
+        syncFields() + mapOf(
+            "kind" to kind, "targetId" to targetId, "title" to title, "createdByRole" to createdByRole,
+            "givenAt" to givenAt, "givenByRole" to givenByRole, "createdAt" to createdAt,
         )
     }
 
