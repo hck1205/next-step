@@ -41,6 +41,6 @@ fun TaskEditDialog(existing: TaskEntity?, subjects: List<SubjectEntity>, default
             }
         },
         confirmButton = { TextButton(enabled = title.isNotBlank(), onClick = { onSave(title.trim(), subjectId, type, due); onDismiss() }) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

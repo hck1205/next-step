@@ -36,7 +36,6 @@ import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.ColorDot
 import com.nextstep.app.ui.components.card.EmptyCard
 import com.nextstep.app.ui.components.card.SectionTitle
-import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.components.dialog.SubjectEditDialog
 import com.nextstep.app.ui.components.dialog.TextInputDialog
 import com.nextstep.app.ui.components.layout.BackButton
@@ -45,6 +44,7 @@ import com.nextstep.app.ui.progress.components.ClassProgressDialog
 import com.nextstep.app.ui.progress.components.ProgressSummaryCard
 import com.nextstep.app.ui.progress.components.QueueHintCard
 import com.nextstep.app.ui.progress.components.TopicRow
+import com.nextstep.app.ui.theme.subjectColor
 
 @Composable
 fun SubjectDetailScreen(caps: Capabilities, actions: SubjectDetailActions, viewModel: SubjectDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)) {

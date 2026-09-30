@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.journey.GoalArea
 import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.OptionPicker
 
 /**
@@ -59,7 +60,7 @@ fun AddGoalDialog(
         confirmButton = {
             TextButton(onClick = { onConfirm(title, area, description, stepPeriods.mapIndexed { i, p -> p.key to stepTitles[i] }) }, enabled = title.isNotBlank()) { Text("만들기") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 

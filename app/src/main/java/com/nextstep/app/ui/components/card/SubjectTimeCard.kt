@@ -5,6 +5,7 @@ import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.chart.BulletBars
 import com.nextstep.app.ui.components.chart.BulletRow
+import com.nextstep.app.ui.theme.subjectColor
 
 /** 과목별 이번 주 공부 시간과 주 목표(목표 대비 막대). 줄 앞 작은 색 표시는 과목 색. */
 @Composable

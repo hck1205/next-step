@@ -20,6 +20,7 @@ import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.model.ContentScope
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.OptionPicker
 
 @Composable
@@ -55,7 +56,7 @@ internal fun EditContentDialog(c: ContentEntity, subjectKeys: List<String>, canD
         dismissButton = {
             Row {
                 if (canDelete) TextButton(onClick = onDelete) { Text("삭제", color = MaterialTheme.colorScheme.error) }
-                if (editable) TextButton(onClick = onDismiss) { Text("취소") }
+                if (editable) CancelButton(onDismiss)
             }
         },
     )

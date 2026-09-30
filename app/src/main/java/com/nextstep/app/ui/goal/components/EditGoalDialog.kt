@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import java.time.LocalDate
 
@@ -45,6 +46,6 @@ internal fun EditGoalDialog(goal: GoalEntity, today: LocalDate, onDismiss: () ->
             }
         },
         confirmButton = { TextButton(enabled = title.isNotBlank(), onClick = { onSave(title, why, date.takeIf { hasDate }); onDismiss() }) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

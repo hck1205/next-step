@@ -46,6 +46,6 @@ fun TextInputDialog(
             }
         },
         confirmButton = { TextButton(enabled = value.isNotBlank(), onClick = { onConfirm(value.trim()); onDismiss() }) { Text(confirmLabel) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

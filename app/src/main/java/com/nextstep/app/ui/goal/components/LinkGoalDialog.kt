@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.ui.components.dialog.CancelButton
 
 /** 이 목표를 이루면 이어지는 목표 고르기. 자기 아래 목표는 목록에 없어 순환이 생기지 않습니다. */
 @Composable
@@ -38,6 +39,6 @@ internal fun LinkGoalDialog(targets: List<GoalEntity>, current: String?, onDismi
             }
         },
         confirmButton = { TextButton(onClick = { onSave(chosen); onDismiss() }) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

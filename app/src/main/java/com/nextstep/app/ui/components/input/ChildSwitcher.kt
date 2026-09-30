@@ -1,20 +1,14 @@
 package com.nextstep.app.ui.components.input
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.prefs.LinkedChild
@@ -32,11 +26,7 @@ fun ChildSwitcher(children: List<LinkedChild>, activeFamilyId: String?, onSelect
                 selected = selected,
                 onClick = { if (!selected) onSelect(child.familyId) },
                 label = { Text(child.studentName.ifBlank { "자녀" }) },
-                leadingIcon = {
-                    Box(Modifier.size(22.dp).background(MaterialTheme.colorScheme.primary, CircleShape), contentAlignment = Alignment.Center) {
-                        Text(child.studentName.take(1), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary)
-                    }
-                },
+                leadingIcon = { ChildInitial(child.studentName) },
             )
         }
         if (onAdd != null) item(key = "add") {

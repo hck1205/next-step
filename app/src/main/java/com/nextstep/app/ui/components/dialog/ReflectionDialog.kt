@@ -62,7 +62,7 @@ fun ReflectionDialog(form: ReflectionForm, title: String, onDismiss: () -> Unit,
             }
         },
         confirmButton = { TextButton(onClick = { onSave(mood, good, hard, change) }, enabled = mood > 0) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 

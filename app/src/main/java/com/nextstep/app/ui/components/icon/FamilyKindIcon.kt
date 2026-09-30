@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Work
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.nextstep.app.domain.familycalendar.FamilyEventKind
+import com.nextstep.app.ui.theme.FamilyKindColors
 
 /** 가족 일정 종류의 아이콘. 달력 칸·일정 줄·입력창이 같은 것을 씁니다. */
 fun familyKindIcon(kind: FamilyEventKind): ImageVector = when (kind) {
@@ -27,17 +28,5 @@ fun familyKindIcon(kind: FamilyEventKind): ImageVector = when (kind) {
     FamilyEventKind.HOME -> Icons.Default.Home
 }
 
-/** 가족 일정 종류의 색(밝은·어두운 바탕 모두에서 읽히는 중간 밝기). 달력 칸의 점과 아이콘 바탕에 씁니다. */
-fun familyKindColor(kind: FamilyEventKind): Color = Color(
-    when (kind) {
-        FamilyEventKind.FAMILY -> 0xFF0E8A5F
-        FamilyEventKind.OUTING -> 0xFF2B7DE9
-        FamilyEventKind.CELEBRATION -> 0xFFD9467A
-        FamilyEventKind.HOSPITAL -> 0xFFD64545
-        FamilyEventKind.SCHOOL -> 0xFF4F46E5
-        FamilyEventKind.LESSON -> 0xFF7C4DDB
-        FamilyEventKind.WORK -> 0xFF64748B
-        FamilyEventKind.PROMISE -> 0xFFC2610C
-        FamilyEventKind.HOME -> 0xFF8A6D3B
-    },
-)
+/** 가족 일정 종류의 색(테마의 [FamilyKindColors]). 달력 칸의 점과 아이콘 바탕에 씁니다. */
+fun familyKindColor(kind: FamilyEventKind): Color = FamilyKindColors.getValue(kind)

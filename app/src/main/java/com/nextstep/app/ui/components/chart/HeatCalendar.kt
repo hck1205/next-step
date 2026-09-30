@@ -52,9 +52,7 @@ fun HeatCalendar(weeks: List<HeatWeek>, today: LocalDate, modifier: Modifier = M
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.End)) {
             Text(picked?.let { "${DateUtils.formatShortDate(it.date)} · ${if (it.minutes > 0) DateUtils.formatMinutes(it.minutes) else "쉬는 날"}" } ?: "", Modifier.weight(1f), style = MaterialTheme.typography.labelSmall)
-            Text("적음", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            palette.heat.forEach { c -> Box(Modifier.size(width = 12.dp, height = 10.dp).background(c, RoundedCornerShape(3.dp))) }
-            Text("많음", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            HeatLegend()
         }
     }
 }

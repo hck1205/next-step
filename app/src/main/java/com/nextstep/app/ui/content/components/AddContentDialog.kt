@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.content.ContentEvent
 import com.nextstep.app.ui.content.ContentUiState
@@ -70,6 +71,6 @@ internal fun AddContentDialog(state: ContentUiState, onEvent: (ContentEvent) -> 
             if (draft == null) Button(onClick = { onEvent(ContentEvent.Analyze) }, enabled = add.url.isNotBlank() && !add.loading) { Text("분석") }
             else TextButton(enabled = title.isNotBlank(), onClick = { onEvent(ContentEvent.Save(title, channel, subjectKey, level, type, keywords, summary, minutes.toIntOrNull() ?: 0)); onDismiss() }) { Text("등록") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

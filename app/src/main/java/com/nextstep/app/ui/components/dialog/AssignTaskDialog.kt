@@ -66,7 +66,7 @@ fun AssignTaskDialog(
                 onDismiss()
             }) { Text("배정") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 

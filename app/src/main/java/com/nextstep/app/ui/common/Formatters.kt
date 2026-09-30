@@ -9,6 +9,3 @@ fun Float.asPercent(): String = "${(this * 100).toInt()}%"
 
 /** 0~1 비율. 분모가 0 이하면 0. 진행 막대에 바로 넣습니다. */
 fun ratio(part: Int, whole: Int): Float = if (whole <= 0) 0f else part.toFloat() / whole
-
-/** 0~1 비율을 백분율 정수로. */
-fun ratioPercent(part: Int, whole: Int): Int = if (whole <= 0) 0 else part * 100 / whole

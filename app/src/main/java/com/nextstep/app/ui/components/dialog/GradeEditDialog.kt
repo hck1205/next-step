@@ -70,7 +70,7 @@ fun GradeEditDialog(
         dismissButton = {
             Row {
                 if (onDelete != null) TextButton(onClick = { onDelete(); onDismiss() }) { Text("삭제", color = MaterialTheme.colorScheme.error) }
-                TextButton(onClick = onDismiss) { Text("취소") }
+                CancelButton(onDismiss)
             }
         },
     )

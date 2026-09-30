@@ -3,10 +3,6 @@ package com.nextstep.app.ui.selfdirection.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.icon.DoneMark
 import com.nextstep.app.ui.components.icon.moodIcon
 import com.nextstep.app.ui.components.icon.moodLabel
 import java.time.LocalDate
@@ -33,10 +30,7 @@ internal fun PastWeekCard(p: WeekPlanEntity) {
             p.goalList.forEachIndexed { i, g ->
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     val done = p.isDone(i)
-                    Icon(
-                        if (done) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked, contentDescription = if (done) "끝냈어요" else "못 했어요",
-                        tint = if (done) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, modifier = Modifier.size(16.dp),
-                    )
+                    DoneMark(done, 16.dp, "끝냈어요", "못 했어요")
                     Text(g, style = MaterialTheme.typography.bodySmall)
                 }
             }

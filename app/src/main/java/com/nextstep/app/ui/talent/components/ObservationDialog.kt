@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.ObservationEntity
 import com.nextstep.app.data.model.AptitudeDomain
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
 
@@ -44,7 +45,7 @@ fun ObservationDialog(today: LocalDate, onConfirm: (ObservationEntity) -> Unit, 
         confirmButton = {
             TextButton(onClick = { onConfirm(ObservationEntity(familyId = "", domain = domain, text = text, strength = strength, date = today.toEpochDay())) }, enabled = text.isNotBlank()) { Text("저장") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 

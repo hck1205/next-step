@@ -1,9 +1,7 @@
 package com.nextstep.app.ui.components.input
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -12,16 +10,12 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.prefs.LinkedChild
 
 /**
@@ -37,7 +31,7 @@ fun ChildPicker(children: List<LinkedChild>, activeFamilyId: String?, onSelect: 
         AssistChip(
             onClick = { open = true },
             label = { Text(active?.studentName?.ifBlank { null } ?: "자녀") },
-            leadingIcon = { Initial(active?.studentName.orEmpty()) },
+            leadingIcon = { ChildInitial(active?.studentName.orEmpty()) },
             trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = "자녀 바꾸기") },
         )
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
@@ -45,19 +39,12 @@ fun ChildPicker(children: List<LinkedChild>, activeFamilyId: String?, onSelect: 
                 val selected = child.familyId == active?.familyId
                 DropdownMenuItem(
                     text = { Text(child.studentName.ifBlank { "자녀" }) },
-                    leadingIcon = { Initial(child.studentName) },
+                    leadingIcon = { ChildInitial(child.studentName) },
                     trailingIcon = { if (selected) Icon(Icons.Default.Check, contentDescription = "지금 보는 아이") },
                     onClick = { open = false; if (!selected) onSelect(child.familyId) },
                 )
             }
             if (onAdd != null) DropdownMenuItem(text = { Text("자녀 추가·연결") }, leadingIcon = { Icon(Icons.Default.Add, contentDescription = null) }, onClick = { open = false; onAdd() })
         }
-    }
-}
-
-@Composable
-private fun Initial(name: String) {
-    Box(Modifier.size(22.dp).background(MaterialTheme.colorScheme.primary, CircleShape), contentAlignment = Alignment.Center) {
-        Text(name.take(1), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary)
     }
 }

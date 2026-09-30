@@ -48,11 +48,7 @@ fun YearHeatStrip(weeks: List<HeatWeek>, modifier: Modifier = Modifier) {
                 }
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.End), verticalAlignment = Alignment.CenterVertically) {
-            Text("적게", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            palette.heat.forEach { c -> Box(Modifier.size(10.dp).background(c, RoundedCornerShape(3.dp))) }
-            Text("많이", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
+        HeatLegend(Modifier.align(Alignment.End))
     }
 }
 

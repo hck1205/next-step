@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.ui.components.card.ColorDot
-import com.nextstep.app.ui.components.card.subjectColor
+import com.nextstep.app.ui.theme.subjectColor
 
 /** 담당 과목 다중 선택. 아무것도 고르지 않으면 전 과목 담당. */
 @Composable
@@ -46,6 +46,6 @@ fun SubjectSelectDialog(subjects: List<SubjectEntity>, initial: List<String>, on
             }
         },
         confirmButton = { TextButton(onClick = { onSave(subjects.map { it.id }.filter { it in selected.value }); onDismiss() }) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

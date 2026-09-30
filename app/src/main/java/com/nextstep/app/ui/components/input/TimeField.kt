@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +31,7 @@ fun TimeField(label: String, time: LocalTime, onChange: (LocalTime) -> Unit, mod
             title = { Text(label) },
             text = { TimePicker(state = state) },
             confirmButton = { TextButton(onClick = { onChange(LocalTime.of(state.hour, state.minute)); open = false }) { Text("확인") } },
-            dismissButton = { TextButton(onClick = { open = false }) { Text("취소") } },
+            dismissButton = { CancelButton({ open = false }) },
         )
     }
 }

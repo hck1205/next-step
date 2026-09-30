@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.planner.PlanOptions
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.TimeField
 
 @Composable
@@ -55,6 +56,6 @@ internal fun PlannerDialog(defaults: PlanOptions, onDismiss: () -> Unit, onGener
                 onDismiss()
             }) { Text("만들기") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

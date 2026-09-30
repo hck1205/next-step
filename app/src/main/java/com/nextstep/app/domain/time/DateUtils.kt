@@ -86,7 +86,8 @@ object DateUtils {
         }
     }
 
-    private const val MINUTES_IN_HOUR = 60
+    /** 한 시간의 분. 분을 시간으로 바꾸는 모든 곳이 씁니다. */
+    const val MINUTES_IN_HOUR = 60
     private const val HOURS_IN_DAY = 24
     private const val DAYS_IN_WEEK = 7L
 }

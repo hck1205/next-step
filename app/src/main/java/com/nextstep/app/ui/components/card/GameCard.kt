@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.CardGiftcard
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.MilitaryTech
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Icon
@@ -30,6 +28,8 @@ import com.nextstep.app.domain.gamify.GameStyle
 import com.nextstep.app.domain.gamify.WeekChallenge
 import com.nextstep.app.domain.reward.RewardStatus
 import com.nextstep.app.domain.reward.RewardView
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.icon.DoneMark
 
 /**
  * 나의 스티커판 · 나의 레벨 · 나의 성장 기록(학생 오늘 · 기록 › 보상·배지). 모양은 나이에 맞춘 [GameProfile.style] 이 정합니다.
@@ -104,7 +104,7 @@ private fun GrowthHeader(profile: GameProfile, showsNumbers: Boolean) {
     }
     LevelBar(profile)
     Text(
-        "지금까지 공부 ${s.studyMinutes / MINUTES_PER_HOUR}시간 · 스스로 한 일 ${s.selfDone}개 · 계획한 주 ${s.weekPlans}",
+        "지금까지 공부 ${s.studyMinutes / DateUtils.MINUTES_IN_HOUR}시간 · 스스로 한 일 ${s.selfDone}개 · 계획한 주 ${s.weekPlans}",
         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     if (profile.style.restDays > 0) Text("연속 기록은 하루 쉬어도 이어져요", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -133,10 +133,7 @@ private fun ChallengeRows(challenges: List<WeekChallenge>, done: Int, showsNumbe
     Text("이번 주 도전 $done/${challenges.size}", style = MaterialTheme.typography.labelLarge)
     challenges.forEach { c ->
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(
-                if (c.complete) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked, contentDescription = if (c.complete) "해냈어요" else "아직",
-                tint = if (c.complete) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, modifier = Modifier.size(18.dp),
-            )
+            DoneMark(c.complete, 18.dp, "해냈어요", "아직")
             Text(c.label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
             if (showsNumbers) Text("${c.done.coerceAtMost(c.target)}/${c.target}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -175,4 +172,3 @@ private const val RECENT_BADGES = 2
 private const val TRACK_ALPHA = 0.15f
 private const val STICKERS_PER_ROW = 5
 private const val STICKER_DP = 34
-private const val MINUTES_PER_HOUR = 60

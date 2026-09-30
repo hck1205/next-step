@@ -17,7 +17,7 @@ import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.ColorDot
 import com.nextstep.app.ui.components.card.LabeledProgress
-import com.nextstep.app.ui.components.card.subjectColor
+import com.nextstep.app.ui.theme.subjectColor
 
 @Composable
 internal fun SubjectProgressCard(p: SubjectProgress, onClick: () -> Unit) {

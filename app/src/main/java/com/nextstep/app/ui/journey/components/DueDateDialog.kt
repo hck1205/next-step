@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.nextstep.app.domain.journey.JourneyItem
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import java.time.LocalDate
 
@@ -20,6 +21,6 @@ internal fun DueDateDialog(item: JourneyItem, onConfirm: (LocalDate) -> Unit, on
         title = { Text("마감일 변경") },
         text = { DateField(label = "마감일", date = date, onChange = { date = it }) },
         confirmButton = { TextButton(onClick = { onConfirm(date) }) { Text("저장") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

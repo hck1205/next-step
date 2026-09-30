@@ -11,7 +11,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.reward.RewardStatus
 import com.nextstep.app.domain.reward.RewardView
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 
 /**
  * 보상 한 줄: 무엇을 · 언제(목표를 이루면 / 레벨에 닿으면) · 지금 어디까지.
@@ -54,7 +54,7 @@ fun RewardRow(view: RewardView, onGive: (() -> Unit)? = null, onCancel: (() -> U
         }
         when {
             status == RewardStatus.EARNED && onGive != null -> Button(onClick = onGive) { Text("줬어요") }
-            status == RewardStatus.PROMISED && onCancel != null -> TextButton(onClick = onCancel) { Text("취소") }
+            status == RewardStatus.PROMISED && onCancel != null -> CancelButton(onCancel)
             else -> Unit
         }
     }

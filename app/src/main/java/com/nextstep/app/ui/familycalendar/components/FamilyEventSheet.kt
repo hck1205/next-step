@@ -27,6 +27,7 @@ import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.domain.entry.FamilyEventDraft
 import com.nextstep.app.domain.familycalendar.FamilyEventKind
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.ChipRow
 import java.time.LocalDate
 
@@ -72,7 +73,7 @@ private fun SheetButtons(canSave: Boolean, onDelete: (() -> Unit)?, onSave: () -
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         if (onDelete != null) TextButton(onClick = onDelete) { Text("지우기", color = MaterialTheme.colorScheme.error) }
         Spacer(Modifier.weight(1f))
-        TextButton(onClick = onCancel) { Text("취소") }
+        CancelButton(onCancel)
         Button(onClick = onSave, enabled = canSave) { Text("저장") }
     }
 }

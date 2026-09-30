@@ -24,6 +24,7 @@ import com.nextstep.app.domain.project.ProjectKind
 import com.nextstep.app.domain.project.ProjectPlan
 import com.nextstep.app.domain.project.ProjectPlanner
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import java.time.LocalDate
 
 /**
@@ -59,6 +60,6 @@ internal fun StartProjectDialog(plan: ProjectPlan, suggestedIndex: Int, today: L
             }
         },
         confirmButton = { TextButton(onClick = { onStart(chosen) }) { Text("시작") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

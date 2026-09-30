@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import java.time.LocalDate
 
@@ -65,7 +66,7 @@ fun GrowthRecordDialog(existing: GrowthRecordEntity?, today: LocalDate, onConfir
                 enabled = anyValue,
             ) { Text("저장") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 

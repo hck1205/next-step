@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
@@ -48,7 +49,7 @@ fun AddTreeGoalDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (fixedParent != null) "작은 목표 추가" else "목표 만들기") },
         text = {
-            Column(Modifier.heightIn(max = DIALOG_MAX.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.heightIn(max = UiDefaults.DIALOG_MAX_HEIGHT_DP.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 fixedParent?.let { Text("이루면 → ${it.title}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary) }
                 OutlinedTextField(title, { title = it }, label = { Text("목표(예: 영어 일기 한 달 쓰기)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(why, { why = it }, label = { Text("왜 하나요(선택)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -68,8 +69,6 @@ fun AddTreeGoalDialog(
         confirmButton = {
             TextButton(enabled = title.isNotBlank(), onClick = { onSave(title, why, area, date.takeIf { hasDate }, parent?.id); onDismiss() }) { Text("만들기") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
-
-private const val DIALOG_MAX = 480

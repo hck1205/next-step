@@ -26,6 +26,7 @@ import com.nextstep.app.data.local.entity.ContentEntity
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.SubjectPicker
 import java.time.LocalDate
@@ -82,7 +83,7 @@ internal fun RoadmapEditDialog(
         dismissButton = {
             Row {
                 if (onDelete != null) TextButton(onClick = { onDelete(); onDismiss() }) { Text("삭제", color = MaterialTheme.colorScheme.error) }
-                TextButton(onClick = onDismiss) { Text("취소") }
+                CancelButton(onDismiss)
             }
         },
     )

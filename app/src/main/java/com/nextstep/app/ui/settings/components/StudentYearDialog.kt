@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.ui.components.dialog.CancelButton
 import java.time.LocalDate
 
 /**
@@ -50,6 +51,6 @@ internal fun StudentYearDialog(
             }
         },
         confirmButton = { TextButton(onClick = { onSave(birth, grade, level) }) { Text("바꾸기") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

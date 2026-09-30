@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -38,7 +39,7 @@ fun DateField(label: String, date: LocalDate, onChange: (LocalDate) -> Unit, mod
                     open = false
                 }) { Text("확인") }
             },
-            dismissButton = { TextButton(onClick = { open = false }) { Text("취소") } },
+            dismissButton = { CancelButton({ open = false }) },
         ) { DatePicker(state = state) }
     }
 }

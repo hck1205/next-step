@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.mission.MissionCatalog
 import com.nextstep.app.domain.mission.MissionKind
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
@@ -48,6 +49,6 @@ fun AddMissionDialog(
             }
         },
         confirmButton = { TextButton(onClick = { onConfirm(kind, target, subject) }) { Text("만들기") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

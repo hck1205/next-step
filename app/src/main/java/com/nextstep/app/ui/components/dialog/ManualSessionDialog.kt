@@ -50,6 +50,6 @@ fun ManualSessionDialog(subjects: List<SubjectEntity>, onDismiss: () -> Unit, on
         confirmButton = {
             TextButton(enabled = (minutes.toIntOrNull() ?: 0) > 0, onClick = { onSave(subjectId, date, start, minutes.toInt(), note); onDismiss() }) { Text("저장") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

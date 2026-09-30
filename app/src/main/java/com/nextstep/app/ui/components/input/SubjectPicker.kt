@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.ui.components.card.ColorDot
-import com.nextstep.app.ui.components.card.subjectColor
+import com.nextstep.app.ui.theme.subjectColor
 
 /** 과목 선택 드롭다운. allowNone 이면 "과목 없음" 항목을 포함합니다. */
 @Composable

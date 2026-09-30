@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.reward.RewardKind
 import com.nextstep.app.domain.reward.RewardTarget
+import com.nextstep.app.ui.common.UiDefaults
 import com.nextstep.app.ui.components.input.OptionPicker
 import com.nextstep.app.ui.components.input.SegmentedRow
 
@@ -43,7 +44,7 @@ fun PromiseRewardDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (initialTitle.isNotBlank()) "보상 바꾸기" else "보상 약속하기") },
         text = {
-            Column(Modifier.heightIn(max = DIALOG_MAX.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.heightIn(max = UiDefaults.DIALOG_MAX_HEIGHT_DP.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 val only = targets.singleOrNull()
                 if (only != null) {
                     Text(if (only.kind == RewardKind.GOAL) "\"${only.label}\" 이루면" else only.label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
@@ -64,8 +65,6 @@ fun PromiseRewardDialog(
         confirmButton = {
             TextButton(enabled = title.isNotBlank() && target != null, onClick = { target?.let { onSave(it, title) }; onDismiss() }) { Text("약속하기") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
-
-private const val DIALOG_MAX = 480

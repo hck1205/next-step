@@ -12,4 +12,8 @@ object UiDefaults {
     const val MAX_INSIGHTS = 4
     /** 로드맵 화면의 진도 기반 추천 칩 개수. */
     const val MAX_SUGGESTIONS = 6
+    /** 오늘 화면 "먼저 볼 것"처럼 줄여 보일 때(compact)의 줄 수. */
+    const val COMPACT_ROWS = 2
+    /** 내용이 긴 창(다이얼로그)의 본문 최대 높이(dp). 넘치면 안에서 밉니다. */
+    const val DIALOG_MAX_HEIGHT_DP = 480
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.selfdirection.SelfDirection
 import com.nextstep.app.domain.selfdirection.SelfDirectionStage
+import com.nextstep.app.domain.time.DateUtils
 
 /**
  * 이번 주 계획 쓰기: 목표 3개까지, 분(시간)을 계획하는 단계면 시간 칩. [hint] 는 지난주 돌아보기의 "바꿀 것"으로,
@@ -51,7 +52,7 @@ fun WeekPlanDialog(
                     Text("이번 주 공부 시간", style = MaterialTheme.typography.labelMedium)
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         SelfDirection.MINUTE_CHOICES.forEach { m ->
-                            FilterChip(selected = chosen == m, onClick = { chosen = if (chosen == m) 0 else m }, label = { Text("${m / MINUTES_PER_HOUR}시간") })
+                            FilterChip(selected = chosen == m, onClick = { chosen = if (chosen == m) 0 else m }, label = { Text("${m / DateUtils.MINUTES_IN_HOUR}시간") })
                         }
                     }
                 }
@@ -60,8 +61,7 @@ fun WeekPlanDialog(
         confirmButton = {
             TextButton(onClick = { onSave(fields.toList(), if (stage.plansMinutes) chosen else 0) }, enabled = fields.any { it.isNotBlank() } || chosen > 0) { Text("저장") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 
-private const val MINUTES_PER_HOUR = 60

@@ -26,8 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
-import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.theme.SubjectPalette
+import com.nextstep.app.ui.theme.subjectColor
 
 /** 과목 추가/편집 다이얼로그. */
 @Composable
@@ -66,6 +66,6 @@ fun SubjectEditDialog(existing: SubjectEntity?, onDismiss: () -> Unit, onSave: (
         confirmButton = {
             TextButton(enabled = name.isNotBlank(), onClick = { onSave(name.trim(), color, goal.toIntOrNull() ?: 0, teacher.trim()); onDismiss() }) { Text("저장") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

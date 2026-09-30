@@ -1,5 +1,7 @@
 package com.nextstep.app.domain.stats
 
+import com.nextstep.app.domain.time.DateUtils
+
 /** 학습량·자기주도·경험의 균형 요약. 숫자 대신 문장으로 판단을 전달합니다. */
 data class BalanceReport(
     val weekMinutes: Int,
@@ -38,11 +40,7 @@ data class BalanceReport(
 
     /** 학원·수업 한 줄. 영유아기가 아니면 null. */
     val classLine: String? get() = classCapWeekMinutes?.let { cap ->
-        if (classVerdict == BalanceVerdict.LESS) "주 권장 ${cap / MINUTES_PER_HOUR}시간을 넘었어요. 하나를 놀이로 바꿔 보세요"
-        else "주 ${cap / MINUTES_PER_HOUR}시간 안이면 충분해요. 늘릴 필요 없어요"
-    }
-
-    private companion object {
-        const val MINUTES_PER_HOUR = 60
+        if (classVerdict == BalanceVerdict.LESS) "주 권장 ${cap / DateUtils.MINUTES_IN_HOUR}시간을 넘었어요. 하나를 놀이로 바꿔 보세요"
+        else "주 ${cap / DateUtils.MINUTES_IN_HOUR}시간 안이면 충분해요. 늘릴 필요 없어요"
     }
 }

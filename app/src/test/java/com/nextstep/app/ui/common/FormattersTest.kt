@@ -18,6 +18,5 @@ class FormattersTest {
     @Test
     fun percentHelpersTruncate() {
         assertEquals("62%", 0.625f.asPercent()); assertEquals("0%", 0f.asPercent())
-        assertEquals(0, ratioPercent(3, 0)); assertEquals(75, ratioPercent(3, 4))
     }
 }

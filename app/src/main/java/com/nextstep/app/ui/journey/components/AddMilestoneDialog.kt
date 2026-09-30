@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.journey.MilestoneCategory
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
@@ -49,7 +50,7 @@ fun AddMilestoneDialog(
             }
         },
         confirmButton = { TextButton(onClick = { onConfirm(title, description, category, dueDate, leadMonths) }, enabled = title.isNotBlank()) { Text("추가") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 

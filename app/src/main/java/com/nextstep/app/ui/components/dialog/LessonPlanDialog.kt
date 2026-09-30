@@ -50,11 +50,10 @@ fun LessonPlanDialog(initial: LessonPlan, onDismiss: () -> Unit, onSave: (Lesson
                 onSave(LessonPlan(days, start, maxOf(start, end), fee.toIntOrNull() ?: 0, feeDay.toIntOrNull()?.coerceIn(0, MAX_DAY) ?: 0)); onDismiss()
             }) { Text("저장") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 
-private const val MINUTES_IN_HOUR = 60
-private const val DEFAULT_START = 16 * MINUTES_IN_HOUR
+private const val DEFAULT_START = 16 * DateUtils.MINUTES_IN_HOUR
 private const val DEFAULT_LENGTH = 90
 private const val MAX_DAY = 31

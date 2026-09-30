@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.card.subjectColor
 import com.nextstep.app.ui.components.chart.DonutChart
 import com.nextstep.app.ui.components.chart.Slice
+import com.nextstep.app.ui.theme.subjectColor
 
 /** 이번 주 과목별 시간 도넛. 과목 없이 한 공부는 "기타". */
 @Composable

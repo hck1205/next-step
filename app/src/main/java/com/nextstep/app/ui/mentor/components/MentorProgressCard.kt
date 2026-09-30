@@ -16,7 +16,7 @@ import com.nextstep.app.ui.common.ratio
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.ColorDot
 import com.nextstep.app.ui.components.card.LabeledProgress
-import com.nextstep.app.ui.components.card.subjectColor
+import com.nextstep.app.ui.theme.subjectColor
 
 /** 과목 하나의 학급 진도 대비 복습률. 눌러서 단원 관리로. */
 @Composable

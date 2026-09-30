@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import com.nextstep.app.ui.components.input.OptionPicker
 import java.time.LocalDate
@@ -71,6 +72,6 @@ fun ActivityEditDialog(existing: ActivityEntity?, today: LocalDate, onConfirm: (
                 enabled = title.isNotBlank(),
             ) { Text("저장") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }

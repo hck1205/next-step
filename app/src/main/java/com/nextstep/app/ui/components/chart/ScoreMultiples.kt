@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.ScoreSeries
 import com.nextstep.app.ui.components.card.ColorDot
-import com.nextstep.app.ui.components.card.subjectColor
+import com.nextstep.app.ui.theme.subjectColor
 
 /**
  * 과목별 점수 흐름을 두 칸씩 나란히(작은 여러 장). 모든 칸이 같은 눈금([MIN_SCORE]~100점)이라 과목끼리 높이를 견줄 수 있고,

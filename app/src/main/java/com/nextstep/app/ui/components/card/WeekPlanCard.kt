@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +26,7 @@ import com.nextstep.app.domain.selfdirection.WeekStatus
 import com.nextstep.app.ui.common.ratio
 import com.nextstep.app.ui.components.dialog.ReflectionDialog
 import com.nextstep.app.ui.components.dialog.WeekPlanDialog
+import com.nextstep.app.ui.components.icon.DoneMark
 import com.nextstep.app.ui.components.icon.moodIcon
 import com.nextstep.app.ui.components.icon.moodLabel
 import java.time.LocalDate
@@ -134,10 +132,7 @@ private fun WeekGoalRow(goal: String, done: Boolean, big: Boolean, onClick: (() 
         Modifier.heightIn(min = if (big) 52.dp else 36.dp).then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Icon(
-            if (done) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked, contentDescription = if (done) "끝냈어요" else "아직",
-            tint = if (done) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, modifier = Modifier.size(if (big) 30.dp else 22.dp),
-        )
+        DoneMark(done, if (big) 30.dp else 22.dp, "끝냈어요", "아직")
         Text(goal, style = if (big) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium, textDecoration = if (done) TextDecoration.LineThrough else null)
     }
 }

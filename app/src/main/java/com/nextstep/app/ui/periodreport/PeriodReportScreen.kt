@@ -55,12 +55,11 @@ private fun LongTrends(months: List<MonthPoint>) {
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("올해 달마다 공부 시간", style = MaterialTheme.typography.titleSmall)
-            ColumnChart(months.map { it.minutes }, months.map { it.label }, "달마다 공부 시간", format = { DateUtils.formatMinutes(it) }, tickFormat = { "${it / MINUTES_IN_HOUR}h" })
+            ColumnChart(months.map { it.minutes }, months.map { it.label }, "달마다 공부 시간", format = { DateUtils.formatMinutes(it) }, tickFormat = { "${it / DateUtils.MINUTES_IN_HOUR}h" })
             Text("달마다 할 일 끝낸 비율", style = MaterialTheme.typography.titleSmall)
             ColumnChart(months.map { it.doneRate ?: 0 }, months.map { it.label }, "달마다 할 일 끝낸 비율", max = PERCENT, format = { "$it%" })
         }
     }
 }
 
-private const val MINUTES_IN_HOUR = 60
 private const val PERCENT = 100

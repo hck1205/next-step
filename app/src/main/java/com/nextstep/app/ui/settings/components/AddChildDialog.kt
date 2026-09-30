@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.dialog.CancelButton
 import com.nextstep.app.ui.components.input.DateField
 import java.time.LocalDate
 
@@ -33,7 +34,7 @@ internal fun AddChildDialog(onConfirm: (String, LocalDate?) -> Unit, onDismiss: 
             }
         },
         confirmButton = { TextButton(enabled = name.isNotBlank(), onClick = { onConfirm(name.trim(), birth); onDismiss() }) { Text("추가") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("취소") } },
+        dismissButton = { CancelButton(onDismiss) },
     )
 }
 
