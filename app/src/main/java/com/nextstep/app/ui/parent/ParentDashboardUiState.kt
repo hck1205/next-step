@@ -67,7 +67,7 @@ data class ParentDashboardUiState(
     val trends: FamilyTrends = FamilyTrends(),
     /** 이번 주 피드백(학부모의 말)과 그 첫 사실을 아이가 들은 말. */
     val feedback: List<FeedbackLine> = emptyList(),
-    val feedbackEcho: FeedbackLine? = null,
+    val feedbackEcho: String? = null,
     /** 가족 일정(오늘 + 미리 보기)과 "누구의 일정" 문구에 쓰는 가족 구성원. */
     val familyAhead: List<FamilyOccurrence> = emptyList(),
     val familyMembers: List<MemberEntity> = emptyList(),

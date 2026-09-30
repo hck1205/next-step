@@ -19,8 +19,8 @@ import com.nextstep.app.ui.ViewModelTestBase
 import java.time.LocalTime
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -64,7 +64,7 @@ class ParentViewModelsTest : ViewModelTestBase() {
         val s = settle(vm.state)
         assertTrue(s.feedback.any { it.title.startsWith("공부한 날이 줄었어요") }); assertTrue(s.feedback.none { it.good })
         // 아이에게 한 말은 같은 사실의 학생 말투: 부모 문장과 다르다
-        assertTrue(s.feedbackEcho != null); assertTrue(s.feedbackEcho!!.title != s.feedback.first().title)
+        assertTrue(s.feedbackEcho != null); assertTrue(s.feedbackEcho!!.endsWith("라고 말해 줬어요")); assertTrue(!s.feedbackEcho!!.contains(s.feedback.first().title))
         job.cancel()
     }
 

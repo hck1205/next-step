@@ -42,7 +42,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
         ParentTodayCard.KPIS -> ParentKpis(state.trends)
         ParentTodayCard.TALK -> FamilyTalkCard(state.talk, onOpen = { actions.onOpenRecords(ConcernSection.FAMILY_TALK) })
         ParentTodayCard.FAMILY -> FamilyAheadCard(state.familyAhead, state.familyMembers, state.today, compact, onOpen = { actions.onOpenRecords(ConcernSection.FAMILY_CALENDAR) })
-        ParentTodayCard.FEEDBACK -> FeedbackCard(state.feedback, echo = state.feedbackEcho, echoName = state.studentName.ifBlank { "아이" }, compact = compact)
+        ParentTodayCard.FEEDBACK -> FeedbackCard(state.feedback, echo = state.feedbackEcho, compact = compact)
         ParentTodayCard.CHEER -> CheerGiveCard(state.cheerTargets, compact, onCheer = { target, kind -> onEvent(ParentDashboardEvent.Cheer(target, kind)) })
         ParentTodayCard.REWARDS -> RewardDueCard(state.rewardsDue, onGive = { onEvent(ParentDashboardEvent.GiveReward(it)) }, onOpenGoal = actions.onOpenGoal)
         ParentTodayCard.GOALS -> Column {

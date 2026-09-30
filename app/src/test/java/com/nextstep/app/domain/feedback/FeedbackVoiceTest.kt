@@ -31,4 +31,11 @@ class FeedbackVoiceTest {
         }
         assertEquals(FeedbackAudience.PARENT, FeedbackAudience.of(Role.PARENT))
     }
+
+    @Test
+    fun parentHearsWhatTheChildWasTold() {
+        val kid = FeedbackLine("꾸준히 하고 있어요", "", true)
+        assertEquals("지우에게는 \"꾸준히 하고 있어요\"라고 말해 줬어요", FeedbackVoice.echo(kid, "지우"))
+        assertEquals("아이에게는 \"꾸준히 하고 있어요\"라고 말해 줬어요", FeedbackVoice.echo(kid, ""))
+    }
 }

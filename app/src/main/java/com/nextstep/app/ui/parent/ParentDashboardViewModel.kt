@@ -134,7 +134,7 @@ class ParentDashboardViewModel(
         s.copy(
             rewardsDue = Rewards.due(Rewards.views(list, input.goals, profile.level.number, profile.boards)), trends = t,
             feedback = mine.map { FeedbackVoice.line(it, FeedbackAudience.PARENT) },
-            feedbackEcho = mine.firstOrNull()?.let { FeedbackVoice.line(it, FeedbackAudience.STUDENT, numbers = level.showsNumbers) },
+            feedbackEcho = mine.firstOrNull()?.let { FeedbackVoice.echo(FeedbackVoice.line(it, FeedbackAudience.STUDENT, numbers = level.showsNumbers), s.studentName) },
             familyAhead = FamilyCalendar.ahead(family, s.today), familyMembers = FamilyCalendar.family(members), cheerTargets = cheer,
         )
     }.asUiState(viewModelScope, ParentDashboardUiState())

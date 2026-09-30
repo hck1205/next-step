@@ -17,4 +17,7 @@ object FeedbackVoice {
     /** 보는 사람의 피드백 줄([FeedbackEngine.forAudience] 로 고른 것). */
     fun lines(findings: List<Finding>, audience: FeedbackAudience, mentorSubjects: Set<String>? = null, numbers: Boolean = true): List<FeedbackLine> =
         FeedbackEngine.forAudience(findings, audience, mentorSubjects).map { line(it, audience, numbers) }
+
+    /** 학부모에게 "아이에게는 이렇게 말해 줬어요" 한 줄(같은 사실을 아이가 들은 말). 이름이 비면 "아이". 따옴표 인용이라 조사는 늘 "라고". */
+    fun echo(studentLine: FeedbackLine, childName: String): String = "${childName.ifBlank { "아이" }}에게는 \"${studentLine.title}\"라고 말해 줬어요"
 }
