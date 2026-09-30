@@ -3,6 +3,7 @@ package com.nextstep.app.domain.journey
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.text.ratioOf
 import java.time.LocalDate
 
 /**
@@ -41,9 +42,8 @@ object JourneyPlanner {
         items.filter { it.phase(today) == JourneyPhase.NOW || it.phase(today) == JourneyPhase.OVERDUE }.take(limit)
 
     fun completion(items: List<JourneyItem>, today: LocalDate): Float {
-        val passed = items.filter { it.status == MilestoneStatus.DONE || it.status == MilestoneStatus.SKIPPED || it.dueDate.isBefore(today) }
-        if (passed.isEmpty()) return 0f
-        return passed.count { it.status == MilestoneStatus.DONE }.toFloat() / passed.size
+        val passed = items.filter { it.status.isClosed || it.dueDate.isBefore(today) }
+        return ratioOf(passed.count { it.status == MilestoneStatus.DONE }, passed.size)
     }
 
     private fun phaseOrder(phase: JourneyPhase): Int = when (phase) {

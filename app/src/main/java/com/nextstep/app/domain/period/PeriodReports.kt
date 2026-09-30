@@ -33,7 +33,7 @@ object PeriodReports {
     fun report(studentName: String, period: Period, now: PeriodStats, before: PeriodStats): ExportDoc {
         val prev = period.kind.previousLabel
         val sections = listOfNotNull(
-            ReportSection("공부", listOf("공부 ${minutes(now.studyMinutes)} ($prev ${minutes(before.studyMinutes)})", "공부한 날 ${now.studyDays}일 ($prev ${before.studyDays}일)")),
+            ReportSection("공부", listOf("공부 ${DateUtils.formatMinutes(now.studyMinutes)} ($prev ${DateUtils.formatMinutes(before.studyMinutes)})", "공부한 날 ${now.studyDays}일 ($prev ${before.studyDays}일)")),
             now.doneRate?.let { rate -> ReportSection("할 일", listOf("마감 할 일 ${now.tasksDue}개 중 ${now.tasksDone}개 끝냄 · $rate%" + (before.doneRate?.let { " ($prev $it%)" } ?: ""))) },
             now.scores.takeIf { it.isNotEmpty() }?.let { s -> ReportSection("과목 점수(평균)", s.map { (name, v) -> "$name ${v}점" + (before.scores[name]?.let { " ($prev ${it}점)" } ?: "") }) },
             ReportSection("해 본 것", listOf("활동 ${now.activities}개 · 이룬 목표 ${now.goalsDone}개 · 받은 응원 ${now.cheers}개")),
@@ -56,6 +56,5 @@ object PeriodReports {
         if (list.isEmpty()) null else s.name to list.map { it.percent }.average().roundToInt()
     }.toMap()
 
-    private fun minutes(m: Int): String = if (m == 0) "0분" else DateUtils.formatMinutes(m)
 
 }

@@ -55,7 +55,7 @@ data class FamilyEventDraft(
         val base = existing ?: FamilyEventEntity(familyId = "", title = "", startDate = startDate.toEpochDay())
         return base.copy(
             title = title.trim(), kind = kind.name, startDate = startDate.toEpochDay(), endDate = last.toEpochDay(), allDay = allDay,
-            startMinute = if (allDay) 0 else start.toSecondOfDay() / SECONDS_IN_MINUTE, endMinute = if (allDay) 0 else finish.toSecondOfDay() / SECONDS_IN_MINUTE,
+            startMinute = if (allDay) 0 else DateUtils.minuteOf(start), endMinute = if (allDay) 0 else DateUtils.minuteOf(finish),
             memberIds = memberIds.distinct().joinToString(","), keeperId = keeperId.orEmpty(),
             repeat = repeat.name, repeatUntil = repeatUntil?.takeIf { repeat != FamilyRepeat.NONE && !it.isBefore(startDate) }?.toEpochDay(),
             headsUp = headsUp.name, location = location.trim(), bring = items(bring).joinToString("\n"), memo = memo.trim(),
@@ -79,11 +79,10 @@ data class FamilyEventDraft(
         /** 준비물 글을 항목으로(쉼표·줄바꿈, 빈 것·겹치는 것 빼기). */
         fun items(text: String): List<String> = text.split(',', '\n').map { it.trim() }.filter { it.isNotEmpty() }.distinct()
 
-        private fun time(minute: Int): LocalTime = LocalTime.ofSecondOfDay((minute.coerceIn(0, LAST_MINUTE) * SECONDS_IN_MINUTE).toLong())
+        private fun time(minute: Int): LocalTime = DateUtils.timeOfMinute(minute.coerceIn(0, LAST_MINUTE))
 
         private val DEFAULT_START: LocalTime = LocalTime.of(10, 0)
         private val LATEST: LocalTime = LocalTime.of(23, 59)
-        private const val SECONDS_IN_MINUTE = 60
-        private const val LAST_MINUTE = 23 * 60 + 59
+        private val LAST_MINUTE: Int = DateUtils.minuteOf(LATEST)
     }
 }

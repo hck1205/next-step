@@ -82,7 +82,7 @@ object MissionPlanner {
             }
             .take(limit)
 
-    private val GoalStepEntity.isOpen: Boolean get() = !deleted && status != MilestoneStatus.DONE && status != MilestoneStatus.SKIPPED
+    private val GoalStepEntity.isOpen: Boolean get() = !deleted && !status.isClosed
 
     private const val FOCUS_LIMIT = 3
 }

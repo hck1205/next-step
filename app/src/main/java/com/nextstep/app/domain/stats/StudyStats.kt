@@ -9,6 +9,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.time.Streaks
 import java.time.LocalDate
 
 /** 화면과 인사이트 엔진이 공유하는 순수 계산 함수 모음. */
@@ -39,15 +40,15 @@ object StudyStats {
                 classCovered = list.count { it.classCovered },
                 reviewed = list.count { it.status.order >= TopicStatus.REVIEWED.order },
                 previewed = list.count { it.status.order >= TopicStatus.PREVIEWED.order },
-                previewQueue = list.filter { !it.classCovered && it.status.order < TopicStatus.PREVIEWED.order }.take(queueSize),
-                reviewQueue = list.filter { it.classCovered && it.status.order < TopicStatus.REVIEWED.order }.take(queueSize),
+                previewQueue = list.filter { it.needsPreview }.take(queueSize),
+                reviewQueue = list.filter { it.needsReview }.take(queueSize),
             )
         }
 
     fun minutesBetween(sessions: List<StudySessionEntity>, from: LocalDate, toExclusive: LocalDate): Int {
         val fromMs = DateUtils.startOfDayMillis(from)
         val toMs = DateUtils.startOfDayMillis(toExclusive)
-        return sessions.filter { it.startAt in fromMs until toMs }.sumOf { it.durationMinutes }
+        return sessions.filter { !it.deleted && it.startAt in fromMs until toMs }.sumOf { it.durationMinutes }
     }
 
     fun todayMinutes(sessions: List<StudySessionEntity>): Int {
@@ -55,8 +56,8 @@ object StudyStats {
         return minutesBetween(sessions, today, today.plusDays(1))
     }
 
-    fun weekMinutes(sessions: List<StudySessionEntity>): Int {
-        val start = DateUtils.weekStart()
+    fun weekMinutes(sessions: List<StudySessionEntity>, today: LocalDate = DateUtils.today()): Int {
+        val start = DateUtils.weekStart(today)
         return minutesBetween(sessions, start, start.plusWeeks(1))
     }
 
@@ -110,8 +111,7 @@ object StudyStats {
     }
 
     /** 오늘 이후 첫 시험 일정. */
-    fun upcomingExams(events: List<EventEntity>, tasks: List<TaskEntity>, withinDays: Int = 30): List<UpcomingExam> {
-        val today = DateUtils.today()
+    fun upcomingExams(events: List<EventEntity>, today: LocalDate = DateUtils.today(), withinDays: Int = EXAM_HORIZON_DAYS): List<UpcomingExam> {
         val result = mutableListOf<UpcomingExam>()
         (0..withinDays).forEach { offset ->
             val d = today.plusDays(offset.toLong())
@@ -126,15 +126,12 @@ object StudyStats {
         tasks.filter { !it.done && it.dueDate <= onOrBefore.toEpochDay() }.sortedBy { it.dueDate }
 
     /** 오늘(또는 어제)까지 연속으로 학습한 일수. */
-    fun studyStreak(sessions: List<StudySessionEntity>): Int {
-        val days = sessions.map { DateUtils.toLocalDate(it.startAt) }.toSet()
-        var day = DateUtils.today()
-        if (day !in days) day = day.minusDays(1)
-        var streak = 0
-        while (day in days) { streak++; day = day.minusDays(1) }
-        return streak
-    }
+    fun studyStreak(sessions: List<StudySessionEntity>, today: LocalDate = DateUtils.today()): Int =
+        Streaks.current(sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt) }.toSet(), today)
 
     fun overdueTasks(tasks: List<TaskEntity>): List<TaskEntity> =
         tasks.filter { !it.done && it.dueDate < DateUtils.today().toEpochDay() }
+
+    /** 다가오는 시험을 찾는 기간(일). */
+    private const val EXAM_HORIZON_DAYS = 30
 }

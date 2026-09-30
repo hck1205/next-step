@@ -3,6 +3,7 @@ package com.nextstep.app.domain.journey
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.model.MilestoneStatus
+import com.nextstep.app.domain.text.ratioOf
 
 /**
  * 목표를 구간별 단계로 쪼개고, 진행률과 "이번 구간에 할 단계"를 계산합니다. 순수 함수입니다.
@@ -29,8 +30,7 @@ object GoalPlanner {
 
     fun progress(steps: List<GoalStepEntity>): Float {
         val live = steps.filter { !it.deleted && it.status != MilestoneStatus.SKIPPED }
-        if (live.isEmpty()) return 0f
-        return live.count { it.status == MilestoneStatus.DONE }.toFloat() / live.size
+        return ratioOf(live.count { it.status == MilestoneStatus.DONE }, live.size)
     }
 
     /** 이번 구간의 단계 + 아직 안 끝난 지난 구간 단계(밀린 것). */
@@ -43,7 +43,7 @@ object GoalPlanner {
 
     /** 목표가 저장된 단계를 모두 끝냈는지. */
     fun isComplete(steps: List<GoalStepEntity>): Boolean =
-        steps.any { !it.deleted } && steps.filter { !it.deleted }.all { it.status == MilestoneStatus.DONE || it.status == MilestoneStatus.SKIPPED }
+        steps.any { !it.deleted } && steps.filter { !it.deleted }.all { it.status.isClosed }
 
     fun stepsOf(goal: GoalEntity, steps: List<GoalStepEntity>): List<GoalStepEntity> =
         steps.filter { it.goalId == goal.id && !it.deleted }.sortedBy { it.orderIndex }

@@ -40,9 +40,8 @@ class FamilyTalkTest {
         val h = FamilyTalk.highlights(monday, tasks, sessions, cheers, goals, findings, numbers = true)
         assertEquals(2, h.doneTasks); assertEquals(2, h.studyDays); assertEquals(1, h.cheers); assertEquals(listOf("구구단"), h.goalsDone)
         assertEquals(listOf("꾸준히 하고 있어요"), h.sparkles) // 밀린 것은 모으지 않음
-        assertEquals(listOf("✅ 해낸 일 2개", "📚 공부한 날 2일", "💛 받은 응원 1개", "🏆 구구단 이뤘어요", "✨ 꾸준히 하고 있어요"), FamilyTalk.highlightLines(h))
         assertEquals(listOf("구구단", "일기", "분수"), FamilyTalk.proudIdeas(monday, tasks, h))
-        assertTrue(FamilyTalk.highlightLines(WeekHighlights()).isEmpty()); assertTrue(WeekHighlights().isEmpty)
+        assertTrue(WeekHighlights().isEmpty)
     }
 
     @Test

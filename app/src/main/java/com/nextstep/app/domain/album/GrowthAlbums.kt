@@ -8,15 +8,15 @@ import com.nextstep.app.domain.export.ExportDoc
 import com.nextstep.app.domain.period.Period
 import com.nextstep.app.domain.period.PeriodKind
 import com.nextstep.app.domain.period.PeriodRecords
-import com.nextstep.app.domain.period.PeriodReports
 import com.nextstep.app.domain.period.PeriodStats
 import com.nextstep.app.domain.report.ReportSection
 import com.nextstep.app.domain.school.SchoolCalendar
 import com.nextstep.app.domain.stats.TrendStats
+import com.nextstep.app.domain.text.compact
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.time.Streaks
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 /**
  * 올해의 성장 앨범(가족 플러스로 나눌 수 있는 기능 — 지금은 모두에게 열림): 한 학년도(3월~2월)를 좋았던 것으로 한 권에.
@@ -30,10 +30,6 @@ object GrowthAlbums {
         return Period(PeriodKind.TERM, start, end, "${start.year}학년도")
     }
 
-    /** 보낼 글만 필요할 때: 학년도 끝까지의 앨범 한 권을 글로([doc]). */
-    fun album(studentName: String, year: Period, r: PeriodRecords, plans: List<WeekPlanEntity>, growth: List<GrowthRecordEntity>): ExportDoc =
-        doc(book(studentName, year, r, plans, growth, year.end), PeriodReports.stats(year, r))
-
     /** 앨범 한 권을 할머니·할아버지께 보낼 글로: 한 해 숫자([stats]) · 이룬 목표 · 자랑 · 해 본 것 · 자란 키 · 기다렸던 것. 화면과 같은 한 권에서 만듭니다. */
     fun doc(book: GrowthAlbum, stats: PeriodStats): ExportDoc {
         val sections = listOfNotNull(
@@ -41,7 +37,7 @@ object GrowthAlbums {
             section("이룬 목표", book.goals.map { it.title }),
             section("자랑하고 싶었던 순간", book.talks.filter { it.proud.isNotBlank() }.map { "${DateUtils.formatShortDate(it.week)} 주 · ${it.proud}" }.takeLast(MAX_LINES)),
             section("해 본 것", book.activities.map { "${it.type.label} · ${it.title}" }),
-            book.height?.let { ReportSection("자란 키", listOf("${cm(it.fromCm)}cm → ${cm(it.toCm)}cm (+${cm(it.gainCm)}cm)")) },
+            book.height?.let { ReportSection("자란 키", listOf("${it.fromCm.compact()}cm → ${it.toCm.compact()}cm (+${it.gainCm.compact()}cm)")) },
             section("기다렸던 것", book.talks.map { it.wish }.filter { it.isNotBlank() }.distinct()),
         )
         return ExportDoc("${book.studentName}의 ${book.year.label} 성장 앨범", "${DateUtils.formatMonth(book.year.start)} – ${DateUtils.formatMonth(book.year.end)}", sections)
@@ -57,9 +53,9 @@ object GrowthAlbums {
         val studied = r.sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt) }.filter { it in year && !it.isAfter(until) }.toSortedSet()
         return GrowthAlbum(
             studentName = studentName.ifBlank { "우리 아이" }, year = year,
-            goals = r.goals.filter { !it.deleted && it.status == GoalStatus.DONE && it.doneAt != null }
-                .map { AlbumGoal(it.title, DateUtils.toLocalDate(it.doneAt!!)) }.filter { it.doneOn in year }.sortedBy { it.doneOn },
-            studyDays = studied.size, longestStreak = longestStreak(studied),
+            goals = r.goals.filter { !it.deleted && it.status == GoalStatus.DONE }
+                .mapNotNull { g -> g.doneAt?.let { AlbumGoal(g.title, DateUtils.toLocalDate(it)) } }.filter { it.doneOn in year }.sortedBy { it.doneOn },
+            studyDays = studied.size, longestStreak = Streaks.longest(studied),
             studyWeeks = TrendStats.heatCalendar(r.sessions.filter { !it.deleted }, until, weeksBetween(year.start, until)),
             activities = r.activities.filter { !it.deleted && DateUtils.fromEpochDay(it.date) in year }.sortedBy { it.date }
                 .map { AlbumActivity(it.title, it.type, DateUtils.fromEpochDay(it.date)) },
@@ -71,29 +67,13 @@ object GrowthAlbums {
         )
     }
 
-    /** 가장 길게 이어서 공부한 날 수. */
-    internal fun longestStreak(days: Set<LocalDate>): Int {
-        var best = 0
-        var run = 0
-        var prev: LocalDate? = null
-        days.sorted().forEach { d ->
-            run = if (prev?.plusDays(1) == d) run + 1 else 1
-            best = maxOf(best, run)
-            prev = d
-        }
-        return best
-    }
-
     private fun weeksBetween(start: LocalDate, until: LocalDate): Int =
         (ChronoUnit.WEEKS.between(DateUtils.weekStart(start), DateUtils.weekStart(until)).toInt() + 1).coerceAtLeast(1)
 
     private fun heightChange(year: Period, growth: List<GrowthRecordEntity>): HeightChange? {
-        val list = growth.filter { !it.deleted && it.heightCm != null && DateUtils.fromEpochDay(it.date) in year }.sortedBy { it.date }
-        return if (list.size < 2) null else HeightChange(list.first().heightCm!!, list.last().heightCm!!)
+        val heights = growth.filter { !it.deleted && DateUtils.fromEpochDay(it.date) in year }.sortedBy { it.date }.mapNotNull { it.heightCm }
+        return if (heights.size < 2) null else HeightChange(heights.first(), heights.last())
     }
-
-    /** 키를 적는 모양(141 · 138.2). */
-    fun cm(v: Double): String = if (v % 1.0 == 0.0) v.toInt().toString() else String.format(Locale.ROOT, "%.1f", v)
 
     private const val MAX_LINES = 12
 }

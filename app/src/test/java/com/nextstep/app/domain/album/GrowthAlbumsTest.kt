@@ -5,6 +5,8 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.cheer.CheerKind
 import com.nextstep.app.domain.period.PeriodRecords
+import com.nextstep.app.domain.period.PeriodReports
+import com.nextstep.app.domain.text.compact
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.testing.Fixtures
 import java.time.LocalDate
@@ -30,7 +32,7 @@ class GrowthAlbumsTest {
         )
         val plans = listOf(WeekPlanEntity(familyId = "fam", weekStart = LocalDate.of(2029, 9, 3).toEpochDay(), proud = "줄넘기 100개", wish = "자전거 타기", talkAt = 1L))
         val growth = listOf(Fixtures.growth(LocalDate.of(2029, 3, 10), height = 130.0), Fixtures.growth(LocalDate.of(2029, 10, 10), height = 134.5))
-        val doc = GrowthAlbums.album("지우", year, r, plans, growth)
+        val doc = GrowthAlbums.doc(GrowthAlbums.book("지우", year, r, plans, growth, year.end), PeriodReports.stats(year, r))
         assertEquals("지우의 2029학년도 성장 앨범", doc.title); assertEquals("2029년 3월 – 2030년 2월", doc.subtitle)
         assertEquals(listOf("한 해 숫자", "이룬 목표", "자랑하고 싶었던 순간", "해 본 것", "자란 키", "기다렸던 것"), doc.sections.map { it.label })
         assertEquals(listOf("공부 1시간 30분 · 공부한 날 1일", "해낸 일 1개 · 이룬 목표 1개 · 받은 응원 0개"), doc.sections[0].lines)
@@ -64,6 +66,6 @@ class GrowthAlbumsTest {
         assertEquals(CheerKind.STAR, b.cheers.single().kind); assertEquals("아빠", b.cheers.single().fromName)
         assertEquals(listOf("줄넘기 100개"), b.talks.map { it.proud }); assertFalse(b.isEmpty)
         assertTrue(GrowthAlbums.book("지우", GrowthAlbums.year(today, 1), PeriodRecords(), emptyList(), emptyList(), today).isEmpty)
-        assertEquals("134.5", GrowthAlbums.cm(134.5)); assertEquals("141", GrowthAlbums.cm(141.0))
+        assertEquals("134.5", 134.5.compact()); assertEquals("141", 141.0.compact())
     }
 }

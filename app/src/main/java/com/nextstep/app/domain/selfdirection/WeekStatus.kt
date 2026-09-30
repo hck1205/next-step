@@ -19,6 +19,6 @@ data class WeekStatus(
     val hasPlan: Boolean get() = plan?.hasPlan == true
     val waitingApproval: Boolean get() = stage.needsApproval && hasPlan && plan?.approvedAt == null
     /** 계획한 시간 대비 한 시간(0~). 계획한 시간이 없으면 null. */
-    val keptRatio: Float? get() = plan?.plannedMinutes?.takeIf { it > 0 }?.let { actualMinutes.toFloat() / it }
+    val keptRatio: Float? get() = SelfDirection.keptRatio(plan, actualMinutes)
     val reflectsLastWeek: Boolean get() = reflectWeek != null && reflectWeek.isBefore(weekStart)
 }

@@ -35,13 +35,16 @@ object SelfDirection {
         plans.firstOrNull { !it.deleted && it.weekStart == weekStart.toEpochDay() }
 
     /** 그 주(월~일)에 공부한 분. */
-    fun minutesIn(sessions: List<StudySessionEntity>, weekStart: LocalDate, zone: ZoneId = ZoneId.systemDefault()): Int {
+    fun minutesIn(sessions: List<StudySessionEntity>, weekStart: LocalDate, zone: ZoneId = DateUtils.zone): Int {
         val end = weekStart.plusDays(DAYS_IN_WEEK)
         return sessions.filter { !it.deleted }.filter {
             val day = DateUtils.toLocalDate(it.startAt, zone)
             !day.isBefore(weekStart) && day.isBefore(end)
         }.sumOf { it.durationMinutes }
     }
+
+    /** 계획한 시간 대비 한 시간(0~). 계획한 시간이 없으면 null. */
+    fun keptRatio(plan: WeekPlanEntity?, actualMinutes: Int): Float? = plan?.plannedMinutes?.takeIf { it > 0 }?.let { actualMinutes.toFloat() / it }
 
     /** 돌아볼 주: 금~일이면 이번 주, 월~목이면 지난주(계획이 있었고 아직 안 돌아봤을 때만). 이번 주를 이미 돌아봤으면 null. */
     fun reflectWeek(plans: List<WeekPlanEntity>, today: LocalDate): LocalDate? {
@@ -51,14 +54,14 @@ object SelfDirection {
         return last.takeIf { planFor(plans, it)?.let { p -> p.hasPlan && !p.isReflected } == true }
     }
 
-    fun week(stage: SelfDirectionStage, plans: List<WeekPlanEntity>, sessions: List<StudySessionEntity>, today: LocalDate, zone: ZoneId = ZoneId.systemDefault()): WeekStatus {
+    fun week(stage: SelfDirectionStage, plans: List<WeekPlanEntity>, sessions: List<StudySessionEntity>, today: LocalDate, zone: ZoneId = DateUtils.zone): WeekStatus {
         val start = DateUtils.weekStart(today)
         val last = listOf(start, start.minusWeeks(1)).firstNotNullOfOrNull { w -> planFor(plans, w)?.takeIf { it.isReflected } }
         return WeekStatus(stage, start, planFor(plans, start), minutesIn(sessions, start, zone), reflectWeek(plans, today), last)
     }
 
     /** 이번 주를 뺀 최근 [WINDOW_WEEKS]주의 흔적(오래된 주 → 최근 주). */
-    fun evidence(plans: List<WeekPlanEntity>, sessions: List<StudySessionEntity>, today: LocalDate, zone: ZoneId = ZoneId.systemDefault()): List<WeekEvidence> {
+    fun evidence(plans: List<WeekPlanEntity>, sessions: List<StudySessionEntity>, today: LocalDate, zone: ZoneId = DateUtils.zone): List<WeekEvidence> {
         val thisWeek = DateUtils.weekStart(today)
         return (WINDOW_WEEKS downTo 1).map { back ->
             val w = thisWeek.minusWeeks(back.toLong())
@@ -66,14 +69,14 @@ object SelfDirection {
             WeekEvidence(
                 weekStart = w, planned = p?.hasPlan == true, childPlanned = p?.hasPlan == true && p.authorRole == Role.STUDENT.name,
                 reflected = p?.isReflected == true, goalsDone = p?.doneCount ?: 0, goalsTotal = p?.goalList?.size ?: 0,
-                keptRatio = p?.plannedMinutes?.takeIf { it > 0 }?.let { minutesIn(sessions, w, zone).toFloat() / it },
+                keptRatio = keptRatio(p, minutesIn(sessions, w, zone)),
             )
         }
     }
 
     fun report(
         student: MemberEntity?, plans: List<WeekPlanEntity>, sessions: List<StudySessionEntity>, tasks: List<TaskEntity>, today: LocalDate,
-        zone: ZoneId = ZoneId.systemDefault(),
+        zone: ZoneId = DateUtils.zone,
     ): SelfDirectionReport {
         val stage = stageOf(student, today)
         val weeks = evidence(plans, sessions, today, zone)

@@ -15,7 +15,7 @@ class ProjectCatalogTest {
 
     @Test
     fun everyCategoryHasAPlan() {
-        ProjectCategory.entries.forEach { assertTrue(it.name, ProjectCatalog.byCategory(it).isNotEmpty()) }
+        ProjectCategory.entries.forEach { assertTrue(it.name, ProjectCatalog.plans.any { p -> p.category == it }) }
     }
 
     @Test

@@ -6,9 +6,10 @@ import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
+import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.time.SchoolYear
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 /**
  * 교육 프로젝트를 목표 저장소에 올리고, 기록으로 지금 단계·이번 주 양·계획 대비 속도를 계산합니다. 순수 함수입니다.
@@ -31,9 +32,9 @@ object ProjectPlanner {
      * 추천에 쓰는 만 나이(개월). 생년월일이 있으면 그대로, 없으면 학년으로 어림합니다(초1 3월 = [FIRST_GRADE_MONTHS]개월).
      */
     fun ageMonths(birthDate: LocalDate?, gradeYear: Int?, today: LocalDate): Int? {
-        if (birthDate != null) return ChronoUnit.MONTHS.between(birthDate, today).toInt().takeIf { it >= 0 }
+        if (birthDate != null) return GrowthStage.ageMonths(birthDate, today).takeIf { it >= 0 }
         val grade = gradeYear?.takeIf { it > 0 } ?: return null
-        val sinceMarch = (today.monthValue - SCHOOL_YEAR_START_MONTH + MONTHS_PER_YEAR) % MONTHS_PER_YEAR
+        val sinceMarch = (today.monthValue - SchoolYear.START_MONTH + MONTHS_PER_YEAR) % MONTHS_PER_YEAR
         return FIRST_GRADE_MONTHS + (grade - 1) * MONTHS_PER_YEAR + sinceMarch
     }
 
@@ -103,7 +104,7 @@ object ProjectPlanner {
     fun progress(plan: ProjectPlan, goal: GoalEntity, steps: List<GoalStepEntity>, logs: List<ProjectLogEntity>, today: LocalDate): ProjectProgress {
         val byKey = steps.filter { it.goalId == goal.id && !it.deleted }.associateBy { phaseKeyOf(it) }
         val stepOf = { i: Int -> byKey[plan.phases[i].key] }
-        val closed = { i: Int -> stepOf(i)?.status.let { it == MilestoneStatus.DONE || it == MilestoneStatus.SKIPPED } }
+        val closed = { i: Int -> stepOf(i)?.status?.isClosed == true }
         val currentIndex = plan.phases.indices.firstOrNull { !closed(it) } ?: plan.phases.size
         val current = plan.phases.getOrNull(currentIndex)
 
@@ -162,7 +163,6 @@ object ProjectPlanner {
         return if (plannedStart > day) -(plannedStart - day) else 0
     }
 
-    private const val SCHOOL_YEAR_START_MONTH = 3
     private const val MONTHS_PER_YEAR = 12
     /** 초1 3월 입학 때의 대략적인 만 나이(6세 6개월). */
     private const val FIRST_GRADE_MONTHS = 78

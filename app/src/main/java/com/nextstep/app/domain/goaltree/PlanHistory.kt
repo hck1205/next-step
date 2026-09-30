@@ -4,6 +4,7 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.domain.text.ratioOrNull
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.ZoneId
@@ -48,11 +49,11 @@ object PlanHistory {
     /** 최근 [WINDOW_DAYS]일 전체 달성률. 마감이던 할 일이 없으면 null. */
     fun recentRate(tasks: List<TaskEntity>, today: LocalDate): Float? {
         val recent = window(tasks, today)
-        return if (recent.isEmpty()) null else recent.count { it.done }.toFloat() / recent.size
+        return ratioOrNull(recent.count { it.done }, recent.size)
     }
 
     /** 시간순 기록(최근 먼저): 목표 시작 · 할 일 끝(끝낸 시각이 있는 것) · 목표 달성. */
-    fun timeline(goals: List<GoalEntity>, tasks: List<TaskEntity>, zone: ZoneId = ZoneId.systemDefault(), limit: Int = TIMELINE_LIMIT): List<HistoryEvent> {
+    fun timeline(goals: List<GoalEntity>, tasks: List<TaskEntity>, zone: ZoneId = DateUtils.zone, limit: Int = TIMELINE_LIMIT): List<HistoryEvent> {
         val tree = GoalTree.treeGoals(goals)
         val byId = goals.associateBy { it.id }
         val day = { millis: Long -> DateUtils.toLocalDate(millis, zone) }

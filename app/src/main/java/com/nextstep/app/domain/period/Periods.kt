@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.period
 
+import com.nextstep.app.domain.time.SchoolYear
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -16,15 +17,11 @@ object Periods {
     private fun month(ym: YearMonth) = Period(PeriodKind.MONTH, ym.atDay(1), ym.atEndOfMonth(), "${ym.year}년 ${ym.monthValue}월")
 
     private fun term(day: LocalDate): Period {
-        val first = day.monthValue in FIRST_TERM
-        val schoolYear = if (day.monthValue >= FIRST_TERM.first) day.year else day.year - 1
-        return if (first) {
-            Period(PeriodKind.TERM, LocalDate.of(schoolYear, FIRST_TERM.first, 1), YearMonth.of(schoolYear, FIRST_TERM.last).atEndOfMonth(), "${schoolYear}학년도 1학기")
+        val year = SchoolYear.of(day)
+        return if (SchoolYear.isFirstTerm(day)) {
+            Period(PeriodKind.TERM, SchoolYear.start(year), SchoolYear.firstTermEnd(year), "${year}학년도 1학기")
         } else {
-            Period(PeriodKind.TERM, LocalDate.of(schoolYear, SECOND_TERM_START, 1), YearMonth.of(schoolYear + 1, 2).atEndOfMonth(), "${schoolYear}학년도 2학기")
+            Period(PeriodKind.TERM, SchoolYear.secondTermStart(year), SchoolYear.end(year), "${year}학년도 2학기")
         }
     }
-
-    private val FIRST_TERM = 3..8
-    private const val SECOND_TERM_START = 9
 }

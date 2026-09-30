@@ -7,6 +7,9 @@ enum class MilestoneStatus(val label: String) {
     DONE("완료"),
     SKIPPED("건너뜀");
 
+    /** 끝난 상태(완료했거나 건너뜀). 진행률·다음 단계 찾기에서 빠집니다. */
+    val isClosed: Boolean get() = this == DONE || this == SKIPPED
+
     companion object {
         fun from(value: String?): MilestoneStatus = entries.firstOrNull { it.name == value } ?: UPCOMING
     }

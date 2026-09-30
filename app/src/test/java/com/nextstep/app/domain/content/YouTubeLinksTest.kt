@@ -1,9 +1,7 @@
 package com.nextstep.app.domain.content
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class YouTubeLinksTest {
@@ -23,8 +21,7 @@ class YouTubeLinksTest {
         assertNull(YouTubeLinks.videoId("https://example.com/watch?v=$id"))
         assertNull(YouTubeLinks.videoId("https://youtu.be/short"))
         assertNull(YouTubeLinks.videoId(""))
-        assertFalse(YouTubeLinks.isYouTube("https://vimeo.com/123"))
-        assertTrue(YouTubeLinks.isYouTube("https://youtu.be/$id"))
+        assertNull(YouTubeLinks.videoId("https://vimeo.com/123"))
     }
 
     @Test

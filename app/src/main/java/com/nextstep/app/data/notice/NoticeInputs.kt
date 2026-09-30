@@ -35,7 +35,7 @@ object NoticeInputs {
             family = caps.isFamily, isStudent = caps.isStudent,
             familyAhead = FamilyCalendar.ahead(family, today),
             nextWeek = (0L until DAYS_IN_WEEK).flatMap { FamilyCalendar.on(family, nextMonday.plusDays(it)) }.filter { it.isFirstDay }.distinctBy { it.event.id },
-            exams = StudyStats.upcomingExams(streams.events.first(), tasks),
+            exams = StudyStats.upcomingExams(streams.events.first(), today),
             missions = MissionPlanner.focus(streams.goals.first(), streams.goalSteps.first(), today),
             journey = if (caps.isFamily) JourneyPlanner.actionable(JourneyPlanner.build(birth, streams.journeyItems.first(), today), today) else emptyList(),
             dueToday = tasks.count { !it.deleted && !it.done && it.dueDate == today.toEpochDay() },

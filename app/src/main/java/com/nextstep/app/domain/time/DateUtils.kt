@@ -12,7 +12,8 @@ import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
 object DateUtils {
-    private val zone: ZoneId get() = ZoneId.systemDefault()
+    /** 기기의 시간대. 날짜를 가르는 모든 계산의 기본값(테스트는 다른 시간대를 넘길 수 있음). */
+    val zone: ZoneId get() = ZoneId.systemDefault()
     val KO: Locale = Locale.KOREAN
 
     fun today(): LocalDate = LocalDate.now(zone)
@@ -60,8 +61,8 @@ object DateUtils {
     fun dayOfWeekLabel(day: DayOfWeek): String = day.getDisplayName(TextStyle.SHORT, KO)
 
     fun formatMinutes(minutes: Int): String {
-        val h = minutes / 60
-        val m = minutes % 60
+        val h = minutes / MINUTES_IN_HOUR
+        val m = minutes % MINUTES_IN_HOUR
         return when {
             h == 0 -> "${m}분"
             m == 0 -> "${h}시간"
@@ -70,24 +71,31 @@ object DateUtils {
     }
 
     fun formatElapsed(seconds: Long): String {
-        val h = seconds / 3600
-        val m = (seconds % 3600) / 60
-        val s = seconds % 60
+        val h = seconds / SECONDS_IN_HOUR
+        val m = (seconds % SECONDS_IN_HOUR) / SECONDS_IN_MINUTE
+        val s = seconds % SECONDS_IN_MINUTE
         return if (h > 0) String.format(Locale.ROOT, "%d:%02d:%02d", h, m, s) else String.format(Locale.ROOT, "%02d:%02d", m, s)
     }
 
     /** D-day 표기. 오늘이면 "D-Day", 지났으면 "D+n". */
-    fun dDay(target: LocalDate, from: LocalDate = today()): String {
-        val diff = target.toEpochDay() - from.toEpochDay()
-        return when {
-            diff == 0L -> "D-Day"
-            diff > 0 -> "D-$diff"
-            else -> "D+${-diff}"
-        }
+    fun dDay(target: LocalDate, from: LocalDate = today()): String = dDay((target.toEpochDay() - from.toEpochDay()).toInt())
+
+    /**
+     * 남은 날로 D-day 표기: "D-3". 오늘이면 [todayLabel](기본 "D-Day"), 지났으면 [pastLabel](없으면 "D+n").
+     * 알림·오늘 카드처럼 말로 쓰는 곳은 "오늘"·"지남"을 넘깁니다.
+     */
+    fun dDay(daysLeft: Int, todayLabel: String = D_DAY, pastLabel: String? = null): String = when {
+        daysLeft == 0 -> todayLabel
+        daysLeft > 0 -> "D-$daysLeft"
+        else -> pastLabel ?: "D+${-daysLeft}"
     }
+
+    private const val D_DAY = "D-Day"
 
     /** 한 시간의 분. 분을 시간으로 바꾸는 모든 곳이 씁니다. */
     const val MINUTES_IN_HOUR = 60
     private const val HOURS_IN_DAY = 24
+    private const val SECONDS_IN_MINUTE = 60L
+    private const val SECONDS_IN_HOUR = 3_600L
     private const val DAYS_IN_WEEK = 7L
 }

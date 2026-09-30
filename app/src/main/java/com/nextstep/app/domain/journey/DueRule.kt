@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.journey
 
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.time.SchoolYear
 import java.time.LocalDate
 
 /**
@@ -24,12 +25,8 @@ sealed interface DueRule {
     data class SchoolMonth(val gradeYear: Int, val month: Int, val day: Int = 1) : DueRule {
         override fun dueDate(birthDate: LocalDate): LocalDate {
             val entryYear = birthDate.year + GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH
-            val year = entryYear + (gradeYear - 1) + if (month < SCHOOL_YEAR_START_MONTH) 1 else 0
+            val year = entryYear + (gradeYear - 1) + if (month < SchoolYear.START_MONTH) 1 else 0
             return LocalDate.of(year, month, day)
-        }
-
-        private companion object {
-            const val SCHOOL_YEAR_START_MONTH = 3
         }
     }
 }

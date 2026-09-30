@@ -2,6 +2,8 @@ package com.nextstep.app.domain.taskboard
 
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.domain.goaltree.PlanHistory
+import com.nextstep.app.domain.task.doneOn
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.ZoneId
@@ -12,9 +14,8 @@ import java.time.ZoneId
  */
 object TaskBoard {
     const val SUGGESTIONS_PER_LANE = 3
-    const val RECENT_DAYS = 28L
 
-    fun lanes(tasks: List<TaskEntity>, subjects: List<SubjectEntity>, suggestions: List<TaskSuggestion>, today: LocalDate, zone: ZoneId = ZoneId.systemDefault()): List<SubjectLane> {
+    fun lanes(tasks: List<TaskEntity>, subjects: List<SubjectEntity>, suggestions: List<TaskSuggestion>, today: LocalDate, zone: ZoneId = DateUtils.zone): List<SubjectLane> {
         val live = tasks.filter { !it.deleted }
         val known = subjects.map { it.id }.toSet()
         val keyOf = { id: String? -> id?.takeIf { it in known } }
@@ -27,13 +28,12 @@ object TaskBoard {
         val day = today.toEpochDay()
         val open = tasks.filter { !it.done }.sortedBy { it.dueDate }
         val monday = DateUtils.weekStart(today)
-        val recent = tasks.filter { it.dueDate in today.minusDays(RECENT_DAYS).toEpochDay()..day }
         return SubjectLane(
             subject = subject,
             overdue = open.filter { it.dueDate < day }, today = open.filter { it.dueDate == day }, upcoming = open.filter { it.dueDate > day },
-            doneThisWeek = tasks.count { t -> t.done && t.doneAt?.let { !DateUtils.toLocalDate(it, zone).isBefore(monday) } ?: (t.dueDate >= monday.toEpochDay() && t.dueDate <= day) },
+            doneThisWeek = tasks.count { t -> t.done && t.doneOn(zone)?.let { !it.isBefore(monday) } ?: (t.dueDate >= monday.toEpochDay() && t.dueDate <= day) },
             suggestions = suggestions.take(SUGGESTIONS_PER_LANE),
-            recentRate = if (recent.isEmpty()) null else recent.count { it.done }.toFloat() / recent.size,
+            recentRate = PlanHistory.recentRate(tasks, today),
         )
     }
 }

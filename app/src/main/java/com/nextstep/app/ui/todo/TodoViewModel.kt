@@ -43,7 +43,7 @@ class TodoViewModel(
 
     val state: StateFlow<TodoUiState> = combine(sources, streams.tasks, streams.goals, streams.members, filter) { src, all, goals, members, f ->
         val day = today()
-        val suggestions = TaskSuggester.suggest(src.review, src.roadmap, StudyStats.upcomingExams(src.events, all), src.subjects, all, day)
+        val suggestions = TaskSuggester.suggest(src.review, src.roadmap, StudyStats.upcomingExams(src.events, day), src.subjects, all, day)
         TodoUiState(
             loaded = true, lanes = TaskBoard.lanes(all, src.subjects, suggestions, day),
             goals = GoalTree.treeGoals(goals).filter { it.status == GoalStatus.ACTIVE }, filter = f,

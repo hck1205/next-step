@@ -63,7 +63,6 @@ data class Capabilities(
     val canEditRoadmap: Boolean get() = actsAsMentor
     val canUpdateRoadmapProgress: Boolean get() = isStudent
     val canUseTimer: Boolean get() = isStudent
-    val canGeneratePlan: Boolean get() = isStudent
     /** 성장 여정(이정표 완료·메모·직접 추가)은 가족의 일: 학부모가 주도하고 학생도 함께. 멘토는 보기만(자기 몫은 "올해"에서). */
     val canEditJourney: Boolean get() = isFamily
     /** 장기 목표·단계 관리와 단계를 할 일로 보내기. 어린 자녀는 부모가, 이후엔 학생·멘토가 함께 관리합니다. */

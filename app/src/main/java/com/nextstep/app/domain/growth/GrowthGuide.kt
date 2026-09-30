@@ -23,7 +23,7 @@ object GrowthGuide {
     }
 
     /** 오늘 보여줄 팁·경험 하나. 매일 바뀌되 같은 날에는 같은 것을 보여 줍니다. */
-    fun <T> pickForDay(items: List<T>, day: LocalDate): T? = if (items.isEmpty()) null else items[(day.toEpochDay() % items.size).toInt().let { if (it < 0) it + items.size else it }]
+    fun <T> pickForDay(items: List<T>, day: LocalDate): T? = if (items.isEmpty()) null else items[Math.floorMod(day.toEpochDay(), items.size.toLong()).toInt()]
 
     /** 단계가 없을 때(학년 미입력) 쓰는 기본 계획 옵션. */
     fun defaultPlanOptions(stage: GrowthStage?): PlanOptions = stage?.let { forStage(it).planOptions } ?: PlanOptions()

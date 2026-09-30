@@ -5,6 +5,7 @@ import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.goaltree.GoalTree
+import com.nextstep.app.domain.time.Streaks
 import com.nextstep.app.testing.Fixtures
 import java.time.LocalDate
 import java.time.LocalTime
@@ -57,10 +58,10 @@ class GamifyTest {
     @Test
     fun streaksCountDaysWithAnythingDone() {
         val days = setOf(today, today.minusDays(1), today.minusDays(2), today.minusDays(5), today.minusDays(6), today.minusDays(7), today.minusDays(8))
-        assertEquals(3, Gamify.streak(days, today)); assertEquals(4, Gamify.bestStreak(days))
-        assertEquals(4, Gamify.streak(days + today.minusDays(3), today))
-        assertEquals(2, Gamify.streak(setOf(today.minusDays(1), today.minusDays(2)), today)) // 오늘 아직이면 어제까지
-        assertEquals(0, Gamify.streak(emptySet(), today))
+        assertEquals(3, Streaks.current(days, today)); assertEquals(4, Streaks.longest(days))
+        assertEquals(4, Streaks.current(days + today.minusDays(3), today))
+        assertEquals(2, Streaks.current(setOf(today.minusDays(1), today.minusDays(2)), today)) // 오늘 아직이면 어제까지
+        assertEquals(0, Streaks.current(emptySet(), today))
         val input = GameInputs(
             tasks = listOf(done("a", today, today)), logs = listOf(Fixtures.projectLog("p", "p1", "x", 5, today.minusDays(1))),
             sessions = listOf(Fixtures.session("math", today.minusDays(2), LocalTime.of(9, 0), 10)),
@@ -102,11 +103,11 @@ class GamifyTest {
     @Test
     fun teensKeepTheirStreakAfterOneRestDayAndChallengeTheirOwnPlan() {
         val days = setOf(today, today.minusDays(2), today.minusDays(3), today.minusDays(5), today.minusDays(8))
-        assertEquals(1, Gamify.streak(days, today)) // 쉬는 날 없는 모양: 어제 쉬어서 끊김
-        assertEquals(4, Gamify.streak(days, today, restDays = 1)) // 하루씩 쉬어도 이어짐, 이틀 쉬면(6·7일 전) 끊김
-        assertEquals(3, Gamify.streak(days - today, today, restDays = 1)) // 오늘 아직이고 어제 쉬었어도 그저께부터 이어짐
-        assertEquals(2, Gamify.bestStreak(days)); assertEquals(4, Gamify.bestStreak(days, restDays = 1))
-        assertEquals(0, Gamify.streak(setOf(today.minusDays(3)), today, restDays = 1))
+        assertEquals(1, Streaks.current(days, today)) // 쉬는 날 없는 모양: 어제 쉬어서 끊김
+        assertEquals(4, Streaks.current(days, today, restDays = 1)) // 하루씩 쉬어도 이어짐, 이틀 쉬면(6·7일 전) 끊김
+        assertEquals(3, Streaks.current(days - today, today, restDays = 1)) // 오늘 아직이고 어제 쉬었어도 그저께부터 이어짐
+        assertEquals(2, Streaks.longest(days)); assertEquals(4, Streaks.longest(days, restDays = 1))
+        assertEquals(0, Streaks.current(setOf(today.minusDays(3)), today, restDays = 1))
         val monday = LocalDate.of(2029, 5, 7)
         val noPlan = Gamify.challenges(GameInputs(), today, zone, GameStyle.GROWTH)
         assertEquals(listOf("이번 주 계획 세우기", "무언가 한 날", "한 주 돌아보기"), noPlan.map { it.label })

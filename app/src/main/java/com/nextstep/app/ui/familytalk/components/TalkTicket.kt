@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familycalendar.FamilyOccurrence
+import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -48,7 +49,7 @@ internal fun TalkTicket(next: FamilyOccurrence, today: LocalDate) {
             drawLine(cs.surface, Offset(0f, 0f), Offset(0f, size.height), 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f)))
         }
         Column(Modifier.padding(horizontal = 16.dp).fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(if (days <= 0) "오늘" else "D-$days", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = cs.tertiary)
+            Text(DateUtils.dDay(days.toInt().coerceAtLeast(0), todayLabel = "오늘"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = cs.tertiary)
             Text(next.kind.label, style = MaterialTheme.typography.labelSmall, color = cs.onSurfaceVariant)
         }
     }

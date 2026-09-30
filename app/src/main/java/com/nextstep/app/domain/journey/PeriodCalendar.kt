@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.journey
 
 import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.time.SchoolYear
 import java.time.LocalDate
 
 /**
@@ -36,8 +37,8 @@ object PeriodCalendar {
         for (grade in GrowthStage.MIN_GRADE..GrowthStage.MAX_GRADE) {
             val stage = GrowthStage.fromGradeYear(grade) ?: continue
             val year = entry.year + grade - 1
-            result += JourneyPeriod(JourneyPeriod.termKey(grade, 1), "${stage.gradeLabel(grade)} 1학기", stage, LocalDate.of(year, 3, 1), LocalDate.of(year, 8, 31), grade, 1)
-            result += JourneyPeriod(JourneyPeriod.termKey(grade, 2), "${stage.gradeLabel(grade)} 2학기", stage, LocalDate.of(year, 9, 1), LocalDate.of(year + 1, 2, 28).let { if (it.isLeapYear) it.plusDays(1) else it }, grade, 2)
+            result += JourneyPeriod(JourneyPeriod.termKey(grade, 1), "${stage.gradeLabel(grade)} 1학기", stage, SchoolYear.start(year), SchoolYear.firstTermEnd(year), grade, 1)
+            result += JourneyPeriod(JourneyPeriod.termKey(grade, 2), "${stage.gradeLabel(grade)} 2학기", stage, SchoolYear.secondTermStart(year), SchoolYear.end(year), grade, 2)
         }
         return result
     }
@@ -48,7 +49,7 @@ object PeriodCalendar {
     fun periodOf(periods: List<JourneyPeriod>, date: LocalDate): JourneyPeriod? = periods.firstOrNull { date in it }
 
     /** 초등 입학일: 출생연도 + 7년의 3월 1일. */
-    fun entryDate(birthDate: LocalDate): LocalDate = LocalDate.of(birthDate.year + GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH, 3, 1)
+    fun entryDate(birthDate: LocalDate): LocalDate = SchoolYear.start(birthDate.year + GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH)
 
     private fun ageLabel(startMonths: Int, step: Int): String = when {
         startMonths < FIRST_HALF_YEAR_MONTHS -> "생후 ${startMonths}~${startMonths + step - 1}개월"

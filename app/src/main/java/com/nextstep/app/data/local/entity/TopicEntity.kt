@@ -21,4 +21,10 @@ data class TopicEntity(
     override val updatedAt: Long = System.currentTimeMillis(),
     override val deleted: Boolean = false,
     override val dirty: Boolean = true,
-) : Syncable
+) : Syncable {
+    /** 수업했는데 아직 복습하지 않은 단원(복습 대기열). */
+    val needsReview: Boolean get() = classCovered && status.order < TopicStatus.REVIEWED.order
+
+    /** 수업 전인데 아직 예습하지 않은 단원(예습 대기열). */
+    val needsPreview: Boolean get() = !classCovered && status.order < TopicStatus.PREVIEWED.order
+}

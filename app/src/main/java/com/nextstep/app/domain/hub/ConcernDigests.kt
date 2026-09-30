@@ -16,6 +16,7 @@ import com.nextstep.app.domain.stats.ReviewReason
 import com.nextstep.app.domain.stats.ScoreStats
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.text.compact
+import com.nextstep.app.domain.text.ratioOrNull
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -43,7 +44,7 @@ object ConcernDigests {
         val recent = grades.filter { !it.deleted }.sortedByDescending { it.date }.take(RECENT_GRADES)
         return ConcernDigest(
             concern = Concern.EXAMS,
-            headline = next?.let { "${it.goal.title} ${dDay(it.daysLeft)}" } ?: "다가오는 시험 없음",
+            headline = next?.let { "${it.goal.title} ${DateUtils.dDay(it.daysLeft, pastLabel = "지남")}" } ?: "다가오는 시험 없음",
             detail = ScoreStats.averagePercent(recent)?.let { "최근 ${recent.size}번 평균 ${it.roundToInt()}점" },
             attention = focus.any { it.overdueSteps > 0 },
         )
@@ -89,7 +90,7 @@ object ConcernDigests {
             headline = if (review.isEmpty()) "복습할 단원 없음" else "복습할 단원 ${review.size}개",
             detail = first?.let { "${it.subject.name} · ${it.topic.title}" },
             attention = review.any { it.reason == ReviewReason.LOW_CONFIDENCE },
-            chart = if (total == 0) null else DigestChart.Meter(progress.sumOf { it.reviewed }.toFloat() / total),
+            chart = ratioOrNull(progress.sumOf { it.reviewed }, total)?.let { DigestChart.Meter(it) },
         )
     }
 
@@ -102,7 +103,7 @@ object ConcernDigests {
             headline = if (open.isEmpty()) "진행 중인 프로젝트 없음" else "프로젝트 ${open.size}개 진행 중",
             detail = focus?.let { p -> "${p.plan.title} · ${p.current?.title ?: ""} · ${p.pace.label}" },
             attention = open.any { it.pace == ProjectPace.BEHIND || it.weekMinutes == 0 },
-            chart = if (open.isEmpty()) null else DigestChart.Meter(open.count { it.pace != ProjectPace.BEHIND }.toFloat() / open.size),
+            chart = ratioOrNull(open.count { it.pace != ProjectPace.BEHIND }, open.size)?.let { DigestChart.Meter(it) },
         )
     }
 
@@ -125,10 +126,4 @@ object ConcernDigests {
     }
 
     private const val TENTHS = 10
-
-    private fun dDay(daysLeft: Int): String = when {
-        daysLeft > 0 -> "D-$daysLeft"
-        daysLeft == 0 -> "D-day"
-        else -> "지남"
-    }
 }

@@ -11,7 +11,9 @@ import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.SubjectScore
+import com.nextstep.app.domain.text.Josa
 import com.nextstep.app.domain.text.compact
+import com.nextstep.app.domain.text.percentOf
 import com.nextstep.app.domain.time.DateUtils
 
 /**
@@ -48,7 +50,7 @@ object InsightEngine {
     private fun strengthAndWeakness(scores: List<SubjectScore>, progress: List<SubjectProgress>): List<Insight> {
         val best = scores.maxByOrNull { it.average }?.takeIf { it.average >= STRONG_AVERAGE }?.let { best ->
             Insight(
-                InsightKind.STRENGTH, "${best.subject.name}이(가) 가장 강해요",
+                InsightKind.STRENGTH, "${Josa.withSubject(best.subject.name)} 가장 강해요",
                 "평균 ${best.average.compact()}점으로 가장 높습니다. 이 과목의 학습 방식을 다른 과목에도 적용해 보세요.",
                 best.subject.id,
             )
@@ -103,7 +105,7 @@ object InsightEngine {
         val next = p.previewQueue.firstOrNull()
         val preview = if (next != null && reviewBehind <= PREVIEW_MAX_BEHIND) Insight(
             InsightKind.SUGGESTION, "${p.subject.name} 다음 단원 예습 추천",
-            "곧 배울 '${next.title}'을(를) 미리 훑어보면 수업 이해도가 올라갑니다.",
+            "곧 배울 ${Josa.withObject("'${next.title}'")} 미리 훑어보면 수업 이해도가 올라갑니다.",
             p.subject.id,
             action = InsightAction.CreateTask("${p.subject.name} ${next.title} 예습", p.subject.id, next.id, TaskType.PREVIEW),
         ) else null
@@ -126,7 +128,7 @@ object InsightEngine {
         val topSubject = top?.subject
         val skewed = if (weekTotal > 0 && top != null && topSubject != null && subjectCount > 1 && top.minutes.toFloat() / weekTotal > SKEW_RATIO) Insight(
             InsightKind.SUGGESTION, "${topSubject.name}에 시간이 몰려 있어요",
-            "이번 주 학습 시간의 ${(top.minutes * PERCENT / weekTotal)}%가 한 과목입니다. 다른 과목에도 시간을 배분해 보세요.",
+            "이번 주 학습 시간의 ${percentOf(top.minutes, weekTotal)}%가 한 과목입니다. 다른 과목에도 시간을 배분해 보세요.",
             topSubject.id,
         ) else null
         return short + listOfNotNull(skewed)
@@ -147,7 +149,7 @@ object InsightEngine {
 
     /** 7. 다가오는데 준비 할 일이 없는 시험 */
     private fun examsWithoutPrep(events: List<EventEntity>, tasks: List<TaskEntity>, subjects: List<SubjectEntity>): List<Insight> =
-        StudyStats.upcomingExams(events, tasks, withinDays = EXAM_WITHIN_DAYS).mapNotNull { exam ->
+        StudyStats.upcomingExams(events, withinDays = EXAM_WITHIN_DAYS).mapNotNull { exam ->
             val hasPrep = tasks.any { !it.done && it.type == TaskType.EXAM_PREP && (exam.subjectId == null || it.subjectId == exam.subjectId) }
             if (hasPrep) return@mapNotNull null
             val subjectName = subjects.firstOrNull { it.id == exam.subjectId }?.name
@@ -187,7 +189,6 @@ object InsightEngine {
     private const val PREVIEW_MAX_BEHIND = 1
     private const val SHORT_RATIO = 0.4f
     private const val SKEW_RATIO = 0.6f
-    private const val PERCENT = 100
     private const val FOCUS_MIN_MINUTES = 180
     private const val EXAM_WITHIN_DAYS = 14
 }

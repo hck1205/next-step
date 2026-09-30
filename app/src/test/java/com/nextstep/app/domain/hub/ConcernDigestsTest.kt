@@ -40,7 +40,7 @@ class ConcernDigestsTest {
         val grades = (1L..6L).map { Fixtures.grade("math", 40.0 + it * 10, it) }
         val d = ConcernDigests.exams(listOf(focus("수학 수행평가", 10), focus("국어 단원평가", 3, overdue = 1)), grades)
         assertEquals("국어 단원평가 D-3", d.headline); assertEquals("최근 5번 평균 80점", d.detail); assertTrue(d.attention)
-        assertEquals("영어 D-day", ConcernDigests.exams(listOf(focus("영어", 0)), emptyList()).headline)
+        assertEquals("영어 D-Day", ConcernDigests.exams(listOf(focus("영어", 0)), emptyList()).headline)
         assertFalse(ConcernDigests.exams(listOf(focus("영어", 0)), emptyList()).attention)
     }
 

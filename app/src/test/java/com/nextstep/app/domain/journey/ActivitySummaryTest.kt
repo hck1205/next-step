@@ -43,12 +43,8 @@ class ActivitySummaryTest {
     }
 
     @Test
-    fun countInPeriodAndDuration() {
+    fun countInPeriod() {
         val g3s2 = periods.first { it.key == "g3s2" }
         assertEquals(1, ActivitySummary.countInPeriod(all, g3s2)); assertEquals(0, ActivitySummary.countInPeriod(all, null))
-        val today = LocalDate.of(2029, 10, 10)
-        assertEquals(1L, ActivitySummary.durationDays(trip, today))
-        assertEquals(169L, ActivitySummary.durationDays(club, today))
-        assertEquals(today.toEpochDay() - LocalDate.of(2028, 4, 1).toEpochDay() + 1, ActivitySummary.durationDays(piano, today)) // 진행 중 취미는 오늘까지
     }
 }

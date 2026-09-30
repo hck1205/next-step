@@ -3,6 +3,7 @@ package com.nextstep.app.domain.growth
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.model.GradeLevel
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.time.SchoolYear
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -52,7 +53,9 @@ enum class GrowthStage(
 
         /** 초등 입학 연도 = 출생연도 + 7 (그 해 3월). */
         const val ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH = 7
-        private const val SCHOOL_YEAR_START_MONTH = 3
+
+        /** 태어나서 [today] 까지 찬 개월 수(태어나기 전이면 음수). */
+        fun ageMonths(birthDate: LocalDate, today: LocalDate): Int = ChronoUnit.MONTHS.between(birthDate, today).toInt()
 
         fun fromGradeYear(gradeYear: Int?): GrowthStage? = gradeYear?.let { y -> entries.firstOrNull { y in it.gradeRange } }
 
@@ -64,20 +67,20 @@ enum class GrowthStage(
          */
         fun fromBirthDate(birthDate: LocalDate, today: LocalDate): GrowthStage? {
             schoolGradeYear(birthDate, today)?.let { return fromGradeYear(it) }
-            val months = ChronoUnit.MONTHS.between(birthDate, today).toInt()
+            val months = ageMonths(birthDate, today)
             return if (months < 0) null else fromAgeMonths(months)
         }
 
         /** 오늘 기준 학년(1~18). 학령 전이면 null, 대학원 이후도 null. */
         fun schoolGradeYear(birthDate: LocalDate, today: LocalDate): Int? {
-            val schoolYear = if (today.monthValue >= SCHOOL_YEAR_START_MONTH) today.year else today.year - 1
+            val schoolYear = SchoolYear.of(today)
             val grade = schoolYear - (birthDate.year + ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH) + 1
             return grade.takeIf { it in MIN_GRADE..MAX_GRADE }
         }
 
         /** "만 3세 4개월" 형식. 태어나기 전이면 "출생 전". */
         fun ageLabel(birthDate: LocalDate, today: LocalDate): String {
-            val months = ChronoUnit.MONTHS.between(birthDate, today).toInt()
+            val months = ageMonths(birthDate, today)
             if (months < 0) return "출생 전"
             return "만 ${months / 12}세 ${months % 12}개월"
         }

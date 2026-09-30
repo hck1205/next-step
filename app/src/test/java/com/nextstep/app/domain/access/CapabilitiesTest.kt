@@ -79,7 +79,7 @@ class CapabilitiesTest {
 
     @Test
     fun studentOwnsPersonalRecordsButNotCuration() {
-        assertTrue(student.canMarkTopicStatus); assertTrue(student.canUseTimer); assertTrue(student.canGeneratePlan)
+        assertTrue(student.canMarkTopicStatus); assertTrue(student.canUseTimer)
         assertTrue(student.canCheckTask(SelfDirectionStage.OWN)); assertTrue(student.canUpdateRoadmapProgress); assertTrue(student.canEditTopics)
         assertFalse(student.canEditRoadmap); assertFalse(student.actsAsMentor)
         assertEquals("STUDENT", student.actingRoleName)

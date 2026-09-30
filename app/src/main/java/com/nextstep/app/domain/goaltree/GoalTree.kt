@@ -6,6 +6,7 @@ import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.text.toPercent
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.ZoneId
@@ -41,12 +42,12 @@ object GoalTree {
 
     fun treeGoals(goals: List<GoalEntity>): List<GoalEntity> = goals.filter { !it.deleted && isTreeGoal(it) }
 
-    fun nodes(goals: List<GoalEntity>, tasks: List<TaskEntity>, today: LocalDate, zone: ZoneId = ZoneId.systemDefault()): List<GoalNode> {
+    fun nodes(goals: List<GoalEntity>, tasks: List<TaskEntity>, today: LocalDate, zone: ZoneId = DateUtils.zone): List<GoalNode> {
         val tree = treeGoals(goals)
         return tree.map { node(it, tree, tasks, today, zone) }
     }
 
-    fun node(goal: GoalEntity, goals: List<GoalEntity>, tasks: List<TaskEntity>, today: LocalDate, zone: ZoneId = ZoneId.systemDefault()): GoalNode {
+    fun node(goal: GoalEntity, goals: List<GoalEntity>, tasks: List<TaskEntity>, today: LocalDate, zone: ZoneId = DateUtils.zone): GoalNode {
         val tree = treeGoals(goals)
         val mine = tasks.filter { !it.deleted && it.goalId == goal.id }
             .sortedWith(compareBy<TaskEntity> { it.done }.thenBy { if (it.done) -(it.doneAt ?: 0L) else it.dueDate })
@@ -114,9 +115,8 @@ object GoalTree {
     fun nextStepLine(node: GoalNode, nodes: List<GoalNode>): String? {
         val parent = node.parent ?: return null
         val p = nodes.firstOrNull { it.goal.id == parent.id } ?: return null
-        return "→ ${parent.title} ${(p.rate * PERCENT).toInt()}%"
+        return "→ ${parent.title} ${p.rate.toPercent()}%"
     }
 
-    private const val PERCENT = 100
     private const val FOCUS_LIMIT = 3
 }

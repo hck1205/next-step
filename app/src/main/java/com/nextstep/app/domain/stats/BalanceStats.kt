@@ -10,6 +10,7 @@ import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.growth.YearProfile
 import com.nextstep.app.domain.journey.ActivitySummary
 import com.nextstep.app.domain.journey.JourneyPeriod
+import com.nextstep.app.domain.text.ratioOrNull
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
@@ -41,7 +42,7 @@ object BalanceStats {
         events: List<EventEntity> = emptyList(),
         year: YearProfile? = null,
     ): BalanceReport {
-        val week = StudyStats.weekMinutes(sessions)
+        val week = StudyStats.weekMinutes(sessions, today)
         val recommended = year?.weekMinutes ?: recommendedWeekMinutes(stage)
         val classes = classWeekMinutes(events, today)
         val cap = classCapWeekMinutes(stage)
@@ -58,7 +59,7 @@ object BalanceStats {
             },
             selfDirectedRatio = selfDirectedRatio(tasks, today),
             experiencesThisPeriod = ActivitySummary.countInPeriod(activities, currentPeriod),
-            streak = StudyStats.studyStreak(sessions),
+            streak = StudyStats.studyStreak(sessions, today),
         )
     }
 
@@ -102,7 +103,6 @@ object BalanceStats {
     fun selfDirectedRatio(tasks: List<TaskEntity>, today: LocalDate): Float? {
         val from = today.minusDays(SELF_DIRECTED_WINDOW_DAYS).toEpochDay()
         val recent = tasks.filter { !it.deleted && it.dueDate >= from && it.dueDate <= today.plusDays(SELF_DIRECTED_WINDOW_DAYS).toEpochDay() }
-        if (recent.isEmpty()) return null
-        return recent.count { it.isStudentMade }.toFloat() / recent.size
+        return ratioOrNull(recent.count { it.isStudentMade }, recent.size)
     }
 }

@@ -1,5 +1,6 @@
 package com.nextstep.app.domain.year
 
+import com.nextstep.app.domain.time.SchoolYear
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -21,6 +22,6 @@ class YearTermTest {
         assertEquals(LocalDate.of(2030, 2, 28), YearTerm.ALL_YEAR.endDate(autumn))
         // 1~2월은 전 해에 시작한 학교 한 해: 2032년 2월은 윤년이라 29일.
         assertEquals(LocalDate.of(2032, 2, 29), YearTerm.ALL_YEAR.endDate(LocalDate.of(2032, 1, 5)))
-        assertEquals(2031, YearTerm.schoolYearStart(LocalDate.of(2032, 1, 5)))
+        assertEquals(2031, SchoolYear.of(LocalDate.of(2032, 1, 5)))
     }
 }

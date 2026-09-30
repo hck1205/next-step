@@ -4,6 +4,7 @@ import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.goaltree.PlanHistory
 import com.nextstep.app.domain.goaltree.RateBy
 import com.nextstep.app.domain.goaltree.WeekRate
+import com.nextstep.app.domain.text.ratioOf
 
 /**
  * 학부모·멘토 오늘 화면의 차트 값 한 벌([TrendStats.family]). 저장하지 않고 기록에서 계산합니다.
@@ -31,7 +32,7 @@ data class FamilyTrends(
     /** 최근 4주 할 일 중 학생이 스스로 정한 몫(0~1). */
     val selfShare: Float get() {
         val total = assigners.sumOf { it.total }
-        return if (total == 0) 0f else (assigners.firstOrNull { it.key == Role.STUDENT.name }?.total ?: 0).toFloat() / total
+        return ratioOf(assigners.firstOrNull { it.key == Role.STUDENT.name }?.total ?: 0, total)
     }
 
     /** 과목마다 마지막 점수의 평균(성적이 없으면 null). */

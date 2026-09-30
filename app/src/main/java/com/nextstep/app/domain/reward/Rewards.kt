@@ -16,7 +16,7 @@ object Rewards {
     fun views(rewards: List<RewardEntity>, goals: List<GoalEntity>, level: Int, boards: Int = 0): List<RewardView> {
         val byId = goals.filter { !it.deleted }.associateBy { it.id }
         return rewards.filter { !it.deleted }.mapNotNull { r ->
-            val kind = RewardKind.entries.firstOrNull { it.name == r.kind } ?: return@mapNotNull null
+            val kind = RewardKind.from(r.kind) ?: return@mapNotNull null
             val (reached, target) = when (kind) {
                 RewardKind.GOAL -> {
                     val goal = byId[r.targetId] ?: return@mapNotNull null
@@ -24,11 +24,11 @@ object Rewards {
                 }
                 RewardKind.LEVEL -> {
                     val n = r.targetId.toIntOrNull() ?: return@mapNotNull null
-                    (level >= n) to "레벨 $n"
+                    (level >= n) to levelLabel(n)
                 }
                 RewardKind.BOARD -> {
                     val n = r.targetId.toIntOrNull() ?: return@mapNotNull null
-                    (boards >= n) to "스티커판 ${n}장"
+                    (boards >= n) to boardLabel(n)
                 }
             }
             val status = when {
@@ -72,8 +72,8 @@ object Rewards {
         kindsFor(style, gameOn).flatMap { kind ->
             when (kind) {
                 RewardKind.GOAL -> goals.map { RewardTarget(kind, it.id, it.title) }
-                RewardKind.LEVEL -> (profile.level.number + 1..profile.level.number + LEVEL_CHOICES).map { RewardTarget(kind, "$it", "레벨 $it") }
-                RewardKind.BOARD -> (profile.boards + 1..profile.boards + BOARD_CHOICES).map { RewardTarget(kind, "$it", "스티커판 ${it}장") }
+                RewardKind.LEVEL -> (profile.level.number + 1..profile.level.number + LEVEL_CHOICES).map { RewardTarget(kind, "$it", levelLabel(it)) }
+                RewardKind.BOARD -> (profile.boards + 1..profile.boards + BOARD_CHOICES).map { RewardTarget(kind, "$it", boardLabel(it)) }
             }
         }
 
@@ -93,4 +93,7 @@ object Rewards {
 
     private const val LEVEL_CHOICES = 5
     private const val BOARD_CHOICES = 3
+
+    private fun levelLabel(n: Int): String = "레벨 $n"
+    private fun boardLabel(n: Int): String = "스티커판 ${n}장"
 }

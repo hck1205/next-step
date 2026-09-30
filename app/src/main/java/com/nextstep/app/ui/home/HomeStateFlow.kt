@@ -56,7 +56,7 @@ internal object HomeStateFlow {
                 weekMinutes = StudyStats.weekMinutes(sessions),
                 week = StudyStats.dailyMinutes(sessions, DAYS_IN_WEEK),
                 streak = StudyStats.studyStreak(sessions),
-                nextExam = StudyStats.upcomingExams(events, tasks).firstOrNull(),
+                nextExam = StudyStats.upcomingExams(events).firstOrNull(),
                 events = events,
                 loaded = true,
             )
@@ -75,7 +75,7 @@ internal object HomeStateFlow {
     /** 학생의 화면 단계·올해 프로필·단계가 오른 것·이번 학기·여정·추천. */
     private fun withStudent(progress: Flow<HomeUiState>, streams: FamilyDataStreams): Flow<HomeUiState> =
         combine(progress, streams.contents, streams.grades, streams.members, streams.journeyItems) { s, contents, grades, members, journey ->
-            val exams = StudyStats.upcomingExams(s.events, emptyList())
+            val exams = StudyStats.upcomingExams(s.events)
             val today = DateUtils.today()
             val ctx = StudentContext.of(members, today)
             val stage = ctx.stage

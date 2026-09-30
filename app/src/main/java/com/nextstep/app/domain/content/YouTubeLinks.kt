@@ -16,7 +16,6 @@ object YouTubeLinks {
         return patterns.firstNotNullOfOrNull { it.find(trimmed)?.groupValues?.get(1) }
     }
 
-    fun isYouTube(url: String): Boolean = videoId(url) != null
 
     fun canonicalUrl(videoId: String): String = "https://www.youtube.com/watch?v=$videoId"
 

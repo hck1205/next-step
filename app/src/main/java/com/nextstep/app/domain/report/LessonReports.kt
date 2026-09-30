@@ -58,7 +58,7 @@ object LessonReports {
             note.trim().takeIf { it.isNotEmpty() }?.let { ReportSection("선생님 한마디", listOf(it)) },
             signature.trim().takeIf { it.isNotEmpty() }?.let { ReportSection("선생님", listOf(it)) },
         ),
-        footer = "NextStep에서 보냄",
+        footer = SENT_FROM,
     )
 
     /** 보낼 글: 제목 · 보낸 사람 · 덩어리들 · (있으면) 선생님 한마디 · 서명 · 끝맺음. */
@@ -73,7 +73,7 @@ object LessonReports {
         note.trim().takeIf { it.isNotEmpty() }?.let { appendLine(); appendLine("■ 선생님 한마디"); appendLine("  $it") }
         signature.trim().takeIf { it.isNotEmpty() }?.let { appendLine(); appendLine(it) }
         appendLine()
-        append("— NextStep에서 보냄")
+        append("— $SENT_FROM")
     }
 
     /** 1. 그 기간의 공부 시간(담당 과목). */
@@ -101,4 +101,6 @@ object LessonReports {
 
     private const val MAX_DUE = 3
     private const val MAX_NOTES = 2
+
+    private const val SENT_FROM = "NextStep에서 보냄"
 }

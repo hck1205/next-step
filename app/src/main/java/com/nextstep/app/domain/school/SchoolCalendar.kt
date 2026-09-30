@@ -4,8 +4,8 @@ import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.domain.familycalendar.FamilyEventKind
 import com.nextstep.app.domain.familycalendar.FamilyHeadsUp
 import com.nextstep.app.domain.familycalendar.FamilyRepeat
+import com.nextstep.app.domain.time.SchoolYear
 import java.time.LocalDate
-import java.time.MonthDay
 import java.time.temporal.ChronoUnit
 
 /**
@@ -17,9 +17,8 @@ object SchoolCalendar {
 
     /** 학년도 범위: 3월 1일 ~ 다음 해 2월 말일. */
     fun yearRange(today: LocalDate): Pair<LocalDate, LocalDate> {
-        val startYear = if (today.monthValue >= SCHOOL_YEAR_START.monthValue) today.year else today.year - 1
-        val start = SCHOOL_YEAR_START.atYear(startYear)
-        return start to start.plusYears(1).minusDays(1)
+        val year = SchoolYear.of(today)
+        return SchoolYear.start(year) to SchoolYear.end(year)
     }
 
     /** 학교 안의 학년(초 1~6 · 중 1~3 · 고 1~3). 학년을 모르면 0(모든 학년 행사를 받음). */
@@ -64,7 +63,6 @@ object SchoolCalendar {
 
     /** NEIS 에서 받아 넣은 일정의 작성자 표시. */
     const val SOURCE = "NEIS"
-    private val SCHOOL_YEAR_START: MonthDay = MonthDay.of(3, 1)
     private const val ELEMENTARY = 6
     private const val MIDDLE = 9
     private const val HIGH = 12

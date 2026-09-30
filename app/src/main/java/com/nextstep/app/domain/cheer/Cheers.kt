@@ -2,8 +2,8 @@ package com.nextstep.app.domain.cheer
 
 import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.domain.task.doneOn
 import com.nextstep.app.domain.text.Josa
-import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
 /**
@@ -16,7 +16,7 @@ object Cheers {
     fun targets(tasks: List<TaskEntity>, cheers: List<CheerEntity>, myId: String, today: LocalDate): List<CheerTarget> {
         val from = today.minusDays(CHEER_DAYS - 1)
         val mine = cheers.filter { !it.deleted && it.fromId == myId }.associateBy { it.taskId }
-        return tasks.filter { t -> !t.deleted && t.done && t.doneAt?.let { DateUtils.toLocalDate(it) }?.let { it >= from && it <= today } == true }
+        return tasks.filter { t -> !t.deleted && t.doneOn()?.let { it >= from && it <= today } == true }
             .sortedByDescending { it.doneAt }
             .take(MAX_TARGETS)
             .map { t -> CheerTarget(t, mine[t.id]?.let { CheerKind.from(it.kind) }) }

@@ -97,7 +97,7 @@ class ParentDashboardViewModel(
             streak = StudyStats.studyStreak(c.sessions),
             pendingTasks = StudyStats.pendingTasks(c.tasks),
             overdueCount = StudyStats.overdueTasks(c.tasks).size,
-            upcomingExams = StudyStats.upcomingExams(c.events, c.tasks).take(UiDefaults.MAX_ROWS),
+            upcomingExams = StudyStats.upcomingExams(c.events).take(UiDefaults.MAX_ROWS),
             todayEvents = StudyStats.eventsOn(today, c.events),
             stage = ctx.stage,
             periodLabel = period?.label,
@@ -121,7 +121,7 @@ class ParentDashboardViewModel(
 
     /** 응원할 수 있는 최근 해낸 일(내가 붙인 응원과 함께). */
     private val cheerTargets = combine(streams.tasks, streams.cheers, streams.profile) { tasks, list, profile ->
-        Cheers.targets(tasks, list, profile.memberId.orEmpty(), DateUtils.today())
+        if (!Capabilities.of(profile.role ?: Role.PARENT, null).canCheer) emptyList() else Cheers.targets(tasks, list, profile.memberId.orEmpty(), DateUtils.today())
     }
 
     /** 차트 값과 이번 주 피드백의 사실(같은 기록에서), 가족 일정, 응원. */

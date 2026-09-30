@@ -1,6 +1,5 @@
 package com.nextstep.app.domain.year
 
-import com.nextstep.app.domain.year.AheadRows.ah
 import com.nextstep.app.domain.year.AheadRows.f
 import com.nextstep.app.domain.year.AheadRows.s
 import com.nextstep.app.domain.year.AheadRows.y
@@ -21,7 +20,7 @@ import com.nextstep.app.domain.year.YearRows.T
 internal object SchoolAhead {
     val byYear: Map<String, List<YearTask>> = mapOf(
         "e1" to listOf(
-            ah(READING, "하루 20분 읽기로 늘리기", "글밥이 조금 있는 그림책", "한 쪽 다섯 줄 책을 혼자 읽어요",
+            y(READING, "하루 20분 읽기로 늘리기", "글밥이 조금 있는 그림책", "한 쪽 다섯 줄 책을 혼자 읽어요",
                 "읽기 유창성은 초1~2에 가장 크게 벌어지고, 3학년부터 모든 교과를 글로 배워요"),
             y(KOREAN, "세 문장 일기", "주 2회, 한 일·생각·느낌", "세 문장 일기를 혼자 써요", "2학년 일기와 3학년 독서록으로 바로 이어져요"),
             s(MATH, "20까지 덧셈 암산", "10 만들기 카드로 하루 5분", "받아올림 있는 한 자리 덧셈을 3초 안에 말해요",

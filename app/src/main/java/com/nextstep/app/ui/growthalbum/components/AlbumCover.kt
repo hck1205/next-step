@@ -30,8 +30,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nextstep.app.domain.album.GrowthAlbum
-import com.nextstep.app.domain.album.GrowthAlbums
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.oneDecimal
 import com.nextstep.app.ui.theme.Indigo
 import com.nextstep.app.ui.theme.IndigoDark
 import com.nextstep.app.ui.theme.IndigoDeep
@@ -62,7 +62,7 @@ internal fun AlbumCover(book: GrowthAlbum) {
         Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
             val cells = listOf(
                 "${book.goals.size}" to "이룬 목표", "${book.studyDays}" to "공부한 날", "${book.activities.size}" to "해 본 것",
-                (book.height?.let { "+${GrowthAlbums.cm(it.gainCm)}" } ?: "–") to "자란 키 cm",
+                (book.height?.let { "+${it.gainCm.oneDecimal()}" } ?: "–") to "자란 키 cm",
             )
             cells.forEachIndexed { i, (v, l) ->
                 if (i > 0) Box(Modifier.width(1.dp).height(34.dp).background(ink.copy(alpha = LINE)))

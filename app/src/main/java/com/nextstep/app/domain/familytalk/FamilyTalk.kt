@@ -13,6 +13,7 @@ import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackVoice
 import com.nextstep.app.domain.feedback.Finding
+import com.nextstep.app.domain.task.doneOn
 import com.nextstep.app.domain.time.DateUtils
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -44,17 +45,10 @@ object FamilyTalk {
         )
     }
 
-    /** 반짝인 순간을 한 줄씩(좋았던 것만). 아무것도 없으면 빈 목록 — 화면은 "쉬어 간 주"라고 다독입니다. */
-    fun highlightLines(h: WeekHighlights): List<String> = listOfNotNull(
-        h.doneTasks.takeIf { it > 0 }?.let { "✅ 해낸 일 ${it}개" },
-        h.studyDays.takeIf { it > 0 }?.let { "📚 공부한 날 ${it}일" },
-        h.cheers.takeIf { it > 0 }?.let { "💛 받은 응원 ${it}개" },
-    ) + h.goalsDone.map { "🏆 $it 이뤘어요" } + h.sparkles.map { "✨ $it" }
-
     /** "가장 자랑하고 싶은 것" 고르기 칩: 그 주에 해낸 일과 이룬 목표(새것부터 [MAX_IDEAS] 개). */
     fun proudIdeas(week: LocalDate, tasks: List<TaskEntity>, highlights: WeekHighlights): List<String> {
         val days = week..week.plusDays(DAYS_IN_WEEK - 1)
-        val done = tasks.filter { t -> !t.deleted && t.done && t.doneAt?.let { DateUtils.toLocalDate(it) in days } == true }.sortedByDescending { it.doneAt }.map { it.title }
+        val done = tasks.filter { t -> !t.deleted && t.doneOn()?.let { it in days } == true }.sortedByDescending { it.doneAt }.map { it.title }
         return (highlights.goalsDone + done).distinct().take(MAX_IDEAS)
     }
 

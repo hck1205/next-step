@@ -104,7 +104,7 @@ class StudyStatsTest {
             Fixtures.event("먼 시험", today.plusDays(40), LocalTime.of(9, 0), LocalTime.of(10, 0), type = EventType.EXAM),
             Fixtures.event("수업", today.plusDays(1), LocalTime.of(9, 0), LocalTime.of(10, 0)),
         )
-        assertEquals(listOf("쪽지", "기말"), StudyStats.upcomingExams(events, emptyList()).map { it.title })
+        assertEquals(listOf("쪽지", "기말"), StudyStats.upcomingExams(events, today).map { it.title })
     }
 
     @Test

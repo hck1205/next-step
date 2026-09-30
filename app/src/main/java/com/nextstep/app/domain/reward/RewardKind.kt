@@ -7,5 +7,10 @@ package com.nextstep.app.domain.reward
 enum class RewardKind(val label: String) {
     GOAL("목표를 이루면"),
     LEVEL("레벨에 닿으면"),
-    BOARD("스티커판을 채우면"),
+    BOARD("스티커판을 채우면");
+
+    companion object {
+        /** 저장값 → 종류. 모르는 값이면 null(그 보상은 보이지 않음). */
+        fun from(value: String?): RewardKind? = entries.firstOrNull { it.name == value }
+    }
 }

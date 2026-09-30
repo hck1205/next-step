@@ -4,7 +4,6 @@ import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.RoadmapStatus
-import com.nextstep.app.data.model.TopicStatus
 
 /** 화면이 "지금 할 것"으로 고르는 목록들. 상태를 만들 때 한 번 계산합니다(가이드 6장). */
 object StudyQueues {
@@ -29,7 +28,7 @@ object StudyQueues {
     /** 한 과목의 학급 진도 위치(마지막으로 수업한 단원 순서). 없으면 -1. */
     fun classIndex(topics: List<TopicEntity>): Int = topics.filter { it.classCovered }.maxOfOrNull { it.orderIndex } ?: -1
 
-    fun previewTopics(topics: List<TopicEntity>): List<TopicEntity> = topics.filter { !it.classCovered && it.status.order < TopicStatus.PREVIEWED.order }
+    fun previewTopics(topics: List<TopicEntity>): List<TopicEntity> = topics.filter { it.needsPreview }
 
-    fun reviewTopics(topics: List<TopicEntity>): List<TopicEntity> = topics.filter { it.classCovered && it.status.order < TopicStatus.REVIEWED.order }
+    fun reviewTopics(topics: List<TopicEntity>): List<TopicEntity> = topics.filter { it.needsReview }
 }

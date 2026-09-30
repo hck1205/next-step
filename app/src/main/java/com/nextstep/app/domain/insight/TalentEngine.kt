@@ -8,6 +8,8 @@ import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.domain.text.compact
+import com.nextstep.app.domain.text.percentOf
+import com.nextstep.app.domain.text.toPercent
 import com.nextstep.app.domain.time.DateUtils
 import kotlin.math.sqrt
 
@@ -44,7 +46,7 @@ object TalentEngine {
             val minutes = sessions.filter { it.subjectId == s.subject.id }.sumOf { it.durationMinutes }
             val share = minutes.toFloat() / totalMinutes
             if (s.average < HIGH_AVERAGE || share > avgShare * LOW_SHARE) return@mapNotNull null
-            Talent("${s.subject.name}: 효율형 강점", "학습 시간 비중은 ${(share * PERCENT).toInt()}%인데 평균 ${s.average.compact()}점이에요. 적은 시간으로 성과를 내는 과목입니다. 심화 학습을 붙여 볼 만해요.", s.subject.id, 0.9f)
+            Talent("${s.subject.name}: 효율형 강점", "학습 시간 비중은 ${share.toPercent()}%인데 평균 ${s.average.compact()}점이에요. 적은 시간으로 성과를 내는 과목입니다. 심화 학습을 붙여 볼 만해요.", s.subject.id, 0.9f)
         }
     }
 
@@ -84,7 +86,7 @@ object TalentEngine {
         if (covered.size < SELF_MIN_COVERED) return null
         val ratio = covered.count { it.status == TopicStatus.PREVIEWED }.toFloat() / covered.size
         if (ratio < SELF_RATIO) return null
-        return Talent("자기주도 학습", "배운 단원의 ${(ratio * PERCENT).toInt()}%를 미리 예습했어요. 스스로 앞서 나가는 성향이 있어요.", null, 0.75f)
+        return Talent("자기주도 학습", "배운 단원의 ${ratio.toPercent()}%를 미리 예습했어요. 스스로 앞서 나가는 성향이 있어요.", null, 0.75f)
     }
 
     /** 시간대 성향: 오전 또는 저녁에 몰린 공부 */
@@ -94,8 +96,8 @@ object TalentEngine {
         val morning = MORNING.sumOf { byHour[it] }
         val night = NIGHT.sumOf { byHour[it] }
         return when {
-            morning.toFloat() / totalMinutes >= MORNING_SHARE -> Talent("아침형 학습자", "학습의 ${(morning * PERCENT / totalMinutes)}%가 오전에 이뤄져요. 아침 시간을 지켜 주면 성과가 좋아요.", null, 0.5f)
-            night.toFloat() / totalMinutes >= NIGHT_SHARE -> Talent("저녁 집중형", "학습의 ${(night * PERCENT / totalMinutes)}%가 저녁 8시 이후예요. 이 시간대를 방해받지 않게 배려해 주세요.", null, 0.5f)
+            morning.toFloat() / totalMinutes >= MORNING_SHARE -> Talent("아침형 학습자", "학습의 ${percentOf(morning, totalMinutes)}%가 오전에 이뤄져요. 아침 시간을 지켜 주면 성과가 좋아요.", null, 0.5f)
+            night.toFloat() / totalMinutes >= NIGHT_SHARE -> Talent("저녁 집중형", "학습의 ${percentOf(night, totalMinutes)}%가 저녁 8시 이후예요. 이 시간대를 방해받지 않게 배려해 주세요.", null, 0.5f)
             else -> null
         }
     }
@@ -109,7 +111,6 @@ object TalentEngine {
         return Talent("${subject.name}: 높은 이해 자신감", "단원 이해도를 평균 ${average.toInt()}%로 평가했어요. 자신감이 있는 과목이니 발표·경시 등 확장 활동을 권해 볼 수 있어요.", subject.id, 0.55f)
     }
 
-    private const val PERCENT = 100
     private const val EFFICIENT_MIN_MINUTES = 120
     private const val HIGH_AVERAGE = 80
     private const val LOW_SHARE = 0.8f

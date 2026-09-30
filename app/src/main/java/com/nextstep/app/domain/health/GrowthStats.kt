@@ -60,12 +60,12 @@ object GrowthStats {
             val previous = visions.dropLast(1).lastOrNull()
             val prevWorst = previous?.let { listOfNotNull(it.visionLeft, it.visionRight).minOrNull() }
             when {
-                worst <= VISION_CHECK_THRESHOLD -> out += GrowthSignal("시력 검진을 권해요", "가장 낮은 쪽 시력이 ${fmt(worst)}이에요. 학교 검진 재검 기준(0.7 이하)이라 안과에서 확인해 보세요. 칠판·책 거리도 함께 살펴보세요.", GrowthSignalLevel.CHECK)
-                prevWorst != null && roundTenth(prevWorst - worst) >= VISION_DROP_THRESHOLD -> out += GrowthSignal("시력이 빠르게 떨어졌어요", "지난 기록 ${fmt(prevWorst)} → ${fmt(worst)}. 화면 시간과 야외 활동 시간을 점검하고 안과 검진을 잡아 보세요.", GrowthSignalLevel.CHECK)
+                worst <= VISION_CHECK_THRESHOLD -> out += GrowthSignal("시력 검진을 권해요", "가장 낮은 쪽 시력이 ${worst.compact()}이에요. 학교 검진 재검 기준(0.7 이하)이라 안과에서 확인해 보세요. 칠판·책 거리도 함께 살펴보세요.", GrowthSignalLevel.CHECK)
+                prevWorst != null && roundTenth(prevWorst - worst) >= VISION_DROP_THRESHOLD -> out += GrowthSignal("시력이 빠르게 떨어졌어요", "지난 기록 ${prevWorst.compact()} → ${worst.compact()}. 화면 시간과 야외 활동 시간을 점검하고 안과 검진을 잡아 보세요.", GrowthSignalLevel.CHECK)
             }
         }
         if (velocity != null && velocity < SLOW_HEIGHT_CM_PER_YEAR && velocity >= 0) {
-            out += GrowthSignal("키 성장이 느린 편이에요", "최근 연환산 ${fmt(velocity)}cm/년. 사춘기 전엔 보통 연 5~6cm 자라요. 다음 소아과 검진에서 성장 곡선을 함께 봐 달라고 하세요.", GrowthSignalLevel.CHECK)
+            out += GrowthSignal("키 성장이 느린 편이에요", "최근 연환산 ${velocity.compact()}cm/년. 사춘기 전엔 보통 연 5~6cm 자라요. 다음 소아과 검진에서 성장 곡선을 함께 봐 달라고 하세요.", GrowthSignalLevel.CHECK)
         }
         val lastDate = LocalDate.ofEpochDay(live.last().date)
         if (ChronoUnit.MONTHS.between(lastDate, today) >= 6) {
@@ -77,5 +77,4 @@ object GrowthStats {
     /** 시력은 소수 첫째 자리 값이라 차이도 첫째 자리로 반올림해 부동소수점 오차(1.2-0.9=0.2999…)를 없앱니다. */
     private fun roundTenth(v: Double): Double = Math.round(v * 10) / 10.0
 
-    private fun fmt(v: Double): String = v.compact()
 }

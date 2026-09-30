@@ -3,6 +3,7 @@ package com.nextstep.app.domain.goaltree
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.domain.text.ratioOf
 import java.time.LocalDate
 
 /**
@@ -26,7 +27,7 @@ data class GoalNode(
     val totalTasks: Int get() = tasks.size
     val achievedChildren: Int get() = children.count { it.status == GoalStatus.DONE }
     private val units: Int get() = totalTasks + children.size
-    val rate: Float get() = if (units == 0) 0f else (doneTasks + achievedChildren).toFloat() / units
+    val rate: Float get() = ratioOf(doneTasks + achievedChildren, units)
     val isAchieved: Boolean get() = goal.status == GoalStatus.DONE
     val pending: List<TaskEntity> get() = tasks.filter { !it.done }
     /** 할 일과 작은 목표를 모두 끝냈는데 아직 달성으로 표시하지 않은 목표. */

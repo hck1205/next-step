@@ -31,11 +31,4 @@ object ActivitySummary {
     /** 이번 구간에 기록된 활동 수. 대시보드의 "이번 학기 경험" 지표. */
     fun countInPeriod(activities: List<ActivityEntity>, period: JourneyPeriod?): Int =
         if (period == null) 0 else live(activities).count { LocalDate.ofEpochDay(it.date) in period }
-
-    /** 활동 기간(일). 하루짜리는 1, 진행 중이면 오늘까지. */
-    fun durationDays(activity: ActivityEntity, today: LocalDate): Long {
-        val start = LocalDate.ofEpochDay(activity.date)
-        val end = activity.endDate?.let { LocalDate.ofEpochDay(it) } ?: if (activity.isOngoing) today else start
-        return (end.toEpochDay() - start.toEpochDay() + 1).coerceAtLeast(1)
-    }
 }

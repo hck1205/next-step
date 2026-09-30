@@ -30,7 +30,7 @@ class Converters {
     @TypeConverter fun stringToGradeLevel(v: String): GradeLevel = GradeLevel.from(v)
 
     @TypeConverter fun contentScopeToString(v: ContentScope): String = v.name
-    @TypeConverter fun stringToContentScope(v: String): ContentScope = ContentScope.entries.firstOrNull { it.name == v } ?: ContentScope.FAMILY
+    @TypeConverter fun stringToContentScope(v: String): ContentScope = ContentScope.from(v)
 
     @TypeConverter fun examTypeToString(v: ExamType): String = v.name
     @TypeConverter fun stringToExamType(v: String): ExamType = ExamType.from(v)

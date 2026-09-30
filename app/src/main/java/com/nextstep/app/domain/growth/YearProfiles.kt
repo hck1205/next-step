@@ -19,7 +19,6 @@ import com.nextstep.app.domain.growth.StudyKindType.TEST_PREP
 import com.nextstep.app.domain.growth.StudyKindType.WRITE
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 /**
  * 만 0세부터 고3까지 한 해에 하나씩, 그리고 대학·대학원 프로필. 과목은 2022 개정 교육과정(유아는 누리과정) 기준입니다.
@@ -102,7 +101,7 @@ object YearProfiles {
         student.birthDate?.let { epoch ->
             val birth = DateUtils.fromEpochDay(epoch)
             GrowthStage.schoolGradeYear(birth, today)?.let { return forGrade(it) }
-            val months = ChronoUnit.MONTHS.between(birth, today).toInt()
+            val months = GrowthStage.ageMonths(birth, today)
             return if (today.year - birth.year <= GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH) forAge(months.coerceAtLeast(0) / MONTHS_PER_YEAR) else byKey.getValue("g")
         }
         return forGrade(student.gradeYear)

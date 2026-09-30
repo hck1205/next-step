@@ -49,7 +49,7 @@ object NoticeComposer {
     /** 2. 시험: [EXAM_DAYS] 안의 날(D-7 · D-3 · D-1 · 오늘)에만. */
     private fun exams(input: NoticeInput, today: LocalDate): List<String> = input.exams.mapNotNull { e ->
         val days = ChronoUnit.DAYS.between(today, e.date).toInt()
-        if (days in EXAM_DAYS) "${e.title} ${if (days == 0) "오늘" else "D-$days"}" else null
+        if (days in EXAM_DAYS) "${e.title} ${DateUtils.dDay(days, todayLabel = "오늘")}" else null
     }
 
     /** 3. 시험·목표의 다음 단계: 오늘까지거나 밀린 단계가 있는 것만. */
@@ -60,7 +60,7 @@ object NoticeComposer {
     /** 4. 여정(가족): 마감이 [JOURNEY_DAYS] 안이거나 지난 것. */
     private fun journey(input: NoticeInput, today: LocalDate): List<String> = if (!input.family || input.isStudent) emptyList() else
         input.journey.filter { it.phase(today) == JourneyPhase.OVERDUE || ChronoUnit.DAYS.between(today, it.dueDate) in 0..JOURNEY_DAYS }
-            .map { "${it.title} 마감 ${if (it.dueDate.isBefore(today)) "지남" else "D-${ChronoUnit.DAYS.between(today, it.dueDate)}"}" }
+            .map { "${it.title} 마감 ${DateUtils.dDay(ChronoUnit.DAYS.between(today, it.dueDate).toInt(), todayLabel = "오늘", pastLabel = "지남")}" }
 
     /** 5. 할 일: 오늘 마감 수(밀린 것은 어른에게만 함께). */
     private fun tasks(input: NoticeInput): List<String> {

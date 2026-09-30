@@ -37,9 +37,10 @@ object TaskSuggester {
                 val due = r.targetDate?.let { LocalDate.ofEpochDay(it) }?.takeIf { !it.isBefore(today) } ?: today
                 TaskSuggestion(r.subjectId, null, r.title, TaskType.HOMEWORK, SuggestionSource.ROADMAP, due)
             }
-        val fromExams = exams.filter { it.subjectId != null && it.subjectId in names && !it.date.isBefore(today) && !it.date.isAfter(horizon) }.map { e ->
+        val fromExams = exams.filter { !it.date.isBefore(today) && !it.date.isAfter(horizon) }.mapNotNull { e ->
+            val name = e.subjectId?.let { names[it] } ?: return@mapNotNull null
             val due = e.date.minusDays(EXAM_LEAD_DAYS).takeIf { !it.isBefore(today) } ?: today
-            TaskSuggestion(e.subjectId, null, "${names.getValue(e.subjectId!!)} ${e.title} 범위 복습", TaskType.EXAM_PREP, SuggestionSource.EXAM, due)
+            TaskSuggestion(e.subjectId, null, "$name ${e.title} 범위 복습", TaskType.EXAM_PREP, SuggestionSource.EXAM, due)
         }
         val open = tasks.filter { !it.deleted && !it.done }
         val taken = { s: TaskSuggestion ->

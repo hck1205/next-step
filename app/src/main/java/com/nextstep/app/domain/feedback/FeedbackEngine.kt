@@ -5,7 +5,8 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
-import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.task.doneOn
+import com.nextstep.app.domain.text.percentOf
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
@@ -68,18 +69,18 @@ object FeedbackEngine {
         val done = due.count { it.done }
         val overdue = tasks.count { !it.done && it.dueDate < today.toEpochDay() }
         return listOfNotNull(
-            Finding(FeedbackKind.TASKS_WELL, done, due.size).takeIf { due.size >= MIN_TASKS && done * PERCENT >= due.size * WELL_PERCENT },
+            Finding(FeedbackKind.TASKS_WELL, done, due.size).takeIf { due.size >= MIN_TASKS && percentOf(done, due.size) >= WELL_PERCENT },
             Finding(FeedbackKind.TASKS_OVERDUE, overdue).takeIf { overdue >= OVERDUE_ALERT },
         )
     }
 
     /** 3. 끝낸 일 가운데 스스로 정한 몫이 지난주보다 늘었는지(가족의 일). */
     private fun selfMade(tasks: List<TaskEntity>, today: LocalDate): List<Finding> {
-        val done = tasks.mapNotNull { t -> t.doneAt?.takeIf { t.done }?.let { DateUtils.toLocalDate(it) to t } }
+        val done = tasks.mapNotNull { t -> t.doneOn()?.let { it to t } }
         val now = done.filter { it.first in thisWeek(today) }.map { it.second }
         val before = done.filter { it.first in lastWeek(today) }.map { it.second }
-        val nowPercent = percent(now.count { it.isStudentMade }, now.size)
-        val beforePercent = percent(before.count { it.isStudentMade }, before.size)
+        val nowPercent = percentOf(now.count { it.isStudentMade }, now.size)
+        val beforePercent = percentOf(before.count { it.isStudentMade }, before.size)
         val rose = now.count { it.isStudentMade } >= MIN_SELF_TASKS && nowPercent - beforePercent >= SELF_STEP_PERCENT
         return listOfNotNull(Finding(FeedbackKind.SELF_MADE_UP, nowPercent, beforePercent).takeIf { rose })
     }
@@ -111,7 +112,7 @@ object FeedbackEngine {
 
     /** 6. 수업한 단원 가운데 복습하지 않은 것이 쌓인 과목(가장 많은 하나). */
     private fun reviewBacklog(topics: List<TopicEntity>, subjects: List<SubjectEntity>): List<Finding> {
-        val worst = subjects.map { s -> s to topics.count { it.subjectId == s.id && it.classCovered && it.status < TopicStatus.REVIEWED } }
+        val worst = subjects.map { s -> s to topics.count { it.subjectId == s.id && it.needsReview } }
             .filter { it.second >= BACKLOG_TOPICS }
             .maxByOrNull { it.second } ?: return emptyList()
         return listOf(Finding(FeedbackKind.REVIEW_BACKLOG, worst.second, subjectId = worst.first.id, subjectName = worst.first.name))
@@ -119,11 +120,9 @@ object FeedbackEngine {
 
     private fun thisWeek(today: LocalDate) = today.minusDays(WEEK_DAYS - 1)..today
     private fun lastWeek(today: LocalDate) = today.minusDays(2 * WEEK_DAYS - 1)..today.minusDays(WEEK_DAYS)
-    private fun percent(part: Int, whole: Int): Int = if (whole == 0) 0 else part * PERCENT / whole
 
     const val MAX_LINES = 3
     private const val WEEK_DAYS = 7L
-    private const val PERCENT = 100
     private const val DROP_DAYS = 2
     private const val RISE_DAYS = 2
     private const val STEADY_DAYS = 4

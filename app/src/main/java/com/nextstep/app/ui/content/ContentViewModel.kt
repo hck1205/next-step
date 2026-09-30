@@ -29,7 +29,7 @@ class ContentViewModel(
         ContentUiState(
             subjects = subjects, all = contents,
             subjectKeys = (subjects.map { it.name } + contents.map { it.subjectKey }).filter { it.isNotBlank() }.distinct(),
-            recommendations = ContentRecommender.recommend(contents, subjects, progress, StudyStats.subjectScores(grades, subjects), StudyStats.upcomingExams(events, emptyList()), gradeLevel = level, limit = 5),
+            recommendations = ContentRecommender.recommend(contents, subjects, progress, StudyStats.subjectScores(grades, subjects), StudyStats.upcomingExams(events), gradeLevel = level, limit = 5),
         )
     }
 

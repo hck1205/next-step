@@ -18,9 +18,9 @@ object ReviewPlanner {
         return subjects.flatMap { subject ->
             val list = topics.filter { !it.deleted && it.subjectId == subject.id }.sortedBy { it.orderIndex }
             val low = list.filter { it.confidence in 1 until LOW_CONFIDENCE && it.status != TopicStatus.MASTERED }
-            val after = (list - low.toSet()).filter { it.classCovered && it.status.order < TopicStatus.REVIEWED.order }
+            val after = (list - low.toSet()).filter { it.needsReview }
                 .sortedByDescending { it.orderIndex }
-            val next = list.firstOrNull { !it.classCovered && it.status.order < TopicStatus.PREVIEWED.order && it !in low }
+            val next = list.firstOrNull { it.needsPreview && it !in low }
             low.map { ReviewItem(subject, it, ReviewReason.LOW_CONFIDENCE) } +
                 after.map { ReviewItem(subject, it, if (subject.id in dropped) ReviewReason.SCORE_DROP else ReviewReason.AFTER_CLASS) } +
                 listOfNotNull(next?.let { ReviewItem(subject, it, ReviewReason.NEXT_CLASS) })

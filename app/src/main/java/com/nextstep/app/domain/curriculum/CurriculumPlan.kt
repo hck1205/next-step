@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.curriculum
 
 import com.nextstep.app.data.local.entity.PeerTopicEntity
+import com.nextstep.app.domain.text.ratioOf
 
 /** 한 구간의 커리큘럼을 가족 데이터와 대조한 결과. */
 data class CurriculumPlan(
@@ -12,7 +13,6 @@ data class CurriculumPlan(
     val essentialTodo: List<UnitPlan> get() = subjects.flatMap { it.units }.filter { it.unit.essential && it.status == UnitStatus.NOT_REGISTERED }
     val registeredRatio: Float get() {
         val all = subjects.flatMap { it.units }
-        if (all.isEmpty()) return 0f
-        return all.count { it.status != UnitStatus.NOT_REGISTERED }.toFloat() / all.size
+        return ratioOf(all.count { it.status != UnitStatus.NOT_REGISTERED }, all.size)
     }
 }

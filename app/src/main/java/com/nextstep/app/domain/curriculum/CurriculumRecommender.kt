@@ -71,7 +71,7 @@ object CurriculumRecommender {
 
     private fun videosFor(unit: CurriculumUnit, contents: List<ContentEntity>, gradeLevel: GradeLevel): List<ContentEntity> =
         contents.filter { c -> !c.deleted && (c.gradeLevel == GradeLevel.ALL || c.gradeLevel == gradeLevel) && matches(unit, c.title + " " + c.keywords) }
-            .sortedWith(compareByDescending<ContentEntity> { if (it.ratingCount == 0) 0.0 else it.ratingSum.toDouble() / it.ratingCount }.thenByDescending { it.ratingCount })
+            .sortedWith(compareByDescending<ContentEntity> { it.averageRating }.thenByDescending { it.ratingCount })
             .take(MAX_VIDEOS)
 
     private fun suggestion(unit: CurriculumUnit, status: UnitStatus, topic: TopicEntity?): String? = when {

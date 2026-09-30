@@ -13,5 +13,4 @@ object ProjectCatalog {
 
     val byId: Map<String, ProjectPlan> = plans.associateBy { it.id }
 
-    fun byCategory(category: ProjectCategory): List<ProjectPlan> = plans.filter { it.category == category }
 }

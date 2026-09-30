@@ -65,7 +65,7 @@ object TrendStats {
     fun scoreSeries(grades: List<GradeEntity>, subjects: List<SubjectEntity>): List<ScoreSeries> = subjects.mapNotNull { s ->
         val mine = grades.filter { !it.deleted && it.subjectId == s.id }.sortedBy { it.date }
         if (mine.isEmpty()) return@mapNotNull null
-        val classAvg = mine.mapNotNull { g -> g.classAverage?.takeIf { g.maxScore > 0 }?.let { it / g.maxScore * PERCENT } }
+        val classAvg = mine.mapNotNull { it.classPercent }
         ScoreSeries(s, mine.map { it.percent.roundToInt() }, classAvg.takeIf { it.isNotEmpty() }?.average()?.roundToInt())
     }
 
@@ -77,5 +77,4 @@ object TrendStats {
     private const val HEAT_WEEKS = 5
     private const val RATE_WEEKS = 5
     private const val LEVEL_STEP = 15
-    private const val PERCENT = 100.0
 }

@@ -23,5 +23,12 @@ data class GradeEntity(
     override val deleted: Boolean = false,
     override val dirty: Boolean = true,
 ) : Syncable {
-    val percent: Double get() = if (maxScore > 0) score / maxScore * 100.0 else 0.0
+    val percent: Double get() = if (maxScore > 0) score / maxScore * FULL_PERCENT else 0.0
+
+    /** 반 평균을 백분율로(반 평균이 없거나 만점이 0 이면 null). */
+    val classPercent: Double? get() = classAverage?.takeIf { maxScore > 0 }?.let { it / maxScore * FULL_PERCENT }
+
+    private companion object {
+        const val FULL_PERCENT = 100.0
+    }
 }

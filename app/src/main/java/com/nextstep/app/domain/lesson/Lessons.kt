@@ -36,7 +36,7 @@ object Lessons {
     fun tuitionLine(plan: LessonPlan, today: LocalDate, payer: Boolean = false): String? = tuition(plan, today)?.let { tuitionLine(it, payer) }
 
     fun tuitionLine(due: TuitionDue, payer: Boolean = false): String? = due.takeIf { it.daysLeft <= TUITION_HEADS_UP }?.let {
-        "수업료 ${if (payer) "낼" else "받을"} 날 ${if (it.daysLeft == 0) "오늘" else "D-${it.daysLeft}"} · ${"%,d".format(it.fee)}원"
+        "수업료 ${if (payer) "낼" else "받을"} 날 ${DateUtils.dDay(it.daysLeft, todayLabel = "오늘")} · ${"%,d".format(it.fee)}원"
     }
 
     /** 수업을 맡은 멘토마다 한 달 수업(일정이 있거나 그 달 기록이 있는 멘토만). */

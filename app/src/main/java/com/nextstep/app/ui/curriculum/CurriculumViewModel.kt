@@ -22,6 +22,7 @@ import com.nextstep.app.domain.journey.JourneyPeriod
 import com.nextstep.app.domain.journey.PeriodCalendar
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.domain.time.SchoolYear
 import com.nextstep.app.ui.common.actingRoleName
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
@@ -119,17 +120,15 @@ class CurriculumViewModel(
     /** 생년월일이 있으면 달력에서, 없으면 학년 기준 가상의 달력(입학 연도 역산)에서 학기 구간만 뽑습니다. */
     private fun periodsFor(birthDate: LocalDate?, gradeYear: Int, today: LocalDate): List<JourneyPeriod> {
         val base = birthDate ?: gradeYear.takeIf { it > 0 }?.let { g ->
-            val entryYear = (if (today.monthValue >= SCHOOL_YEAR_START_MONTH) today.year else today.year - 1) - (g - 1)
+            val entryYear = SchoolYear.of(today) - (g - 1)
             LocalDate.of(entryYear - GrowthStage.ELEMENTARY_ENTRY_YEARS_AFTER_BIRTH, 6, 1)
         } ?: return emptyList()
         return PeriodCalendar.periods(base).filter { CurriculumCatalog.forPeriod(it.key) != null }
     }
 
-    private fun semesterOf(day: LocalDate): Int = if (day.monthValue in SCHOOL_YEAR_START_MONTH..FIRST_SEMESTER_END_MONTH) 1 else 2
+    private fun semesterOf(day: LocalDate): Int = if (SchoolYear.isFirstTerm(day)) 1 else 2
 
     private companion object {
-        const val SCHOOL_YEAR_START_MONTH = 3
-        const val FIRST_SEMESTER_END_MONTH = 8
         const val DEFAULT_DUE_DAYS = 7L
     }
 }
