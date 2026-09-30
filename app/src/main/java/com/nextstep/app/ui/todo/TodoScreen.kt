@@ -49,7 +49,7 @@ internal fun TodoContent(state: TodoUiState, caps: Capabilities, actions: TodoAc
         item {
             SegmentedRow(options = TodoFilter.entries, selected = state.filter, label = { it.label }, onSelect = { onEvent(TodoEvent.SetFilter(it)) }, modifier = Modifier.fillMaxWidth())
         }
-        if (state.loaded && state.shown.isEmpty()) item { EmptyCard(if (state.filter == TodoFilter.ALL) "할 일과 추천이 없어요. 목표에서 세부 할 일을 주거나 + 로 할 일을 만들어요." else "${state.filter.label}이 없어요") }
+        if (state.loaded && state.shown.isEmpty()) item { EmptyCard(state.filter.empty) }
         items(state.shown, key = { "lane-" + (it.subject?.id ?: "other") }) { lane ->
             LaneCard(
                 lane = lane, goalTitle = state::goalTitle, goals = state.goals, canCheck = canCheck, canAccept = caps.canCreateTasks,
