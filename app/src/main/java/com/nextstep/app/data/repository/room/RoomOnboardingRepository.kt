@@ -1,0 +1,131 @@
+package com.nextstep.app.data.repository.room
+
+import com.nextstep.app.data.local.dao.MemberDao
+import com.nextstep.app.data.local.dao.SubjectDao
+import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.newId
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.data.model.SyncStatus
+import com.nextstep.app.data.prefs.UserPreferencesStore
+import com.nextstep.app.data.prefs.UserProfile
+import com.nextstep.app.data.repository.OnboardingRepository
+import com.nextstep.app.data.sync.FamilyInfo
+import com.nextstep.app.data.sync.SyncManager
+import java.time.LocalDate
+import java.util.Locale
+import kotlin.random.Random
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+
+class RoomOnboardingRepository(
+    private val prefs: UserPreferencesStore,
+    private val memberDao: MemberDao,
+    private val subjectDao: SubjectDao,
+    private val sync: SyncManager,
+    private val random: Random = Random.Default,
+) : OnboardingRepository {
+
+    override val profile: Flow<UserProfile> = prefs.profile
+    override val syncStatus: StateFlow<SyncStatus> get() = sync.status
+    override val syncAvailable: Boolean get() = sync.isAvailable
+
+    override suspend fun createFamilyAsStudent(studentName: String, gradeYear: Int, birthDate: LocalDate?): Result<FamilyInfo> {
+        val info = FamilyInfo(familyId = newId(), pairingCode = generatePairingCode(), studentName = studentName)
+        sync.createFamily(info).onFailure { return Result.failure(it) }
+        val member = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = studentName, gradeYear = gradeYear, birthDate = birthDate?.toEpochDay())
+        return enter(info, Role.STUDENT, member) { seedDefaultSubjects(info.familyId) }
+    }
+
+    override suspend fun createFamilyAsParent(parentName: String, childName: String, birthDate: LocalDate?, relation: String): Result<FamilyInfo> =
+        createChildSpace(parentName, childName, birthDate, relation, mentorEnabled = false)
+
+    private suspend fun createChildSpace(parentName: String, childName: String, birthDate: LocalDate?, relation: String, mentorEnabled: Boolean): Result<FamilyInfo> {
+        val info = FamilyInfo(familyId = newId(), pairingCode = generatePairingCode(), studentName = childName)
+        sync.createFamily(info).onFailure { return Result.failure(it) }
+        val child = MemberEntity(familyId = info.familyId, role = Role.STUDENT.name, name = childName, birthDate = birthDate?.toEpochDay())
+        val parent = MemberEntity(familyId = info.familyId, role = Role.PARENT.name, name = parentName, title = relation, mentorEnabled = mentorEnabled)
+        memberDao.upsert(child)
+        return enter(info, Role.PARENT, parent)
+    }
+
+    override suspend fun joinFamily(role: Role, name: String, code: String, title: String): Result<FamilyInfo> {
+        if (role == Role.STUDENT) return Result.failure(IllegalArgumentException("학생은 코드로 참여할 수 없습니다"))
+        val info = findFamily(code).getOrElse { return Result.failure(it) }
+        return enter(info, role, MemberEntity(familyId = info.familyId, role = role.name, name = name, title = title, mentorEnabled = role == Role.MENTOR))
+    }
+
+    override suspend fun addChildAsParent(childName: String, birthDate: LocalDate?): Result<FamilyInfo> {
+        val profile = prefs.profile.first()
+        if (profile.role != Role.PARENT) return Result.failure(IllegalStateException("자녀 추가는 학부모만 할 수 있습니다"))
+        val me = profile.memberId?.let { memberDao.getById(it) }
+        return createChildSpace(profile.displayName, childName, birthDate, me?.title.orEmpty(), me?.mentorEnabled ?: false)
+    }
+
+    override suspend fun linkChild(code: String): Result<FamilyInfo> {
+        val profile = prefs.profile.first()
+        val role = profile.role?.takeIf { it != Role.STUDENT } ?: return Result.failure(IllegalStateException("학생은 다른 자녀를 연결할 수 없습니다"))
+        val info = findFamily(code).getOrElse { return Result.failure(it) }
+        if (profile.children.any { it.familyId == info.familyId }) { switchChild(info.familyId); return Result.success(info) }
+        val me = profile.memberId?.let { memberDao.getById(it) }
+        val member = MemberEntity(familyId = info.familyId, role = role.name, name = profile.displayName, title = me?.title.orEmpty(), mentorEnabled = role == Role.MENTOR || (me?.mentorEnabled ?: false))
+        return enter(info, role, member)
+    }
+
+    override suspend fun switchChild(familyId: String) {
+        if (prefs.profile.first().familyId == familyId) return
+        if (prefs.switchChild(familyId)) sync.start(familyId)
+    }
+
+    override suspend fun resumeSync() {
+        prefs.profile.first().familyId?.let { sync.start(it) }
+    }
+
+    override suspend fun signOut() {
+        sync.stop()
+        prefs.reset()
+    }
+
+    override fun requestSync() = sync.requestPush()
+
+    /** 연결 코드로 가족 찾기. 동기화가 없거나 코드가 없으면 실패. */
+    private suspend fun findFamily(code: String): Result<FamilyInfo> {
+        if (!sync.isAvailable) return Result.failure(IllegalStateException(NO_SYNC_MESSAGE))
+        val info = sync.findFamilyByCode(code.trim().uppercase(Locale.ROOT)).getOrElse { return Result.failure(it) }
+        return info?.let { Result.success(it) } ?: Result.failure(IllegalArgumentException("코드에 해당하는 학생을 찾지 못했습니다"))
+    }
+
+    /** 내 구성원 행을 넣고 그 가족으로 들어갑니다(프로필 저장 → [beforeSync] → 동기화 시작). */
+    private suspend fun enter(info: FamilyInfo, role: Role, me: MemberEntity, beforeSync: suspend () -> Unit = {}): Result<FamilyInfo> {
+        memberDao.upsert(me)
+        prefs.completeOnboarding(role, me.name, info.familyId, info.pairingCode, info.studentName, me.id)
+        beforeSync()
+        sync.start(info.familyId)
+        return Result.success(info)
+    }
+
+    private fun generatePairingCode(): String =
+        (1..PAIRING_CODE_LENGTH).map { PAIRING_ALPHABET[random.nextInt(PAIRING_ALPHABET.length)] }.joinToString("")
+
+    private suspend fun seedDefaultSubjects(familyId: String) {
+        if (subjectDao.count(familyId) > 0) return
+        subjectDao.upsertAll(
+            DEFAULT_SUBJECTS.mapIndexed { i, (name, color) ->
+                SubjectEntity(familyId = familyId, name = name, color = color, orderIndex = i, weeklyGoalMinutes = DEFAULT_WEEKLY_GOAL_MINUTES)
+            },
+        )
+        sync.requestPush()
+    }
+
+    companion object {
+        /** 헷갈리는 글자(0/O, 1/I)를 뺀 알파벳. */
+        private const val PAIRING_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+        private const val PAIRING_CODE_LENGTH = 6
+        private const val DEFAULT_WEEKLY_GOAL_MINUTES = 180
+        private const val NO_SYNC_MESSAGE = "동기화 서버가 설정되지 않아 학생 기기와 연결할 수 없습니다. README 의 Firebase 설정을 참고하세요."
+        private val DEFAULT_SUBJECTS = listOf(
+            "국어" to 0xFFEF4444, "수학" to 0xFF3B82F6, "영어" to 0xFF10B981, "과학" to 0xFF8B5CF6, "사회" to 0xFFF59E0B,
+        )
+    }
+}

@@ -1,0 +1,92 @@
+package com.nextstep.app.ui.components.card
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.project.RoutineItem
+import com.nextstep.app.domain.text.ratioOf
+import com.nextstep.app.ui.common.UiDefaults
+import com.nextstep.app.ui.components.icon.DoneMark
+import com.nextstep.app.ui.components.icon.routineIcon
+
+/**
+ * 오늘의 루틴: 진행 중인 교육 프로젝트마다 지금 단계의 루틴 줄과 이번 주 채운 양.
+ * 줄을 누르면 그 분량만큼 "했어요"로 남고, 다시 누르면 취소됩니다. 제목을 누르면 프로젝트 화면으로 갑니다.
+ * [big] 은 어린 학생 화면(숫자 대신 큰 줄)입니다. 목록은 3개까지(UX 가이드 1-5).
+ * [compact] 는 오늘 화면용: 프로젝트마다 오늘 아직 안 한 줄만 [UiDefaults.COMPACT_ROWS] 개까지, 이번 주 양은 제목 아래 한 줄로.
+ * 다 했으면 "오늘 루틴 끝"만 남아 화면이 길어지지 않습니다.
+ */
+@Composable
+fun RoutineCard(items: List<ProjectProgress>, onToggle: (ProjectProgress, RoutineItem) -> Unit, onOpen: (String) -> Unit, big: Boolean = false, compact: Boolean = false) {
+    AppCard {
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            items.forEach { p ->
+                p.current?.let { phase ->
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(Modifier.clickable { onOpen(p.goalId) }, verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text(p.plan.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    "${p.currentIndex + 1}단계 · ${phase.title}" + if (compact && !big) " · 이번 주 ${p.weekMinutes}/${p.weekTarget}분" else "",
+                                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            if (!big) PaceChip(p.pace)
+                        }
+                        val left = phase.routine.filter { it.name !in p.todayDoneItems }
+                        val rows = if (compact) left.take(UiDefaults.COMPACT_ROWS) else phase.routine
+                        rows.forEach { item ->
+                            RoutineCheckRow(item, done = item.name in p.todayDoneItems, big = big, onClick = { onToggle(p, item) })
+                        }
+                        if (compact) {
+                            when {
+                                left.isEmpty() -> Text("오늘 루틴 끝!", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                                left.size > UiDefaults.COMPACT_ROWS -> Text(
+                                    "${left.size - UiDefaults.COMPACT_ROWS}개 더", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { onOpen(p.goalId) },
+                                )
+                            }
+                        }
+                        if (!big && !compact) {
+                            LabeledProgress(
+                                label = "이번 주 ${p.weekMinutes}/${p.weekTarget}분", ratio = ratioOf(p.weekMinutes, p.weekTarget).coerceAtMost(1f),
+                                color = MaterialTheme.colorScheme.secondary,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RoutineCheckRow(item: RoutineItem, done: Boolean, big: Boolean, onClick: () -> Unit) {
+    Row(
+        Modifier.clickable(onClick = onClick).heightIn(min = if (big) 56.dp else 40.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        DoneMark(done, if (big) 32.dp else 22.dp, "했어요", "아직")
+        Icon(routineIcon(item.kind), contentDescription = item.kind.label, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                item.name, style = if (big) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
+                textDecoration = if (done) TextDecoration.LineThrough else null, maxLines = 1, overflow = TextOverflow.Ellipsis,
+            )
+            Text(item.amountLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}

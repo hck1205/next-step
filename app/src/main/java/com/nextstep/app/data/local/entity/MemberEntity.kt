@@ -1,0 +1,61 @@
+package com.nextstep.app.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import com.nextstep.app.data.model.Role
+
+/**
+ * 가족(학생 1명 단위)에 연결된 구성원. 학생 본인, 학부모, 멘토 모두 한 행씩 가집니다.
+ * 멘토는 여러 명이 연결될 수 있고, 각자 담당 과목을 지정합니다.
+ */
+@Entity(tableName = "members", indices = [Index("familyId")])
+data class MemberEntity(
+    @PrimaryKey override val id: String = newId(),
+    override val familyId: String,
+    val role: String,
+    val name: String,
+    /** 멘토의 구분 (예: 수학 과외, 담임 선생님). */
+    val title: String = "",
+    /** 담당 과목 ID 목록. 쉼표로 구분. 비어 있으면 전 과목. */
+    val subjectIds: String = "",
+    /**
+     * 멘토 기능(로드맵 큐레이팅, 과제 배정, 학급 진도 관리) 사용 여부.
+     * 멘토는 항상 true, 학부모는 설정에서 켜서 "학부모 겸 멘토"가 될 수 있습니다.
+     */
+    val mentorEnabled: Boolean = false,
+    /** 학생 본인의 학년(1=초1 … 12=고3, 13~16=대학, 17~18=대학원). 학생 행에만 의미 있고 0 이면 미입력. */
+    val gradeYear: Int = 0,
+    /** 학생(자녀) 생년월일 (epoch day). 있으면 학년보다 우선해 성장 단계와 여정 타임라인을 정합니다. */
+    val birthDate: Long? = null,
+    /** 학생 화면 단계(StudentUiLevel 이름)를 학부모가 직접 고른 값. 비어 있으면 학년에 맞춰 자동. */
+    val uiLevel: String = "",
+    /** 학생이 마지막으로 확인한 화면 단계. 이보다 높은 단계가 되면 "새 화면" 카드를 한 번 보여 줍니다. */
+    val seenUiLevel: String = "",
+    /** 자기주도 단계(SelfDirectionStage 이름)를 학부모가 직접 고른 값. 비어 있으면 화면 단계에 맞춰 자동. */
+    val selfDirection: String = "",
+    /** 게임 요소(경험치·레벨·배지·이번 주 도전)를 보일지. 학부모가 가족 탭에서 끌 수 있습니다. 학생 행에만 의미 있음. */
+    val gamify: Boolean = true,
+    /** 학생이 다니는 학교(NEIS 교육청코드:학교코드)와 이름. 학부모가 가족 탭에서 고르면 학사일정이 가족 달력에 들어옵니다. */
+    val schoolCode: String = "",
+    val schoolName: String = "",
+    /** 멘토가 수업 리포트 끝에 붙이는 서명(연락처·한 줄 소개). */
+    val signature: String = "",
+    /** 멘토의 수업 일정(LessonPlan): 요일(ISO 1=월 … 7=일, 쉼표) · 시작·끝(분) · 한 달 수업료(원) · 받는 날(1~31). */
+    val lessonDays: String = "",
+    val lessonStart: Int = 0,
+    val lessonEnd: Int = 0,
+    val tuitionFee: Int = 0,
+    val tuitionDay: Int = 0,
+    val joinedAt: Long = System.currentTimeMillis(),
+    override val updatedAt: Long = System.currentTimeMillis(),
+    override val deleted: Boolean = false,
+    override val dirty: Boolean = true,
+) : Syncable {
+    val isStudent: Boolean get() = role == Role.STUDENT.name
+    val isParent: Boolean get() = role == Role.PARENT.name
+    /** 화면 표시용 역할: 학부모는 관계(엄마·아빠·할머니·보호자)가 있으면 그 이름, 아니면 역할 이름. */
+    val roleLabel: String get() = if (isParent && title.isNotBlank()) title else Role.labelOf(role)
+    val isMentor: Boolean get() = role == Role.MENTOR.name
+    val subjectIdList: List<String> get() = subjectIds.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+}

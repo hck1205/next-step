@@ -1,0 +1,72 @@
+package com.nextstep.app.domain.today
+
+import com.nextstep.app.domain.growth.KidMode
+import com.nextstep.app.domain.growth.StudentHomeSection
+import com.nextstep.app.domain.growth.StudentScreen
+import com.nextstep.app.domain.growth.StudentUiLevel
+import com.nextstep.app.domain.hub.Concern
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class TodayLayoutTest {
+    @Test
+    fun cardsGroupByConcernInFirstSeenOrderKeepingCardOrder() {
+        val order = listOf(StudentHomeSection.MISSION, StudentHomeSection.TASKS, StudentHomeSection.EXAM, StudentHomeSection.MY_WEEK, StudentHomeSection.GAME, StudentHomeSection.WEEK)
+        val groups = TodayLayout.group(order) { it.concern }
+        assertEquals(listOf(Concern.EXAMS, Concern.PLAN, Concern.STUDY), groups.map { it.concern })
+        assertEquals(listOf(StudentHomeSection.MISSION, StudentHomeSection.EXAM), groups[0].cards)
+        assertEquals(listOf(StudentHomeSection.TASKS, StudentHomeSection.GAME), groups[1].cards)
+        assertEquals(order.toSet(), TodayLayout.cardsOf(groups, null).toSet())
+        assertEquals(listOf(StudentHomeSection.MY_WEEK, StudentHomeSection.WEEK), TodayLayout.cardsOf(groups, Concern.STUDY))
+        assertTrue(TodayLayout.cardsOf(groups, Concern.GROWTH).isEmpty())
+    }
+
+    @Test
+    fun oneFocusCardOpensAndTheRestFoldIntoOneLinePerConcern() {
+        val cards = listOf(ParentTodayCard.JOURNEY, ParentTodayCard.KPIS, ParentTodayCard.GOALS, ParentTodayCard.HEAT, ParentTodayCard.ROUTINE)
+        val groups = TodayLayout.group(cards) { it.concern }
+        // 줄 보상이 없으면 지금 챙길 것이 먼저
+        assertEquals(ParentTodayCard.JOURNEY, TodayLayout.focus(cards, ParentTodayCard.FOCUS))
+        assertEquals(ParentTodayCard.REWARDS, TodayLayout.focus(cards + ParentTodayCard.REWARDS, ParentTodayCard.FOCUS))
+        val rest = TodayLayout.rest(groups, ParentTodayCard.JOURNEY)
+        assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.STUDY, Concern.PROJECT), rest.map { it.concern })
+        assertEquals(listOf(ParentTodayCard.KPIS), rest.first().cards) // 먼저 본 카드는 줄에서 빠짐
+        // 먼저 볼 카드만 있던 묶음은 줄이 없어지고, 바라는 카드가 없으면 화면 첫 카드
+        assertEquals(listOf(Concern.STUDY), TodayLayout.rest(TodayLayout.group(listOf(StudentHomeSection.TASKS, StudentHomeSection.MY_WEEK)) { it.concern }, StudentHomeSection.TASKS).map { it.concern })
+        assertEquals(MentorTodayCard.STAGE, TodayLayout.focus(listOf(MentorTodayCard.STAGE, MentorTodayCard.ROADMAP), MentorTodayCard.FOCUS))
+        assertEquals(null, TodayLayout.focus(emptyList<MentorTodayCard>(), MentorTodayCard.FOCUS))
+    }
+
+    @Test
+    fun shortcutsAreMenuItemsNotCards() {
+        // 내용 없이 다른 화면으로 가는 것은 카드가 아니라 오늘 화면 머리의 ⋮ 메뉴로
+        assertEquals(listOf(StudentHomeSection.PLANNER), StudentHomeSection.entries.filter { it.shortcut })
+        assertEquals(listOf(MentorTodayCard.CONTENT), MentorTodayCard.entries.filter { it.shortcut })
+    }
+
+    @Test
+    fun todayCardsUseTheSameConcernsAsTheRecordsHub() {
+        // 기록 탭과 같은 분류: 할 일·레벨은 목표·할 일, 이번 주·일정·진도는 공부, 루틴은 교육 프로젝트, 시험은 시험·성적
+        assertEquals(Concern.PLAN, StudentHomeSection.TASKS.concern); assertEquals(Concern.PLAN, StudentHomeSection.GAME.concern)
+        assertEquals(Concern.STUDY, StudentHomeSection.MY_WEEK.concern); assertEquals(Concern.PROJECT, StudentHomeSection.ROUTINE.concern)
+        assertEquals(Concern.EXAMS, StudentHomeSection.MISSION.concern); assertEquals(Concern.LEARN, StudentHomeSection.REVIEW.concern)
+        assertEquals(Concern.PROJECT, ParentTodayCard.ROUTINE.concern); assertEquals(Concern.STUDY, ParentTodayCard.WEEK.concern)
+        assertEquals(Concern.PLAN, MentorTodayCard.TASKS.concern); assertEquals(Concern.EXAMS, MentorTodayCard.GRADES.concern)
+        // 학부모·멘토 카드 순서대로 묶으면 한눈에 → 목표·할 일 → (가족: 우리 가족) → 공부 순. 가족 일정은 학생·학부모 카드에만
+        assertEquals(Concern.FAMILY, ParentTodayCard.FAMILY.concern); assertEquals(Concern.FAMILY, StudentHomeSection.FAMILY.concern)
+        assertTrue(MentorTodayCard.entries.none { it.concern == Concern.FAMILY })
+        assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.FAMILY, Concern.STUDY, Concern.PROJECT, Concern.EXAMS), TodayLayout.group(ParentTodayCard.entries) { it.concern }.map { it.concern })
+        assertEquals(listOf(Concern.OVERVIEW, Concern.PLAN, Concern.STUDY, Concern.LEARN, Concern.EXAMS), TodayLayout.group(MentorTodayCard.entries) { it.concern }.map { it.concern })
+    }
+
+    @Test
+    fun youngChildrenKeepOneColumnAndOlderOnesGetConcernSlides() {
+        assertTrue(StudentUiLevel.SEED.kid.oneColumnToday); assertTrue(StudentUiLevel.SPROUT.kid.oneColumnToday)
+        assertFalse(StudentUiLevel.SEEDLING.kid.oneColumnToday); assertFalse(KidMode.NONE.oneColumnToday)
+        // 올해 프로필이 앞에 둔 카드(중2: 시험·목표)의 관심사가 첫 묶음
+        val m2 = StudentScreen.homeOrder(com.nextstep.app.domain.growth.YearProfiles.byKey.getValue("m2"), StudentUiLevel.BRANCH).filter { it != StudentHomeSection.TIMER }
+        assertEquals(Concern.EXAMS, TodayLayout.group(m2) { it.concern }.first().concern)
+    }
+}

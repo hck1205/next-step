@@ -1,0 +1,185 @@
+# NextStep 엔지니어링 가이드
+
+이 문서는 코드 작성의 기준입니다. 새 코드는 이 규칙을 따르고, 기존 코드를 만질 때는 그 파일을 이 규칙에 맞게 정리합니다. 규칙을 바꿀 때는 이 문서를 먼저 고칩니다.
+
+## 1. 원칙 (우선순위 순)
+
+1. **작게 쪼갠다.** 파일 하나에 공개 타입 하나. 파일 200줄, 함수 40줄, 컴포저블 60줄을 넘기면 나눈다.
+2. **소비처가 결정한다.** 재사용 코드는 정책을 갖지 않는다. 데이터와 콜백(슬롯)만 받고, "어떻게 보일지·무엇을 할지"는 호출하는 쪽이 정한다.
+3. **의존은 한 방향.** `ui → domain`, `ui → data.repository(인터페이스)`, `data → domain(모델만)`. `domain` 은 Android 를 모른다.
+4. **인터페이스로 경계를 긋는다.** 저장소·원격·디스패처는 인터페이스. 구현체는 `di` 에서만 조립한다. 테스트는 Fake 로 대체한다.
+5. **실패해도 살아 있는다.** 원격 실패는 로컬을 막지 않는다(오프라인 우선). 재시도는 지수 백오프, 예외는 로그 + 상태로 노출, 앱은 절대 크래시하지 않는다.
+6. **같은 일은 같은 모양으로.** 아래 패턴을 예외 없이 지킨다. 패턴이 안 맞으면 패턴을 고치고 문서를 갱신한다.
+
+## 2. 패키지 구조
+
+```
+com.nextstep.app
+├── di/                     AppContainer(구현체 조립), AppViewModelProvider(ViewModel 팩토리)
+├── data/
+│   ├── model/              enum 하나당 파일 하나 (Role, TaskType, ...)
+│   ├── local/
+│   │   ├── entity/         Room 엔티티 하나당 파일 하나 + Syncable(`live()`: 지운 행 거르기)
+│   │   ├── dao/            DAO 하나당 파일 하나
+│   │   ├── AppDatabase.kt, Converters.kt
+│   ├── prefs/              DataStore (UserPreferences, UserProfile, RunningTimer)
+│   ├── remote/             외부 API 클라이언트 (인터페이스 + 구현)
+│   ├── repository/         저장소 인터페이스 (XxxRepository) + FamilyDataStreams(읽기 전용 스트림 모음)
+│   │   └── room/           Room 구현체 (RoomXxxRepository)
+│   └── sync/               SyncManager, SyncedCollection(제네릭), mapper/ (EntityMapper<T> 구현)
+├── domain/                 순수 Kotlin. Android import 금지
+│   ├── access/             Capabilities(+ `Capabilities.of(role, me)`: 프로필·구성원 → 권한)
+│   ├── family/             StudentContext(구성원 → 학생·생년월일·단계·구간 달력·현재 구간을 한 번에), FamilyLookups(`members.student()`·`subjects.byId(id)` — 직접 firstOrNull 로 찾지 않음)
+│   ├── time/               DateUtils(시간대 `DateUtils.zone` 한 곳), SchoolYear(학년도·학기 경계), Streaks(연속 일수)
+│   ├── stats/              SessionDates(`day`·`studyDays`), StudyStats, StudyQueues(예습·복습 대기열), BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats, TrendStats(학부모·멘토 차트 값 → FamilyTrends: 8주 흐름·공부 달력·과목별 점수·과제 제출, 할 일의 주별·준 사람별 달성은 PlanHistory 그대로) + 결과 모델
+│   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
+│   ├── familycalendar/     FamilyCalendar(반복·여러 날·오늘 화면 미리 보기·누구 문구) + FamilyEventKind·FamilyRepeat·FamilyHeadsUp·FamilyOccurrence (입력은 entry/FamilyEventDraft)
+│   ├── feedback/           FeedbackEngine(이번 주 vs 지난주 사실 한 벌 + 보는 사람별 추림), FeedbackVoice(학생·학부모·멘토 말투)
+│   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
+│   ├── mission/            MissionKind(단계별 종류), MissionCatalog(날짜에서 거꾸로 쪼갠 단계 설계), MissionPlanner(생성·압축·다음 단계·오늘 카드)
+│   ├── mentor/             MentorScope(담당 과목 범위로 성적·세션·단원 좁히기), AssignmentStats(과제 현황)
+│   ├── text/               NumberText(문장 속 숫자 표기), Josa(받침에 맞는 조사), Ratio(`ratioOf`·`percentOf`: 분모 0 을 한 곳에서)
+│   ├── curriculum/         CurriculumCatalog(학기별 과목·단원), CurriculumRecommender(가족 진도·또래·영상 대조)
+│   ├── planner/            StudyPlanner + 모델
+│   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
+│   ├── today/            TodayLayout(오늘 카드를 관심사로 묶기), TodayGroup, ParentTodayCard·MentorTodayCard(학부모·멘토 오늘 카드와 관심사)
+│   ├── hub/              Concern, ConcernSection(기록 탭의 관심사·섹션과 보이는 조건), HubAudience·HubViewer(역할별 관심사 순서·보는 사람), ConcernDigests(한눈에 타일 + DigestChart: 타일 아래 한 줄 차트)
+│   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
+│   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
+│   ├── taskboard/          TaskSuggester(복습 목록 · 로드맵 · 시험 → 과목·단원별 추천), TaskBoard(과목별 줄)
+│   ├── task/               TaskDates(`doneOn`·`isOverdue`), TaskDrafts: 새 할 일의 제목·종류·마감·메모를 정하는 한 곳(고치기 `edited`, 목표 단계 → 할 일 `forGoalStep` 포함, ViewModel 은 저장만)
+│   ├── entry/              EventDraft·GradeDraft: 일정·성적 입력창의 값 한 벌 → 엔티티(새로·고치기, 글자 다듬기·종료 시각 규칙)
+│   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
+│   ├── gamify/             Gamify(기록 → 경험치·레벨·배지·연속·이번 주 도전·스티커, 저장하는 점수 없음), GameStyle(나이별 모양: 스티커판·레벨·성장 기록), XpSource, GameLevel, Badge, GameProfile, GameInputs
+│   ├── reward/             Rewards(보상 약속 → 받을 차례 → 받음 상태, 다음 보상, 나이별 걸 곳·예시), RewardKind(목표·레벨·스티커판), RewardTarget, RewardStatus, RewardView
+│   ├── project/            ProjectCatalog(교육 프로젝트: 목표 → 단계 → 하루 루틴), ProjectPlanner(시작·일정·진행·속도·도착 예상), ProjectKind(누가 줬는지)·ProjectViewer(준 쪽과 학생만 봄: 보호자는 함께, 멘토는 자기 것만), ProjectPlan/ProjectPhase/RoutineItem/ProjectProgress
+│   ├── year/               YearPlans(해마다 할 일을 분류별로), YearTask, YearArea(분류 = 올해 탭), YearTerm(1학기·2학기·1년 내내)
+│   └── journey/            PeriodCalendar(구간 달력), MilestoneCatalog·DueRule·JourneyPlanner(이정표), GoalTrackCatalog·GoalPlanner(구간별 목표 단계, 트랙·직접 만든 목표와 단계 만들기), ActivitySummary(활동 기록 요약)
+└── ui/
+    ├── common/             UiDefaults(상수), asUiState(상태 흐름 표준), actingRoleName(작성자 역할: ViewModel 이 저장 직전에 읽음), gameInputs, AppDispatchers, Formatters, ExternalLinks
+    ├── components/         화면에 독립적인 공용 컴포넌트, 파일 하나당 컴포넌트 하나. 관심사별 하위 패키지:
+    │   ├── card/           AppCard, LinkCard(다른 화면으로), StatusCard, StatTile, StageCard, JourneyNowCard, UpcomingExamCard, InsightCard, TalentCard, SectionTitle, EmptyState …
+    │   ├── chart/          ChartPalette(검증한 차트 색), ChartHeights(차트 높이 한 곳), ColumnChart, HeatCalendar, BulletBars, ShareBar, KpiTile·StatGrid, Sparkline, MiniBars, MeterBar, ScoreMultiples, ChartLegend(범례는 이것 하나) + BarChart, LineChart, DonutChart, RadarChart, HourHeatStrip
+    │   ├── dialog/         *EditDialog, AssignTaskDialog, ConfirmDialog, TextInputDialog(한 줄·여러 줄·안내문)
+    │   ├── input/          DateField, TimeField, OptionPicker, SubjectPicker, GradePicker, SegmentedRow
+    │   ├── layout/         todayBoard(오늘 화면 몸통: 먼저 볼 것 한 장 + 더 보기 줄 + 관심사별 목록), ConcernRow, TitleBackRow, TodayCardFrame, GroupHeader, DetailSheet(자세히 모달)
+    │   └── row/            EventRow, TaskRow, AssignedByLabel, SessionRow, GoalStepRow
+    ├── theme/
+    ├── navigation/
+    ├── quickadd/           기록하기 시트: 모든 쓰기의 단일 입구
+    ├── hub/                기록 탭: 관심사 줄 + 섹션 줄 + 페이저. 섹션마다 기능 화면 하나를 품음(관심사·섹션 정의는 domain/hub)
+    ├── overview/           기록 › 한눈에: 균형 카드 + 관심사 타일
+    ├── growth/             기록 › 성장 › 신체: 키·몸무게·시력 전체 기록
+    ├── talent/             기록 › 활동·재능 › 재능: 소질 신호 + 관찰 메모 전체
+    ├── habits/             기록 › 공부 › 습관: 언제·얼마나·며칠 이어서(domain/stats/StudyHabits)
+    ├── review/             기록 › 배울 것 › 복습: 과목을 가로지른 복습 목록(domain/stats/ReviewPlanner)
+    ├── assignments/        기록 › 과제 › 과제: 멘토가 낸 과제 현황(domain/mentor/AssignmentStats)
+    ├── goaltree/           기록 › 목표·할 일 › 목표: 큰 목표 ↳ 작은 목표 트리 + 목표 만들기
+    ├── goal/               목표 한 개(route "goal/{goalId}"): 세부 할 일 주기 · 체크 · 달성 · 이어지는 목표 · 작은/다음 목표 · 기록
+    ├── todo/               기록 › 목표·할 일 › 할 일: 과목별 줄 + 그 과목 추천(할 일로 · 목표에)
+    ├── planhistory/        기록 › 목표·할 일 › 기록: 달성률 · 달성한 목표 · 타임라인
+    ├── rewards/            기록 › 목표·할 일 › 보상·배지: 나의 레벨 + 배지판 + 경험치 내역(게임 요소가 켜졌을 때) + 보상 약속·주기
+    ├── selfdirection/      기록 › 공부 › 스스로: 사다리 + 제안 + 한 바퀴 + 이번 주 + 최근 4주 + 지난 주들
+    ├── projects/           기록 › 교육 프로젝트 › 진행 중: 분류 칩 + 프로젝트 카드 + 오늘 루틴
+    ├── projectcatalog/     기록 › 교육 프로젝트 › 새로 시작: 나이에 맞는 계획과 시작 단계 고르기
+    ├── project/            교육 프로젝트 한 개(route "project/{goalId}"): 목표·속도·루틴·통과 기준·단계 일정
+    ├── yearplan/           학생 "올해" 탭: 분류 탭 + 학기 묶음 목록. 완료는 여정 저장소에 year: 키로
+    └── <feature>/          XxxScreen.kt, XxxUiState.kt, XxxViewModel.kt, XxxActions.kt, components/
+```
+
+## 3. 레이어별 패턴
+
+### data.model
+- `enum class Xxx(val label: String)` + `companion object { fun from(value: String?): Xxx }`. 라벨은 UI 표시용, `name` 은 저장용.
+
+### data.local.entity
+- `data class XxxEntity(...) : Syncable`. 필드 순서: id, familyId, 도메인 필드, updatedAt, deleted, dirty.
+- 파생 값은 `val x get() = ...` 로 엔티티 안에 두되 순수 계산만.
+
+### data.local.dao
+- 메서드 이름 고정: `observeAll(familyId)`, `getById(id)`, `upsert(item)`, `upsertAll(items)`, `getDirty(familyId)`, `markClean(ids)`. 이 이름은 `SyncedCollection` 이 제네릭으로 묶는 계약이다.
+
+### data.sync
+- 엔티티 하나 = `EntityMapper<T>` 구현 하나(`mapper/XxxMapper.kt`) + `SyncRegistry` 의 `SyncedCollection.of(mapper, dao)` 한 줄. DAO 는 `SyncDao<T>`(getById/upsert/getDirty/markClean)를 구현한다. 받기만 하는 공용 컬렉션은 `SyncedCollection.readOnly`. `FirestoreSyncManager` 는 엔티티를 모른다.
+
+### data.repository
+- 애그리거트마다 인터페이스 하나. 읽기는 `Flow`, 쓰기는 `suspend fun` 이며 `Unit` 또는 `Result<T>` 를 돌려준다. 예외를 밖으로 던지지 않는다.
+- 여러 스트림을 한꺼번에 읽는 화면(대시보드)은 `FamilyDataStreams` 인터페이스만 의존한다.
+- 구현체는 `FamilyScope`(현재 가족 ID) 와 `SyncManager.requestPush()` 를 공통으로 쓴다.
+
+### domain
+- 상태 없는 `object` 의 순수 함수, 입력은 전부 파라미터. 출력은 `data class`. 시간은 `DateUtils.today()` 로만 얻고 테스트에서 주입 가능하게 파라미터로 열어 둔다.
+- 규칙 엔진(Insight, Talent, Recommender)은 결과에 **근거(reason)** 를 포함한다.
+
+### ui.<feature>
+- `XxxUiState`: 불변 data class, 기본값 필수. 필터·정렬·묶음 결과는 ViewModel 이 계산해 필드로 넣거나, 상태 안의 `val x by lazy { … }`(상태 한 벌에 한 번 계산, `copy` 하면 새로 계산)로 둔다. `get()` 은 O(1) 조합(문장 만들기 등)만.
+- `XxxViewModel`: 생성자 주입(인터페이스만). `val state: StateFlow<XxxUiState>` 를 `combine(...).stateIn(viewModelScope, WhileSubscribed(5_000), XxxUiState())` 로 만든다. 사용자 의도는 동사 함수(`toggleTask`, `save`)이며 반환은 `Unit`. `viewModelScope.launch` 는 함수 본문 안에서만.
+- `XxxActions`: 화면 밖으로 나가는 콜백 묶음(내비게이션). 화면 시그니처는 `XxxScreen(caps, actions, viewModel)`.
+- `XxxScreen` 은 상태를 수집하고 `XxxContent(state, caps, actions, on...)` 을 호출한다. `XxxContent` 는 stateless 라 프리뷰·테스트가 가능하다.
+- 60줄이 넘는 섹션은 `components/` 로 뺀다. 컴포넌트는 엔티티 대신 필요한 값과 콜백만 받는 것을 우선한다.
+- 창(다이얼로그)이 둘 이상이면 불리언 여러 개 대신 `components/XxxDialog`(열린 창 하나: enum 또는 sealed) + `XxxDialogs(dialog, state, …, onDismiss)` 로 모은다. `XxxContent` 는 `var dialog` 하나와 `XxxDialogs(...)` 한 줄만 갖는다(`GoalDialogs`, `SettingsDialogs`, `CalendarDialogs`, `JourneyDialogs`).
+- 긴 LazyColumn 은 `private fun LazyListScope.xxxSection(...)` 으로 나눠 `XxxContent` 에는 섹션 순서만 남긴다.
+- 역할 분기는 `caps.canXxx` 만 쓴다. `role == Role.X` 를 화면에서 쓰지 않는다.
+
+### ui.components
+- 정책 없는 순수 UI. 슬롯(`content: @Composable () -> Unit`)과 콜백으로 열어 둔다. 색·문구·데이터 접근을 안에서 결정하지 않는다.
+- 제네릭이 자연스러우면 제네릭으로 (`OptionPicker<T>`, `SelectableRow<T>`).
+
+## 4. 코드 스타일
+
+- Kotlin 공식 스타일, trailing comma, 명명: 클래스 `PascalCase`, 함수·변수 `camelCase`, 상수 `UPPER_SNAKE`.
+- 널: `?:` 기본값 우선, `!!` 금지(테스트 제외).
+- 조건이 셋 이상이면 `when`.
+- 주석은 "왜" 만. KDoc 은 public 타입과 규칙(정책)에 붙인다. 한국어 가능.
+- 매직 넘버는 `private const val` 또는 `PlanOptions` 같은 옵션 객체로.
+- 로그 태그는 클래스 이름, `Log.w` 이상만 남긴다.
+
+## 5. 테스트 (기능마다 반드시)
+
+**규칙: 기능 하나를 만들면 그 기능의 테스트를 같은 커밋에 넣는다. 테스트 없는 기능 PR 은 미완성이다.**
+
+테스트 계층과 위치 (`app/src/test/java/com/nextstep/app/...`):
+
+| 대상 | 테스트 | 도구 |
+|---|---|---|
+| `domain/*` | 모든 public 함수. 경계값(빈 입력, 하나, 경계 날짜, 0/음수) 포함 | 순수 JUnit |
+| `data/sync/mapper/*` | `toMap` → `fromMap` 왕복이 원본과 같은지(`dirty` 제외) | `MapperRoundTripTest` |
+| `data/sync/SyncedCollection` | 병합 규칙, 배치 전송, reconcile | 메모리 저장소 |
+| `data/repository/room/*` | 비즈니스 규칙(소프트 삭제 연쇄, 학급 진도, 권한 있는 수정) | `fake/dao/*` 메모리 DAO + `RecordingSyncManager` + `FakeTimeSource` |
+| `ui/<feature>/*ViewModel` | 스트림 → UiState 파생값, 이벤트 → 저장소 호출, 필터·다이얼로그 상태 | `MainDispatcherRule` + `FakeFamilyDataStreams` + `fake/Fake*Repository` |
+
+체크리스트:
+- 새 도메인 함수 → 같은 이름의 `XxxTest` 에 케이스 추가.
+- 새 저장소 메서드 → 인터페이스 Fake 와 Room 구현 테스트 둘 다 갱신.
+- 새 화면 → `XxxViewModelTest` 에 (1) 초기 상태 (2) 이벤트별 저장소 호출 (3) 파생값 최소 1개.
+- 새 엔티티 → 매퍼 왕복 테스트 한 줄 추가.
+- 테스트 이름은 `동작_조건_기대` 대신 문장형 camelCase (`saveEventDelegatesToRepository`).
+- 테스트 데이터는 `testing/Fixtures.kt` 의 빌더를 쓴다. 테스트 안에서 엔티티 생성자를 길게 호출하지 않는다.
+
+CI 명령: `./gradlew :app:assembleDebug :app:testDebugUnitTest`. 빨간 상태로 머지하지 않는다.
+
+## 6. 가용성·복원력
+
+- 모든 쓰기는 Room 에 먼저. 원격은 `dirty` 플래그 기반 재전송, 실패 시 지수 백오프 3회 후 `SyncStatus.ERROR` 로 표시.
+- 원격 스냅샷 파싱 실패는 그 문서만 건너뛴다.
+- 화면은 빈 상태·로딩·오류를 항상 처리한다(`EmptyState`, 에러 텍스트).
+- 외부 링크·인텐트는 `runCatching` 으로 감싼다.
+
+## 7. 체크리스트 (PR 전)
+
+- [ ] 파일당 타입 하나, 200줄 이하
+- [ ] 새 엔티티: entity + dao(SyncDao) + mapper + SyncRegistry 한 줄 + Room version + Fake
+- [ ] ViewModel 은 인터페이스만 주입, `state` 하나
+- [ ] 화면은 `Screen/Content/Actions` 분리, 역할 분기는 `caps`
+- [ ] domain 변경에 테스트 추가
+- [ ] CI 그린
+
+## 6. 상수·공통·성능 규칙
+
+- **리터럴은 관심사별 object 로.** 화면 상수는 `ui/common/UiDefaults`, 동기화 상수는 `FirestoreSyncManager.companion`, 도메인 임계값은 그 도메인 object(`BalanceStats`, `GrowthStats`, `AptitudeEngine`)의 `private const val`. 코드 본문에 `5_000`, `3`, `"STUDENT"` 같은 숫자·문자열을 직접 쓰지 않는다. 역할 문자열은 `Role.X.name`, 엔티티 판정은 `member.isStudent`, `task.isStudentMade` 같은 프로퍼티로.
+- **공통은 한 곳에.** 외부 링크는 `ExternalLinks.open`, 숫자 표기는 `Double.oneDecimal()`(domain 은 `Double.compact()`)·`Float.asPercent()`·`ratio()`, 학생의 시간 맥락은 `StudentContext.of(members, today)`, 권한은 `Capabilities.of(role, me)`, 학생 화면의 학년별 차이는 `StudentUiLevel.of(student)`(화면은 `level.shows(...)`·`level.words` 만 읽는다). 같은 계산이 두 ViewModel 에 나타나면 domain 으로 올린다(`RoadmapStats`, `CheerStats`, `MentorScope` 가 그 예). 새 할 일(`TaskEntity`)은 ViewModel 에서 직접 만들지 않고 `TaskDrafts` 로 만든다(제목 짓는 법·마감 규칙이 한 곳). 일정·성적처럼 입력창이 여러 화면에 있는 기록은 입력값을 `EventDraft`·`GradeDraft` 한 벌로 넘기고(인자 9개를 이벤트·ViewModel 마다 늘어놓지 않는다), 엔티티로 바꾸는 규칙은 그 `toEntity(existing)` 한 곳에 둔다. 같은 카드·다이얼로그가 두 화면에 나타나면 `ui/components` 로 올린다(`LinkCard`, `UpcomingExamCard`, `NoteRow`, `TextInputDialog`, `AssignTaskDialog`, `SubjectRadarCard`). 빈 목록 안내는 `EmptyCard(text)`, 화면 목록 여백은 `ScreenPadding.list`(자세히 화면은 `.detail`), 탭 첫 화면의 상단 바는 `CompactTopBar(title, caption)`(설명은 제목 옆, 오늘 화면은 `pinnedScrollBehavior`), 상단 바 뒤로 가기는 `BackButton(actions.onBack)`(null 이면 안 그림)으로만 쓴다. 쓰이지 않는 Actions 필드·함수는 남겨 두지 않는다(화면 밖으로 나가는 곳이 없으면 Actions 없이 `XxxScreen(caps)`).
+- **화면 파일은 목차만.** `XxxContent` 는 섹션 순서와 다이얼로그 스위치만 갖고, 카드·행·다이얼로그는 `<feature>/components/` 의 `internal` 컴포저블로 뺀다. 화면에서 `java.time.LocalDate.now()` 대신 `DateUtils.today()`, `role == ...` 대신 `caps.canXxx` 를 쓴다.
+- **상태 흐름은 `asUiState`.** `combine(...).asUiState(viewModelScope, XxxUiState())`. 계산은 Default 디스패처에서, 같은 값은 재발행하지 않고, 구독이 끊겨도 5초 유지한다.
+- **파생 값은 한 번.** UiState 의 `get()` 프로퍼티는 O(1) 수준만 허용한다(필터·정렬·그룹은 금지 — 화면이 그릴 때마다 다시 돈다). 목록 거르기·묶기는 `by lazy` 로 상태 한 벌에 한 번만(예: `HomeUiState.todayGroups`, `RewardsUiState.due`). 묶음·정렬은 `JourneySections.apply` 처럼 상태를 만들 때 계산해 필드로 넣는다. 여러 화면이 쓰는 계산(예습·복습 대기열, 평균)은 `domain/stats` 의 순수 함수로 올리고, 화면이 쓰지 않는 필드는 UiState 에 두지 않는다.
+- **카탈로그는 미리 계산.** 키워드 소문자화, 토큰 분해, 생년월일별 구간 달력(`PeriodCalendar` 캐시)처럼 호출마다 같은 결과가 나오는 것은 초기화 시점이나 캐시로 옮긴다.
+- **LazyColumn 은 항상 key.** 항목마다 안정적인 key 를 주고, 목록은 첫 화면에서 `UiDefaults.MAX_ROWS` 까지만 그린다.

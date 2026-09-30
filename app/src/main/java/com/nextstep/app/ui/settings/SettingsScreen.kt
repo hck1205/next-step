@@ -2,26 +2,18 @@ package com.nextstep.app.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.SmartDisplay
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,97 +21,114 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.plan.Feature
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.ConfirmDialog
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.SyncStatusBadge
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.AppBarMenu
+import com.nextstep.app.ui.components.layout.AppBarMenuItem
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.CompactTopBar
+import com.nextstep.app.ui.settings.components.ChildrenCard
+import com.nextstep.app.ui.settings.components.MembersCard
+import com.nextstep.app.ui.settings.components.SettingRow
+import com.nextstep.app.ui.settings.components.SettingsDialog
+import com.nextstep.app.ui.settings.components.SettingsDialogs
 
+@Composable
+fun SettingsScreen(caps: Capabilities, actions: SettingsActions, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    SettingsContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
+}
+
+/** 가족 탭은 세 덩어리: 자녀(학부모·멘토) · 우리 가족(구성원) · 설정(한 줄씩, 누르면 창). 맨 아래 연결 해제. 영상 저장소는 머리 ⋮ 에. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val clipboard = LocalClipboardManager.current
-    var confirmSignOut by remember { mutableStateOf(false) }
-    val profile = state.profile
-
+internal fun SettingsContent(state: SettingsUiState, caps: Capabilities, actions: SettingsActions, onEvent: (SettingsEvent) -> Unit) {
+    var dialog by remember { mutableStateOf<SettingsDialog?>(null) }
+    val open: (SettingsDialog) -> Unit = { dialog = it }
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("설정") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
+            CompactTopBar(
+                title = "가족",
+                navigationIcon = { BackButton(actions.onBack) },
+                actions = { AppBarMenu(listOf(AppBarMenuItem("영상 저장소", Icons.Default.SmartDisplay, actions.onOpenContent))) },
             )
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            SectionTitle("내 정보")
-            AppCard {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    InfoRow("역할", profile?.role?.label ?: "-")
-                    InfoRow("이름", profile?.displayName ?: "-")
-                    InfoRow("학생", profile?.studentName ?: "-")
-                }
+            ChildrenSection(state, caps, onEvent, open)
+            SectionTitle("우리 가족")
+            MembersCard(state.members.filter { caps.canSeeGuardians || !it.isParent }, state.me, state.subjects, canRemove = caps.canRemoveMembers, onRemove = { open(SettingsDialog.RemoveMember(it)) })
+            SectionTitle("설정")
+            AppCard(padded = false) { Column { SettingsRows(state, caps, onEvent, open) } }
+            TextButton(onClick = { open(SettingsDialog.SignOut) }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("이 기기에서 연결 해제", color = MaterialTheme.colorScheme.error)
             }
-
-            SectionTitle("가족 연결")
-            AppCard {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        if (profile?.role == Role.STUDENT) "학부모 앱에서 아래 코드를 입력하면 연결돼요" else "연결된 자녀 코드",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(profile?.pairingCode ?: "------", fontSize = 34.sp, fontWeight = FontWeight.Bold, letterSpacing = 6.sp, color = MaterialTheme.colorScheme.primary)
-                        IconButton(onClick = { profile?.pairingCode?.let { clipboard.setText(AnnotatedString(it)) } }) {
-                            Icon(Icons.Default.ContentCopy, contentDescription = "복사")
-                        }
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    SyncStatusBadge(state.syncStatus)
-                    if (!state.syncAvailable) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            "Firebase 가 설정되지 않아 이 기기에만 저장됩니다. app/google-services.json 을 추가하고 다시 빌드하면 학생·학부모 기기 간 실시간 동기화가 켜집니다.",
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    } else {
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedButton(onClick = viewModel::requestSync) { Text("지금 동기화") }
-                    }
-                }
-            }
-
-            SectionTitle("계정")
-            Button(
-                onClick = { confirmSignOut = true },
-                modifier = Modifier.fillMaxWidth(),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-            ) { Text("이 기기에서 연결 해제") }
-            Text(
-                "연결 해제하면 이 기기의 역할·가족 정보가 초기화되고 온보딩 화면으로 돌아갑니다. 서버에 동기화된 데이터는 유지됩니다.",
-                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
-
-    if (confirmSignOut) {
-        ConfirmDialog("연결 해제", "정말 이 기기에서 연결을 해제할까요?", confirmLabel = "해제", onConfirm = viewModel::signOut, onDismiss = { confirmSignOut = false })
-    }
+    SettingsDialogs(dialog, state, caps, onEvent, onDismiss = { dialog = null })
 }
 
+/** 자녀(맡은 학생) 고르기·추가·연결. 학생에게는 없습니다. */
 @Composable
-private fun InfoRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth()) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-    }
+private fun ChildrenSection(state: SettingsUiState, caps: Capabilities, onEvent: (SettingsEvent) -> Unit, open: (SettingsDialog) -> Unit) {
+    if (!caps.canLinkChildren) return
+    SectionTitle(if (caps.isParent) "자녀" else "맡은 학생")
+    ChildrenCard(
+        children = state.children, activeFamilyId = state.activeFamilyId, error = state.childError,
+        onSelect = { onEvent(SettingsEvent.SwitchChild(it)) },
+        onAdd = if (caps.canAddChildren) ({ open(SettingsDialog.AddChild) }) else null,
+        onLink = { open(SettingsDialog.LinkChild) },
+    )
 }
+
+/**
+ * 설정은 한 줄씩: 이름 + 지금 값. 자세한 것은 누르면 여는 창에서(내 정보 · 자녀 학년 · 담당 과목 · 연결 코드),
+ * 켜고 끄는 것(멘토 겸하기 · 레벨·배지)은 그 줄의 스위치로. 역할마다 보이는 줄은 caps 가 정합니다.
+ */
+@Composable
+private fun SettingsRows(state: SettingsUiState, caps: Capabilities, onEvent: (SettingsEvent) -> Unit, open: (SettingsDialog) -> Unit) {
+    val me = listOfNotNull(state.me?.roleLabel ?: state.profile?.role?.label, state.profile?.displayName).joinToString(" · ")
+    SettingRow("내 정보", me.ifBlank { "-" }, onClick = { open(SettingsDialog.MyInfo) })
+    val level = state.chosenStudentLevel ?: state.autoStudentLevel
+    val year = listOfNotNull(state.yearLabel ?: "학년 미정", state.ageLabel, level?.let { "아이 화면 ${it.label}" }).joinToString(" · ")
+    SettingRow("자녀 학년", year, onClick = if (caps.canEditStudentYear) ({ open(SettingsDialog.EditYear) }) else null)
+    if (caps.actsAsMentor) {
+        val mine = state.me?.subjectIdList.orEmpty()
+        val names = state.subjects.filter { it.id in mine }.joinToString(", ") { it.name }.ifBlank { "전 과목" }
+        SettingRow("담당 과목", names, onClick = { open(SettingsDialog.Subjects) })
+    }
+    if (caps.actsAsMentor && caps.has(Feature.REPORT_SIGNATURE)) {
+        SettingRow("리포트 서명", state.me?.signature?.ifBlank { null } ?: "수업 리포트 끝에 붙일 한 줄(연락처 등)", onClick = { open(SettingsDialog.Signature) })
+    }
+    if (caps.canToggleMentorMode) {
+        SettingRow("멘토 역할 겸하기", "직접 가르친다면 켜요. 로드맵·과제·진도 관리가 열려요.") {
+            Switch(checked = state.me?.mentorEnabled == true, onCheckedChange = { onEvent(SettingsEvent.SetMentorEnabled(it)) }, enabled = state.me != null)
+        }
+    }
+    if (caps.canToggleGamification(state.gameStyle)) {
+        val style = state.gameStyle
+        SettingRow(if (caps.isStudent) "${style.title} 보기" else "${style.title.removePrefix("나의 ")} 보여 주기", style.summary) {
+            Switch(checked = state.student?.gamify ?: true, onCheckedChange = { onEvent(SettingsEvent.SetGamify(it)) }, enabled = state.student != null)
+        }
+    }
+    if (caps.isFamily) {
+        val school = state.student?.schoolName.orEmpty()
+        val value = when {
+            !state.schoolAvailable -> "학교 학사일정 받기가 아직 꺼져 있어요"
+            school.isNotBlank() -> "$school · 학사일정이 가족 달력에 들어와요"
+            else -> "고르면 방학·시험·행사가 가족 달력에 들어와요"
+        }
+        SettingRow("학교", value, onClick = if (caps.canEditStudentYear && state.schoolAvailable && state.student != null) ({ open(SettingsDialog.School) }) else null)
+    }
+    SettingRow("알림", if (caps.isFamily) "아침에 오늘 챙길 것, 일요일 저녁에 주말 이야기를 한 번씩" else "아침에 오늘 챙길 것을 한 번") {
+        Switch(checked = state.noticesOn, onCheckedChange = { onEvent(SettingsEvent.SetNotices(it)) })
+    }
+    SettingRow("연결 코드", state.profile?.pairingCode ?: "------", onClick = { open(SettingsDialog.PairingCode) })
+}
+

@@ -1,0 +1,108 @@
+package com.nextstep.app.ui.overview
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
+import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.data.local.entity.ObservationEntity
+import com.nextstep.app.data.local.entity.ProjectLogEntity
+import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.live
+import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.familycalendar.FamilyCalendar
+import com.nextstep.app.domain.goaltree.GoalTree
+import com.nextstep.app.domain.goaltree.PlanHistory
+import com.nextstep.app.domain.health.GrowthStats
+import com.nextstep.app.domain.hub.ConcernDigests
+import com.nextstep.app.domain.insight.AptitudeEngine
+import com.nextstep.app.domain.mission.MissionPlanner
+import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.stats.BalanceStats
+import com.nextstep.app.domain.stats.ReviewItem
+import com.nextstep.app.domain.stats.ReviewPlanner
+import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.SubjectProgress
+import com.nextstep.app.domain.task.isOverdue
+import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.common.asUiState
+import java.time.LocalDate
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+
+/**
+ * 기록 › 한눈에. 균형 판단(학습·자기주도·경험·연속)과, 관심사마다 요약 한 장을 만듭니다.
+ * 자세한 내용은 각 관심사의 섹션 화면이 자기 ViewModel 로 그립니다.
+ */
+class OverviewViewModel(
+    streams: FamilyDataStreams,
+    private val today: () -> LocalDate = { DateUtils.today() },
+) : ViewModel() {
+
+    private val base = combine(streams.profile, streams.members, streams.sessions, streams.tasks, streams.activities) { profile, members, sessions, tasks, activities ->
+        val day = today()
+        val ctx = StudentContext.of(members, day)
+        Base(
+            OverviewUiState(
+                studentName = profile.studentName,
+                stage = ctx.stage,
+                currentPeriodLabel = ctx.currentPeriod?.label,
+                yearLabel = ctx.year?.label,
+                today = day,
+                loaded = true,
+            ),
+            ctx,
+            sessions,
+            tasks,
+            activities,
+        )
+    }
+
+    private val progress = combine(streams.topics, streams.subjects, streams.grades) { topics, subjects, grades ->
+        Learn(StudyStats.subjectProgress(topics, subjects), ReviewPlanner.plan(topics, subjects, grades), subjects)
+    }
+
+    private val exams = combine(streams.goals, streams.goalSteps, streams.grades, streams.projectLogs) { goals, steps, grades, logs -> Exams(goals, steps, grades, logs) }
+
+    private val growth = combine(streams.growthRecords, streams.observations, streams.familyEvents) { records, observations, family -> Growth(records, observations, family) }
+
+    val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth, streams.events) { b, learn, e, g, events ->
+        val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events, b.ctx.year))
+        val weeks = PlanHistory.weeks(b.tasks, s.today, DIGEST_WEEKS)
+        val overdue = b.tasks.count { !it.deleted && it.isOverdue(s.today) }
+        s.copy(
+            digests = listOf(
+                ConcernDigests.plan(GoalTree.nodes(e.goals, b.tasks, s.today), weeks.lastOrNull(), overdue, weeks),
+                ConcernDigests.study(s.balance?.weekMinutes ?: 0, learn.progress, StudyStats.dailyMinutes(b.sessions, today = s.today).map { it.minutes }),
+                ConcernDigests.learn(learn.review, learn.progress),
+                ConcernDigests.project(ProjectPlanner.progressAll(e.goals, e.steps, e.logs, s.today)),
+                ConcernDigests.exams(MissionPlanner.focus(e.goals, e.steps, s.today), e.grades),
+                ConcernDigests.growth(GrowthStats.summarize(g.records.live(), s.today), g.records.live().sortedBy { it.date }.mapNotNull { it.heightCm }),
+                ConcernDigests.discover(s.balance?.experiencesThisPeriod ?: 0, AptitudeEngine.signals(b.activities, g.observations, s.today)),
+                ConcernDigests.family(FamilyCalendar.ahead(g.familyEvents, s.today), s.today),
+            ),
+        )
+    }.asUiState(viewModelScope, OverviewUiState())
+
+    private data class Base(
+        val state: OverviewUiState,
+        val ctx: StudentContext,
+        val sessions: List<StudySessionEntity>,
+        val tasks: List<TaskEntity>,
+        val activities: List<ActivityEntity>,
+    )
+
+    private data class Learn(val progress: List<SubjectProgress>, val review: List<ReviewItem>, val subjects: List<SubjectEntity>)
+
+    private data class Exams(val goals: List<GoalEntity>, val steps: List<GoalStepEntity>, val grades: List<GradeEntity>, val logs: List<ProjectLogEntity>)
+
+    private data class Growth(val records: List<GrowthRecordEntity>, val observations: List<ObservationEntity>, val familyEvents: List<FamilyEventEntity>)
+}
+
+private const val DIGEST_WEEKS = 5

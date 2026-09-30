@@ -1,0 +1,92 @@
+package com.nextstep.app.ui.overview
+
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.growth.GrowthStage
+import com.nextstep.app.domain.hub.Concern
+import com.nextstep.app.domain.hub.DigestChart
+import com.nextstep.app.domain.project.ProjectCatalog
+import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.stats.BalanceVerdict
+import com.nextstep.app.fake.FakeFamilyDataStreams
+import com.nextstep.app.testing.Fixtures
+import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
+import java.time.LocalTime
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class OverviewViewModelTest : ViewModelTestBase() {
+    private val streams = FakeFamilyDataStreams(role = Role.PARENT)
+    private val today = LocalDate.of(2029, 10, 10)
+
+    @Test
+    fun balanceUsesStageAndCurrentPeriodFromBirthDate() = runTest {
+        streams.members.value = listOf(Fixtures.member(Role.STUDENT, "아이", id = "kid", birthDate = LocalDate.of(2020, 5, 15)))
+        streams.activities.value = listOf(Fixtures.activity("과학관", date = LocalDate.of(2029, 10, 1)))
+        streams.tasks.value = listOf(Fixtures.task("a", today, by = "STUDENT"))
+        val vm = OverviewViewModel(streams, today = { today }); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertTrue(s.loaded); assertEquals(GrowthStage.EARLY_ELEMENTARY, s.stage); assertEquals("초3 2학기", s.currentPeriodLabel); assertEquals("초3", s.yearLabel)
+        val b = s.balance!!
+        assertEquals(1, b.experiencesThisPeriod); assertEquals(1f, b.selfDirectedRatio!!, 0f); assertEquals(200, b.recommendedWeekMinutes) // 초3 올해 프로필: 하루 40분 × 5일
+        job.cancel()
+    }
+
+    @Test
+    fun withoutStudentInfoBalanceStillReportsWithoutVerdict() = runTest {
+        val vm = OverviewViewModel(streams, today = { today }); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertNull(s.stage); assertNull(s.currentPeriodLabel)
+        assertEquals(BalanceVerdict.NONE, s.balance!!.studyVerdict); assertEquals(0, s.balance!!.experiencesThisPeriod)
+        job.cancel()
+    }
+
+    @Test
+    fun oneDigestPerConcernFromEachConcernsData() = runTest {
+        streams.subjects.value = listOf(Fixtures.math)
+        streams.topics.value = Fixtures.topics("math", 4, covered = 2, reviewed = 1)
+        streams.grades.value = listOf(Fixtures.grade("math", 90.0, today.toEpochDay()))
+        streams.growthRecords.value = listOf(Fixtures.growth(LocalDate.of(2029, 9, 1), height = 130.0))
+        val vm = OverviewViewModel(streams, today = { today }); val job = subscribe(vm.state)
+        val d = settle(vm.state).digests
+        assertEquals(listOf(Concern.PLAN, Concern.STUDY, Concern.LEARN, Concern.PROJECT, Concern.EXAMS, Concern.GROWTH, Concern.DISCOVER, Concern.FAMILY), d.map { it.concern })
+        assertEquals("다가오는 가족 일정 없음", d[7].headline)
+        assertEquals("이번 주 마감 할 일 없음", d[0].headline)
+        assertEquals("복습 1/4단원", d[1].detail)
+        assertEquals("복습할 단원 2개", d[2].headline); assertEquals("수학 · 단원 1", d[2].detail)
+        assertEquals("진행 중인 프로젝트 없음", d[3].headline)
+        assertEquals("다가오는 시험 없음", d[4].headline); assertEquals("최근 1번 평균 90점", d[4].detail)
+        assertEquals("키 130cm", d[5].headline)
+        assertEquals("이번 학기 활동 없음", d[6].headline)
+        streams.familyEvents.value = listOf(Fixtures.familyEvent("치과", today.plusDays(1)), Fixtures.familyEvent("외식", today))
+        val family = settle(vm.state).digests.last()
+        assertEquals("오늘 가족 일정 1개", family.headline); assertEquals("오늘 · 외식", family.detail)
+        // 한 줄 차트: 배울 것 = 복습한 몫, 키는 기록이 하나라 흐름 없음, 공부·할 일은 기록이 없어 없음
+        assertEquals(DigestChart.Meter(0.25f), d[2].chart); assertNull(d[5].chart); assertNull(d[1].chart); assertNull(d[0].chart)
+        streams.sessions.value = listOf(Fixtures.session("math", today, LocalTime.of(9, 0), 30))
+        streams.growthRecords.value = streams.growthRecords.value + Fixtures.growth(LocalDate.of(2029, 10, 1), height = 131.0)
+        streams.tasks.value = listOf(Fixtures.task("a", today, done = true))
+        val after = settle(vm.state).digests
+        assertEquals(DigestChart.Bars(listOf(0, 0, 0, 0, 0, 0, 30)), after[1].chart)
+        assertEquals(DigestChart.Line(listOf(1300, 1310)), after[5].chart)
+        assertEquals(100, (after[0].chart as DigestChart.Bars).values.last())
+        job.cancel()
+    }
+
+    @Test
+    fun projectDigestFlagsAProjectThatFellBehind() = runTest {
+        val plan = ProjectCatalog.byId.getValue("piano")
+        val (goal, steps) = ProjectPlanner.start(plan, 1, today.minusYears(2), "PARENT")
+        streams.goals.value = listOf(goal.copy(familyId = Fixtures.FAMILY))
+        streams.goalSteps.value = steps
+        val vm = OverviewViewModel(streams, today = { today }); val job = subscribe(vm.state)
+        val d = settle(vm.state).digests.single { it.concern == Concern.PROJECT }
+        assertEquals("프로젝트 1개 진행 중", d.headline)
+        assertEquals("피아노 한 곡 완성 · 바이엘 · 계획보다 늦어요", d.detail)
+        assertTrue(d.attention)
+        job.cancel()
+    }
+}

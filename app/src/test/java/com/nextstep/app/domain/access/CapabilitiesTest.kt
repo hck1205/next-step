@@ -1,0 +1,129 @@
+package com.nextstep.app.domain.access
+
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.gamify.GameStyle
+import com.nextstep.app.domain.hub.HubAudience
+import com.nextstep.app.domain.journey.MilestoneCategory
+import com.nextstep.app.domain.selfdirection.LoopStep
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
+import com.nextstep.app.domain.year.YearDoer
+import com.nextstep.app.testing.Fixtures
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class CapabilitiesTest {
+    @Test
+    fun selfDirectionStepsFollowWhoOwnsThem() {
+        val follow = SelfDirectionStage.FOLLOW; val together = SelfDirectionStage.PLAN_TOGETHER; val first = SelfDirectionStage.PLAN_FIRST
+        assertTrue(parent.canDo(LoopStep.PLAN, follow)); assertFalse(student.canDo(LoopStep.PLAN, follow))
+        assertTrue(student.canDo(LoopStep.REFLECT, follow)); assertTrue(parent.canDo(LoopStep.REFLECT, follow))
+        assertTrue(student.canDo(LoopStep.PLAN, together)); assertTrue(parent.canDo(LoopStep.PLAN, together))
+        assertTrue(student.canDo(LoopStep.PLAN, first)); assertFalse(parent.canDo(LoopStep.PLAN, first))
+        SelfDirectionStage.entries.forEach { st -> LoopStep.entries.forEach { assertFalse(mentor.canDo(it, st)) } }
+        assertTrue(parent.canApproveWeekPlan(first)); assertFalse(student.canApproveWeekPlan(first)); assertFalse(parent.canApproveWeekPlan(together))
+        assertTrue(parent.seesWeekDetails(SelfDirectionStage.SELF)); assertFalse(parent.seesWeekDetails(SelfDirectionStage.OWN)); assertTrue(student.seesWeekDetails(SelfDirectionStage.OWN))
+        assertTrue(parent.canChooseSelfDirection); assertFalse(student.canChooseSelfDirection); assertFalse(mentor.canChooseSelfDirection)
+    }
+
+    @Test
+    fun parentsAndMentorsGiveRewardsAndOnlyParentsToggleGames() {
+        assertTrue(parent.canGiveRewards); assertFalse(mentor.canGiveRewards); assertTrue(parentMentor.canGiveRewards); assertFalse(student.canGiveRewards)  // 보상은 가족의 일: 학부모만(학부모 겸 멘토도 학부모로서)
+        assertTrue(mentor.canKeepLessons); assertFalse(parent.canKeepLessons); assertFalse(parentMentor.canKeepLessons); assertFalse(student.canKeepLessons) // 수업 출결·수업료는 멘토 본인만 적음
+        GameStyle.entries.forEach { assertTrue(parent.canToggleGamification(it)); assertFalse(mentor.canToggleGamification(it)) }
+        // 스스로 끌 수 있는 것은 성장 기록 모양(중등 이후)의 학생뿐
+        assertFalse(student.canToggleGamification(GameStyle.STICKERS)); assertFalse(student.canToggleGamification(GameStyle.LEVELS))
+        assertTrue(student.canToggleGamification(GameStyle.GROWTH))
+    }
+
+    @Test
+    fun factoryTakesMentorFlagFromMemberUnlessRoleIsMentor() {
+        assertFalse(Capabilities.of(Role.PARENT, null).actsAsMentor)
+        assertFalse(Capabilities.of(Role.PARENT, Fixtures.member(Role.PARENT, "엄마")).actsAsMentor)
+        assertTrue(Capabilities.of(Role.PARENT, Fixtures.member(Role.PARENT, "엄마", mentorEnabled = true)).actsAsMentor)
+        assertTrue(Capabilities.of(Role.MENTOR, null).actsAsMentor)
+    }
+
+    @Test
+    fun onlyParentsAddChildrenAndNonStudentsLinkThem() {
+        assertTrue(parent.canAddChildren); assertFalse(mentor.canAddChildren); assertFalse(student.canAddChildren)
+        assertTrue(parent.canLinkChildren); assertTrue(mentor.canLinkChildren); assertFalse(student.canLinkChildren)
+    }
+
+    @Test
+    fun familyManagementIsForStudentAndParent() {
+        assertTrue(student.canRemoveMembers); assertTrue(parent.canRemoveMembers); assertFalse(mentor.canRemoveMembers)
+        assertTrue(parent.canToggleMentorMode); assertTrue(parentMentor.canToggleMentorMode)
+        assertFalse(student.canToggleMentorMode); assertFalse(mentor.canToggleMentorMode)
+        assertTrue(parent.canChooseStudentScreen); assertFalse(student.canChooseStudentScreen); assertFalse(mentor.canChooseStudentScreen)
+    }
+
+    @Test
+    fun familyMattersStayWithTheFamily() {
+        // 학년·생년월일은 학부모만 고치고, 학생·멘토는 보기만
+        assertTrue(parent.canEditStudentYear); assertTrue(parentMentor.canEditStudentYear)
+        assertFalse(student.canEditStudentYear); assertFalse(mentor.canEditStudentYear)
+        // 보호자 목록·균형(수면·운동)·건강·재정 이정표는 가족만
+        assertTrue(student.canSeeGuardians); assertTrue(parent.canSeeGuardians); assertFalse(mentor.canSeeGuardians)
+        assertTrue(parentMentor.canSeeBalance); assertFalse(mentor.canSeeBalance)
+        assertTrue(parent.canSeeMilestone(MilestoneCategory.HEALTH)); assertFalse(mentor.canSeeMilestone(MilestoneCategory.HEALTH))
+        assertFalse(mentor.canSeeMilestone(MilestoneCategory.FINANCE)); assertTrue(mentor.canSeeMilestone(MilestoneCategory.LEARNING))
+        assertEquals(listOf(MilestoneCategory.HEALTH, MilestoneCategory.FINANCE), MilestoneCategory.entries.filter { it.familyOnly })
+    }
+
+    private val student = Capabilities(Role.STUDENT, mentorEnabled = false)
+    private val parent = Capabilities(Role.PARENT, mentorEnabled = false)
+    private val parentMentor = Capabilities(Role.PARENT, mentorEnabled = true)
+    private val mentor = Capabilities(Role.MENTOR, mentorEnabled = true)
+
+    @Test
+    fun studentOwnsPersonalRecordsButNotCuration() {
+        assertTrue(student.canMarkTopicStatus); assertTrue(student.canUseTimer)
+        assertTrue(student.canCheckTask(SelfDirectionStage.OWN)); assertTrue(student.canUpdateRoadmapProgress); assertTrue(student.canEditTopics)
+        assertFalse(student.canEditRoadmap); assertFalse(student.actsAsMentor)
+        assertEquals("STUDENT", student.actingRoleName)
+    }
+
+    @Test
+    fun plainParentObservesAndEncouragesOnly() {
+        assertFalse(parent.canEditSubjects); assertFalse(parent.canEditTopics); assertTrue(parent.canCreateTasks); assertEquals("할 일 주기", parent.giveTaskLabel)
+        assertFalse(parent.canEditRoadmap); assertFalse(parent.canUseTimer)
+        assertTrue(parent.canEditEvents); assertTrue(parent.canEditGrades)
+        assertEquals("PARENT", parent.actingRoleName)
+    }
+
+    @Test
+    fun parentAsMentorGainsMentorPowersAndActsAsMentor() {
+        assertTrue(parentMentor.actsAsMentor)
+        assertTrue(parentMentor.canEditRoadmap); assertTrue(parentMentor.canCreateTasks); assertTrue(parentMentor.canEditTopics)
+        assertFalse(parentMentor.canMarkTopicStatus); assertFalse(parentMentor.canCheckTask(SelfDirectionStage.OWN)); assertEquals("과제 내기", parentMentor.giveTaskLabel)
+        assertEquals("MENTOR", parentMentor.actingRoleName)
+    }
+
+    @Test
+    fun mentorCuratesButNeverRecordsForTheStudent() {
+        assertTrue(mentor.canEditRoadmap); assertTrue(mentor.canEditTopics); assertTrue(mentor.canCreateTasks)
+        // 가족의 일(여정·활동·성장)은 멘토가 고치지 않음
+        assertFalse(mentor.canEditJourney); assertFalse(mentor.canRecordActivities); assertFalse(mentor.canRecordGrowth); assertFalse(mentor.isFamily)
+        assertTrue(parent.canEditJourney && parent.canRecordActivities && student.canRecordGrowth)
+        assertFalse(mentor.canMarkTopicStatus); assertFalse(mentor.canUpdateRoadmapProgress); assertFalse(mentor.canUseTimer)
+        assertEquals("MENTOR", mentor.actingRoleName)
+    }
+
+    @Test
+    fun hubAudienceFollowsRoleAndParentMentorStaysParent() {
+        assertEquals(HubAudience.STUDENT, student.hubAudience)
+        assertEquals(HubAudience.PARENT, parent.hubAudience)
+        assertEquals(HubAudience.PARENT, parentMentor.hubAudience)
+        assertEquals(HubAudience.MENTOR, mentor.hubAudience)
+    }
+
+    @Test
+    fun yearDoersFollowRole() {
+        assertEquals(setOf(YearDoer.CHILD, YearDoer.TOGETHER), student.yearDoers)
+        assertEquals(setOf(YearDoer.PARENT, YearDoer.TOGETHER), parent.yearDoers)
+        assertEquals(setOf(YearDoer.PARENT, YearDoer.TOGETHER, YearDoer.MENTOR), parentMentor.yearDoers)
+        assertEquals(setOf(YearDoer.MENTOR), mentor.yearDoers)
+    }
+}

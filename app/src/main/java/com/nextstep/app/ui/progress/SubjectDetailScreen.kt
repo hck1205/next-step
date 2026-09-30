@@ -1,39 +1,24 @@
 package com.nextstep.app.ui.progress
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,27 +27,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nextstep.app.data.local.TopicEntity
-import com.nextstep.app.data.model.Role
-import com.nextstep.app.data.model.TaskType
-import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.ui.AppViewModelProvider
-import com.nextstep.app.ui.components.AppCard
-import com.nextstep.app.ui.components.ColorDot
-import com.nextstep.app.ui.components.ConfirmDialog
-import com.nextstep.app.ui.components.EmptyState
-import com.nextstep.app.ui.components.LabeledProgress
-import com.nextstep.app.ui.components.SectionTitle
-import com.nextstep.app.ui.components.TextInputDialog
-import com.nextstep.app.ui.components.subjectColor
+import com.nextstep.app.ui.components.card.ColorDot
+import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.dialog.SubjectEditDialog
+import com.nextstep.app.ui.components.dialog.TextInputDialog
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
+import com.nextstep.app.ui.progress.components.ClassProgressDialog
+import com.nextstep.app.ui.progress.components.ProgressSummaryCard
+import com.nextstep.app.ui.progress.components.QueueHintCard
+import com.nextstep.app.ui.progress.components.TopicRow
+import com.nextstep.app.ui.theme.subjectColor
+
+@Composable
+fun SubjectDetailScreen(caps: Capabilities, actions: SubjectDetailActions, viewModel: SubjectDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    SubjectDetailContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubjectDetailScreen(role: Role, onBack: () -> Unit, viewModel: SubjectDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+internal fun SubjectDetailContent(state: SubjectDetailUiState, caps: Capabilities, actions: SubjectDetailActions, onEvent: (SubjectDetailEvent) -> Unit) {
     val subject = state.subject
     var showAddTopics by remember { mutableStateOf(false) }
     var showEdit by remember { mutableStateOf(false) }
@@ -70,170 +62,69 @@ fun SubjectDetailScreen(role: Role, onBack: () -> Unit, viewModel: SubjectDetail
     val color = subject?.let { subjectColor(it.color) } ?: MaterialTheme.colorScheme.primary
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ColorDot(color, 12); Spacer(Modifier.width(8.dp)); Text(subject?.name ?: "")
-                    }
-                },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "뒤로") } },
-                actions = { IconButton(onClick = { showEdit = true }) { Icon(Icons.Default.Edit, contentDescription = "과목 편집") } },
-            )
-        },
-        floatingActionButton = { FloatingActionButton(onClick = { showAddTopics = true }) { Icon(Icons.Default.Add, contentDescription = "단원 추가") } },
+        topBar = { SubjectTopBar(subject?.name.orEmpty(), color, onBack = actions.onBack, onEdit = if (caps.canEditSubjects) ({ showEdit = true }) else null) },
+        floatingActionButton = { if (caps.canEditTopics) FloatingActionButton(onClick = { showAddTopics = true }) { Icon(Icons.Default.Add, contentDescription = "단원 추가") } },
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 88.dp),
+            contentPadding = ScreenPadding.list,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item {
-                AppCard {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        val total = state.topics.size
-                        val covered = state.topics.count { it.classCovered }
-                        val reviewed = state.topics.count { it.status.order >= TopicStatus.REVIEWED.order }
-                        LabeledProgress("학급 진도", if (total == 0) 0f else covered.toFloat() / total, color.copy(alpha = 0.5f), trailing = "$covered/$total")
-                        LabeledProgress("내 복습", if (total == 0) 0f else reviewed.toFloat() / total, color, trailing = "$reviewed/$total")
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            AssistChip(onClick = { showProgressPicker = true }, label = { Text("학급 진도 설정") })
-                            if (subject?.teacher?.isNotBlank() == true) Text("담당: ${subject.teacher}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))
-                        }
-                        Text(
-                            "체크 = 수업에서 배운 단원(학급 진도). 각 단원의 상태를 눌러 예습·복습 기록을 남기세요.",
-                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
+            item { ProgressSummaryCard(state.topics, subject?.teacher, color, caps, onSetProgress = { showProgressPicker = true }) }
 
             if (state.reviewQueue.isNotEmpty() || state.previewQueue.isNotEmpty()) {
-                item {
-                    AppCard {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            if (state.reviewQueue.isNotEmpty()) Text("복습 필요: ${state.reviewQueue.joinToString { it.title }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
-                            if (state.previewQueue.isNotEmpty()) Text("예습 추천: ${state.previewQueue.take(2).joinToString { it.title }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                        }
-                    }
-                }
+                item { QueueHintCard(state.reviewQueue, state.previewQueue, PREVIEW_HINTS) }
             }
 
             item { SectionTitle("단원 목록") }
-            if (state.topics.isEmpty()) item { AppCard { EmptyState("단원을 추가하세요 (여러 개는 줄바꿈으로 구분)") } }
+            if (state.topics.isEmpty()) item { EmptyCard("단원을 추가하세요 (여러 개는 줄바꿈으로 구분)") }
             items(state.topics, key = { it.id }) { topic ->
                 TopicRow(
                     topic = topic,
-                    onToggleCovered = { viewModel.setClassProgress(if (topic.classCovered) topic.orderIndex - 1 else topic.orderIndex) },
-                    onStatus = { viewModel.setStatus(topic, it) },
-                    onConfidence = { viewModel.setConfidence(topic, it) },
-                    onRename = { viewModel.rename(topic, it) },
-                    onDelete = { viewModel.delete(topic) },
-                    onAddTask = { viewModel.addTask(topic, it) },
+                    caps = caps,
+                    onToggleCovered = { onEvent(SubjectDetailEvent.SetClassProgress(if (topic.classCovered) topic.orderIndex - 1 else topic.orderIndex)) },
+                    onStatus = { onEvent(SubjectDetailEvent.SetStatus(topic, it)) },
+                    onConfidence = { onEvent(SubjectDetailEvent.SetConfidence(topic, it)) },
+                    onRename = { onEvent(SubjectDetailEvent.Rename(topic, it)) },
+                    onDelete = { onEvent(SubjectDetailEvent.Delete(topic)) },
+                    onAddTask = { onEvent(SubjectDetailEvent.AddTask(topic, it)) },
                 )
             }
         }
     }
 
     if (showAddTopics) {
-        var text by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { showAddTopics = false },
-            title = { Text("단원 추가") },
-            text = {
-                Column {
-                    Text("여러 단원은 줄바꿈이나 쉼표로 구분하세요.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("예: 1. 문자와 식\n2. 일차방정식") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
-                }
-            },
-            confirmButton = { TextButton(enabled = text.isNotBlank(), onClick = { viewModel.addTopics(text); showAddTopics = false }) { Text("추가") } },
-            dismissButton = { TextButton(onClick = { showAddTopics = false }) { Text("취소") } },
+        TextInputDialog(
+            title = "단원 추가", label = "예: 1. 문자와 식\n2. 일차방정식", minLines = 3, hint = "여러 단원은 줄바꿈이나 쉼표로 구분하세요.", confirmLabel = "추가",
+            onConfirm = { onEvent(SubjectDetailEvent.AddTopics(it)) }, onDismiss = { showAddTopics = false },
         )
     }
     if (showEdit && subject != null) {
         SubjectEditDialog(subject, onDismiss = { showEdit = false }) { name, c, goal, teacher ->
-            viewModel.updateSubject(subject.copy(name = name, color = c, weeklyGoalMinutes = goal, teacher = teacher))
+            onEvent(SubjectDetailEvent.UpdateSubject(subject.copy(name = name, color = c, weeklyGoalMinutes = goal, teacher = teacher)))
         }
     }
     if (showProgressPicker) {
-        AlertDialog(
-            onDismissRequest = { showProgressPicker = false },
-            title = { Text("학급 진도는 어디까지?") },
-            text = {
-                LazyColumn {
-                    item {
-                        TextButton(onClick = { viewModel.setClassProgress(-1); showProgressPicker = false }, modifier = Modifier.fillMaxWidth()) { Text("아직 시작 전") }
-                    }
-                    items(state.topics, key = { it.id }) { t ->
-                        TextButton(onClick = { viewModel.setClassProgress(t.orderIndex); showProgressPicker = false }, modifier = Modifier.fillMaxWidth()) {
-                            Text((if (t.orderIndex == state.classIndex) "● " else "") + t.title)
-                        }
-                    }
-                }
-            },
-            confirmButton = { TextButton(onClick = { showProgressPicker = false }) { Text("닫기") } },
-        )
+        ClassProgressDialog(state.topics, state.classIndex, onSelect = { onEvent(SubjectDetailEvent.SetClassProgress(it)) }, onDismiss = { showProgressPicker = false })
     }
 }
 
+/** 과목 색 점과 이름. 편집할 수 있으면([onEdit]) 연필. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopicRow(
-    topic: TopicEntity,
-    onToggleCovered: () -> Unit,
-    onStatus: (TopicStatus) -> Unit,
-    onConfidence: (Int) -> Unit,
-    onRename: (String) -> Unit,
-    onDelete: () -> Unit,
-    onAddTask: (TaskType) -> Unit,
-) {
-    var menu by remember { mutableStateOf(false) }
-    var rename by remember { mutableStateOf(false) }
-    var confirmDelete by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
-    AppCard(onClick = { expanded = !expanded }) {
-        Column {
+private fun SubjectTopBar(name: String, color: Color, onBack: () -> Unit, onEdit: (() -> Unit)?) {
+    TopAppBar(
+        title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(checked = topic.classCovered, onCheckedChange = { onToggleCovered() })
-                Column(Modifier.weight(1f)) {
-                    Text(topic.title, style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        topic.status.label + (if (topic.confidence > 0) " · 이해도 ${topic.confidence}%" else ""),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = when (topic.status) {
-                            TopicStatus.NOT_STARTED -> MaterialTheme.colorScheme.onSurfaceVariant
-                            TopicStatus.PREVIEWED, TopicStatus.IN_CLASS -> MaterialTheme.colorScheme.primary
-                            TopicStatus.REVIEWED, TopicStatus.MASTERED -> MaterialTheme.colorScheme.secondary
-                        },
-                    )
-                }
-                IconButton(onClick = { menu = true }) { Icon(Icons.Default.MoreVert, contentDescription = "메뉴") }
-                DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                    DropdownMenuItem(text = { Text("예습 할 일 추가") }, onClick = { onAddTask(TaskType.PREVIEW); menu = false })
-                    DropdownMenuItem(text = { Text("복습 할 일 추가") }, onClick = { onAddTask(TaskType.REVIEW); menu = false })
-                    DropdownMenuItem(text = { Text("이름 변경") }, onClick = { rename = true; menu = false })
-                    DropdownMenuItem(text = { Text("삭제") }, leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null) }, onClick = { confirmDelete = true; menu = false })
-                }
+                ColorDot(color, TITLE_DOT); Spacer(Modifier.width(8.dp)); Text(name)
             }
-            if (expanded) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
-                    TopicStatus.entries.forEach { s ->
-                        FilterChip(selected = topic.status == s, onClick = { onStatus(s) }, label = { Text(s.label, style = MaterialTheme.typography.labelSmall) })
-                    }
-                }
-                Spacer(Modifier.height(4.dp))
-                Text("이해도 ${topic.confidence}%  (슬라이더를 놓으면 저장)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                var conf by remember(topic.confidence) { mutableStateOf(topic.confidence.toFloat()) }
-                Slider(
-                    value = conf,
-                    onValueChange = { conf = it },
-                    onValueChangeFinished = { onConfidence(conf.toInt()) },
-                    valueRange = 0f..100f,
-                    steps = 9,
-                )
-            }
-        }
-    }
-    if (rename) TextInputDialog("단원 이름 변경", "단원명", topic.title, onConfirm = onRename, onDismiss = { rename = false })
-    if (confirmDelete) ConfirmDialog("단원 삭제", "'${topic.title}' 단원을 삭제할까요?", "삭제", onConfirm = onDelete, onDismiss = { confirmDelete = false })
+        },
+        navigationIcon = { BackButton(onBack) },
+        actions = { if (onEdit != null) IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "과목 편집") } },
+    )
 }
+
+private const val TITLE_DOT = 12
+
+/** 예습 추천 문장에 넣는 단원 수. */
+private const val PREVIEW_HINTS = 2

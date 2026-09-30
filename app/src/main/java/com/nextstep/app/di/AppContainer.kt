@@ -5,32 +5,162 @@ import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.nextstep.app.BuildConfig
 import com.nextstep.app.data.local.AppDatabase
+import com.nextstep.app.data.notice.DataStoreNoticeSettings
+import com.nextstep.app.data.notice.NoticeSettings
+import com.nextstep.app.data.plan.OpenPlanRepository
+import com.nextstep.app.data.plan.PlanRepository
 import com.nextstep.app.data.prefs.UserPreferences
-import com.nextstep.app.data.repository.StudyRepository
+import com.nextstep.app.data.remote.YouTubeMetadataFetcher
+import com.nextstep.app.data.repository.ActivityRepository
+import com.nextstep.app.data.repository.BulkTaskRepository
+import com.nextstep.app.data.repository.CheerRepository
+import com.nextstep.app.data.repository.ContentRepository
+import com.nextstep.app.data.repository.EventRepository
+import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.data.repository.FamilyEventRepository
+import com.nextstep.app.data.repository.FamilyScope
+import com.nextstep.app.data.repository.GoalRepository
+import com.nextstep.app.data.repository.GradeRepository
+import com.nextstep.app.data.repository.GrowthRepository
+import com.nextstep.app.data.repository.JourneyRepository
+import com.nextstep.app.data.repository.LessonRepository
+import com.nextstep.app.data.repository.MemberRepository
+import com.nextstep.app.data.repository.MentorScopedStreams
+import com.nextstep.app.data.repository.OnboardingRepository
+import com.nextstep.app.data.repository.PeerCurriculumRepository
+import com.nextstep.app.data.repository.ProjectRepository
+import com.nextstep.app.data.repository.ProjectScopedStreams
+import com.nextstep.app.data.repository.ReportLogRepository
+import com.nextstep.app.data.repository.RewardRepository
+import com.nextstep.app.data.repository.RoadmapRepository
+import com.nextstep.app.data.repository.RoadmapTemplateRepository
+import com.nextstep.app.data.repository.StudyPlanRepository
+import com.nextstep.app.data.repository.StudySessionRepository
+import com.nextstep.app.data.repository.SubjectRepository
+import com.nextstep.app.data.repository.SystemTimeSource
+import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.data.repository.TimeSource
+import com.nextstep.app.data.repository.TopicRepository
+import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.data.repository.room.CompositeFamilyDataStreams
+import com.nextstep.app.data.repository.room.PrefsFamilyScope
+import com.nextstep.app.data.repository.room.RoomActivityRepository
+import com.nextstep.app.data.repository.room.RoomBulkTaskRepository
+import com.nextstep.app.data.repository.room.RoomCheerRepository
+import com.nextstep.app.data.repository.room.RoomContentRepository
+import com.nextstep.app.data.repository.room.RoomEventRepository
+import com.nextstep.app.data.repository.room.RoomFamilyEventRepository
+import com.nextstep.app.data.repository.room.RoomGoalRepository
+import com.nextstep.app.data.repository.room.RoomGradeRepository
+import com.nextstep.app.data.repository.room.RoomGrowthRepository
+import com.nextstep.app.data.repository.room.RoomJourneyRepository
+import com.nextstep.app.data.repository.room.RoomLessonRepository
+import com.nextstep.app.data.repository.room.RoomMemberRepository
+import com.nextstep.app.data.repository.room.RoomOnboardingRepository
+import com.nextstep.app.data.repository.room.RoomPeerCurriculumRepository
+import com.nextstep.app.data.repository.room.RoomProjectRepository
+import com.nextstep.app.data.repository.room.RoomReportLogRepository
+import com.nextstep.app.data.repository.room.RoomRewardRepository
+import com.nextstep.app.data.repository.room.RoomRoadmapRepository
+import com.nextstep.app.data.repository.room.RoomRoadmapTemplateRepository
+import com.nextstep.app.data.repository.room.RoomStudyPlanRepository
+import com.nextstep.app.data.repository.room.RoomStudySessionRepository
+import com.nextstep.app.data.repository.room.RoomSubjectRepository
+import com.nextstep.app.data.repository.room.RoomTaskRepository
+import com.nextstep.app.data.repository.room.RoomTopicRepository
+import com.nextstep.app.data.repository.room.RoomWeekPlanRepository
+import com.nextstep.app.data.school.HttpNeisApi
+import com.nextstep.app.data.school.NeisSchoolService
+import com.nextstep.app.data.school.SchoolService
 import com.nextstep.app.data.sync.FirestoreSyncManager
 import com.nextstep.app.data.sync.NoOpSyncManager
 import com.nextstep.app.data.sync.SyncManager
+import com.nextstep.app.data.sync.SyncRegistry
 
 /**
- * 수동 의존성 컨테이너. Hilt 없이도 충분히 단순한 그래프라 직접 조립합니다.
+ * 수동 의존성 조립. 구현체를 아는 곳은 여기뿐이고, 나머지는 인터페이스만 봅니다.
  */
 class AppContainer(context: Context) {
-    val database: AppDatabase = AppDatabase.get(context)
-    val preferences: UserPreferences = UserPreferences(context)
+    private val database: AppDatabase = AppDatabase.get(context)
+    private val preferences = UserPreferences(context)
+    private val time: TimeSource = SystemTimeSource
+    private val scope: FamilyScope = PrefsFamilyScope(preferences)
 
     /** google-services.json 이 있어 FirebaseApp 이 초기화됐을 때만 원격 동기화를 켭니다. */
-    val syncManager: SyncManager = if (FirebaseApp.getApps(context).isNotEmpty()) {
-        try {
-            FirestoreSyncManager(database, FirebaseFirestore.getInstance(), FirebaseAuth.getInstance())
+    val syncManager: SyncManager = createSyncManager(context, database)
+
+    val onboarding: OnboardingRepository = RoomOnboardingRepository(preferences, database.memberDao(), database.subjectDao(), syncManager)
+    val members: MemberRepository = RoomMemberRepository(database.memberDao(), scope, syncManager, time)
+    val subjects: SubjectRepository = RoomSubjectRepository(database.subjectDao(), database.topicDao(), scope, syncManager, time)
+    val topics: TopicRepository = RoomTopicRepository(database.topicDao(), scope, syncManager, time)
+    val tasks: TaskRepository = RoomTaskRepository(database.taskDao(), scope, syncManager, time)
+    val events: EventRepository = RoomEventRepository(database.eventDao(), scope, syncManager, time)
+    val grades: GradeRepository = RoomGradeRepository(database.gradeDao(), scope, syncManager, time)
+    val sessions: StudySessionRepository = RoomStudySessionRepository(database.studySessionDao(), preferences, scope, syncManager, time)
+    val roadmap: RoadmapRepository = RoomRoadmapRepository(database.roadmapDao(), scope, syncManager, time)
+    val contents: ContentRepository = RoomContentRepository(database.contentDao(), database.subjectDao(), YouTubeMetadataFetcher(), scope, syncManager, time)
+    val journey: JourneyRepository = RoomJourneyRepository(database.journeyDao(), scope, syncManager, time)
+    val goals: GoalRepository = RoomGoalRepository(database.goalDao(), database.goalStepDao(), scope, syncManager, time)
+    val activities: ActivityRepository = RoomActivityRepository(database.activityDao(), scope, syncManager, time)
+    val growth: GrowthRepository = RoomGrowthRepository(database.growthRecordDao(), database.observationDao(), scope, syncManager, time)
+    val peerCurriculum: PeerCurriculumRepository = RoomPeerCurriculumRepository(database.peerTopicDao())
+    val plans: StudyPlanRepository = RoomStudyPlanRepository(database.eventDao(), database.taskDao(), scope, syncManager, time)
+    val projects: ProjectRepository = RoomProjectRepository(database.projectLogDao(), scope, syncManager, time)
+    val weekPlans: WeekPlanRepository = RoomWeekPlanRepository(database.weekPlanDao(), scope, syncManager, time)
+    val rewards: RewardRepository = RoomRewardRepository(database.rewardDao(), scope, syncManager, time)
+    val familyEvents: FamilyEventRepository = RoomFamilyEventRepository(database.familyEventDao(), scope, syncManager, time)
+    val cheers: CheerRepository = RoomCheerRepository(database.cheerDao(), scope, syncManager, time)
+    val reportLogs: ReportLogRepository = RoomReportLogRepository(database.reportLogDao(), scope, syncManager, time)
+    val lessons: LessonRepository = RoomLessonRepository(database.lessonDao(), scope, syncManager, time)
+    val roadmapTemplates: RoadmapTemplateRepository = RoomRoadmapTemplateRepository(database.roadmapTemplateDao(), time)
+    val bulkTasks: BulkTaskRepository = RoomBulkTaskRepository(database.taskDao(), database.subjectDao(), scope, syncManager, time)
+    /** 가족 기록 원본. 멘토가 담당 과목을 고르는 화면(멘토 오늘 · 가족 설정)만 씁니다. */
+    val familyStreams: FamilyDataStreams = CompositeFamilyDataStreams(
+        onboarding = onboarding,
+        subjects = subjects,
+        topics = topics,
+        tasks = tasks,
+        events = events,
+        grades = grades,
+        sessions = sessions,
+        members = members,
+        roadmap = roadmap,
+        contents = contents,
+        journey = journey,
+        goals = goals,
+        activities = activities,
+        growth = growth,
+        projects = projects,
+        weekPlans = weekPlans,
+        rewards = rewards,
+        familyEvents = familyEvents,
+        cheers = cheers,
+        reportLogs = reportLogs,
+        lessons = lessons,
+    )
+    /** 화면이 보는 가족 기록: 멘토는 담당 과목만(MentorScopedStreams), 교육 프로젝트는 만든 사람과 학생만(ProjectScopedStreams). */
+    val streams: FamilyDataStreams = ProjectScopedStreams(MentorScopedStreams(familyStreams))
+    val noticeSettings: NoticeSettings = DataStoreNoticeSettings(context)
+    /** 산 요금제(결제를 붙일 자리). 지금은 모두 열림. */
+    val purchases: PlanRepository = OpenPlanRepository()
+    val school: SchoolService = NeisSchoolService(HttpNeisApi(BuildConfig.NEIS_API_KEY), familyStreams.members, familyEvents)
+
+    private fun createSyncManager(context: Context, db: AppDatabase): SyncManager {
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            Log.i(TAG, "Firebase 미설정: 로컬 전용 모드")
+            return NoOpSyncManager()
+        }
+        return try {
+            FirestoreSyncManager(SyncRegistry.familyCollections(db), SyncRegistry.globalCollections(db), FirebaseFirestore.getInstance(), FirebaseAuth.getInstance())
         } catch (e: Exception) {
-            Log.w("AppContainer", "Firebase 초기화 실패, 로컬 전용 모드로 동작합니다", e)
+            Log.w(TAG, "Firebase 초기화 실패, 로컬 전용 모드로 동작합니다", e)
             NoOpSyncManager()
         }
-    } else {
-        Log.i("AppContainer", "Firebase 미설정: 로컬 전용 모드")
-        NoOpSyncManager()
     }
 
-    val repository: StudyRepository = StudyRepository(database, preferences, syncManager)
+    private companion object {
+        const val TAG = "AppContainer"
+    }
 }

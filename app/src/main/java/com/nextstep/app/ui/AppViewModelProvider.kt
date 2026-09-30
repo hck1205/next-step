@@ -6,34 +6,98 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nextstep.app.NextStepApp
+import com.nextstep.app.di.AppContainer
+import com.nextstep.app.ui.activities.ActivitiesViewModel
+import com.nextstep.app.ui.assignments.AssignmentsViewModel
 import com.nextstep.app.ui.calendar.CalendarViewModel
+import com.nextstep.app.ui.common.gameInputs
+import com.nextstep.app.ui.content.ContentViewModel
+import com.nextstep.app.ui.curriculum.CurriculumViewModel
+import com.nextstep.app.ui.familycalendar.FamilyCalendarViewModel
+import com.nextstep.app.ui.familytalk.FamilyTalkViewModel
+import com.nextstep.app.ui.goal.GoalViewModel
+import com.nextstep.app.ui.goals.GoalsViewModel
+import com.nextstep.app.ui.goaltree.GoalTreeViewModel
 import com.nextstep.app.ui.grades.GradesViewModel
+import com.nextstep.app.ui.growth.GrowthViewModel
+import com.nextstep.app.ui.growthalbum.GrowthAlbumViewModel
+import com.nextstep.app.ui.habits.HabitsViewModel
 import com.nextstep.app.ui.home.HomeViewModel
 import com.nextstep.app.ui.insights.InsightsViewModel
+import com.nextstep.app.ui.journey.JourneyViewModel
+import com.nextstep.app.ui.kidfamily.KidFamilyViewModel
+import com.nextstep.app.ui.kidme.KidMeViewModel
+import com.nextstep.app.ui.lessons.LessonsViewModel
+import com.nextstep.app.ui.mentor.MentorDashboardViewModel
 import com.nextstep.app.ui.navigation.RootViewModel
 import com.nextstep.app.ui.onboarding.OnboardingViewModel
+import com.nextstep.app.ui.overview.OverviewViewModel
 import com.nextstep.app.ui.parent.ParentDashboardViewModel
+import com.nextstep.app.ui.periodreport.PeriodReportViewModel
+import com.nextstep.app.ui.planhistory.PlanHistoryViewModel
 import com.nextstep.app.ui.progress.ProgressViewModel
 import com.nextstep.app.ui.progress.SubjectDetailViewModel
+import com.nextstep.app.ui.project.ProjectViewModel
+import com.nextstep.app.ui.projectcatalog.ProjectCatalogViewModel
+import com.nextstep.app.ui.projects.ProjectsViewModel
+import com.nextstep.app.ui.quickadd.QuickAddViewModel
+import com.nextstep.app.ui.review.ReviewViewModel
+import com.nextstep.app.ui.rewards.RewardsViewModel
+import com.nextstep.app.ui.roadmap.RoadmapViewModel
+import com.nextstep.app.ui.selfdirection.SelfDirectionViewModel
 import com.nextstep.app.ui.settings.SettingsViewModel
+import com.nextstep.app.ui.talent.TalentViewModel
 import com.nextstep.app.ui.timer.TimerViewModel
+import com.nextstep.app.ui.todo.TodoViewModel
+import com.nextstep.app.ui.yearplan.YearPlanViewModel
 
-/** 모든 ViewModel 을 AppContainer 로부터 만드는 팩토리. */
+/** 모든 ViewModel 을 AppContainer 의 인터페이스로 조립하는 팩토리. ViewModel 은 구현체를 모릅니다. */
 object AppViewModelProvider {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
-        initializer { RootViewModel(app().container.repository) }
-        initializer { OnboardingViewModel(app().container.repository) }
-        initializer { HomeViewModel(app().container.repository) }
-        initializer { ParentDashboardViewModel(app().container.repository) }
-        initializer { ProgressViewModel(app().container.repository) }
-        initializer { SubjectDetailViewModel(createSavedStateHandle(), app().container.repository) }
-        initializer { CalendarViewModel(app().container.repository) }
-        initializer { GradesViewModel(app().container.repository) }
-        initializer { InsightsViewModel(app().container.repository) }
-        initializer { TimerViewModel(app().container.repository) }
-        initializer { SettingsViewModel(app().container.repository) }
+        initializer { with(container()) { RootViewModel(onboarding, members) } }
+        initializer { with(container()) { OnboardingViewModel(onboarding) } }
+        initializer { with(container()) { HomeViewModel(streams, tasks, topics, roadmap, contents, plans, members, projects, weekPlans, cheers) } }
+        initializer { with(container()) { ParentDashboardViewModel(streams, tasks, projects, weekPlans, rewards, cheers, game = familyStreams.gameInputs()) } }
+        initializer { with(container()) { MentorDashboardViewModel(familyStreams, members, tasks, reportLogs, bulkTasks, lessons) } }
+        initializer { with(container()) { ProgressViewModel(streams, subjects) } }
+        initializer { with(container()) { SubjectDetailViewModel(createSavedStateHandle(), streams, subjects, topics, tasks) } }
+        initializer { with(container()) { CalendarViewModel(streams, events, tasks) } }
+        initializer { with(container()) { FamilyCalendarViewModel(streams, familyEvents) } }
+        initializer { with(container()) { FamilyTalkViewModel(streams, weekPlans) } }
+        initializer { with(container()) { PeriodReportViewModel(streams) } }
+        initializer { with(container()) { LessonsViewModel(streams, members, lessons) } }
+        initializer { with(container()) { GrowthAlbumViewModel(streams) } }
+        initializer { with(container()) { GradesViewModel(streams, grades) } }
+        initializer { with(container()) { InsightsViewModel(streams, tasks) } }
+        initializer { with(container()) { TimerViewModel(streams, sessions) } }
+        initializer { with(container()) { SettingsViewModel(familyStreams, onboarding, members, noticeSettings, school) } }
+        initializer { with(container()) { RoadmapViewModel(streams, roadmap, roadmapTemplates) } }
+        initializer { with(container()) { ContentViewModel(streams, contents) } }
+        initializer { with(container()) { JourneyViewModel(streams, journey, members, goals, tasks) } }
+        initializer { with(container()) { GoalsViewModel(streams, goals, tasks) } }
+        initializer { with(container()) { ActivitiesViewModel(streams, activities) } }
+        initializer { with(container()) { OverviewViewModel(streams) } }
+        initializer { with(container()) { GrowthViewModel(streams, growth) } }
+        initializer { with(container()) { TalentViewModel(streams, growth) } }
+        initializer { with(container()) { KidMeViewModel(streams) } }
+        initializer { with(container()) { YearPlanViewModel(streams, journey, tasks) } }
+        initializer { with(container()) { HabitsViewModel(streams) } }
+        initializer { with(container()) { ReviewViewModel(streams, tasks, topics) } }
+        initializer { with(container()) { AssignmentsViewModel(streams) } }
+        initializer { with(container()) { KidFamilyViewModel(streams) } }
+        initializer { with(container()) { CurriculumViewModel(streams, peerCurriculum, subjects, topics, tasks, contents) } }
+        initializer { with(container()) { QuickAddViewModel(streams, activities, tasks, grades, events) } }
+        initializer { with(container()) { ProjectsViewModel(streams, projects) } }
+        initializer { with(container()) { GoalTreeViewModel(streams, goals) } }
+        initializer { with(container()) { GoalViewModel(createSavedStateHandle(), streams, goals, tasks, rewards) } }
+        initializer { with(container()) { TodoViewModel(streams, tasks) } }
+        initializer { with(container()) { PlanHistoryViewModel(streams) } }
+        initializer { with(container()) { RewardsViewModel(streams, rewards, game = familyStreams.gameInputs()) } }
+        initializer { with(container()) { SelfDirectionViewModel(streams, weekPlans, members) } }
+        initializer { with(container()) { ProjectCatalogViewModel(streams, goals) } }
+        initializer { with(container()) { ProjectViewModel(createSavedStateHandle(), streams, goals, projects) } }
     }
 }
 
-private fun CreationExtras.app(): NextStepApp =
-    this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NextStepApp
+private fun CreationExtras.container(): AppContainer =
+    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as NextStepApp).container

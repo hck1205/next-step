@@ -1,0 +1,28 @@
+package com.nextstep.app.ui.components.card
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+/** 앱의 기본 카드. [padded] 가 false 면 안쪽 여백 없이(줄마다 자기 여백을 가진 목록용). */
+@Composable
+fun AppCard(modifier: Modifier = Modifier, onClick: (() -> Unit)? = null, padded: Boolean = true, content: @Composable () -> Unit) {
+    val base = modifier.fillMaxWidth()
+    val m = if (onClick != null) base.clickable { onClick() } else base
+    Card(
+        modifier = m,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Box(if (padded) Modifier.padding(16.dp) else Modifier) { content() }
+    }
+}

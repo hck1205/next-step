@@ -1,0 +1,96 @@
+package com.nextstep.app.ui.activities
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.activities.components.ActivityEditDialog
+import com.nextstep.app.ui.activities.components.ActivityRow
+import com.nextstep.app.ui.activities.components.ActivitySummaryCard
+import com.nextstep.app.ui.activities.components.ActivityTypeFilterRow
+import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.layout.BackButton
+import com.nextstep.app.ui.components.layout.ScreenPadding
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
+
+/**
+ * 활동 기록. 취미·동아리·현장학습·체험·봉사·대회·여행을 구간(학기)별로 남깁니다.
+ * 쌓인 기록이 포트폴리오·생기부·자기소개서의 재료가 됩니다.
+ */
+@Composable
+fun ActivitiesScreen(caps: Capabilities, actions: ActivitiesActions, viewModel: ActivitiesViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    ActivitiesContent(state = state, caps = caps, actions = actions, onEvent = viewModel::onEvent)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ActivitiesContent(state: ActivitiesUiState, caps: Capabilities, actions: ActivitiesActions, onEvent: (ActivitiesEvent) -> Unit) {
+    var editing by remember { mutableStateOf<ActivityEntity?>(null) }
+    var showEdit by remember { mutableStateOf(false) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (caps.canRecordActivities) "활동 추가" else null) { editing = null; showEdit = true }
+
+    Scaffold(
+        // onBack 이 없으면 기록 탭의 섹션으로 들어간 것: 관심사·섹션 줄이 제목을 대신합니다.
+        topBar = {
+            if (actions.onBack != null) TopAppBar(
+                title = { Text(if (state.studentName.isBlank()) "활동 기록" else "${state.studentName}의 활동 기록") },
+                navigationIcon = { BackButton(actions.onBack) },
+                actions = { TextButton(onClick = actions.onOpenJourney) { Text("타임라인") } },
+            )
+        },
+        floatingActionButton = {
+            if (!hosted && caps.canRecordActivities) FloatingActionButton(onClick = { editing = null; showEdit = true }) { Icon(Icons.Default.Add, contentDescription = "활동 추가") }
+        },
+    ) { padding ->
+        LazyColumn(
+            Modifier.fillMaxSize().padding(padding),
+            contentPadding = ScreenPadding.list,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item { ActivitySummaryCard(state.activities.size, state.currentPeriodCount, state.ongoing.size, state.countByType) }
+            item { ActivityTypeFilterRow(state.filter, onSelect = { onEvent(ActivitiesEvent.SetFilter(it)) }) }
+            if (state.loaded && state.filtered.isEmpty()) item { EmptyCard("기록된 활동이 없어요") }
+            state.sections.forEach { (label, group) ->
+                item { SectionTitle("$label · ${group.size}") }
+                items(group, key = { it.id }) { activity ->
+                    ActivityRow(
+                        activity = activity,
+                        onEdit = if (caps.canRecordActivities) ({ editing = activity; showEdit = true }) else null,
+                        onDelete = if (caps.canRecordActivities) ({ onEvent(ActivitiesEvent.Delete(activity.id)) }) else null,
+                    )
+                }
+            }
+        }
+    }
+
+    if (showEdit) ActivityEditDialog(
+        existing = editing, today = state.today,
+        onConfirm = { onEvent(ActivitiesEvent.Save(it)); showEdit = false },
+        onDismiss = { showEdit = false },
+    )
+}

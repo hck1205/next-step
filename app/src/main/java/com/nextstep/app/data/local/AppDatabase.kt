@@ -5,6 +5,54 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.nextstep.app.data.local.dao.ActivityDao
+import com.nextstep.app.data.local.dao.CheerDao
+import com.nextstep.app.data.local.dao.ContentDao
+import com.nextstep.app.data.local.dao.EventDao
+import com.nextstep.app.data.local.dao.FamilyEventDao
+import com.nextstep.app.data.local.dao.GoalDao
+import com.nextstep.app.data.local.dao.GoalStepDao
+import com.nextstep.app.data.local.dao.GradeDao
+import com.nextstep.app.data.local.dao.GrowthRecordDao
+import com.nextstep.app.data.local.dao.JourneyDao
+import com.nextstep.app.data.local.dao.LessonDao
+import com.nextstep.app.data.local.dao.MemberDao
+import com.nextstep.app.data.local.dao.ObservationDao
+import com.nextstep.app.data.local.dao.PeerTopicDao
+import com.nextstep.app.data.local.dao.ProjectLogDao
+import com.nextstep.app.data.local.dao.ReportLogDao
+import com.nextstep.app.data.local.dao.RewardDao
+import com.nextstep.app.data.local.dao.RoadmapDao
+import com.nextstep.app.data.local.dao.RoadmapTemplateDao
+import com.nextstep.app.data.local.dao.StudySessionDao
+import com.nextstep.app.data.local.dao.SubjectDao
+import com.nextstep.app.data.local.dao.TaskDao
+import com.nextstep.app.data.local.dao.TopicDao
+import com.nextstep.app.data.local.dao.WeekPlanDao
+import com.nextstep.app.data.local.entity.ActivityEntity
+import com.nextstep.app.data.local.entity.CheerEntity
+import com.nextstep.app.data.local.entity.ContentEntity
+import com.nextstep.app.data.local.entity.EventEntity
+import com.nextstep.app.data.local.entity.FamilyEventEntity
+import com.nextstep.app.data.local.entity.GoalEntity
+import com.nextstep.app.data.local.entity.GoalStepEntity
+import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.LessonEntity
+import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.ObservationEntity
+import com.nextstep.app.data.local.entity.PeerTopicEntity
+import com.nextstep.app.data.local.entity.ProjectLogEntity
+import com.nextstep.app.data.local.entity.ReportLogEntity
+import com.nextstep.app.data.local.entity.RewardEntity
+import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.RoadmapTemplateEntity
+import com.nextstep.app.data.local.entity.StudySessionEntity
+import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.local.entity.WeekPlanEntity
 
 @Database(
     entities = [
@@ -14,9 +62,26 @@ import androidx.room.TypeConverters
         EventEntity::class,
         GradeEntity::class,
         StudySessionEntity::class,
-        NoteEntity::class,
+        MemberEntity::class,
+        RoadmapItemEntity::class,
+        ContentEntity::class,
+        JourneyItemEntity::class,
+        GoalEntity::class,
+        GoalStepEntity::class,
+        ActivityEntity::class,
+        GrowthRecordEntity::class,
+        ObservationEntity::class,
+        PeerTopicEntity::class,
+        ProjectLogEntity::class,
+        WeekPlanEntity::class,
+        RewardEntity::class,
+        FamilyEventEntity::class,
+        CheerEntity::class,
+        ReportLogEntity::class,
+        RoadmapTemplateEntity::class,
+        LessonEntity::class,
     ],
-    version = 1,
+    version = 24,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -27,7 +92,24 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
     abstract fun gradeDao(): GradeDao
     abstract fun studySessionDao(): StudySessionDao
-    abstract fun noteDao(): NoteDao
+    abstract fun memberDao(): MemberDao
+    abstract fun roadmapDao(): RoadmapDao
+    abstract fun contentDao(): ContentDao
+    abstract fun journeyDao(): JourneyDao
+    abstract fun goalDao(): GoalDao
+    abstract fun goalStepDao(): GoalStepDao
+    abstract fun activityDao(): ActivityDao
+    abstract fun growthRecordDao(): GrowthRecordDao
+    abstract fun observationDao(): ObservationDao
+    abstract fun peerTopicDao(): PeerTopicDao
+    abstract fun projectLogDao(): ProjectLogDao
+    abstract fun weekPlanDao(): WeekPlanDao
+    abstract fun rewardDao(): RewardDao
+    abstract fun familyEventDao(): FamilyEventDao
+    abstract fun cheerDao(): CheerDao
+    abstract fun reportLogDao(): ReportLogDao
+    abstract fun roadmapTemplateDao(): RoadmapTemplateDao
+    abstract fun lessonDao(): LessonDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

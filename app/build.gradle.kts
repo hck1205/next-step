@@ -23,6 +23,15 @@ android {
         versionCode = 1
         versionName = "1.0.0"
         vectorDrawables { useSupportLibrary = true }
+
+        // AdMob 테스트 ID. 실제 출시 시 gradle.properties 또는 CI 시크릿의 ADMOB_APP_ID / ADMOB_BANNER_ID 로 덮어씁니다.
+        val admobAppId = (project.findProperty("ADMOB_APP_ID") as String?) ?: "ca-app-pub-3940256099942544~3347511713"
+        val admobBannerId = (project.findProperty("ADMOB_BANNER_ID") as String?) ?: "ca-app-pub-3940256099942544/6300978111"
+        manifestPlaceholders["admobAppId"] = admobAppId
+        buildConfigField("String", "ADMOB_BANNER_ID", "\"$admobBannerId\"")
+        // NEIS 교육정보 개방 포털 인증키(open.neis.go.kr 에서 무료 발급). gradle.properties·환경 변수 NEIS_API_KEY 로 넣고, 없으면 학교 일정 받기가 꺼집니다.
+        val neisKey = (project.findProperty("NEIS_API_KEY") as String?) ?: System.getenv("NEIS_API_KEY") ?: ""
+        buildConfigField("String", "NEIS_API_KEY", "\"$neisKey\"")
     }
 
     buildTypes {
@@ -36,7 +45,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }
 
@@ -67,11 +79,16 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+    implementation(libs.play.services.ads)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    // 안드로이드의 org.json 은 단위 테스트에서 비어 있으므로 실제 구현으로(NEIS 응답 읽기 테스트)
+    testImplementation(libs.org.json)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

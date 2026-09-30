@@ -1,0 +1,112 @@
+package com.nextstep.app.ui.rewards
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.reward.RewardKind
+import com.nextstep.app.domain.reward.RewardView
+import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.common.UiDefaults
+import com.nextstep.app.ui.components.card.AppCard
+import com.nextstep.app.ui.components.card.BadgeGrid
+import com.nextstep.app.ui.components.card.EmptyCard
+import com.nextstep.app.ui.components.card.EmptyState
+import com.nextstep.app.ui.components.card.GameCard
+import com.nextstep.app.ui.components.card.SectionTitle
+import com.nextstep.app.ui.components.dialog.PromiseRewardDialog
+import com.nextstep.app.ui.components.layout.ScreenPadding
+import com.nextstep.app.ui.components.layout.hostedSectionAdd
+import com.nextstep.app.ui.components.row.RewardRow
+import com.nextstep.app.ui.rewards.components.XpBreakdownCard
+
+/**
+ * 기록 › 목표·할 일 › 보상·배지. 게임 요소가 켜져 있으면 나이에 맞춘 모양(스티커판 · 레벨 · 성장 기록)과 배지판·경험치 내역,
+ * 그 아래 보상(받을 차례 → 약속 → 받은 것). 학부모는 이 나이에 맞는 곳(목표 · 레벨 · 스티커판)에 보상을 약속하고, 이루면 "줬어요"로 남깁니다.
+ * 둘 다 선택이라, 꺼 두거나 약속하지 않아도 다른 화면은 그대로입니다.
+ */
+@Composable
+fun RewardsScreen(caps: Capabilities, showsNumbers: Boolean, actions: RewardsActions, viewModel: RewardsViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    RewardsContent(state = state, caps = caps, showsNumbers = showsNumbers, actions = actions, onEvent = viewModel::onEvent)
+}
+
+@Composable
+internal fun RewardsContent(state: RewardsUiState, caps: Capabilities, showsNumbers: Boolean, actions: RewardsActions, onEvent: (RewardsEvent) -> Unit) {
+    var promising by remember { mutableStateOf(false) }
+    // 기록 탭 안에서는 "만들기"가 상단 바로 올라가고, 따로 열었을 때만 + 버튼을 그립니다.
+    val hosted = hostedSectionAdd(if (caps.canGiveRewards && state.canPromise) "보상 약속" else null) { promising = true }
+    val open: (RewardView) -> (() -> Unit)? = { v -> if (v.kind == RewardKind.GOAL) ({ actions.onOpenGoal(v.reward.targetId) }) else null }
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            Modifier.fillMaxSize(),
+            contentPadding = ScreenPadding.list,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            if (state.gamify) {
+                item { GameCard(state.profile, state.nextReward, showsNumbers = showsNumbers) }
+                item { SectionTitle("${state.style.badgeWord} ${state.profile.earnedBadges.size}/${state.profile.badges.size}") }
+                item { BadgeGrid(state.profile.badges, showsNumbers) }
+                if (showsNumbers && state.style.showsLevel) item { XpBreakdownCard(state.profile.lines, state.profile.xp) }
+            } else if (caps.canToggleGamification(state.style)) {
+                item { EmptyCard("레벨·배지가 꺼져 있어요. 가족 탭 › 레벨·배지에서 켤 수 있어요") }
+            }
+            item { SectionTitle("보상") }
+            if (state.loaded && state.rewards.isEmpty()) {
+                item {
+                    AppCard {
+                        EmptyState(
+                            if (caps.canGiveRewards) "이룬 순간에 작은 보상을 약속해 보세요. 보상은 꼭 하지 않아도 돼요."
+                            else "아직 약속된 보상이 없어요",
+                        )
+                    }
+                }
+            }
+            listOf(state.due, state.promised, state.given.take(UiDefaults.MAX_ROWS)).filter { it.isNotEmpty() }.forEach { group ->
+                item(key = "rw-" + group.first().status.name) {
+                    AppCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            group.forEach { v ->
+                                RewardRow(
+                                    v, onOpen = open(v),
+                                    onGive = if (caps.canGiveRewards) ({ onEvent(RewardsEvent.Give(v.reward.id)) }) else null,
+                                    onCancel = if (caps.canGiveRewards) ({ onEvent(RewardsEvent.Cancel(v.reward.id)) }) else null,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!hosted && caps.canGiveRewards && state.canPromise) {
+            ExtendedFloatingActionButton(
+                onClick = { promising = true }, icon = { Icon(Icons.Default.CardGiftcard, contentDescription = null) }, text = { Text("보상 약속하기") },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 96.dp),
+            )
+        }
+    }
+    if (promising) {
+        PromiseRewardDialog(
+            targets = state.targets, ideas = state.ideas, hint = state.hint, onDismiss = { promising = false },
+            onSave = { target, title -> onEvent(RewardsEvent.Promise(target.kind, target.id, title)) },
+        )
+    }
+}

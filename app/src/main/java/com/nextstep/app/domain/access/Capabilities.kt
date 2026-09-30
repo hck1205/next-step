@@ -1,0 +1,149 @@
+package com.nextstep.app.domain.access
+
+import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.gamify.GameStyle
+import com.nextstep.app.domain.hub.HubAudience
+import com.nextstep.app.domain.journey.MilestoneCategory
+import com.nextstep.app.domain.plan.Entitlements
+import com.nextstep.app.domain.plan.Feature
+import com.nextstep.app.domain.selfdirection.LoopStep
+import com.nextstep.app.domain.selfdirection.Owner
+import com.nextstep.app.domain.selfdirection.SelfDirectionStage
+import com.nextstep.app.domain.year.YearDoer
+
+/**
+ * 역할별로 볼 수 있는 화면과 쓸 수 있는 기능. 역할 분리는 한 문장씩입니다(UX 가이드 1-1 역할 헌장):
+ *
+ * - 학생 = **하는 사람**. 자기 기록(타이머·단원 상태·이해도)을 만들고, 할 일을 끝낸다. 자기 기록의 주인은 학생뿐.
+ * - 학부모 = **챙기고 넘겨주는 사람**. 흐름을 지켜보고, 가족의 일(여정·활동·성장·주간 계획·보상)을 챙기며,
+ *   자기주도 사다리로 계획의 주도권을 한 칸씩 아이에게 넘긴다. 과목 설계(과목·단원·로드맵)는 하지 않는다.
+ * - 멘토 = **담당 과목을 가르치는 사람**. 과목·단원·학급 진도·로드맵·과제를 맡고, 담당 과목만 본다
+ *   (MentorScopedStreams). 가족의 일(주간 계획·활동·재능·신체·여정·보상)은 보거나 고치지 않는다.
+ * - 학부모 겸 멘토: 학부모 + 멘토. 기록은 학부모 자리에서 전부 보고, 멘토 화면은 따로 연다.
+ *
+ * 할 일은 누구나 줄 수 있고, 누가 줬는지가 할 일에 남는다(스스로 · 학부모가 · 멘토가).
+ */
+data class Capabilities(
+    val role: Role,
+    val mentorEnabled: Boolean,
+    /** 요금제로 나눌 수 있는 기능(domain/plan). 지금은 모두 열려 있습니다. */
+    val entitlements: Entitlements = Entitlements.OPEN,
+) {
+    /** 요금제 기능을 쓸 수 있는지. 화면은 요금제 이름이 아니라 이것만 묻습니다. */
+    fun has(feature: Feature): Boolean = entitlements.has(feature)
+
+    val actsAsMentor: Boolean get() = role == Role.MENTOR || mentorEnabled
+    val isStudent: Boolean get() = role == Role.STUDENT
+    val isParent: Boolean get() = role == Role.PARENT
+    /** 가족(학생·학부모). 가족의 일(여정·활동·성장·주간 계획)은 가족만 고칩니다. */
+    val isFamily: Boolean get() = isStudent || isParent
+
+    /** 과목 추가·편집·삭제. */
+    val canEditSubjects: Boolean get() = isStudent || actsAsMentor
+    /** 단원 등록·삭제, 학급 진도 설정. */
+    val canEditTopics: Boolean get() = isStudent || actsAsMentor
+    /** 단원의 내 상태(예습/복습)와 이해도 기록은 학생 본인만. */
+    val canMarkTopicStatus: Boolean get() = isStudent
+    /** 일정(시간표·학원·시험)은 모두 등록 가능. */
+    val canEditEvents: Boolean get() = true
+    /** 성적 입력은 모두 가능 (학부모가 성적표를 대신 입력하는 경우가 많음). */
+    val canEditGrades: Boolean get() = true
+    /**
+     * 할 일 만들기·주기(기록하기 · 목표의 세부 할 일 · 복습·분석·커리큘럼에서 할 일로): 누구나.
+     * 학생은 스스로 정한 일, 학부모는 준 일, 멘토는 과제로 남습니다([actingRoleName]).
+     */
+    val canCreateTasks: Boolean get() = true
+    /** 할 일을 주는 버튼의 말: 학생 "할 일 추가", 멘토 "과제 내기", 학부모 "할 일 주기". */
+    val giveTaskLabel: String get() = when {
+        isStudent -> "할 일 추가"
+        actsAsMentor -> "과제 내기"
+        else -> "할 일 주기"
+    }
+    val canEditRoadmap: Boolean get() = actsAsMentor
+    val canUpdateRoadmapProgress: Boolean get() = isStudent
+    val canUseTimer: Boolean get() = isStudent
+    /** 성장 여정(이정표 완료·메모·직접 추가)은 가족의 일: 학부모가 주도하고 학생도 함께. 멘토는 보기만(자기 몫은 "올해"에서). */
+    val canEditJourney: Boolean get() = isFamily
+    /** 장기 목표·단계 관리와 단계를 할 일로 보내기. 어린 자녀는 부모가, 이후엔 학생·멘토가 함께 관리합니다. */
+    val canManageGoals: Boolean get() = true
+    /** 활동 기록(취미·동아리·현장학습·체험)은 가족의 일: 학생·학부모. */
+    val canRecordActivities: Boolean get() = isFamily
+    /** 성장 기록(키·몸무게·시력)과 소질 관찰 메모도 가족의 일: 학생·학부모. */
+    val canRecordGrowth: Boolean get() = isFamily
+
+    /** 가족 탭에서 "멘토 겸하기" 스위치를 보여 줄지. 학부모만. */
+    val canToggleMentorMode: Boolean get() = isParent
+    /** 다자녀: 새 자녀 공간을 만들 수 있는지(학부모). */
+    val canAddChildren: Boolean get() = isParent
+    /** 다른 자녀·학생을 연결 코드로 붙일 수 있는지(학부모·멘토). 학생은 자기 공간 하나. */
+    val canLinkChildren: Boolean get() = !isStudent
+    /** 학생 화면 단계(새싹~나무)를 직접 고를 수 있는지. 아이의 속도를 가장 잘 아는 학부모만. */
+    val canChooseStudentScreen: Boolean get() = isParent
+    /** 자녀의 학년·생년월일은 1년을 가는 값이라 학부모만 넣고 고칩니다(학생·멘토는 보기만). */
+    val canEditStudentYear: Boolean get() = isParent
+    /** 보호자 목록(엄마·아빠·조부모)은 가족만 봅니다. 멘토에게는 학생과 멘토만. */
+    val canSeeGuardians: Boolean get() = isFamily
+    /** 기록 › 한눈에의 균형(학습·주도·경험·수면·운동)은 가족의 일이라 가족만. */
+    val canSeeBalance: Boolean get() = isFamily
+    /** 여정 이정표: 건강·검진, 재정·지원([MilestoneCategory.familyOnly])은 가족만 봅니다. */
+    fun canSeeMilestone(category: MilestoneCategory): Boolean = isFamily || !category.familyOnly
+    /** 연결된 학부모·멘토를 목록에서 제거할 수 있는지. 학생 본인과 학부모만. */
+    val canRemoveMembers: Boolean get() = isStudent || isParent
+
+    /**
+     * 자기주도 사다리의 한 걸음을 이 사람이 할 수 있는지. 어른이 맡은 걸음은 학부모, 같이 맡은 걸음은 학생·학부모, 스스로 맡은 걸음은 학생만.
+     * 멘토는 보기만 합니다(주간 계획은 가족의 몫).
+     */
+    fun canDo(step: LoopStep, stage: SelfDirectionStage): Boolean = when (stage.owner(step)) {
+        Owner.ADULT -> isParent
+        Owner.TOGETHER -> isStudent || isParent
+        Owner.CHILD -> isStudent
+    }
+    /** 아이가 먼저 쓴 주간 계획을 "확인"하는 것은 학부모. */
+    fun canApproveWeekPlan(stage: SelfDirectionStage): Boolean = isParent && stage.needsApproval
+    /** 주간 계획·돌아보기의 세부 내용을 볼 수 있는지. 마지막 단계(내가 주인)에서 어른은 요약만. */
+    fun seesWeekDetails(stage: SelfDirectionStage): Boolean = isStudent || stage.adultSeesDetails
+    /** 할 일을 끝냄으로 체크하기(모든 화면이 이 하나를 씀): 학생 본인, 그리고 점검을 같이 하는 어린 단계(자기주도 사다리)에서는 학부모도. */
+    fun canCheckTask(stage: SelfDirectionStage): Boolean = isStudent || canDo(LoopStep.CHECK, stage)
+    /** 목표를 달성으로 표시하거나 보관하기. 만든 사람이 아니어도 가족이면 누구나(멘토 포함). */
+    val canCloseGoals: Boolean get() = true
+
+    /** 목표·레벨에 보상을 약속하고, 이뤘을 때 주기: 학부모만(보상은 가족의 일, 학부모 겸 멘토도 학부모로서). 학생은 약속된 보상을 보기만 하고, 멘토에게는 보상이 보이지 않습니다. */
+    val canGiveRewards: Boolean get() = isParent
+
+    /** 수업 일정·출결·수업료를 적기: 멘토 본인만(학부모는 보기만, 학부모 겸 멘토는 자기 아이라 수업료가 없어 학부모로). */
+    val canKeepLessons: Boolean get() = role == Role.MENTOR
+
+    /** 해낸 일에 응원 붙이기: 학부모만(아이는 받는 쪽, 멘토에게는 가족 사이의 응원이 없음). */
+    val canCheer: Boolean get() = isParent
+
+    /** 게임 요소(스티커판·레벨·배지·도전)를 켜고 끄기: 학부모, 그리고 성장 기록 모양(중등 이후)이면 학생 본인도. */
+    fun canToggleGamification(style: GameStyle): Boolean = isParent || (isStudent && style.studentCanTurnOff)
+
+    /** 자기주도 단계를 한 칸 올리거나 내리는 것은 학부모. */
+    val canChooseSelfDirection: Boolean get() = isParent
+
+    /** 기록 탭의 자리(관심사 순서와 보이는 섹션). 학부모 겸 멘토는 학부모 자리에서 보고, 멘토 화면은 따로 엽니다. */
+    val hubAudience: HubAudience get() = when {
+        isStudent -> HubAudience.STUDENT
+        role == Role.MENTOR -> HubAudience.MENTOR
+        else -> HubAudience.PARENT
+    }
+
+    /** "올해" 화면에서 "내 할 일"로 모아 볼 몫. 학생은 스스로·같이, 학부모는 엄마·아빠가·같이(멘토 겸하면 멘토 몫까지), 멘토는 멘토 몫. */
+    val yearDoers: Set<YearDoer> get() = when {
+        isStudent -> setOf(YearDoer.CHILD, YearDoer.TOGETHER)
+        role == Role.MENTOR -> setOf(YearDoer.MENTOR)
+        actsAsMentor -> setOf(YearDoer.PARENT, YearDoer.TOGETHER, YearDoer.MENTOR)
+        else -> setOf(YearDoer.PARENT, YearDoer.TOGETHER)
+    }
+
+    /** 과제/로드맵에 기록될 작성자 역할. 학부모 겸 멘토는 MENTOR 로 남깁니다. */
+    val actingRoleName: String get() = if (actsAsMentor && !isStudent) Role.MENTOR.name else role.name
+
+    companion object {
+        /** 프로필 역할과 내 구성원 정보로 권한을 만듭니다. 멘토 역할은 항상 멘토로, 학부모는 스위치를 켠 경우만. */
+        fun of(role: Role, me: MemberEntity?): Capabilities = Capabilities(role, mentorEnabled = role == Role.MENTOR || (me?.mentorEnabled ?: false))
+    }
+}

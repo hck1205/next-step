@@ -1,0 +1,142 @@
+package com.nextstep.app.ui.goals
+
+import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.data.model.MilestoneStatus
+import com.nextstep.app.data.model.Role
+import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.journey.GoalTrackCatalog
+import com.nextstep.app.domain.mission.MissionKind
+import com.nextstep.app.domain.project.ProjectCatalog
+import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.fake.FakeFamilyDataStreams
+import com.nextstep.app.fake.FakeGoalRepository
+import com.nextstep.app.fake.FakeTaskRepository
+import com.nextstep.app.testing.Fixtures
+import com.nextstep.app.ui.ViewModelTestBase
+import java.time.LocalDate
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class GoalsViewModelTest : ViewModelTestBase() {
+    private val streams = FakeFamilyDataStreams(role = Role.PARENT)
+    private val goals = FakeGoalRepository()
+    private val tasks = FakeTaskRepository()
+    private val born = LocalDate.of(2020, 5, 15) // 2027-03 초1 입학 → 2029-09-22 는 초3 2학기
+    private val today = LocalDate.of(2029, 9, 22)
+
+    private fun vm() = GoalsViewModel(streams, goals, tasks, today = { today })
+    private fun withChild() { streams.members.value = listOf(Fixtures.member(Role.STUDENT, "아이", id = "kid", birthDate = born)) }
+
+    @Test
+    fun withoutBirthDateNothingIsAvailable() = runTest {
+        val vm = vm(); val job = subscribe(vm.state)
+        val s = settle(vm.state)
+        assertTrue(s.loaded); assertFalse(s.hasBirthDate); assertTrue(s.availableTracks.isEmpty()); assertTrue(s.periods.isEmpty())
+        job.cancel()
+    }
+
+    @Test
+    fun startTrackCreatesGoalWithStepsForRemainingCalendarAndHidesTrack() = runTest {
+        withChild()
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertEquals("g3s2", s.currentPeriodKey); assertEquals("초3 2학기", s.currentPeriodLabel)
+        assertTrue(s.availableTracks.any { it.id == "math-elementary" }); assertFalse(s.availableTracks.any { it.id == "mother-tongue" })
+        vm.onEvent(GoalsEvent.StartTrack("math-elementary")); settle(vm.state)
+        assertEquals(listOf("add:math-elementary:12"), goals.calls)
+        assertEquals(GoalTrackCatalog.byId.getValue("math-elementary").title, goals.addedGoals.single().title)
+        // 저장소가 반영되면 트랙은 목록에서 빠지고 목표는 진행 중으로
+        streams.goals.value = goals.addedGoals.toList(); streams.goalSteps.value = goals.addedSteps.toList()
+        s = settle(vm.state)
+        assertFalse(s.availableTracks.any { it.id == "math-elementary" })
+        val view = s.active.single()
+        assertEquals(12, view.steps.size); assertEquals(0f, view.progress, 0f)
+        assertEquals(listOf("g1s1", "g1s2", "g2s1", "g2s2", "g3s1", "g3s2"), view.currentSteps.map { it.periodKey })
+        vm.onEvent(GoalsEvent.StartTrack("math-elementary")); vm.onEvent(GoalsEvent.StartTrack("nope")); settle(vm.state)
+        assertEquals(1, goals.calls.size)
+        job.cancel()
+    }
+
+    @Test
+    fun missionKindsFollowStageAndStartMissionSchedulesDatedSteps() = runTest {
+        withChild() // 초3 → 단원평가만
+        streams.subjects.value = listOf(Fixtures.math)
+        val vm = vm(); val job = subscribe(vm.state)
+        var s = settle(vm.state)
+        assertEquals(listOf(MissionKind.UNIT_TEST), s.missionKinds); assertEquals(listOf("수학"), s.subjectNames)
+        val target = today.plusDays(10)
+        vm.onEvent(GoalsEvent.StartMission(MissionKind.UNIT_TEST, target, "수학")); settle(vm.state)
+        assertEquals(listOf("add:mission:UNIT_TEST:4"), goals.calls)
+        val goal = goals.addedGoals.single()
+        assertEquals("수학 단원평가", goal.title); assertEquals(target.toEpochDay(), goal.targetDate)
+        assertEquals(listOf(5L, 3L, 1L, -1L).map { target.minusDays(it).toEpochDay() }, goals.addedSteps.map { it.dueDate })
+        streams.goals.value = goals.addedGoals.toList(); streams.goalSteps.value = goals.addedSteps.toList()
+        s = settle(vm.state)
+        val m = s.missions.single()
+        assertEquals(10, m.daysLeft); assertEquals("단원 범위 확인", m.nextStep!!.title); assertEquals(MissionKind.UNIT_TEST, m.kind)
+        assertTrue(s.active.isEmpty())
+        vm.onEvent(GoalsEvent.SendStepToTasks(m.nextStep!!)); settle(vm.state)
+        val task = tasks.saved.single()
+        assertEquals(target.minusDays(5).toEpochDay(), task.dueDate); assertEquals(TaskType.EXAM_PREP, task.type)
+        job.cancel()
+    }
+
+    @Test
+    fun customGoalKeepsOnlyFilledStepsAndAddStepAppends() = runTest {
+        withChild()
+        val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
+        vm.onEvent(GoalsEvent.AddCustomGoal("피아노", GoalArea.EXPERIENCE, "d", listOf("g3s2" to "체르니 100", "g4s1" to " ", "g4s2" to "체르니 30")))
+        vm.onEvent(GoalsEvent.AddCustomGoal("  ", GoalArea.CUSTOM, "", emptyList()))
+        settle(vm.state)
+        assertEquals(listOf("add:피아노:2"), goals.calls)
+        assertEquals(listOf(0, 1), goals.addedSteps.map { it.orderIndex }); assertEquals(listOf("g3s2", "g4s2"), goals.addedSteps.map { it.periodKey })
+        streams.goals.value = goals.addedGoals.toList(); streams.goalSteps.value = goals.addedSteps.toList()
+        settle(vm.state)
+        vm.onEvent(GoalsEvent.AddStep(goals.addedGoals.single().id, "g5s1", "체르니 40")); settle(vm.state)
+        assertEquals(2, goals.addedSteps.last().orderIndex)
+        job.cancel()
+    }
+
+    @Test
+    fun finishingLastStepMarksGoalDoneAndSendToTasksCreatesTaskOnce() = runTest {
+        withChild()
+        val goal = Fixtures.goal("수학", id = "g")
+        val s1 = Fixtures.step("g", "g3s1", "a", id = "s1", status = MilestoneStatus.DONE)
+        val s2 = Fixtures.step("g", "g3s2", "b", id = "s2", order = 1)
+        val sent = Fixtures.step("g", "g4s1", "c", id = "s3", order = 2, taskId = "t-old")
+        streams.goals.value = listOf(goal); streams.goalSteps.value = listOf(s1, s2, sent)
+        val vm = vm(); val job = subscribe(vm.state); settle(vm.state)
+        vm.onEvent(GoalsEvent.SendStepToTasks(s2)); vm.onEvent(GoalsEvent.SendStepToTasks(sent)); settle(vm.state)
+        val task = tasks.saved.single()
+        assertEquals("b", task.title); assertEquals(LocalDate.of(2030, 2, 28).toEpochDay(), task.dueDate); assertEquals("수학", task.note)
+        assertEquals(listOf("stepTask:s2:set"), goals.calls)
+        goals.calls.clear()
+        vm.onEvent(GoalsEvent.SetStepStatus(s2, MilestoneStatus.DONE)); settle(vm.state)
+        assertEquals(listOf("stepStatus:s2:DONE"), goals.calls)
+        goals.calls.clear()
+        vm.onEvent(GoalsEvent.SetStepStatus(sent, MilestoneStatus.DONE)); settle(vm.state)
+        assertEquals(listOf("stepStatus:s3:DONE"), goals.calls) // s2 는 스트림상 아직 미완료라 목표 완료 아님
+        streams.goalSteps.value = listOf(s1, s2.copy(status = MilestoneStatus.DONE), sent)
+        settle(vm.state); goals.calls.clear()
+        vm.onEvent(GoalsEvent.SetStepStatus(sent, MilestoneStatus.DONE)); settle(vm.state)
+        assertEquals(listOf("stepStatus:s3:DONE", "goalStatus:g:DONE"), goals.calls)
+        vm.onEvent(GoalsEvent.SetGoalStatus("g", GoalStatus.ARCHIVED)); vm.onEvent(GoalsEvent.DeleteGoal("g")); settle(vm.state)
+        assertEquals(listOf("goalStatus:g:ARCHIVED", "delete:g"), goals.calls.takeLast(2))
+        job.cancel()
+    }
+
+    @Test
+    fun educationProjectsStayOutOfTheGoalList() = runTest {
+        withChild()
+        val (project, steps) = ProjectPlanner.start(ProjectCatalog.byId.getValue("piano"), 0, today, "PARENT")
+        streams.goals.value = listOf(project.copy(familyId = Fixtures.FAMILY), Fixtures.goal("수학 목표"))
+        streams.goalSteps.value = steps
+        val vm = vm(); val job = subscribe(vm.state)
+        assertEquals(listOf("수학 목표"), settle(vm.state).goals.map { it.goal.title })
+        job.cancel()
+    }
+}

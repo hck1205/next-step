@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 알림 작은 아이콘: 앱 아이콘의 계단을 한 색으로 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M3,20 L3,16 L8,16 L8,12 L13,12 L13,8 L18,8 L18,4 L21,4 L21,11 L16,11 L16,15 L11,15 L11,19 L6,19 L6,20 Z" />
+</vector>

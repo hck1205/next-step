@@ -1,0 +1,104 @@
+package com.nextstep.app.domain.hub
+
+import com.nextstep.app.data.model.AptitudeDomain
+import com.nextstep.app.domain.goaltree.GoalTree
+import com.nextstep.app.domain.goaltree.WeekRate
+import com.nextstep.app.domain.health.GrowthSignal
+import com.nextstep.app.domain.health.GrowthSignalLevel
+import com.nextstep.app.domain.health.GrowthSummary
+import com.nextstep.app.domain.insight.AptitudeSignal
+import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.mission.MissionFocus
+import com.nextstep.app.domain.stats.ReviewItem
+import com.nextstep.app.domain.stats.ReviewReason
+import com.nextstep.app.domain.stats.SubjectProgress
+import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.ZoneOffset
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class ConcernDigestsTest {
+    private fun focus(title: String, daysLeft: Int, overdue: Int = 0) =
+        MissionFocus(Fixtures.goal(title), null, Fixtures.step("g-$title", "g5s1", "다음"), daysLeft, overdue, 0.5f, 4, 2)
+
+    @Test
+    fun studyShowsWeekMinutesAndReviewedUnits() {
+        val empty = ConcernDigests.study(0, emptyList())
+        assertEquals(Concern.STUDY, empty.concern); assertEquals("이번 주 아직 0분", empty.headline); assertNull(empty.detail); assertTrue(empty.attention)
+        val progress = SubjectProgress(Fixtures.math, total = 8, classCovered = 4, reviewed = 3, previewed = 0, previewQueue = emptyList(), reviewQueue = emptyList())
+        val d = ConcernDigests.study(95, listOf(progress))
+        assertEquals("이번 주 1시간 35분", d.headline); assertEquals("복습 3/8단원", d.detail); assertFalse(d.attention)
+    }
+
+    @Test
+    fun examsShowNearestDDayAndRecentAverage() {
+        assertEquals("다가오는 시험 없음", ConcernDigests.exams(emptyList(), emptyList()).headline)
+        val grades = (1L..6L).map { Fixtures.grade("math", 40.0 + it * 10, it) }
+        val d = ConcernDigests.exams(listOf(focus("수학 수행평가", 10), focus("국어 단원평가", 3, overdue = 1)), grades)
+        assertEquals("국어 단원평가 D-3", d.headline); assertEquals("최근 5번 평균 80점", d.detail); assertTrue(d.attention)
+        assertEquals("영어 D-Day", ConcernDigests.exams(listOf(focus("영어", 0)), emptyList()).headline)
+        assertFalse(ConcernDigests.exams(listOf(focus("영어", 0)), emptyList()).attention)
+    }
+
+    @Test
+    fun growthShowsLatestHeightAndFlagsChecks() {
+        val none = ConcernDigests.growth(null)
+        assertEquals("아직 기록 없음", none.headline); assertFalse(none.attention)
+        val summary = GrowthSummary(LocalDate.of(2029, 9, 1), 131.5, null, null, null, 5.0, null, null, listOf(GrowthSignal("시력 검진", "0.6", GrowthSignalLevel.CHECK)))
+        val d = ConcernDigests.growth(summary)
+        assertEquals("키 131.5cm", d.headline); assertEquals("1년에 5cm 속도", d.detail); assertTrue(d.attention)
+    }
+
+    @Test
+    fun discoverShowsActivitiesAndTopSignal() {
+        val none = ConcernDigests.discover(0, emptyList())
+        assertEquals("이번 학기 활동 없음", none.headline); assertTrue(none.attention); assertNull(none.detail)
+        val d = ConcernDigests.discover(2, listOf(AptitudeSignal(AptitudeDomain.MUSIC, 5, listOf("피아노"), 2, "정기 레슨")))
+        assertEquals("이번 학기 활동 2개", d.headline); assertEquals("음악 쪽에 신호", d.detail); assertFalse(d.attention)
+    }
+
+    @Test
+    fun learnCountsReviewUnitsAndFlagsLowConfidence() {
+        val empty = ConcernDigests.learn(emptyList())
+        assertEquals(Concern.LEARN, empty.concern); assertEquals("복습할 단원 없음", empty.headline); assertNull(empty.detail); assertFalse(empty.attention)
+        val low = ReviewItem(Fixtures.math, Fixtures.topic("math", "분수", 0, covered = true, confidence = 30), ReviewReason.LOW_CONFIDENCE)
+        val next = ReviewItem(Fixtures.math, Fixtures.topic("math", "소수", 1), ReviewReason.NEXT_CLASS)
+        val d = ConcernDigests.learn(listOf(low, next))
+        assertEquals("복습할 단원 2개", d.headline); assertEquals("수학 · 분수", d.detail); assertTrue(d.attention)
+    }
+
+    @Test
+    fun planShowsThisWeeksTasksThenOverdueOrStalledGoals() {
+        val today = LocalDate.of(2029, 10, 10)
+        val empty = ConcernDigests.plan(emptyList(), null, 0)
+        assertEquals("이번 주 마감 할 일 없음", empty.headline); assertNull(empty.detail); assertFalse(empty.attention)
+        val goal = GoalTree.create("영어 일기", "", GoalArea.LANGUAGE, null, null, "PARENT").copy(createdAt = today.minusDays(10).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
+        val node = GoalTree.node(goal, listOf(goal), emptyList(), today, ZoneOffset.UTC)
+        val week = WeekRate(today, due = 4, done = 3)
+        val overdue = ConcernDigests.plan(listOf(node), week, 2)
+        assertEquals(Concern.PLAN, overdue.concern); assertEquals("이번 주 할 일 3/4", overdue.headline); assertEquals("밀린 할 일 2개", overdue.detail); assertTrue(overdue.attention)
+        assertEquals("영어 일기 · 10일째 그대로", ConcernDigests.plan(listOf(node), week, 0).detail)
+        val fresh = GoalTree.node(goal.copy(createdAt = today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()), listOf(goal), emptyList(), today, ZoneOffset.UTC)
+        assertEquals("목표 1개 진행 중", ConcernDigests.plan(listOf(fresh), week, 0).detail)
+    }
+
+    @Test
+    fun chartsShowFlowOrShareOnlyWhenThereIsSomethingToDraw() {
+        val today = LocalDate.of(2029, 10, 10)
+        assertNull(ConcernDigests.study(0, emptyList(), daily = listOf(0, 0, 0)).chart)
+        assertEquals(DigestChart.Bars(listOf(0, 20, 35)), ConcernDigests.study(55, emptyList(), daily = listOf(0, 20, 35)).chart)
+        val progress = SubjectProgress(Fixtures.math, total = 8, classCovered = 4, reviewed = 2, previewed = 0, previewQueue = emptyList(), reviewQueue = emptyList())
+        assertEquals(DigestChart.Meter(0.25f), ConcernDigests.learn(emptyList(), listOf(progress)).chart)
+        assertNull(ConcernDigests.learn(emptyList()).chart)
+        val weeks = listOf(WeekRate(today.minusWeeks(1), due = 2, done = 1), WeekRate(today, due = 4, done = 4))
+        assertEquals(DigestChart.Bars(listOf(50, 100)), ConcernDigests.plan(emptyList(), weeks.last(), 0, weeks).chart)
+        assertNull(ConcernDigests.plan(emptyList(), null, 0, listOf(WeekRate(today, 0, 0))).chart)
+        assertEquals(DigestChart.Line(listOf(1300, 1315)), ConcernDigests.growth(null, listOf(130.0, 131.5)).chart)
+        assertNull(ConcernDigests.growth(null, listOf(130.0)).chart) // 한 번이면 흐름이 없음
+        assertNull(ConcernDigests.exams(emptyList(), listOf(Fixtures.grade("math", 80.0, 1), Fixtures.grade("eng", 90.0, 2))).chart) // 과목이 섞인 점수는 잇지 않음
+    }
+}

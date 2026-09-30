@@ -1,11 +1,13 @@
 package com.nextstep.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
 private val LightColors = lightColorScheme(
     primary = Indigo,
@@ -58,6 +60,11 @@ private val DarkColors = darkColorScheme(
     outline = Color(0xFF334155),
     outlineVariant = Color(0xFF334155),
 )
+
+/** 지금 색 구성이 어두운 테마인지(바탕 밝기로 판단). 테마에 따라 따로 칠하는 곳(차트 팔레트 · 앨범 표지)이 함께 씁니다. */
+val ColorScheme.isDark: Boolean get() = surface.luminance() < DARK_LUMINANCE
+
+private const val DARK_LUMINANCE = 0.5f
 
 @Composable
 fun NextStepTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
