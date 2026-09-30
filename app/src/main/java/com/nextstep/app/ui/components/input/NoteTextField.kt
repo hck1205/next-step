@@ -18,24 +18,24 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 
-/** 공책에 적듯 쓰는 한 줄: 위에 작은 이름표, 손글씨 글자, 아래에 점선 밑줄. */
+/** 공책에 적듯 쓰는 한 줄: 위에 작은 이름표, 굵은 글자, 아래에 점선 밑줄. */
 @Composable
-fun HandTextField(value: String, onChange: (String) -> Unit, label: String, placeholder: String, modifier: Modifier = Modifier) {
+fun NoteTextField(value: String, onChange: (String) -> Unit, label: String, placeholder: String, modifier: Modifier = Modifier) {
     val cs = MaterialTheme.colorScheme
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(label, style = MaterialTheme.typography.labelMedium, color = cs.onSurfaceVariant)
         BasicTextField(
             value = value, onValueChange = onChange, singleLine = true,
-            textStyle = handStyle(28.sp).copy(color = cs.onSurface), cursorBrush = SolidColor(cs.primary),
+            textStyle = storyStyle(18.sp).copy(color = cs.onSurface), cursorBrush = SolidColor(cs.primary),
             modifier = Modifier.fillMaxWidth().semantics { contentDescription = label }.drawBehind {
                 val y = size.height - 1.dp.toPx()
                 drawLine(cs.outline, Offset(0f, y), Offset(size.width, y), strokeWidth = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(DASH, DASH)))
             },
             decorationBox = { inner ->
                 Box(Modifier.padding(vertical = 6.dp)) {
-                    if (value.isEmpty()) Text(placeholder, style = handStyle(28.sp), color = cs.onSurfaceVariant.copy(alpha = HINT_ALPHA))
+                    if (value.isEmpty()) Text(placeholder, style = storyStyle(18.sp), color = cs.onSurfaceVariant.copy(alpha = HINT_ALPHA))
                     inner()
                 }
             },

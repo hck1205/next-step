@@ -29,22 +29,22 @@ import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.PostcardFrame
 import com.nextstep.app.ui.components.card.PostcardLine
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 import java.time.LocalDate
 
 /**
- * 나눈 이야기를 "우리 가족 다음 주 카드" 엽서로: 우표(다음 주) · 자랑 · 해 보고 싶은 것 · 가족 즐거움(손글씨) · 기다리는 일 입장권.
+ * 나눈 이야기를 "우리 가족 다음 주 카드" 엽서로: 우표(다음 주) · 자랑 · 해 보고 싶은 것 · 가족 즐거움(굵은 글씨) · 기다리는 일 입장권.
  * [onEdit] 이 있으면 "다시 이야기하기".
  */
 @Composable
 internal fun TalkPostcard(saved: WeekPlanEntity, week: LocalDate, next: FamilyOccurrence?, today: LocalDate, onEdit: (() -> Unit)?) {
     val cs = MaterialTheme.colorScheme
     PostcardFrame(corner = { Stamp(week.plusWeeks(1)) }) {
-        Text("우리 가족\n다음 주 카드", style = handStyle(38.sp), color = cs.onSurface, modifier = Modifier.padding(end = 76.dp))
+        Text("우리 가족\n다음 주 카드", style = storyStyle(24.sp), color = cs.onSurface, modifier = Modifier.padding(end = 76.dp))
         if (saved.proud.isNotBlank()) PostcardLine("이번 주 자랑", Icons.Filled.EmojiEvents, saved.proud)
         if (saved.wish.isNotBlank()) PostcardLine("해 보고 싶은 것", Icons.Filled.Eco, saved.wish)
         if (saved.treat.isNotBlank()) PostcardLine("가족 즐거움", Icons.Filled.Celebration, saved.treat)
-        if (saved.proud.isBlank() && saved.wish.isBlank() && saved.treat.isBlank()) Text("이번 주 이야기를 나눴어요", style = handStyle(28.sp), color = cs.onSurface)
+        if (saved.proud.isBlank() && saved.wish.isBlank() && saved.treat.isBlank()) Text("이번 주 이야기를 나눴어요", style = storyStyle(18.sp), color = cs.onSurface)
         next?.let { TalkTicket(it, today) }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(

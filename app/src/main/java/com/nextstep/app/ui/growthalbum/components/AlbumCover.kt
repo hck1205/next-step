@@ -38,9 +38,9 @@ import com.nextstep.app.ui.theme.IndigoDark
 import com.nextstep.app.ui.theme.IndigoDeep
 import com.nextstep.app.ui.theme.IndigoLight
 import com.nextstep.app.ui.theme.IndigoNight
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 
-/** 앨범 표지: 짙은 두 빛깔 바탕 · 아이 이름 첫 글자 · 손글씨 "지우의 2029학년도" · 기간 · 한 해 숫자 네 칸(이룬 목표 · 공부한 날 · 해 본 것 · 자란 키). */
+/** 앨범 표지: 짙은 두 빛깔 바탕 · 아이 이름 첫 글자 · 큰 글씨 "지우의 2029학년도" · 기간 · 한 해 숫자 네 칸(이룬 목표 · 공부한 날 · 해 본 것 · 자란 키). */
 @Composable
 internal fun AlbumCover(book: GrowthAlbum) {
     val dark = MaterialTheme.colorScheme.surface.luminance() < DARK_LUMINANCE
@@ -56,7 +56,7 @@ internal fun AlbumCover(book: GrowthAlbum) {
         Box(Modifier.padding(top = 8.dp).size(60.dp).background(ink, CircleShape), contentAlignment = Alignment.Center) {
             Text(book.studentName.take(1), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = top)
         }
-        Text("${book.studentName}의\n${book.year.label}", style = handStyle(46.sp), color = ink, modifier = Modifier.semantics { heading() })
+        Text("${book.studentName}의\n${book.year.label}", style = storyStyle(30.sp), color = ink, modifier = Modifier.semantics { heading() })
         Text("${DateUtils.formatMonth(book.year.start)} – ${DateUtils.formatMonth(book.year.end)} · 좋았던 것만 모았어요", style = MaterialTheme.typography.bodySmall, color = ink.copy(alpha = SUB))
         Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(1.dp).background(ink.copy(alpha = LINE)))
         Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {

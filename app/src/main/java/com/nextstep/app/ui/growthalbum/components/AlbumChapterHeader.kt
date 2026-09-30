@@ -19,9 +19,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nextstep.app.ui.growthalbum.AlbumChapter
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 
-/** 장의 머리: 빛깔 네모 속 그림 · 손글씨 장 이름 · 한 줄 요약. */
+/** 장의 머리: 빛깔 네모 속 그림 · 장 이름 · 한 줄 요약. */
 @Composable
 internal fun AlbumChapterHeader(chapter: AlbumChapter, summary: String, modifier: Modifier = Modifier) {
     val (tint, container) = chapterColors(chapter)
@@ -30,7 +30,7 @@ internal fun AlbumChapterHeader(chapter: AlbumChapter, summary: String, modifier
             Icon(chapter.icon, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
         }
         Column {
-            Text(chapter.title, style = handStyle(32.sp), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { heading() })
+            Text(chapter.title, style = storyStyle(20.sp), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { heading() })
             if (summary.isNotBlank()) Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

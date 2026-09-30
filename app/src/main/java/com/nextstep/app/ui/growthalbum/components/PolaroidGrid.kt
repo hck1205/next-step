@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.sp
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.domain.album.AlbumActivity
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 
-/** "해 본 것": 두 줄 폴라로이드(빛깔 사진 칸에 활동 그림, 아래에 손글씨 이름 · 날 · 종류). 한 장씩 살짝 기울입니다. */
+/** "해 본 것": 두 줄 폴라로이드(빛깔 사진 칸에 활동 그림, 아래에 이름 · 날 · 종류). 한 장씩 살짝 기울입니다. */
 @Composable
 internal fun PolaroidGrid(activities: List<AlbumActivity>) {
     val cs = MaterialTheme.colorScheme
@@ -57,7 +57,7 @@ internal fun PolaroidGrid(activities: List<AlbumActivity>) {
                         Box(Modifier.fillMaxWidth().aspectRatio(PHOTO).background(bg, RoundedCornerShape(3.dp)), contentAlignment = Alignment.Center) {
                             Icon(activityIcon(a.type), contentDescription = null, tint = fg, modifier = Modifier.size(34.dp))
                         }
-                        Text(a.title, style = handStyle(24.sp), color = cs.onSurface)
+                        Text(a.title, style = storyStyle(16.sp), color = cs.onSurface)
                         Text("${DateUtils.formatShortDate(a.date)} · ${a.type.label}", style = MaterialTheme.typography.labelSmall, color = cs.onSurfaceVariant)
                     }
                 }

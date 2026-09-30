@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 
 /** 지난 이야기: 옆으로 넘기는 작은 쪽지들(그 주 · 자랑이나 해 보고 싶은 것 · 가족 즐거움). */
 @Composable
@@ -36,7 +36,7 @@ internal fun PastTalks(past: List<WeekPlanEntity>) {
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text("${DateUtils.formatShortDate(DateUtils.fromEpochDay(t.weekStart))} 주", style = MaterialTheme.typography.labelSmall, color = cs.onSurfaceVariant)
-                    Text(t.proud.ifBlank { t.wish }, style = handStyle(24.sp), color = cs.onSurface)
+                    Text(t.proud.ifBlank { t.wish }, style = storyStyle(16.sp), color = cs.onSurface)
                     if (t.treat.isNotBlank()) Text(t.treat, style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
                 }
             }

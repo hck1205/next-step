@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nextstep.app.domain.familytalk.TalkCard
 import com.nextstep.app.domain.familytalk.TalkPhase
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 
 /**
  * 오늘 화면의 주말 이야기 카드: 금~일에는 두 빛깔 초대장("같이 이야기하기"), 나눈 뒤에는 "이번 주 기대되는 것" 엽서(해 보고 싶은 것 · 가족 즐거움).
@@ -37,7 +37,7 @@ fun FamilyTalkCard(card: TalkCard, onOpen: () -> Unit) {
     when (card.phase) {
         TalkPhase.INVITE -> TalkInvite(onOpen)
         TalkPhase.LOOKING_FORWARD -> PostcardFrame(onClick = onOpen) {
-            Text("이번 주 기대되는 것", style = handStyle(32.sp), color = MaterialTheme.colorScheme.onSurface)
+            Text("이번 주 기대되는 것", style = storyStyle(20.sp), color = MaterialTheme.colorScheme.onSurface)
             if (card.wish.isNotBlank()) PostcardLine("해 보고 싶은 것", Icons.Filled.Eco, card.wish)
             if (card.treat.isNotBlank()) PostcardLine("가족 즐거움", Icons.Filled.Celebration, card.treat)
             Text("주말 이야기 보기 ›", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
@@ -58,7 +58,7 @@ private fun TalkInvite(onOpen: () -> Unit) {
             Icon(Icons.Filled.AutoAwesome, contentDescription = null, tint = cs.primary, modifier = Modifier.size(16.dp))
             Text("주말 이야기", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = cs.primary)
         }
-        Text("이번 주 반짝인 순간을\n모아 두었어요", style = handStyle(34.sp), color = cs.onSurface)
+        Text("이번 주 반짝인 순간을\n모아 두었어요", style = storyStyle(22.sp), color = cs.onSurface)
         Text("좋았던 것만 모았어요. 다음 주에 기대되는 것도 같이 골라요.", style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
         Button(onClick = onOpen) { Text("같이 이야기하기") }
     }

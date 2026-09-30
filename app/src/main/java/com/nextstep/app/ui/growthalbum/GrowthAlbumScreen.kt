@@ -34,7 +34,7 @@ import com.nextstep.app.ui.growthalbum.components.AlbumChapterHeader
 import com.nextstep.app.ui.growthalbum.components.AlbumChapterNav
 import com.nextstep.app.ui.growthalbum.components.AlbumCover
 import com.nextstep.app.ui.growthalbum.components.albumSummary
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 import kotlinx.coroutines.launch
 
 @Composable
@@ -70,7 +70,7 @@ internal fun GrowthAlbumContent(state: GrowthAlbumUiState, caps: Capabilities, o
             }
         }
         Column(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("한 해를 한 권으로", style = handStyle(32.sp), color = MaterialTheme.colorScheme.onSurface)
+            Text("한 해를 한 권으로", style = storyStyle(20.sp), color = MaterialTheme.colorScheme.onSurface)
             Text("할머니·할아버지께 보내 보세요", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         }
         state.album?.let { ExportShareRow(it, "nextstep-growth-album", pdf = caps.has(Feature.PDF_EXPORT)) }

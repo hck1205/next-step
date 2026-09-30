@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nextstep.app.domain.album.AlbumTalk
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.theme.handStyle
+import com.nextstep.app.ui.theme.storyStyle
 
-/** "나눈 이야기": 주말 이야기에서 자랑한 것을 인용 카드로(손글씨), 아래에 그 주 · 해 보고 싶었던 것. 최근 것부터 [MAX] 개. */
+/** "나눈 이야기": 주말 이야기에서 자랑한 것을 인용 카드로, 아래에 그 주 · 해 보고 싶었던 것. 최근 것부터 [MAX] 개. */
 @Composable
 internal fun TalkQuotes(talks: List<AlbumTalk>) {
     val cs = MaterialTheme.colorScheme
@@ -32,7 +32,7 @@ internal fun TalkQuotes(talks: List<AlbumTalk>) {
             Row(Modifier.fillMaxWidth().background(cs.surface, shape).border(1.dp, cs.outlineVariant, shape).padding(14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Icon(Icons.Filled.FormatQuote, contentDescription = null, tint = cs.primary, modifier = Modifier.size(22.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(t.proud.ifBlank { t.wish }, style = handStyle(27.sp), color = cs.onSurface)
+                    Text(t.proud.ifBlank { t.wish }, style = storyStyle(17.sp), color = cs.onSurface)
                     val more = listOfNotNull("${DateUtils.formatShortDate(t.week)} 주", t.wish.takeIf { it.isNotBlank() && t.proud.isNotBlank() }?.let { "해 보고 싶은 것: $it" })
                     Text(more.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant)
                 }
