@@ -2,25 +2,25 @@ package com.nextstep.app.ui.familytalk.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.nextstep.app.ui.components.card.AppCard
-import com.nextstep.app.ui.components.input.ChipRow
+import com.nextstep.app.ui.components.card.StoryHero
+import com.nextstep.app.ui.components.input.HandTextField
+import com.nextstep.app.ui.components.input.OptionCardGrid
 
-/** 하나 고르기 단계: 제목 · 안내 · 고르기 칩(다시 누르면 비움) · 직접 적기. 비워 두고 넘어가도 됩니다. */
+/**
+ * 하나 고르기 걸음: 손글씨 질문 → 크게 누르는 고르기 카드(다시 누르면 비움) → 공책에 적듯 직접 쓰기. 비워 두고 넘어가도 됩니다.
+ * [wide] 면 고르기 카드를 한 줄에 하나(자랑처럼 긴 말).
+ */
 @Composable
-internal fun ChoiceStep(title: String, hint: String, ideas: List<String>, value: String, onChange: (String) -> Unit) {
-    AppCard {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (ideas.isNotEmpty()) ChipRow(ideas, selected = { it == value }, label = { it }, onClick = { onChange(if (it == value) "" else it) })
-            OutlinedTextField(value, onChange, label = { Text("직접 적기") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        }
+internal fun ChoiceStep(title: String, hint: String, icon: ImageVector, ideas: List<String>, value: String, onChange: (String) -> Unit, wide: Boolean = false) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        StoryHero(title, hint, icon)
+        if (ideas.isNotEmpty()) OptionCardGrid(ideas, ::ideaIcon, value, onChange, wide)
+        HandTextField(
+            value = if (value in ideas) "" else value, onChange = onChange,
+            label = if (ideas.isEmpty()) "직접 적어요" else "아니면 직접 적어요", placeholder = "여기에 적어요",
+        )
     }
 }

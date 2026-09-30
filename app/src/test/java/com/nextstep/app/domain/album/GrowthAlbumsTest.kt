@@ -1,15 +1,18 @@
 package com.nextstep.app.domain.album
 
+import com.nextstep.app.data.local.entity.CheerEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
 import com.nextstep.app.data.model.GoalStatus
+import com.nextstep.app.domain.cheer.CheerKind
 import com.nextstep.app.domain.period.PeriodRecords
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.testing.Fixtures
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalTime
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class GrowthAlbumsTest {
     private val today = LocalDate.of(2029, 11, 20)
@@ -35,5 +38,32 @@ class GrowthAlbumsTest {
         assertEquals(listOf("현장학습 · 과학관"), doc.sections[3].lines.map { it.replace(Regex("^[^·]+"), "현장학습 ") })
         assertEquals(listOf("130cm → 134.5cm (+4.5cm)"), doc.sections[4].lines)
         assertTrue(doc.text().lines().none { it.contains("밀림") })
+    }
+
+    @Test
+    fun bookIsTheSameYearDrawnChapterByChapter() {
+        val year = GrowthAlbums.year(today)
+        val days = listOf(3L, 4L, 5L, 9L).map { LocalDate.of(2029, 9, 1).plusDays(it) }
+        val r = PeriodRecords(
+            sessions = days.map { Fixtures.session("math", it, LocalTime.of(9, 0), 30) } + Fixtures.session("math", LocalDate.of(2028, 9, 4), LocalTime.of(9, 0), 30),
+            goals = listOf(Fixtures.goal("구구단", status = GoalStatus.DONE).copy(doneAt = DateUtils.toMillis(LocalDate.of(2029, 6, 1), LocalTime.NOON)), Fixtures.goal("진행 중")),
+            activities = listOf(Fixtures.activity("과학관", date = LocalDate.of(2029, 5, 5))),
+            cheers = listOf(CheerEntity(familyId = "fam", taskId = "t", taskTitle = "분수", kind = "STAR", fromName = "아빠", createdAt = DateUtils.toMillis(LocalDate.of(2029, 5, 2), LocalTime.NOON))),
+        )
+        val plans = listOf(
+            WeekPlanEntity(familyId = "fam", weekStart = LocalDate.of(2029, 9, 3).toEpochDay(), proud = "줄넘기 100개", wish = "자전거 타기", talkAt = 1L),
+            WeekPlanEntity(familyId = "fam", weekStart = LocalDate.of(2029, 9, 10).toEpochDay(), talkAt = 1L), // 빈 이야기는 넣지 않음
+        )
+        val growth = listOf(Fixtures.growth(LocalDate.of(2029, 3, 10), height = 130.0), Fixtures.growth(LocalDate.of(2029, 10, 10), height = 134.5))
+        val b = GrowthAlbums.book("", year, r, plans, growth, today)
+        assertEquals("우리 아이", b.studentName); assertEquals(listOf("구구단"), b.goals.map { it.title })
+        assertEquals(4, b.studyDays); assertEquals(3, b.longestStreak) // 작년 기록은 빠짐, 9/4~9/6 사흘 연속
+        assertEquals(LocalDate.of(2029, 2, 26), b.studyWeeks.first().monday); assertEquals(DateUtils.weekStart(today), b.studyWeeks.last().monday)
+        assertEquals(4, b.studyWeeks.sumOf { it.activeDays })
+        assertEquals(listOf("과학관"), b.activities.map { it.title }); assertEquals(4.5, b.height!!.gainCm, 0.001)
+        assertEquals(CheerKind.STAR, b.cheers.single().kind); assertEquals("아빠", b.cheers.single().fromName)
+        assertEquals(listOf("줄넘기 100개"), b.talks.map { it.proud }); assertFalse(b.isEmpty)
+        assertTrue(GrowthAlbums.book("지우", GrowthAlbums.year(today, 1), PeriodRecords(), emptyList(), emptyList(), today).isEmpty)
+        assertEquals("134.5", GrowthAlbums.cm(134.5)); assertEquals("141", GrowthAlbums.cm(141.0))
     }
 }

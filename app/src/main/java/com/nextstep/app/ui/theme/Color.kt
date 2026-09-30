@@ -5,6 +5,9 @@ import androidx.compose.ui.graphics.Color
 val Indigo = Color(0xFF4F46E5)
 val IndigoLight = Color(0xFFE0E7FF)
 val IndigoDark = Color(0xFF3730A3)
+/** 성장 앨범 표지의 짙은 남색(밝은 테마 아래쪽 · 어두운 테마 아래쪽). */
+val IndigoDeep = Color(0xFF312E81)
+val IndigoNight = Color(0xFF1E1B4B)
 val Emerald = Color(0xFF10B981)
 val EmeraldLight = Color(0xFFD1FAE5)
 val Amber = Color(0xFFF59E0B)

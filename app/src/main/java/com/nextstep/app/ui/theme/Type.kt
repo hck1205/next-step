@@ -41,3 +41,14 @@ val Typography = Typography(
     labelMedium = style(FontWeight.Medium, 12.sp, 17.sp),
     labelSmall = style(FontWeight.Medium, 11.sp, 16.sp),
 )
+
+/**
+ * 손글씨: NextStep Hand(나눔손글씨 펜의 부분 집합, SIL OFL 1.1, 라이선스는 assets/licenses/nanum_pen_script_ofl.txt).
+ * 가족의 순간(주말 이야기 · 성장 앨범)의 제목과 가족이 고른 말에만 아껴 씁니다. 획이 가늘어 본문보다 크게 씁니다.
+ */
+val HandFont = FontFamily(Font(R.font.next_hand, FontWeight.Normal))
+
+/** 손글씨 글자 모양. 줄 간격은 크기의 1.1배. */
+fun handStyle(size: TextUnit): TextStyle = TextStyle(fontFamily = HandFont, fontWeight = FontWeight.Normal, fontSize = size, lineHeight = size * HAND_LINE, letterSpacing = 0.sp)
+
+private const val HAND_LINE = 1.1f

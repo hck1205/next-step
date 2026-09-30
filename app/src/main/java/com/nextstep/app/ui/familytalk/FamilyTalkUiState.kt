@@ -20,6 +20,8 @@ data class FamilyTalkUiState(
     val studentName: String = "",
     /** 그 주에 이미 나눈 이야기(있으면 요약을 먼저 보여 주고, 고칠 때 채워 둠). */
     val saved: WeekPlanEntity? = null,
+    /** 지난 이야기(가까운 주부터). */
+    val past: List<WeekPlanEntity> = emptyList(),
     val loaded: Boolean = false,
 ) {
     val talked: Boolean get() = saved?.talkAt != null

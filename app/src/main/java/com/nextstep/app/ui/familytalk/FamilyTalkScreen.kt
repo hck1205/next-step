@@ -1,5 +1,6 @@
 package com.nextstep.app.ui.familytalk
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nextstep.app.domain.access.Capabilities
-import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
+import com.nextstep.app.ui.familytalk.components.PastTalks
+import com.nextstep.app.ui.familytalk.components.TalkPostcard
 import com.nextstep.app.ui.familytalk.components.TalkSteps
-import com.nextstep.app.ui.familytalk.components.TalkSummaryCard
 
 @Composable
 fun FamilyTalkScreen(caps: Capabilities, viewModel: FamilyTalkViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
@@ -29,23 +30,20 @@ fun FamilyTalkScreen(caps: Capabilities, viewModel: FamilyTalkViewModel = viewMo
     FamilyTalkContent(state = state, canTalk = caps.isFamily, onEvent = viewModel::onEvent)
 }
 
-/** 주말 이야기: 이미 나눴으면 요약(다시 이야기하기), 아니면 네 단계. 머리에는 이야기하는 주. */
+/** 주말 이야기: 이미 나눴으면 "다음 주 카드" 엽서(다시 이야기하기), 아니면 네 걸음. 아래에 지난 이야기. */
 @Composable
 internal fun FamilyTalkContent(state: FamilyTalkUiState, canTalk: Boolean, onEvent: (FamilyTalkEvent) -> Unit) {
     if (!state.loaded) return
     var editing by rememberSaveable(state.week) { mutableStateOf(false) }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            "${DateUtils.formatShortDate(state.week)} – ${DateUtils.formatShortDate(state.week.plusDays(LAST_DAY))} 주를 닫고, 다음 주를 열어요",
-            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp).animateContentSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         val saved = state.saved
         if (saved != null && state.talked && !editing) {
-            TalkSummaryCard(saved, state.lookForward.firstOrNull(), onEdit = if (canTalk) ({ editing = true }) else null)
+            TalkPostcard(saved, state.week, state.lookForward.firstOrNull(), state.today, onEdit = if (canTalk) ({ editing = true }) else null)
         } else if (canTalk) {
             TalkSteps(state, onSave = { proud, wish, treat -> onEvent(FamilyTalkEvent.Save(proud, wish, treat)); editing = false })
+        } else {
+            Text("주말 이야기는 가족이 함께 나눠요", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        PastTalks(state.past)
     }
 }
-
-private const val LAST_DAY = 6L

@@ -78,6 +78,11 @@ object FamilyTalk {
         }
     }
 
+    /** [week] 앞에 나눈 이야기(자랑이나 해 보고 싶은 것이 있는 것만, 가까운 주부터 [MAX_PAST] 개). */
+    fun past(plans: List<WeekPlanEntity>, week: LocalDate): List<WeekPlanEntity> =
+        plans.filter { !it.deleted && it.talkAt != null && it.weekStart < week.toEpochDay() && (it.proud.isNotBlank() || it.wish.isNotBlank()) }
+            .sortedByDescending { it.weekStart }.take(MAX_PAST)
+
     /** [week] 주의 이야기를 이미 나눴는지. */
     fun talked(plans: List<WeekPlanEntity>, week: LocalDate): Boolean = plans.any { !it.deleted && it.weekStart == week.toEpochDay() && it.talkAt != null }
 
@@ -92,4 +97,5 @@ object FamilyTalk {
     private val FUN = setOf(FamilyEventKind.OUTING, FamilyEventKind.CELEBRATION, FamilyEventKind.FAMILY, FamilyEventKind.PROMISE)
     private const val DAYS_IN_WEEK = 7L
     private const val MAX_IDEAS = 6
+    private const val MAX_PAST = 4
 }

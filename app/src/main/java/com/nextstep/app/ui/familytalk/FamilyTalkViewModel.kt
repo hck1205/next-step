@@ -43,7 +43,7 @@ class FamilyTalkViewModel(
         FamilyTalkUiState(
             week = week, today = day, highlights = highlights, proudIdeas = FamilyTalk.proudIdeas(week, d.tasks, highlights),
             lookForward = FamilyTalk.lookForward(family, week), members = FamilyCalendar.family(d.members), studentName = student?.name.orEmpty(),
-            saved = plans.firstOrNull { !it.deleted && it.weekStart == week.toEpochDay() }, loaded = true,
+            saved = plans.firstOrNull { !it.deleted && it.weekStart == week.toEpochDay() }, past = FamilyTalk.past(plans, week), loaded = true,
         )
     }.asUiState(viewModelScope, FamilyTalkUiState())
 

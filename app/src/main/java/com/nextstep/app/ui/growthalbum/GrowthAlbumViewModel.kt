@@ -25,7 +25,8 @@ class GrowthAlbumViewModel(
 
     val state: StateFlow<GrowthAlbumUiState> = combine(yearsBack, study, family) { back, r, (plans, growth, members) ->
         val name = members.firstOrNull { it.isStudent && !it.deleted }?.name.orEmpty()
-        GrowthAlbumUiState(back, GrowthAlbums.album(name, GrowthAlbums.year(today(), back), r, plans, growth), loaded = true)
+        val year = GrowthAlbums.year(today(), back)
+        GrowthAlbumUiState(back, GrowthAlbums.book(name, year, r, plans, growth, today()), GrowthAlbums.album(name, year, r, plans, growth), loaded = true)
     }.asUiState(viewModelScope, GrowthAlbumUiState())
 
     fun onEvent(event: GrowthAlbumEvent) {

@@ -7,12 +7,12 @@ import com.nextstep.app.domain.feedback.FeedbackKind
 import com.nextstep.app.domain.feedback.Finding
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.testing.Fixtures
+import java.time.LocalDate
+import java.time.LocalTime
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalTime
 
 class FamilyTalkTest {
     private val monday = LocalDate.of(2029, 3, 5)
@@ -60,5 +60,16 @@ class FamilyTalkTest {
         assertEquals(TalkPhase.LOOKING_FORWARD, FamilyTalk.card(next.plusDays(3), listOf(talked)).phase) // 다음 주 목요일까지
         assertEquals(TalkPhase.INVITE, FamilyTalk.card(next.plusDays(4), listOf(talked)).phase) // 다음 주 금요일엔 새 이야기
         assertTrue(FamilyTalk.talked(listOf(talked), monday)); assertFalse(FamilyTalk.talked(listOf(talked.copy(talkAt = null)), monday))
+    }
+
+    @Test
+    fun pastKeepsOnlyEarlierWeeksWithSomethingSaid() {
+        fun talk(weeksBack: Long, proud: String = "", wish: String = "", at: Long? = 1L) =
+            WeekPlanEntity(familyId = "fam", weekStart = monday.minusWeeks(weeksBack).toEpochDay(), proud = proud, wish = wish, talkAt = at)
+        val plans = listOf(
+            talk(0, proud = "이번 주"), talk(1, proud = "줄넘기"), talk(2, wish = "자전거"), talk(3), talk(4, proud = "안 나눔", at = null),
+            talk(5, proud = "5"), talk(6, proud = "6"), talk(7, proud = "7"),
+        )
+        assertEquals(listOf("줄넘기", "자전거", "5", "6"), FamilyTalk.past(plans, monday).map { it.proud.ifBlank { it.wish } })
     }
 }

@@ -29,6 +29,7 @@ class FamilyTalkViewModelTest : ViewModelTestBase() {
         val s = settle(vm.state)
         assertEquals(monday, s.week); assertEquals(1, s.highlights.doneTasks); assertEquals(listOf("분수"), s.proudIdeas)
         assertEquals(listOf("캠핑"), s.lookForward.map { it.event.title }); assertEquals("지우", s.studentName); assertFalse(s.talked)
+        assertTrue(s.past.isEmpty())
         vm.onEvent(FamilyTalkEvent.Save("분수", "자전거 타기", "보드게임 밤"))
         val after = settle(vm.state)
         assertTrue(after.talked); assertEquals("자전거 타기", after.saved!!.wish)
