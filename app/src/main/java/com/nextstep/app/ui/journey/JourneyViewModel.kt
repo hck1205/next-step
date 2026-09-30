@@ -6,6 +6,7 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
 import com.nextstep.app.data.local.entity.JourneyItemEntity
 import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.prefs.UserProfile
 import com.nextstep.app.data.repository.FamilyDataStreams
@@ -64,9 +65,9 @@ class JourneyViewModel(
             items = items,
             periods = ctx.periods,
             currentPeriodKey = ctx.currentPeriodKey,
-            goals = goals.filter { !it.deleted },
+            goals = goals.live(),
             steps = steps,
-            activities = activities.filter { !it.deleted },
+            activities = activities.live(),
             curriculum = CurriculumCatalog.forPeriod(ctx.currentPeriodKey),
             completion = JourneyPlanner.completion(items, day),
             loaded = true,

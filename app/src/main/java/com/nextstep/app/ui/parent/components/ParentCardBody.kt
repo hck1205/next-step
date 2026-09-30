@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.today.ParentTodayCard
 import com.nextstep.app.ui.common.UiDefaults
@@ -51,7 +52,7 @@ internal fun ParentCardBody(card: ParentTodayCard, state: ParentDashboardUiState
         }
         ParentTodayCard.TODAY -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             if (state.pendingTasks.isEmpty() && state.todayEvents.isEmpty()) EmptyCard("오늘은 잡힌 할 일과 일정이 없어요")
-            state.pendingTasks.take(rows).forEach { t -> PendingTaskRow(t, state.subjects.firstOrNull { it.id == t.subjectId }) }
+            state.pendingTasks.take(rows).forEach { t -> PendingTaskRow(t, state.subjects.byId(t.subjectId)) }
             state.todayEvents.take(rows).forEach { occ -> EventRow(occ, state.subjects) }
             if (!compact) TextButton(onClick = { actions.onOpenRecords(ConcernSection.CALENDAR) }) {
                 Text(if (state.pendingTasks.size > rows) "할 일 ${state.pendingTasks.size - rows}개 더 · 일정 전체" else "일정 전체")

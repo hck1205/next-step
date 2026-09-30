@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.journey
 
 import com.nextstep.app.data.local.entity.JourneyItemEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.text.ratioOf
@@ -16,7 +17,7 @@ object JourneyPlanner {
      * @param stored 저장된 상태·직접 추가 항목.
      */
     fun build(birthDate: LocalDate?, stored: List<JourneyItemEntity>, today: LocalDate): List<JourneyItem> {
-        val overrides = stored.filter { !it.deleted }.mapNotNull { item -> item.templateId?.let { it to item } }.toMap()
+        val overrides = stored.live().mapNotNull { item -> item.templateId?.let { it to item } }.toMap()
         val fromCatalog = if (birthDate == null) emptyList() else MilestoneCatalog.templates.map { t ->
             val saved = overrides[t.id]
             val due = saved?.dueDate?.let { LocalDate.ofEpochDay(it) } ?: t.due.dueDate(birthDate)

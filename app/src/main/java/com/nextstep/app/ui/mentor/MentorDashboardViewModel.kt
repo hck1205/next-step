@@ -14,6 +14,7 @@ import com.nextstep.app.data.repository.LessonRepository
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.ReportLogRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackEngine
 import com.nextstep.app.domain.feedback.FeedbackVoice
@@ -109,7 +110,7 @@ class MentorDashboardViewModel(
         viewModelScope.launch {
             val draft = TaskDrafts.written(title, subjectId, type, due, streams.actingRoleName())
             tasks.save(draft)
-            if (alsoTo.isNotEmpty()) bulk.assign(draft, alsoTo, state.value.allSubjects.firstOrNull { it.id == subjectId }?.name)
+            if (alsoTo.isNotEmpty()) bulk.assign(draft, alsoTo, state.value.allSubjects.byId(subjectId)?.name)
         }
     }
 

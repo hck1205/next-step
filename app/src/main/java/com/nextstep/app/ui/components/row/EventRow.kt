@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
@@ -19,7 +20,7 @@ import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 fun EventRow(occ: EventOccurrence, subjects: List<SubjectEntity>) {
-    val subject = subjects.firstOrNull { it.id == occ.event.subjectId }
+    val subject = subjects.byId(occ.event.subjectId)
     AppCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.width(56.dp)) {

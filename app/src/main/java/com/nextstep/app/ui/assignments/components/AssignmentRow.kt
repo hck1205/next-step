@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.SubjectTag
@@ -23,7 +24,7 @@ internal fun AssignmentRow(task: TaskEntity, subjects: List<SubjectEntity>, toda
     AppCard {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                subjects.firstOrNull { it.id == task.subjectId }?.let { SubjectTag(it) }
+                subjects.byId(task.subjectId)?.let { SubjectTag(it) }
                 Text(task.title, style = MaterialTheme.typography.bodyLarge, textDecoration = if (task.done) TextDecoration.LineThrough else null)
             }
             val due = DateUtils.fromEpochDay(task.dueDate)

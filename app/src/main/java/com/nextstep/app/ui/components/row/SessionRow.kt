@@ -13,13 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 fun SessionRow(s: StudySessionEntity, subjects: List<SubjectEntity>, onDelete: (() -> Unit)? = null) {
-    val subject = subjects.firstOrNull { it.id == s.subjectId }
+    val subject = subjects.byId(s.subjectId)
     AppCard {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {

@@ -4,6 +4,7 @@ import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.stats.BalanceStats
@@ -37,7 +38,7 @@ object SelfDirection {
     /** 그 주(월~일)에 공부한 분. */
     fun minutesIn(sessions: List<StudySessionEntity>, weekStart: LocalDate, zone: ZoneId = DateUtils.zone): Int {
         val end = weekStart.plusDays(DAYS_IN_WEEK)
-        return sessions.filter { !it.deleted }.filter {
+        return sessions.live().filter {
             val day = DateUtils.toLocalDate(it.startAt, zone)
             !day.isBefore(weekStart) && day.isBefore(end)
         }.sumOf { it.durationMinutes }

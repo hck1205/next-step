@@ -1,9 +1,11 @@
 package com.nextstep.app.domain.gamify
 
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.goaltree.GoalTree
 import com.nextstep.app.domain.project.ProjectPlanner
+import com.nextstep.app.domain.stats.day
 import com.nextstep.app.domain.task.doneOn
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.time.Streaks
@@ -29,7 +31,7 @@ object Gamify {
             onTime = done.count { t -> t.doneOn(zone)?.let { it.toEpochDay() <= t.dueDate } == true },
             selfDone = done.count { it.isStudentMade },
             routines = input.logs.count { !it.deleted },
-            studyMinutes = input.sessions.filter { !it.deleted }.sumOf { it.durationMinutes },
+            studyMinutes = input.sessions.live().sumOf { it.durationMinutes },
             weekPlans = input.plans.count { !it.deleted && it.hasPlan },
             reflections = input.plans.count { !it.deleted && it.isReflected },
             goals = GoalTree.treeGoals(input.goals).count { it.status == GoalStatus.DONE },
@@ -78,7 +80,7 @@ object Gamify {
             val goals = plan?.goalList.orEmpty()
             if (plan == null || goals.isEmpty()) WeekChallenge("이번 주 계획 세우기", 0, 1) else WeekChallenge("내 계획 지키기", plan.doneCount, goals.size)
         } else {
-            val live = input.tasks.filter { !it.deleted }
+            val live = input.tasks.live()
             val due = live.count { it.dueDate in week }
             val done = live.count { t -> t.done && (t.doneOn(zone)?.let { it.toEpochDay() in week } ?: (t.dueDate in week)) }
             WeekChallenge("할 일 끝내기", done, due.coerceIn(MIN_WEEK_TASKS, MAX_WEEK_TASKS))
@@ -91,9 +93,9 @@ object Gamify {
 
     /** 스티커 한 장씩의 날짜: 끝낸 할 일 · 루틴 기록 · 공부 기록 하나마다. */
     fun stickerDays(input: GameInputs, zone: ZoneId = DateUtils.zone): List<LocalDate> =
-        input.tasks.filter { !it.deleted }.mapNotNull { it.doneOn(zone) } +
-            input.logs.filter { !it.deleted }.map { LocalDate.ofEpochDay(it.date) } +
-            input.sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt, zone) }
+        input.tasks.live().mapNotNull { it.doneOn(zone) } +
+            input.logs.live().map { LocalDate.ofEpochDay(it.date) } +
+            input.sessions.live().map { it.day(zone) }
 
     private fun weekOf(today: LocalDate): LongRange {
         val monday = DateUtils.weekStart(today)

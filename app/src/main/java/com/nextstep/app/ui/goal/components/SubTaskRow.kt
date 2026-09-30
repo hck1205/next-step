@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.goaltree.Assigner
 import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.time.DateUtils
@@ -32,7 +33,7 @@ internal fun SubTaskRow(task: TaskEntity, subjects: List<SubjectEntity>, today: 
             val whenLine = if (task.done) task.doneAt?.let { "${DateUtils.formatDate(DateUtils.toLocalDate(it))} 끝냄" } ?: "끝냄"
             else (if (overdue) "밀림 · " else "") + "마감 ${DateUtils.formatDate(DateUtils.fromEpochDay(task.dueDate))}"
             Text(
-                listOfNotNull(who, whenLine, subjects.firstOrNull { it.id == task.subjectId }?.name, task.type.label).joinToString(" · "),
+                listOfNotNull(who, whenLine, subjects.byId(task.subjectId)?.name, task.type.label).joinToString(" · "),
                 style = MaterialTheme.typography.labelSmall, color = if (overdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

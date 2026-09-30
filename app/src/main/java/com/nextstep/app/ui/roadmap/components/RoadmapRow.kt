@@ -26,13 +26,14 @@ import com.nextstep.app.data.local.entity.RoadmapItemEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.domain.access.Capabilities
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 internal fun RoadmapRow(item: RoadmapItemEntity, subjects: List<SubjectEntity>, caps: Capabilities, linked: ContentEntity?, onStatus: (RoadmapStatus) -> Unit, onEdit: () -> Unit, onOpenLinked: (ContentEntity) -> Unit) {
-    val subject = subjects.firstOrNull { it.id == item.subjectId }
+    val subject = subjects.byId(item.subjectId)
     val done = item.status == RoadmapStatus.DONE
     val overdue = !done && item.targetDate != null && item.targetDate < DateUtils.today().toEpochDay()
     AppCard(onClick = if (caps.canEditRoadmap) onEdit else null) {

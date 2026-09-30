@@ -2,6 +2,7 @@ package com.nextstep.app.domain.journey
 
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.GoalStepEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.domain.text.ratioOf
 
@@ -43,7 +44,7 @@ object GoalPlanner {
 
     /** 목표가 저장된 단계를 모두 끝냈는지. */
     fun isComplete(steps: List<GoalStepEntity>): Boolean =
-        steps.any { !it.deleted } && steps.filter { !it.deleted }.all { it.status.isClosed }
+        steps.live().let { live -> live.isNotEmpty() && live.all { it.status.isClosed } }
 
     fun stepsOf(goal: GoalEntity, steps: List<GoalStepEntity>): List<GoalStepEntity> =
         steps.filter { it.goalId == goal.id && !it.deleted }.sortedBy { it.orderIndex }

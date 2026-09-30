@@ -8,6 +8,7 @@ import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.RoadmapStatus
 import com.nextstep.app.data.model.Role
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.time.DateUtils
@@ -28,7 +29,7 @@ object StudyPlanner {
         // 2. 로드맵: 진행 중 → 예정 순, 목표일 빠른 순
         queue += roadmap.filter { it.status != RoadmapStatus.DONE }
             .sortedWith(compareBy<RoadmapItemEntity> { it.status != RoadmapStatus.IN_PROGRESS }.thenBy { it.targetDate ?: Long.MAX_VALUE }.thenBy { it.orderIndex })
-            .map { r -> PlanItem(subjects.firstOrNull { it.id == r.subjectId }, "로드맵: ${r.title}", TaskType.OTHER, roadmapId = r.id) }
+            .map { r -> PlanItem(subjects.byId(r.subjectId), "로드맵: ${r.title}", TaskType.OTHER, roadmapId = r.id) }
         // 3. 예습
         val previewLists = progress.map { p -> p.previewQueue.take(1).map { t -> PlanItem(p.subject, "예습: ${p.subject.name} ${t.title}", TaskType.PREVIEW, topicId = t.id) } }
         queue += interleave(previewLists)

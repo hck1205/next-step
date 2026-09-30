@@ -2,6 +2,7 @@ package com.nextstep.app.domain.goaltree
 
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.TaskType
@@ -67,7 +68,7 @@ object GoalTree {
 
     /** 이 목표가 이어지는 목표들(바로 위부터 맨 위까지). 끊기거나 순환이면 거기서 멈춥니다. */
     fun chain(goal: GoalEntity, goals: List<GoalEntity>): List<GoalEntity> {
-        val byId = goals.filter { !it.deleted }.associateBy { it.id }
+        val byId = goals.live().associateBy { it.id }
         val out = mutableListOf<GoalEntity>()
         val seen = mutableSetOf(goal.id)
         var cursor = goal.leadsTo?.let { byId[it] }

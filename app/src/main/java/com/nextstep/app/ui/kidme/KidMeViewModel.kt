@@ -2,7 +2,9 @@ package com.nextstep.app.ui.kidme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.repository.FamilyDataStreams
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.reward.RewardStatus
@@ -26,14 +28,14 @@ class KidMeViewModel(
             studentName = profile.studentName,
             today = day,
             board = StickerStats.board(sessions, tasks, activities, day),
-            recentActivities = activities.filter { !it.deleted }.sortedByDescending { it.date }.take(RECENT_ACTIVITIES),
+            recentActivities = activities.live().sortedByDescending { it.date }.take(RECENT_ACTIVITIES),
             loaded = true,
         )
     }
 
     /** 나의 스티커판과 약속한 선물: 모양은 화면 단계(나이)가 정하고, 학부모가 꺼 두면 스티커판은 없고 선물만 남습니다. */
     val state: StateFlow<KidMeUiState> = combine(base, streams.members, streams.gameInputs(), streams.rewards) { s, members, input, list ->
-        val student = members.firstOrNull { it.isStudent }
+        val student = members.student()
         val profile = Gamify.profile(input, s.today, style = StudentScreen.of(student, s.today).level.game)
         s.copy(
             game = profile.takeIf { student?.gamify != false },

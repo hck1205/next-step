@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.album.GrowthAlbums
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.period.PeriodReports
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
@@ -22,7 +23,7 @@ class GrowthAlbumViewModel(
     private val family = combine(streams.weekPlans, streams.growthRecords, streams.members) { p, g, m -> Triple(p, g, m) }
 
     val state: StateFlow<GrowthAlbumUiState> = combine(yearsBack, streams.periodRecords(), family) { back, r, (plans, growth, members) ->
-        val name = members.firstOrNull { it.isStudent && !it.deleted }?.name.orEmpty()
+        val name = members.student()?.name.orEmpty()
         val year = GrowthAlbums.year(today(), back)
         val book = GrowthAlbums.book(name, year, r, plans, growth, today())
         GrowthAlbumUiState(back, book, GrowthAlbums.doc(book, PeriodReports.stats(year, r)), loaded = true)

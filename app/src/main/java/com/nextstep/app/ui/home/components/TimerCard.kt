@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.growth.StudentWords
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
@@ -31,7 +32,7 @@ import com.nextstep.app.ui.home.HomeUiState
 internal fun TimerCard(state: HomeUiState, words: StudentWords, big: Boolean, goalMinutes: Int?, onOpenTimer: () -> Unit) {
     val goalLine = goalMinutes?.takeIf { it > 0 }?.let { goal -> if (big) "오늘 ${goal}분이면 충분해요" else "오늘 목표 ${goal}분 · ${state.todayMinutes}분 했어요" }
     val running = state.runningTimer
-    val subject = running?.let { r -> state.subjects.firstOrNull { it.id == r.subjectId } }
+    val subject = running?.let { r -> state.subjects.byId(r.subjectId) }
     AppCard(onClick = onOpenTimer) {
         if (big) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

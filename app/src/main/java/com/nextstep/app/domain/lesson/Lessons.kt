@@ -2,6 +2,7 @@ package com.nextstep.app.domain.lesson
 
 import com.nextstep.app.data.local.entity.LessonEntity
 import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.YearMonth
@@ -14,7 +15,7 @@ import java.time.temporal.ChronoUnit
 object Lessons {
 
     fun month(plan: LessonPlan, records: List<LessonEntity>, month: YearMonth): List<LessonDay> {
-        val byDate = records.filter { !it.deleted }.associateBy { DateUtils.fromEpochDay(it.date) }
+        val byDate = records.live().associateBy { DateUtils.fromEpochDay(it.date) }
         val planned = (1..month.lengthOfMonth()).map { month.atDay(it) }.filter { it.dayOfWeek in plan.days }
         val extra = byDate.keys.filter { YearMonth.from(it) == month && it !in planned }
         return (planned.map { d -> day(d, byDate[d], extra = false) } + extra.map { d -> day(d, byDate[d], extra = true) }).sortedBy { it.date }

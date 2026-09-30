@@ -2,6 +2,7 @@ package com.nextstep.app.data.school
 
 import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.repository.FamilyEventRepository
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.school.School
 import com.nextstep.app.domain.school.SchoolCalendar
 import java.time.LocalDate
@@ -21,7 +22,7 @@ class NeisSchoolService(
     }
 
     override suspend fun syncNow(today: LocalDate): Result<Int> = runCatching {
-        val student = members.first().firstOrNull { it.isStudent && !it.deleted } ?: return@runCatching 0
+        val student = members.first().student() ?: return@runCatching 0
         val school = School.fromKey(student.schoolCode, student.schoolName) ?: return@runCatching 0
         if (!api.available) return@runCatching 0
         val (from, to) = SchoolCalendar.yearRange(today)

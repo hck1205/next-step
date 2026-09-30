@@ -13,6 +13,7 @@ import com.nextstep.app.data.local.entity.ProjectLogEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.domain.family.StudentContext
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
@@ -82,7 +83,7 @@ class OverviewViewModel(
                 ConcernDigests.learn(learn.review, learn.progress),
                 ConcernDigests.project(ProjectPlanner.progressAll(e.goals, e.steps, e.logs, s.today)),
                 ConcernDigests.exams(MissionPlanner.focus(e.goals, e.steps, s.today), e.grades),
-                ConcernDigests.growth(GrowthStats.summarize(g.records.filter { !it.deleted }, s.today), g.records.filter { !it.deleted }.sortedBy { it.date }.mapNotNull { it.heightCm }),
+                ConcernDigests.growth(GrowthStats.summarize(g.records.live(), s.today), g.records.live().sortedBy { it.date }.mapNotNull { it.heightCm }),
                 ConcernDigests.discover(s.balance?.experiencesThisPeriod ?: 0, AptitudeEngine.signals(b.activities, g.observations, s.today)),
                 ConcernDigests.family(FamilyCalendar.ahead(g.familyEvents, s.today), s.today),
             ),

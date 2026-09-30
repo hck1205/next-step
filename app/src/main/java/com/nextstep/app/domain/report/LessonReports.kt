@@ -9,6 +9,7 @@ import com.nextstep.app.domain.mentor.AssignmentStats
 import com.nextstep.app.domain.period.PeriodKind
 import com.nextstep.app.domain.period.Periods
 import com.nextstep.app.domain.stats.StudyStats
+import com.nextstep.app.domain.stats.day
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
@@ -34,7 +35,7 @@ object LessonReports {
     /** 이번 달 수업 리포트: 이번 달 공부 시간과 이번 달 마감인 과제로. 담당 과목이 없으면 null. */
     fun month(study: MentorStudy, today: LocalDate): LessonReport? {
         val month = Periods.current(PeriodKind.MONTH, today)
-        val minutes = study.sessions.filter { DateUtils.toLocalDate(it.startAt) in month }.sumOf { it.durationMinutes }
+        val minutes = study.sessions.filter { it.day() in month }.sumOf { it.durationMinutes }
         val tasks = study.tasks.filter { DateUtils.fromEpochDay(it.dueDate) in month }
         return mentorReport(study, ReportKind.MONTH, "${today.monthValue}월", minutes, tasks, today)
     }

@@ -2,6 +2,7 @@ package com.nextstep.app.domain.familycalendar
 
 import com.nextstep.app.data.local.entity.FamilyEventEntity
 import com.nextstep.app.data.local.entity.MemberEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.YearMonth
@@ -15,7 +16,7 @@ object FamilyCalendar {
 
     /** [date] 에 걸린 일정. 하루 종일이 먼저, 그다음 시작 시각 순. */
     fun on(events: List<FamilyEventEntity>, date: LocalDate): List<FamilyOccurrence> =
-        events.filter { !it.deleted }.mapNotNull { occurrenceOn(it, date) }
+        events.live().mapNotNull { occurrenceOn(it, date) }
             .sortedWith(compareBy<FamilyOccurrence>({ !it.event.allDay }, { it.event.startMinute }, { it.event.title }))
 
     /** 한 달의 날마다 걸린 일정(없는 날은 빠짐). */

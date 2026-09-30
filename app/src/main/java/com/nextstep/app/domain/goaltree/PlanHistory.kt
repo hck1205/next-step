@@ -3,6 +3,7 @@ package com.nextstep.app.domain.goaltree
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.text.ratioOrNull
 import com.nextstep.app.domain.time.DateUtils
@@ -20,7 +21,7 @@ object PlanHistory {
 
     fun weeks(tasks: List<TaskEntity>, today: LocalDate, count: Int = WEEKS): List<WeekRate> {
         val thisWeek = DateUtils.weekStart(today)
-        val live = tasks.filter { !it.deleted }
+        val live = tasks.live()
         return (count - 1 downTo 0).map { back ->
             val start = thisWeek.minusWeeks(back.toLong())
             val inWeek = live.filter { it.dueDate in start.toEpochDay() until start.plusWeeks(1).toEpochDay() }

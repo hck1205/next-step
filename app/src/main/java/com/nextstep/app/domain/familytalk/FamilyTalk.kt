@@ -6,6 +6,7 @@ import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familycalendar.FamilyEventKind
@@ -13,6 +14,7 @@ import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.feedback.FeedbackAudience
 import com.nextstep.app.domain.feedback.FeedbackVoice
 import com.nextstep.app.domain.feedback.Finding
+import com.nextstep.app.domain.stats.day
 import com.nextstep.app.domain.task.doneOn
 import com.nextstep.app.domain.time.DateUtils
 import java.time.DayOfWeek
@@ -38,7 +40,7 @@ object FamilyTalk {
         fun inWeek(millis: Long?) = millis?.let { DateUtils.toLocalDate(it) in days } == true
         return WeekHighlights(
             doneTasks = tasks.count { !it.deleted && it.done && inWeek(it.doneAt) },
-            studyDays = sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt) }.filter { it in days }.toSet().size,
+            studyDays = sessions.live().map { it.day() }.filter { it in days }.toSet().size,
             cheers = cheers.count { !it.deleted && inWeek(it.createdAt) },
             goalsDone = goals.filter { !it.deleted && it.status == GoalStatus.DONE && inWeek(it.doneAt) }.map { it.title },
             sparkles = findings.filter { it.kind.good }.map { FeedbackVoice.line(it, FeedbackAudience.STUDENT, numbers).title },

@@ -7,6 +7,7 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.SubjectMinutes
 import com.nextstep.app.domain.stats.SubjectProgress
@@ -152,7 +153,7 @@ object InsightEngine {
         StudyStats.upcomingExams(events, withinDays = EXAM_WITHIN_DAYS).mapNotNull { exam ->
             val hasPrep = tasks.any { !it.done && it.type == TaskType.EXAM_PREP && (exam.subjectId == null || it.subjectId == exam.subjectId) }
             if (hasPrep) return@mapNotNull null
-            val subjectName = subjects.firstOrNull { it.id == exam.subjectId }?.name
+            val subjectName = subjects.byId(exam.subjectId)?.name
             Insight(
                 InsightKind.ALERT, "${exam.title} ${DateUtils.dDay(exam.date)}",
                 "시험 준비 계획이 없습니다. 지금 준비 항목을 만들어 남은 기간에 나눠 보세요.",

@@ -27,7 +27,7 @@ data class StudentContext(
 
     companion object {
         fun of(members: List<MemberEntity>, today: LocalDate): StudentContext {
-            val student = members.firstOrNull { it.isStudent }
+            val student = members.student()
             val birthDate = student?.birthDate?.let { LocalDate.ofEpochDay(it) }
             val periods = birthDate?.let { PeriodCalendar.periods(it) }.orEmpty()
             return StudentContext(

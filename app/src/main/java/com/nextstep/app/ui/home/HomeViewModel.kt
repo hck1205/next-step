@@ -19,6 +19,7 @@ import com.nextstep.app.data.repository.StudyPlanRepository
 import com.nextstep.app.data.repository.TaskRepository
 import com.nextstep.app.data.repository.TopicRepository
 import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.growth.StudyKind
 import com.nextstep.app.domain.planner.PlanOptions
@@ -57,7 +58,7 @@ class HomeViewModel(
     init {
         // 처음 여는 학생 기기: 지금 단계를 확인한 것으로 조용히 남겨, 다음 학년에 올라갈 때만 "새 화면" 카드가 뜨게 합니다.
         viewModelScope.launch {
-            streams.members.map { list -> list.firstOrNull { it.isStudent } }
+            streams.members.map { list -> list.student() }
                 .filterNotNull().filter { it.seenUiLevel.isBlank() }.distinctUntilChangedBy { it.id }
                 .collect { members.markUiLevelSeen(it.id, StudentUiLevel.of(it)) }
         }

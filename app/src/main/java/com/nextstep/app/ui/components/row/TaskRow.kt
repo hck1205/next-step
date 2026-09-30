@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
@@ -21,7 +22,7 @@ import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 fun TaskRow(task: TaskEntity, subjects: List<SubjectEntity>, onToggle: () -> Unit, onDelete: (() -> Unit)? = null) {
-    val subject = subjects.firstOrNull { it.id == task.subjectId }
+    val subject = subjects.byId(task.subjectId)
     val overdue = task.isOverdue()
     AppCard {
         Row(verticalAlignment = Alignment.CenterVertically) {

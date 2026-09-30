@@ -2,6 +2,7 @@ package com.nextstep.app.domain.reward
 
 import com.nextstep.app.data.local.entity.GoalEntity
 import com.nextstep.app.data.local.entity.RewardEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.gamify.GameProfile
 import com.nextstep.app.domain.gamify.GameStyle
@@ -14,8 +15,8 @@ import com.nextstep.app.domain.gamify.GameStyle
 object Rewards {
     /** 받을 차례 → 약속 → 받음 순서(받음은 최근 준 것부터). 대상 목표가 지워졌으면 뺍니다. */
     fun views(rewards: List<RewardEntity>, goals: List<GoalEntity>, level: Int, boards: Int = 0): List<RewardView> {
-        val byId = goals.filter { !it.deleted }.associateBy { it.id }
-        return rewards.filter { !it.deleted }.mapNotNull { r ->
+        val byId = goals.live().associateBy { it.id }
+        return rewards.live().mapNotNull { r ->
             val kind = RewardKind.from(r.kind) ?: return@mapNotNull null
             val (reached, target) = when (kind) {
                 RewardKind.GOAL -> {

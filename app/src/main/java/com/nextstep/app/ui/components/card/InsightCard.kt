@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.insight.Insight
 import com.nextstep.app.domain.insight.InsightAction
 import com.nextstep.app.domain.insight.InsightKind
@@ -35,7 +36,7 @@ fun InsightCard(insight: Insight, subjects: List<SubjectEntity>, onAction: ((Ins
         InsightKind.SUGGESTION -> Icons.Default.Lightbulb to MaterialTheme.colorScheme.primary
         InsightKind.ALERT -> Icons.Default.Warning to MaterialTheme.colorScheme.tertiary
     }
-    val subject = subjects.firstOrNull { it.id == insight.subjectId }
+    val subject = subjects.byId(insight.subjectId)
     AppCard {
         Row(verticalAlignment = Alignment.Top) {
             Box(Modifier.background(color.copy(alpha = 0.12f), MaterialTheme.shapes.small).padding(8.dp)) {

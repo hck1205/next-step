@@ -17,3 +17,6 @@ interface Syncable {
 }
 
 fun newId(): String = UUID.randomUUID().toString()
+
+/** 소프트 삭제되지 않은 행만. 저장소 스트림은 이미 거르지만, 기간 기록·가짜 저장소처럼 섞여 올 수 있는 곳에서 씁니다. */
+fun <T : Syncable> List<T>.live(): List<T> = filter { !it.deleted }

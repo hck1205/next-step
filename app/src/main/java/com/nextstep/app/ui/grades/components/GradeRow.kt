@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.oneDecimal
 import com.nextstep.app.ui.components.card.AppCard
@@ -19,7 +20,7 @@ import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 internal fun GradeRow(g: GradeEntity, subjects: List<SubjectEntity>, onClick: () -> Unit) {
-    val subject = subjects.firstOrNull { it.id == g.subjectId }
+    val subject = subjects.byId(g.subjectId)
     AppCard(onClick = onClick) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {

@@ -2,6 +2,7 @@ package com.nextstep.app.domain.taskboard
 
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.domain.goaltree.PlanHistory
 import com.nextstep.app.domain.task.doneOn
 import com.nextstep.app.domain.time.DateUtils
@@ -16,7 +17,7 @@ object TaskBoard {
     const val SUGGESTIONS_PER_LANE = 3
 
     fun lanes(tasks: List<TaskEntity>, subjects: List<SubjectEntity>, suggestions: List<TaskSuggestion>, today: LocalDate, zone: ZoneId = DateUtils.zone): List<SubjectLane> {
-        val live = tasks.filter { !it.deleted }
+        val live = tasks.live()
         val known = subjects.map { it.id }.toSet()
         val keyOf = { id: String? -> id?.takeIf { it in known } }
         val subjectLanes = subjects.sortedBy { it.orderIndex }.map { s -> lane(s, live.filter { keyOf(it.subjectId) == s.id }, suggestions.filter { keyOf(it.subjectId) == s.id }, today, zone) }

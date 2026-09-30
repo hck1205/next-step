@@ -2,6 +2,7 @@ package com.nextstep.app.domain.insight
 
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.ObservationEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.ActivityType
 import com.nextstep.app.data.model.AptitudeDomain
 import java.time.LocalDate
@@ -23,8 +24,8 @@ object AptitudeEngine {
     private const val MAX_SIGNALS = 3
 
     fun signals(activities: List<ActivityEntity>, observations: List<ObservationEntity>, today: LocalDate): List<AptitudeSignal> {
-        val live = activities.filter { !it.deleted }
-        val obs = observations.filter { !it.deleted }
+        val live = activities.live()
+        val obs = observations.live()
         return AptitudeDomain.entries.mapNotNull { domain -> signalFor(domain, live, obs, today) }
             .filter { it.score >= MIN_SCORE }
             .sortedByDescending { it.score }

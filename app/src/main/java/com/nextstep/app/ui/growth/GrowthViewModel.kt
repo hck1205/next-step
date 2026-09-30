@@ -3,6 +3,7 @@ package com.nextstep.app.ui.growth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.domain.health.GrowthStats
@@ -22,7 +23,7 @@ class GrowthViewModel(
 
     val state: StateFlow<GrowthUiState> = streams.growthRecords.map { all ->
         val day = today()
-        val records = all.filter { !it.deleted }.sortedByDescending { it.date }
+        val records = all.live().sortedByDescending { it.date }
         GrowthUiState(
             today = day,
             summary = GrowthStats.summarize(records, day),

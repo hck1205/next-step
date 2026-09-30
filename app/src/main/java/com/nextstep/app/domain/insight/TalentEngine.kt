@@ -5,6 +5,7 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.domain.text.compact
@@ -76,7 +77,7 @@ object TalentEngine {
     /** 몰입: 90분 이상 이어서 공부한 세션 */
     private fun focus(sessions: List<StudySessionEntity>, subjects: List<SubjectEntity>): Talent? {
         val s = sessions.maxByOrNull { it.durationMinutes }?.takeIf { it.durationMinutes >= FOCUS_MINUTES } ?: return null
-        val name = subjects.firstOrNull { it.id == s.subjectId }?.name
+        val name = subjects.byId(s.subjectId)?.name
         return Talent("몰입력", "한 번에 ${DateUtils.formatMinutes(s.durationMinutes)} 이어서 공부한 기록이 있어요${name?.let { " ($it)" } ?: ""}. 집중이 필요한 과목에 이 시간을 활용해 보세요.", s.subjectId, 0.6f)
     }
 

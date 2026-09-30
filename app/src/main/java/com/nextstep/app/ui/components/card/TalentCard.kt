@@ -18,12 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.insight.Talent
 import com.nextstep.app.ui.components.icon.StarRow
 
 @Composable
 fun TalentCard(talent: Talent, subjects: List<SubjectEntity>) {
-    val subject = subjects.firstOrNull { it.id == talent.subjectId }
+    val subject = subjects.byId(talent.subjectId)
     val color = MaterialTheme.colorScheme.tertiary
     AppCard {
         Row(verticalAlignment = Alignment.Top) {

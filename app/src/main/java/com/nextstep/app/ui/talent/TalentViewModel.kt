@@ -3,6 +3,7 @@ package com.nextstep.app.ui.talent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.local.entity.ObservationEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.GrowthRepository
 import com.nextstep.app.domain.insight.AptitudeEngine
@@ -22,7 +23,7 @@ class TalentViewModel(
 
     val state: StateFlow<TalentUiState> = combine(streams.activities, streams.observations) { activities, all ->
         val day = today()
-        val observations = all.filter { !it.deleted }.sortedByDescending { it.date }
+        val observations = all.live().sortedByDescending { it.date }
         TalentUiState(
             today = day,
             signals = AptitudeEngine.signals(activities, observations, day),

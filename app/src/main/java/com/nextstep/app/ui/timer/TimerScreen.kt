@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.AppViewModelProvider
 import com.nextstep.app.ui.components.card.AppCard
@@ -84,7 +85,7 @@ internal fun TimerContent(state: TimerUiState, actions: TimerActions, visualMinu
                             Spacer(Modifier.height(12.dp))
                             Button(onClick = { onEvent(TimerEvent.Start) }, modifier = Modifier.fillMaxWidth()) { Text("공부 시작") }
                         } else {
-                            val subject = state.subjects.firstOrNull { it.id == state.running?.subjectId }
+                            val subject = state.subjects.byId(state.running?.subjectId)
                             SubjectTag(subject)
                             Spacer(Modifier.height(12.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

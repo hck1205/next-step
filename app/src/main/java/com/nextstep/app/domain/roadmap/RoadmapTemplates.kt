@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.roadmap
 
 import com.nextstep.app.data.local.entity.RoadmapItemEntity
+import com.nextstep.app.data.local.entity.live
 import java.time.LocalDate
 
 /**
@@ -10,7 +11,7 @@ import java.time.LocalDate
 object RoadmapTemplates {
 
     fun fromItems(items: List<RoadmapItemEntity>): List<TemplateItem> {
-        val live = items.filter { !it.deleted }.sortedWith(compareBy<RoadmapItemEntity>({ it.orderIndex }, { it.targetDate ?: Long.MAX_VALUE }))
+        val live = items.live().sortedWith(compareBy<RoadmapItemEntity>({ it.orderIndex }, { it.targetDate ?: Long.MAX_VALUE }))
         val first = live.mapNotNull { it.targetDate }.minOrNull()
         return live.map { TemplateItem(it.title, it.description, it.resource, it.targetDate?.let { d -> first?.let { (d - it).toInt() } }) }
     }

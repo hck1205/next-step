@@ -7,6 +7,7 @@ import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.MemberRepository
 import com.nextstep.app.data.repository.OnboardingRepository
 import com.nextstep.app.data.school.SchoolService
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.growth.GrowthStage
 import com.nextstep.app.domain.growth.StudentUiLevel
 import com.nextstep.app.domain.growth.YearProfiles
@@ -31,7 +32,7 @@ class SettingsViewModel(
     private val schoolSearch = MutableStateFlow(SchoolSearchState())
 
     val state: StateFlow<SettingsUiState> = combine(streams.profile, streams.syncStatus, streams.members, streams.myMember, streams.subjects) { p, s, members, me, subjects ->
-        val student = members.firstOrNull { it.isStudent }
+        val student = members.student()
         val birth = student?.birthDate?.let { DateUtils.fromEpochDay(it) }
         SettingsUiState(
             p, s, onboarding.syncAvailable, members, me, subjects, student, birth, birth?.let { GrowthStage.ageLabel(it, DateUtils.today()) },
@@ -91,8 +92,8 @@ class SettingsViewModel(
     fun removeMember(id: String) { viewModelScope.launch { members.remove(id) } }
     fun setMySubjects(ids: List<String>) { viewModelScope.launch { state.value.me?.let { members.setSubjects(it.id, ids) } } }
     fun setMentorEnabled(enabled: Boolean) { viewModelScope.launch { state.value.me?.let { members.setMentorEnabled(it.id, enabled) } } }
-    fun setGradeYear(gradeYear: Int) { viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setGradeYear(it.id, gradeYear) } } }
-    fun setBirthDate(date: LocalDate?) { viewModelScope.launch { state.value.members.firstOrNull { it.isStudent }?.let { members.setBirthDate(it.id, date) } } }
+    fun setGradeYear(gradeYear: Int) { viewModelScope.launch { state.value.members.student()?.let { members.setGradeYear(it.id, gradeYear) } } }
+    fun setBirthDate(date: LocalDate?) { viewModelScope.launch { state.value.members.student()?.let { members.setBirthDate(it.id, date) } } }
     fun setStudentLevel(level: StudentUiLevel?) { viewModelScope.launch { state.value.student?.let { members.setUiLevel(it.id, level) } } }
     fun saveStudentYear(birthDate: LocalDate?, gradeYear: Int, level: StudentUiLevel?) {
         viewModelScope.launch {

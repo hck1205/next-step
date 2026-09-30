@@ -9,6 +9,7 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.WeekPlanRepository
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.feedback.FeedbackEngine
@@ -36,7 +37,7 @@ class FamilyTalkViewModel(
         val day = today()
         val week = FamilyTalk.talkWeek(day)
         val end = minOf(week.plusDays(DAYS_IN_WEEK - 1), day)
-        val student = d.members.firstOrNull { it.isStudent }
+        val student = d.members.student()
         val numbers = StudentScreen.of(student, day).level.showsNumbers
         val findings = FeedbackEngine.findings(subjects, topics, grades, d.sessions, d.tasks, end)
         val highlights = FamilyTalk.highlights(week, d.tasks, d.sessions, d.cheers, d.goals, findings, numbers)

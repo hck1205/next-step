@@ -24,6 +24,7 @@ import com.nextstep.app.domain.access.Capabilities
 import com.nextstep.app.domain.cheer.CheerTarget
 import com.nextstep.app.domain.cheer.Cheers
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.feedback.FeedbackAudience
@@ -128,7 +129,7 @@ class ParentDashboardViewModel(
     private val charts = combine(trends, streams.weekFindings { DateUtils.today() }, streams.familyEvents, cheerTargets) { t, f, family, cheer -> Extras(t, f, family, cheer) }
 
     val state: StateFlow<ParentDashboardUiState> = combine(dashboard, streams.members, game, streams.rewards, charts) { s, members, input, list, (t, findings, family, cheer) ->
-        val level = StudentScreen.of(members.firstOrNull { it.isStudent }, s.today).level
+        val level = StudentScreen.of(members.student(), s.today).level
         val profile = Gamify.profile(input, s.today, style = level.game)
         val mine = FeedbackEngine.forAudience(findings, FeedbackAudience.PARENT)
         s.copy(

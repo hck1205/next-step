@@ -128,7 +128,7 @@ object StudyStats {
 
     /** 오늘(또는 어제)까지 연속으로 학습한 일수. */
     fun studyStreak(sessions: List<StudySessionEntity>, today: LocalDate = DateUtils.today()): Int =
-        Streaks.current(sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt) }.toSet(), today)
+        Streaks.current(sessions.studyDays(), today)
 
     fun overdueTasks(tasks: List<TaskEntity>): List<TaskEntity> =
         tasks.filter { it.isOverdue() }

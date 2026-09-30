@@ -8,6 +8,7 @@ import com.nextstep.app.domain.cheer.Cheers
 import com.nextstep.app.domain.content.ContentRecommender
 import com.nextstep.app.domain.curriculum.CurriculumCatalog
 import com.nextstep.app.domain.family.StudentContext
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.familytalk.FamilyTalk
 import com.nextstep.app.domain.feedback.FeedbackAudience
@@ -123,7 +124,7 @@ internal object HomeStateFlow {
     /** 나의 스티커판·레벨·성장 기록: 모양은 화면 단계(나이)가 정하고, 학부모가 게임 요소를 꺼 두면 계산하지 않습니다. 보상 한 줄은 다음 보상. */
     private fun withGame(planned: Flow<HomeUiState>, streams: FamilyDataStreams): Flow<HomeUiState> =
         combine(planned, streams.members, streams.gameInputs(), streams.rewards) { s, all, input, rewards ->
-            if (all.firstOrNull { it.isStudent }?.gamify == false) return@combine s.copy(game = null, nextReward = null)
+            if (all.student()?.gamify == false) return@combine s.copy(game = null, nextReward = null)
             val profile = Gamify.profile(input, s.today, style = s.level.game)
             s.copy(game = profile, nextReward = Rewards.next(Rewards.views(rewards, input.goals, profile.level.number, profile.boards)))
         }

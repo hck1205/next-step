@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.lesson.LessonPlan
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.today.MentorTodayCard
@@ -58,7 +59,7 @@ internal fun MentorCardBody(
         MentorTodayCard.TASKS -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             if (state.myTasks.isEmpty()) EmptyCard("미완료 과제가 없어요")
             state.myTasks.take(rows).forEach { t ->
-                MentorTaskRow(t, state.allSubjects.firstOrNull { it.id == t.subjectId }, onCancel = { onEvent(MentorDashboardEvent.DeleteTask(t.id)) })
+                MentorTaskRow(t, state.allSubjects.byId(t.subjectId), onCancel = { onEvent(MentorDashboardEvent.DeleteTask(t.id)) })
             }
             TextButton(onClick = onAssign) { Text(if (state.myTasks.size > rows) "${state.myTasks.size - rows}개 더 · 과제 내기" else "과제 내기") }
         }
@@ -80,7 +81,7 @@ internal fun MentorCardBody(
         }
         MentorTodayCard.CONTENT -> LinkCard("콘텐츠 저장소", "좋은 유튜브 강의를 링크로 등록하면 자동 분류되고 학생 진도에 맞춰 추천돼요", onClick = actions.onOpenContent)
         MentorTodayCard.GRADES -> Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            state.recentGrades.take(rows).forEach { g -> MentorGradeRow(g, state.allSubjects.firstOrNull { it.id == g.subjectId }) }
+            state.recentGrades.take(rows).forEach { g -> MentorGradeRow(g, state.allSubjects.byId(g.subjectId)) }
         }
     }
 }

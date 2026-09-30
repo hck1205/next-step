@@ -26,6 +26,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.SubjectTag
 
@@ -35,7 +36,7 @@ import com.nextstep.app.ui.components.card.SubjectTag
  */
 @Composable
 internal fun BigTaskRow(task: TaskEntity, subjects: List<SubjectEntity>, minHeightDp: Int, onToggle: () -> Unit, onSpeak: ((String) -> Unit)? = null) {
-    val subject = subjects.firstOrNull { it.id == task.subjectId }
+    val subject = subjects.byId(task.subjectId)
     AppCard(
         modifier = Modifier.heightIn(min = minHeightDp.dp).semantics {
             role = Role.Checkbox

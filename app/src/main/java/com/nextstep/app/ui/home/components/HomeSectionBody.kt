@@ -12,6 +12,7 @@ import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.content.ContentRecommendation
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.growth.StudentHomeSection
 import com.nextstep.app.domain.hub.ConcernSection
 import com.nextstep.app.domain.selfdirection.WeekStatus
@@ -149,7 +150,7 @@ private fun TopicQueue(
 private fun RoadmapFocus(state: HomeUiState, rows: Int, onEvent: (HomeEvent) -> Unit, onOpenRoadmap: () -> Unit, showAll: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         state.roadmapFocus.take(rows).forEach { r ->
-            RoadmapFocusRow(r, state.subjects.firstOrNull { it.id == r.subjectId }, onOpen = onOpenRoadmap, onStatus = { onEvent(HomeEvent.SetRoadmapStatus(r.id, it)) })
+            RoadmapFocusRow(r, state.subjects.byId(r.subjectId), onOpen = onOpenRoadmap, onStatus = { onEvent(HomeEvent.SetRoadmapStatus(r.id, it)) })
         }
         if (showAll) TextButton(onClick = onOpenRoadmap) { Text("전체 보기") }
     }

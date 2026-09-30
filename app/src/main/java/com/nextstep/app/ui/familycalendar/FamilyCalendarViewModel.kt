@@ -8,6 +8,7 @@ import com.nextstep.app.data.local.entity.MemberEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.FamilyEventRepository
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.familycalendar.FamilyCalendar
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.time.DateUtils
@@ -43,7 +44,7 @@ class FamilyCalendarViewModel(
         val people = FamilyCalendar.family(members)
         val who = v.filter?.takeIf { id -> people.any { it.id == id } }
         val shown = who?.let { id -> family.filter { FamilyCalendar.involves(it, id) } } ?: family
-        val student = people.firstOrNull { it.isStudent }
+        val student = people.student()
         val withStudy = who == null || who == student?.id
         val monthDays = (1..v.month.lengthOfMonth()).map { v.month.atDay(it) }
         return FamilyCalendarUiState(

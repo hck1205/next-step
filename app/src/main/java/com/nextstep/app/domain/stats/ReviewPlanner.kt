@@ -3,6 +3,7 @@ package com.nextstep.app.domain.stats
 import com.nextstep.app.data.local.entity.GradeEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.TopicStatus
 
 /**
@@ -14,7 +15,7 @@ object ReviewPlanner {
     const val LOW_CONFIDENCE = 60
 
     fun plan(topics: List<TopicEntity>, subjects: List<SubjectEntity>, grades: List<GradeEntity>): List<ReviewItem> {
-        val dropped = StudyStats.subjectScores(grades.filter { !it.deleted }, subjects).filter { (it.trend ?: 0.0) < 0 }.map { it.subject.id }.toSet()
+        val dropped = StudyStats.subjectScores(grades.live(), subjects).filter { (it.trend ?: 0.0) < 0 }.map { it.subject.id }.toSet()
         return subjects.flatMap { subject ->
             val list = topics.filter { !it.deleted && it.subjectId == subject.id }.sortedBy { it.orderIndex }
             val low = list.filter { it.confidence in 1 until LOW_CONFIDENCE && it.status != TopicStatus.MASTERED }

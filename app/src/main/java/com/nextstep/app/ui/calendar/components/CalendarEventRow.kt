@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.model.EventType
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.stats.EventOccurrence
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.components.card.AppCard
@@ -25,7 +26,7 @@ import com.nextstep.app.ui.components.card.SubjectTag
 
 @Composable
 internal fun CalendarEventRow(occ: EventOccurrence, subjects: List<SubjectEntity>, onClick: () -> Unit) {
-    val subject = subjects.firstOrNull { it.id == occ.event.subjectId }
+    val subject = subjects.byId(occ.event.subjectId)
     val typeColor = when (occ.event.type) {
         EventType.EXAM -> MaterialTheme.colorScheme.error
         EventType.CLASS -> MaterialTheme.colorScheme.primary

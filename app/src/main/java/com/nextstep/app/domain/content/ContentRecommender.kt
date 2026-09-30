@@ -5,6 +5,7 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.ContentType
 import com.nextstep.app.data.model.GradeLevel
+import com.nextstep.app.domain.family.byId
 import com.nextstep.app.domain.stats.SubjectProgress
 import com.nextstep.app.domain.stats.SubjectScore
 import com.nextstep.app.domain.stats.UpcomingExam
@@ -30,7 +31,7 @@ object ContentRecommender {
             subjectNames = subjects.map { it.name }.toSet(),
             weakSubjects = scores.filter { it.average < WEAK_AVERAGE }.map { it.subject.name }.toSet(),
             examSubjects = upcomingExams.filter { it.date.toEpochDay() - DateUtils.today().toEpochDay() <= EXAM_WITHIN_DAYS }
-                .mapNotNull { e -> subjects.firstOrNull { it.id == e.subjectId }?.name }.toSet(),
+                .mapNotNull { e -> subjects.byId(e.subjectId)?.name }.toSet(),
             reviewTopics = progress.flatMap { p -> p.reviewQueue.map { p.subject.name to it } },
             previewTopics = progress.flatMap { p -> p.previewQueue.take(1).map { p.subject.name to it } },
             gradeLevel = gradeLevel,

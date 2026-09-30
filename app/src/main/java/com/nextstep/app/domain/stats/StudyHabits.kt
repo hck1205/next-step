@@ -18,8 +18,8 @@ object StudyHabits {
 
     fun report(sessions: List<StudySessionEntity>, today: LocalDate, days: Int = WINDOW_DAYS): StudyHabitReport {
         val from = today.minusDays(days - 1L)
-        val inWindow = sessions.filter { !it.deleted && DateUtils.toLocalDate(it.startAt).let { d -> !d.isBefore(from) && !d.isAfter(today) } }
-        val perDay = inWindow.groupBy { DateUtils.toLocalDate(it.startAt) }.mapValues { (_, l) -> l.sumOf { it.durationMinutes } }
+        val inWindow = sessions.filter { !it.deleted && it.day().let { d -> !d.isBefore(from) && !d.isAfter(today) } }
+        val perDay = inWindow.groupBy { it.day() }.mapValues { (_, l) -> l.sumOf { it.durationMinutes } }
         val byPart = DayPart.entries.associateWith { part -> inWindow.filter { DayPart.of(DateUtils.toLocalDateTime(it.startAt).hour) == part }.sumOf { it.durationMinutes } }
         val byWeekday = DayOfWeek.entries.associateWith { wd -> perDay.filterKeys { it.dayOfWeek == wd }.values.sum() }
         val total = inWindow.sumOf { it.durationMinutes }

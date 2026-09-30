@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.RewardRepository
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.gamify.GameInputs
 import com.nextstep.app.domain.gamify.Gamify
 import com.nextstep.app.domain.goaltree.GoalTree
@@ -30,7 +31,7 @@ class RewardsViewModel(
 
     val state: StateFlow<RewardsUiState> = combine(streams.members, game, streams.rewards) { members, input, list ->
         val day = today()
-        val student = members.firstOrNull { it.isStudent }
+        val student = members.student()
         val style = StudentScreen.of(student, day).level.game
         val profile = Gamify.profile(input, day, style = style)
         RewardsUiState(

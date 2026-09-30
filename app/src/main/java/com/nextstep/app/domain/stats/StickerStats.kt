@@ -3,6 +3,7 @@ package com.nextstep.app.domain.stats
 import com.nextstep.app.data.local.entity.ActivityEntity
 import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.TaskEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
@@ -12,8 +13,8 @@ object StickerStats {
     private const val WEEK_DAYS = 7L
 
     fun board(sessions: List<StudySessionEntity>, tasks: List<TaskEntity>, activities: List<ActivityEntity>, today: LocalDate): StickerBoard {
-        val studied = sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt) }.toSet()
-        val active = activities.filter { !it.deleted }.map { DateUtils.fromEpochDay(it.date) }.toSet()
+        val studied = sessions.studyDays()
+        val active = activities.live().map { DateUtils.fromEpochDay(it.date) }.toSet()
         val days = (BOARD_DAYS - 1 downTo 0).map { back ->
             val d = today.minusDays(back.toLong())
             StickerDay(d, d in studied, d in active)

@@ -2,6 +2,7 @@ package com.nextstep.app.domain.album
 
 import com.nextstep.app.data.local.entity.GrowthRecordEntity
 import com.nextstep.app.data.local.entity.WeekPlanEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.cheer.CheerKind
 import com.nextstep.app.domain.export.ExportDoc
@@ -12,6 +13,7 @@ import com.nextstep.app.domain.period.PeriodStats
 import com.nextstep.app.domain.report.ReportSection
 import com.nextstep.app.domain.school.SchoolCalendar
 import com.nextstep.app.domain.stats.TrendStats
+import com.nextstep.app.domain.stats.day
 import com.nextstep.app.domain.text.compact
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.time.Streaks
@@ -50,13 +52,13 @@ object GrowthAlbums {
      */
     fun book(studentName: String, year: Period, r: PeriodRecords, plans: List<WeekPlanEntity>, growth: List<GrowthRecordEntity>, today: LocalDate): GrowthAlbum {
         val until = minOf(today, year.end)
-        val studied = r.sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt) }.filter { it in year && !it.isAfter(until) }.toSortedSet()
+        val studied = r.sessions.live().map { it.day() }.filter { it in year && !it.isAfter(until) }.toSortedSet()
         return GrowthAlbum(
             studentName = studentName.ifBlank { "우리 아이" }, year = year,
             goals = r.goals.filter { !it.deleted && it.status == GoalStatus.DONE }
                 .mapNotNull { g -> g.doneAt?.let { AlbumGoal(g.title, DateUtils.toLocalDate(it)) } }.filter { it.doneOn in year }.sortedBy { it.doneOn },
             studyDays = studied.size, longestStreak = Streaks.longest(studied),
-            studyWeeks = TrendStats.heatCalendar(r.sessions.filter { !it.deleted }, until, weeksBetween(year.start, until)),
+            studyWeeks = TrendStats.heatCalendar(r.sessions.live(), until, weeksBetween(year.start, until)),
             activities = r.activities.filter { !it.deleted && DateUtils.fromEpochDay(it.date) in year }.sortedBy { it.date }
                 .map { AlbumActivity(it.title, it.type, DateUtils.fromEpochDay(it.date)) },
             height = heightChange(year, growth),

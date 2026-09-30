@@ -1,6 +1,7 @@
 package com.nextstep.app.domain.hub
 
 import com.nextstep.app.data.local.entity.GradeEntity
+import com.nextstep.app.data.local.entity.live
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.familycalendar.FamilyOccurrence
 import com.nextstep.app.domain.goaltree.GoalNode
@@ -41,7 +42,7 @@ object ConcernDigests {
 
     fun exams(focus: List<MissionFocus>, grades: List<GradeEntity>): ConcernDigest {
         val next = focus.minByOrNull { it.daysLeft }
-        val recent = grades.filter { !it.deleted }.sortedByDescending { it.date }.take(RECENT_GRADES)
+        val recent = grades.live().sortedByDescending { it.date }.take(RECENT_GRADES)
         return ConcernDigest(
             concern = Concern.EXAMS,
             headline = next?.let { "${it.goal.title} ${DateUtils.dDay(it.daysLeft, pastLabel = "지남")}" } ?: "다가오는 시험 없음",

@@ -6,6 +6,7 @@ import com.nextstep.app.data.model.MilestoneStatus
 import com.nextstep.app.data.repository.FamilyDataStreams
 import com.nextstep.app.data.repository.JourneyRepository
 import com.nextstep.app.data.repository.TaskRepository
+import com.nextstep.app.domain.family.student
 import com.nextstep.app.domain.growth.StudentScreen
 import com.nextstep.app.domain.task.TaskDrafts
 import com.nextstep.app.domain.time.DateUtils
@@ -40,7 +41,7 @@ class YearPlanViewModel(
 
     val state: StateFlow<YearPlanUiState> = combine(streams.members, streams.journeyItems, mine, mineOnly) { members, stored, mySet, onlyMine ->
         val day = today()
-        val screen = StudentScreen.of(members.firstOrNull { it.isStudent }, day)
+        val screen = StudentScreen.of(members.student(), day)
         val year = screen.year
         val done = stored.filter { !it.deleted && it.status == MilestoneStatus.DONE && it.templateId?.startsWith(YearTask.PREFIX) == true }.mapNotNull { it.templateId }.toSet()
         val all = year?.let { y -> YearPlans.forYear(y.key).map { YearTaskView(it, it.storageId(y.key) in done) } }.orEmpty()

@@ -19,7 +19,7 @@ com.nextstep.app
 ├── data/
 │   ├── model/              enum 하나당 파일 하나 (Role, TaskType, ...)
 │   ├── local/
-│   │   ├── entity/         Room 엔티티 하나당 파일 하나 + Syncable
+│   │   ├── entity/         Room 엔티티 하나당 파일 하나 + Syncable(`live()`: 지운 행 거르기)
 │   │   ├── dao/            DAO 하나당 파일 하나
 │   │   ├── AppDatabase.kt, Converters.kt
 │   ├── prefs/              DataStore (UserPreferences, UserProfile, RunningTimer)
@@ -29,16 +29,16 @@ com.nextstep.app
 │   └── sync/               SyncManager, SyncedCollection(제네릭), mapper/ (EntityMapper<T> 구현)
 ├── domain/                 순수 Kotlin. Android import 금지
 │   ├── access/             Capabilities(+ `Capabilities.of(role, me)`: 프로필·구성원 → 권한)
-│   ├── family/             StudentContext(구성원 → 학생·생년월일·단계·구간 달력·현재 구간을 한 번에)
-│   ├── time/               DateUtils
-│   ├── stats/              StudyStats, StudyQueues(예습·복습 대기열), BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats, TrendStats(학부모·멘토 차트 값 → FamilyTrends: 8주 흐름·공부 달력·과목별 점수·과제 제출, 할 일의 주별·준 사람별 달성은 PlanHistory 그대로) + 결과 모델
+│   ├── family/             StudentContext(구성원 → 학생·생년월일·단계·구간 달력·현재 구간을 한 번에), FamilyLookups(`members.student()`·`subjects.byId(id)` — 직접 firstOrNull 로 찾지 않음)
+│   ├── time/               DateUtils(시간대 `DateUtils.zone` 한 곳), SchoolYear(학년도·학기 경계), Streaks(연속 일수)
+│   ├── stats/              SessionDates(`day`·`studyDays`), StudyStats, StudyQueues(예습·복습 대기열), BalanceStats(균형 판단), RoadmapStats(로드맵 요약), ScoreStats, TrendStats(학부모·멘토 차트 값 → FamilyTrends: 8주 흐름·공부 달력·과목별 점수·과제 제출, 할 일의 주별·준 사람별 달성은 PlanHistory 그대로) + 결과 모델
 │   ├── insight/            InsightEngine, TalentEngine(교과), AptitudeEngine(예체능·비교과 소질) + 모델
 │   ├── familycalendar/     FamilyCalendar(반복·여러 날·오늘 화면 미리 보기·누구 문구) + FamilyEventKind·FamilyRepeat·FamilyHeadsUp·FamilyOccurrence (입력은 entry/FamilyEventDraft)
 │   ├── feedback/           FeedbackEngine(이번 주 vs 지난주 사실 한 벌 + 보는 사람별 추림), FeedbackVoice(학생·학부모·멘토 말투)
 │   ├── health/             GrowthStats(키·몸무게·시력 요약과 참고 신호)
 │   ├── mission/            MissionKind(단계별 종류), MissionCatalog(날짜에서 거꾸로 쪼갠 단계 설계), MissionPlanner(생성·압축·다음 단계·오늘 카드)
 │   ├── mentor/             MentorScope(담당 과목 범위로 성적·세션·단원 좁히기), AssignmentStats(과제 현황)
-│   ├── text/               NumberText(문장 속 숫자 표기), Josa(받침에 맞는 조사)
+│   ├── text/               NumberText(문장 속 숫자 표기), Josa(받침에 맞는 조사), Ratio(`ratioOf`·`percentOf`: 분모 0 을 한 곳에서)
 │   ├── curriculum/         CurriculumCatalog(학기별 과목·단원), CurriculumRecommender(가족 진도·또래·영상 대조)
 │   ├── planner/            StudyPlanner + 모델
 │   ├── content/            ContentClassifier, ContentRecommender, YouTubeLinks + 모델
@@ -47,7 +47,7 @@ com.nextstep.app
 │   ├── growth/             GrowthStage(생년월일·학년→단계), GrowthGuide, StudentUiLevel(학생 화면 단계: 카드·말투·탭), YearProfiles/YearProfile/StudyKind(만 0세~고3 해마다 공부 종류·양), StudentScreen(학생 화면 한 벌), KidMode/KidRecord(아이 모드)
 │   ├── goaltree/           GoalTree(사람이 만드는 목표 트리: 세부 할 일 · 달성률 · 이어지는 목표 · 먼저 챙길 목표), GoalNode.attention(먼저 볼 것), Assigner(누가 준 일), PlanHistory(주별·누가 준·과목별 달성률, 타임라인)
 │   ├── taskboard/          TaskSuggester(복습 목록 · 로드맵 · 시험 → 과목·단원별 추천), TaskBoard(과목별 줄)
-│   ├── task/               TaskDrafts: 새 할 일의 제목·종류·마감·메모를 정하는 한 곳(고치기 `edited`, 목표 단계 → 할 일 `forGoalStep` 포함, ViewModel 은 저장만)
+│   ├── task/               TaskDates(`doneOn`·`isOverdue`), TaskDrafts: 새 할 일의 제목·종류·마감·메모를 정하는 한 곳(고치기 `edited`, 목표 단계 → 할 일 `forGoalStep` 포함, ViewModel 은 저장만)
 │   ├── entry/              EventDraft·GradeDraft: 일정·성적 입력창의 값 한 벌 → 엔티티(새로·고치기, 글자 다듬기·종료 시각 규칙)
 │   ├── selfdirection/      SelfDirectionStage(자기주도 사다리 6칸: 계획·실행·점검·돌아보기를 누가 맡나), SelfDirection(단계·이번 주·흔적·제안), WeekStatus/WeekAccess/WeekEvidence
 │   ├── gamify/             Gamify(기록 → 경험치·레벨·배지·연속·이번 주 도전·스티커, 저장하는 점수 없음), GameStyle(나이별 모양: 스티커판·레벨·성장 기록), XpSource, GameLevel, Badge, GameProfile, GameInputs

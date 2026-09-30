@@ -5,6 +5,8 @@ import com.nextstep.app.data.local.entity.StudySessionEntity
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
+import com.nextstep.app.data.local.entity.live
+import com.nextstep.app.domain.stats.day
 import com.nextstep.app.domain.task.doneOn
 import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.text.percentOf
@@ -25,15 +27,15 @@ object FeedbackEngine {
         tasks: List<TaskEntity>,
         today: LocalDate,
     ): List<Finding> {
-        val liveSessions = sessions.filter { !it.deleted }
-        val liveTasks = tasks.filter { !it.deleted }
+        val liveSessions = sessions.live()
+        val liveTasks = tasks.live()
         return buildList {
             addAll(studyDays(liveSessions, today))
             addAll(taskFlow(liveTasks, today))
             addAll(selfMade(liveTasks, today))
-            addAll(scores(grades.filter { !it.deleted }, subjects, today))
+            addAll(scores(grades.live(), subjects, today))
             addAll(subjectGap(liveSessions, subjects, today))
-            addAll(reviewBacklog(topics.filter { !it.deleted }, subjects))
+            addAll(reviewBacklog(topics.live(), subjects))
         }
     }
 
@@ -51,7 +53,7 @@ object FeedbackEngine {
 
     /** 1. 공부한 날: 늘었거나, 꾸준하거나, 줄었거나. */
     private fun studyDays(sessions: List<StudySessionEntity>, today: LocalDate): List<Finding> {
-        val days = sessions.map { DateUtils.toLocalDate(it.startAt) }.toSet()
+        val days = sessions.map { it.day() }.toSet()
         val now = days.count { it in thisWeek(today) }
         val before = days.count { it in lastWeek(today) }
         return listOfNotNull(
@@ -103,11 +105,11 @@ object FeedbackEngine {
     private fun subjectGap(sessions: List<StudySessionEntity>, subjects: List<SubjectEntity>, today: LocalDate): List<Finding> {
         val earlier = today.minusDays(GAP_LOOKBACK_DAYS)..today.minusDays(WEEK_DAYS)
         val gap = subjects.map { s -> s to sessions.filter { it.subjectId == s.id } }
-            .filter { (_, list) -> list.none { DateUtils.toLocalDate(it.startAt) in thisWeek(today) } }
-            .map { (s, list) -> Triple(s, list.filter { DateUtils.toLocalDate(it.startAt) in earlier }.sumOf { it.durationMinutes }, list) }
+            .filter { (_, list) -> list.none { it.day() in thisWeek(today) } }
+            .map { (s, list) -> Triple(s, list.filter { it.day() in earlier }.sumOf { it.durationMinutes }, list) }
             .filter { it.second >= GAP_BEFORE_MINUTES }
             .maxByOrNull { it.second } ?: return emptyList()
-        val last = gap.third.maxOf { DateUtils.toLocalDate(it.startAt) }
+        val last = gap.third.maxOf { it.day() }
         return listOf(Finding(FeedbackKind.SUBJECT_GAP, (today.toEpochDay() - last.toEpochDay()).toInt(), subjectId = gap.first.id, subjectName = gap.first.name))
     }
 

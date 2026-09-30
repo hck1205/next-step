@@ -4,6 +4,7 @@ import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.domain.export.ExportDoc
 import com.nextstep.app.domain.report.ReportSection
 import com.nextstep.app.domain.school.SchoolCalendar
+import com.nextstep.app.domain.stats.day
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 import java.time.YearMonth
@@ -16,11 +17,11 @@ import kotlin.math.roundToInt
 object PeriodReports {
 
     fun stats(period: Period, r: PeriodRecords): PeriodStats {
-        val sessions = r.sessions.filter { !it.deleted && DateUtils.toLocalDate(it.startAt) in period }
+        val sessions = r.sessions.filter { !it.deleted && it.day() in period }
         val due = r.tasks.filter { !it.deleted && DateUtils.fromEpochDay(it.dueDate) in period }
         return PeriodStats(
             studyMinutes = sessions.sumOf { it.durationMinutes },
-            studyDays = sessions.map { DateUtils.toLocalDate(it.startAt) }.toSet().size,
+            studyDays = sessions.map { it.day() }.toSet().size,
             tasksDue = due.size, tasksDone = due.count { it.done },
             scores = scores(period, r),
             activities = r.activities.count { !it.deleted && DateUtils.fromEpochDay(it.date) in period },
