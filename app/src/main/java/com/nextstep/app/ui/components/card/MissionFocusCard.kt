@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.mission.MissionFocus
-import com.nextstep.app.ui.common.ratio
+import com.nextstep.app.domain.text.ratioOf
 
 /**
  * 오늘 화면의 "다음 한 걸음": 날짜가 정해진 목표마다 D-day, 진행 막대, 다음 단계 한 줄.
@@ -30,7 +30,7 @@ fun MissionFocusCard(items: List<MissionFocus>, onOpen: () -> Unit) {
                         DDayBadge(f.daysLeft)
                     }
                     Spacer(Modifier.height(4.dp))
-                    LabeledProgress(label = "${f.doneCount}/${f.stepCount}", ratio = ratio(f.doneCount, f.stepCount), color = MaterialTheme.colorScheme.primary)
+                    LabeledProgress(label = "${f.doneCount}/${f.stepCount}", ratio = ratioOf(f.doneCount, f.stepCount), color = MaterialTheme.colorScheme.primary)
                     Text(
                         (if (f.overdueSteps > 0) "밀린 ${f.overdueSteps} · " else "") + "다음: ${f.nextStep.title}",
                         style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis,

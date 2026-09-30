@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.common.ratio
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.PaceChip
@@ -31,7 +31,7 @@ internal fun ProjectCard(p: ProjectProgress, onOpen: () -> Unit) {
             Text(p.plan.goal, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             LabeledProgress(
                 label = if (p.isDone) "모든 단계 통과" else "${p.currentIndex + 1}/${p.total}단계 · ${p.current?.title}",
-                ratio = ratio(p.currentIndex, p.total), color = MaterialTheme.colorScheme.primary,
+                ratio = ratioOf(p.currentIndex, p.total), color = MaterialTheme.colorScheme.primary,
             )
             p.current?.let { phase ->
                 Text(

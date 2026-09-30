@@ -5,7 +5,9 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TaskDatesTest {
@@ -23,5 +25,12 @@ class TaskDatesTest {
     fun notDoneOrNoTimeHasNoDay() {
         assertNull(Fixtures.task("분수", day).copy(doneAt = 1L).doneOn(zone))
         assertNull(Fixtures.task("분수", day, done = true).doneOn(zone))
+    }
+
+    @Test
+    fun overdueIsPastDueAndNotDone() {
+        assertTrue(Fixtures.task("분수", day.minusDays(1)).isOverdue(day))
+        assertFalse(Fixtures.task("분수", day).isOverdue(day))
+        assertFalse(Fixtures.task("분수", day.minusDays(1), done = true).isOverdue(day))
     }
 }

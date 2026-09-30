@@ -6,6 +6,7 @@ import com.nextstep.app.data.local.entity.newId
 import com.nextstep.app.data.model.GoalStatus
 import com.nextstep.app.data.model.TaskType
 import com.nextstep.app.domain.journey.GoalArea
+import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.text.toPercent
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
@@ -58,7 +59,7 @@ object GoalTree {
             goal = goal, tasks = mine,
             children = tree.filter { it.leadsTo == goal.id && it.status != GoalStatus.ARCHIVED }.sortedBy { it.createdAt },
             chain = chain(goal, tree),
-            overdue = mine.count { !it.done && it.dueDate < today.toEpochDay() },
+            overdue = mine.count { it.isOverdue(today) },
             lastActivity = last, idleDays = ChronoUnit.DAYS.between(last, today).toInt().coerceAtLeast(0),
             daysLeft = goal.targetDate?.let { (it - today.toEpochDay()).toInt() },
         )

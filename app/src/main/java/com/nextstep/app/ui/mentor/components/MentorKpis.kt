@@ -4,10 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.stats.SubjectProgress
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.chart.KpiTile
 import com.nextstep.app.ui.components.chart.Sparkline
 import com.nextstep.app.ui.components.chart.StatGrid
-import com.nextstep.app.ui.components.chart.StatTile
 import com.nextstep.app.ui.components.chart.deltaText
 
 /**
@@ -22,28 +23,28 @@ internal fun MentorKpis(t: FamilyTrends, progress: List<SubjectProgress>, modifi
     val avg = t.scoreAverage
     val tiles = buildList<@Composable (Modifier) -> Unit> {
         add { m ->
-            StatTile(
+            KpiTile(
                 "낸 과제", "${sub.done}/${sub.total}", m, delta = if (sub.late > 0) "밀린 과제 ${sub.late}개" else "밀린 과제 없음",
-                good = sub.late == 0, meter = if (sub.total > 0) sub.done.toFloat() / sub.total else 0f,
+                good = sub.late == 0, meter = ratioOf(sub.done, sub.total),
             )
         }
         add { m ->
-            StatTile(
+            KpiTile(
                 "최근 7일 공부", DateUtils.formatMinutes(t.recent), m, delta = t.recentChange?.let { deltaText(it, DateUtils::formatMinutes, "전 7일 대비") },
                 up = t.recentChange?.let { it >= 0 }, good = t.recentChange?.let { it >= 0 }, trend = { Sparkline(t.rolling) },
             )
         }
         if (avg != null) add { m ->
-            StatTile(
+            KpiTile(
                 "최근 점수", "${avg}점", m, delta = t.scoreChange?.let { deltaText(it, { v -> "${v}점" }, "직전 대비") },
                 up = t.scoreChange?.let { it >= 0 }, good = t.scoreChange?.let { it >= 0 },
                 trend = { t.scores.singleOrNull()?.let { Sparkline(it.percents) } },
             )
         }
         if (progress.isNotEmpty()) add { m ->
-            StatTile(
+            KpiTile(
                 "복습 밀린 단원", "${(covered - reviewed).coerceAtLeast(0)}개", m, delta = "수업 $covered · 복습 $reviewed",
-                good = covered - reviewed <= 1, meter = if (covered > 0) reviewed.toFloat() / covered else 0f,
+                good = covered - reviewed <= 1, meter = ratioOf(reviewed, covered),
             )
         }
     }

@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.BalanceReport
 import com.nextstep.app.domain.stats.BalanceVerdict
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asPercent
 import com.nextstep.app.ui.components.card.AppCard
@@ -19,7 +20,7 @@ internal fun BalanceCard(b: BalanceReport, yearLabel: String?) {
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(b.headline, style = MaterialTheme.typography.titleMedium)
-            val ratio = if (b.recommendedWeekMinutes == 0) 0f else (b.weekMinutes.toFloat() / b.recommendedWeekMinutes).coerceIn(0f, 1f)
+            val ratio = ratioOf(b.weekMinutes, b.recommendedWeekMinutes).coerceIn(0f, 1f)
             LabeledProgress(
                 label = "학습 · ${DateUtils.formatMinutes(b.weekMinutes)}",
                 ratio = ratio,

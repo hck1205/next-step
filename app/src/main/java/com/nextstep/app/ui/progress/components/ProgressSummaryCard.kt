@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.TopicStatus
 import com.nextstep.app.domain.access.Capabilities
-import com.nextstep.app.ui.common.ratio
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 
@@ -26,8 +26,8 @@ internal fun ProgressSummaryCard(topics: List<TopicEntity>, teacher: String?, co
     val reviewed = topics.count { it.status.order >= TopicStatus.REVIEWED.order }
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            LabeledProgress("학급 진도", ratio(covered, total), color.copy(alpha = 0.5f), trailing = "$covered/$total")
-            LabeledProgress("내 복습", ratio(reviewed, total), color, trailing = "$reviewed/$total")
+            LabeledProgress("학급 진도", ratioOf(covered, total), color.copy(alpha = 0.5f), trailing = "$covered/$total")
+            LabeledProgress("내 복습", ratioOf(reviewed, total), color, trailing = "$reviewed/$total")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (caps.canEditTopics) AssistChip(onClick = onSetProgress, label = { Text("학급 진도 설정") })
                 if (!teacher.isNullOrBlank()) Text("담당: $teacher", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))

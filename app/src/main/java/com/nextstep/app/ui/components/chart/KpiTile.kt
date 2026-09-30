@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
  * 색만으로 뜻을 전하지 않도록 변화는 늘 부호 붙은 글자와 화살표로 함께 적고, 글자는 본문 색(대비 확보)입니다.
  */
 @Composable
-fun StatTile(
+fun KpiTile(
     label: String,
     value: String,
     modifier: Modifier = Modifier,

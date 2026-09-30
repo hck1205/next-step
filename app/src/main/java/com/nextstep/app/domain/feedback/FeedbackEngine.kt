@@ -6,6 +6,7 @@ import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.domain.task.doneOn
+import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.text.percentOf
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
@@ -67,7 +68,7 @@ object FeedbackEngine {
     private fun taskFlow(tasks: List<TaskEntity>, today: LocalDate): List<Finding> {
         val due = tasks.filter { DateUtils.fromEpochDay(it.dueDate) in thisWeek(today) }
         val done = due.count { it.done }
-        val overdue = tasks.count { !it.done && it.dueDate < today.toEpochDay() }
+        val overdue = tasks.count { it.isOverdue(today) }
         return listOfNotNull(
             Finding(FeedbackKind.TASKS_WELL, done, due.size).takeIf { due.size >= MIN_TASKS && percentOf(done, due.size) >= WELL_PERCENT },
             Finding(FeedbackKind.TASKS_OVERDUE, overdue).takeIf { overdue >= OVERDUE_ALERT },

@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.stats.SubjectProgress
-import com.nextstep.app.ui.common.ratio
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.ColorDot
 import com.nextstep.app.ui.components.card.LabeledProgress
@@ -30,7 +30,7 @@ internal fun MentorProgressCard(p: SubjectProgress, onOpen: () -> Unit) {
                 Text(p.subject.name, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                 Text("학급 ${p.classCovered}/${p.total} · 복습 ${p.reviewed}/${p.total}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            LabeledProgress("복습률", ratio(p.reviewed, p.classCovered), color)
+            LabeledProgress("복습률", ratioOf(p.reviewed, p.classCovered), color)
             if (p.reviewQueue.isNotEmpty()) Text("복습 필요: ${p.reviewQueue.joinToString { it.title }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
         }
     }

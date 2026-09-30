@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.yearplan.YearPlanUiState
 
@@ -19,7 +20,7 @@ internal fun YearSummaryCard(state: YearPlanUiState, theme: String) {
     AppCard {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(theme, style = MaterialTheme.typography.titleMedium)
-            LinearProgressIndicator(progress = { if (state.total == 0) 0f else state.done.toFloat() / state.total }, modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(progress = { ratioOf(state.done, state.total) }, modifier = Modifier.fillMaxWidth())
             Text(
                 if (numbers) "기본 ${state.done} / ${state.total} 끝냈어요 · 지금 ${state.currentTerm.label}" else "별 ${state.done}개 모았어요",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -13,17 +13,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.dp
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.domain.goaltree.Assigner
+import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.time.DateUtils
 import java.time.LocalDate
 
 /** 세부 할 일 한 줄: 체크 · 제목 · 누가 준 일 · 마감(밀렸으면 빨강) 또는 끝낸 날 · 과목. */
 @Composable
 internal fun SubTaskRow(task: TaskEntity, subjects: List<SubjectEntity>, today: LocalDate, canCheck: Boolean, onToggle: () -> Unit, onDelete: (() -> Unit)?) {
-    val overdue = !task.done && task.dueDate < today.toEpochDay()
+    val overdue = task.isOverdue(today)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Checkbox(checked = task.done, onCheckedChange = { onToggle() }, enabled = canCheck)
         Column(Modifier.weight(1f)) {

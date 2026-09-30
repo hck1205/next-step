@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.nextstep.app.domain.stats.FamilyTrends
 import com.nextstep.app.domain.time.DateUtils
+import com.nextstep.app.ui.components.chart.KpiTile
 import com.nextstep.app.ui.components.chart.MiniBars
 import com.nextstep.app.ui.components.chart.Sparkline
 import com.nextstep.app.ui.components.chart.StatGrid
-import com.nextstep.app.ui.components.chart.StatTile
 import com.nextstep.app.ui.components.chart.deltaText
 
 /**
@@ -20,24 +20,24 @@ internal fun ParentKpis(t: FamilyTrends, modifier: Modifier = Modifier) {
     val avg = t.scoreAverage
     val tiles = buildList<@Composable (Modifier) -> Unit> {
         add { m ->
-            StatTile(
+            KpiTile(
                 "최근 7일 공부", DateUtils.formatMinutes(t.recent), m, delta = t.recentChange?.let { deltaText(it, DateUtils::formatMinutes, "전 7일 대비") },
                 up = t.recentChange?.let { it >= 0 }, good = t.recentChange?.let { it >= 0 }, trend = { Sparkline(t.rolling) },
             )
         }
         add { m ->
-            StatTile(
+            KpiTile(
                 "이번 주 할 일", thisWeek?.takeIf { it.due > 0 }?.let { "${it.percent}%" } ?: "-", m,
                 delta = thisWeek?.let { "${it.done}/${it.due} 끝냄" }, trend = { MiniBars(t.weekRates.map { it.percent }) },
             )
         }
         if (avg != null) add { m ->
-            StatTile(
+            KpiTile(
                 "최근 점수", "${avg}점", m, delta = t.scoreChange?.let { deltaText(it, { v -> "${v}점" }, "직전 대비") },
                 up = t.scoreChange?.let { it >= 0 }, good = t.scoreChange?.let { it >= 0 },
             )
         }
-        add { m -> StatTile("스스로 적은 할 일", "${(t.selfShare * PERCENT).toInt()}%", m, delta = "학생이 직접 만든 몫", meter = t.selfShare) }
+        add { m -> KpiTile("스스로 적은 할 일", "${(t.selfShare * PERCENT).toInt()}%", m, delta = "학생이 직접 만든 몫", meter = t.selfShare) }
     }
     StatGrid(tiles, modifier)
 }

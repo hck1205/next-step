@@ -28,6 +28,7 @@ import com.nextstep.app.domain.stats.ReviewItem
 import com.nextstep.app.domain.stats.ReviewPlanner
 import com.nextstep.app.domain.stats.StudyStats
 import com.nextstep.app.domain.stats.SubjectProgress
+import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.ui.common.asUiState
 import java.time.LocalDate
@@ -73,7 +74,7 @@ class OverviewViewModel(
     val state: StateFlow<OverviewUiState> = combine(base, progress, exams, growth, streams.events) { b, learn, e, g, events ->
         val s = b.state.copy(balance = BalanceStats.report(b.ctx.stage, b.sessions, b.tasks, b.activities, b.ctx.currentPeriod, b.state.today, events, b.ctx.year))
         val weeks = PlanHistory.weeks(b.tasks, s.today, DIGEST_WEEKS)
-        val overdue = b.tasks.count { !it.deleted && !it.done && it.dueDate < s.today.toEpochDay() }
+        val overdue = b.tasks.count { !it.deleted && it.isOverdue(s.today) }
         s.copy(
             digests = listOf(
                 ConcernDigests.plan(GoalTree.nodes(e.goals, b.tasks, s.today), weeks.lastOrNull(), overdue, weeks),

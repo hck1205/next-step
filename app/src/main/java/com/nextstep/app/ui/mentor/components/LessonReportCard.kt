@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import com.nextstep.app.ui.common.shareExportPdf
 import com.nextstep.app.ui.common.shareText
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.input.SegmentedRow
+import kotlinx.coroutines.launch
 
 /**
  * 수업 리포트 보내기: 주간|월간(월간 수업 리포트 기능) → 미리 보기 → 선생님 한마디 → 카톡·문자 / PDF → 보낸 기록.
@@ -66,9 +68,10 @@ private fun ReportPreview(report: LessonReport, compact: Boolean) {
 @Composable
 private fun SendButtons(report: LessonReport, note: String, signature: String, pdf: Boolean, onSent: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(onClick = { context.shareText(LessonReports.text(report, note, signature), "수업 리포트 보내기"); onSent() }, modifier = Modifier.weight(1f)) { Text("카톡·문자로") }
-        if (pdf) OutlinedButton(onClick = { context.shareExportPdf(LessonReports.doc(report, note, signature), "lesson-report"); onSent() }, modifier = Modifier.weight(1f)) { Text("PDF로") }
+        if (pdf) OutlinedButton(onClick = { scope.launch { context.shareExportPdf(LessonReports.doc(report, note, signature), "lesson-report"); onSent() } }, modifier = Modifier.weight(1f)) { Text("PDF로") }
     }
 }
 

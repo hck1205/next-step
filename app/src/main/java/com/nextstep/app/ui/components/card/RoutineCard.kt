@@ -17,8 +17,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.project.ProjectProgress
 import com.nextstep.app.domain.project.RoutineItem
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.ui.common.UiDefaults
-import com.nextstep.app.ui.common.ratio
 import com.nextstep.app.ui.components.icon.DoneMark
 import com.nextstep.app.ui.components.icon.routineIcon
 
@@ -62,7 +62,7 @@ fun RoutineCard(items: List<ProjectProgress>, onToggle: (ProjectProgress, Routin
                         }
                         if (!big && !compact) {
                             LabeledProgress(
-                                label = "이번 주 ${p.weekMinutes}/${p.weekTarget}분", ratio = ratio(p.weekMinutes, p.weekTarget).coerceAtMost(1f),
+                                label = "이번 주 ${p.weekMinutes}/${p.weekTarget}분", ratio = ratioOf(p.weekMinutes, p.weekTarget).coerceAtMost(1f),
                                 color = MaterialTheme.colorScheme.secondary,
                             )
                         }

@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.selfdirection.WeekAccess
 import com.nextstep.app.domain.selfdirection.WeekStatus
-import com.nextstep.app.ui.common.ratio
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.ui.components.dialog.ReflectionDialog
 import com.nextstep.app.ui.components.dialog.WeekPlanDialog
 import com.nextstep.app.ui.components.icon.DoneMark
@@ -111,7 +111,7 @@ private fun WeekPlanBody(week: WeekStatus, access: WeekAccess, big: Boolean, onT
     }
     if (stage.plansMinutes && plan.plannedMinutes > 0 && !big) {
         LabeledProgress(
-            label = "계획 ${plan.plannedMinutes}분 · 한 만큼 ${week.actualMinutes}분", ratio = ratio(week.actualMinutes, plan.plannedMinutes).coerceAtMost(1f),
+            label = "계획 ${plan.plannedMinutes}분 · 한 만큼 ${week.actualMinutes}분", ratio = ratioOf(week.actualMinutes, plan.plannedMinutes).coerceAtMost(1f),
             color = MaterialTheme.colorScheme.secondary,
         )
     }

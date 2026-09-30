@@ -3,6 +3,7 @@ package com.nextstep.app.domain.mentor
 import com.nextstep.app.data.local.entity.SubjectEntity
 import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.model.Role
+import com.nextstep.app.domain.task.isOverdue
 import java.time.LocalDate
 
 /** 멘토가 낸 과제(작성자 역할이 MENTOR)를 모아 완료율·밀린 것·곧 마감을 봅니다. */
@@ -16,7 +17,7 @@ object AssignmentStats {
     fun report(tasks: List<TaskEntity>, subjects: List<SubjectEntity>, today: LocalDate): AssignmentReport {
         val mine = tasks.filter(::isAssignment)
         val todayDay = today.toEpochDay()
-        val overdue = mine.filter { !it.done && it.dueDate < todayDay }.sortedBy { it.dueDate }
+        val overdue = mine.filter { it.isOverdue(today) }.sortedBy { it.dueDate }
         val soon = mine.filter { !it.done && it.dueDate in todayDay..todayDay + SOON_DAYS }.sortedBy { it.dueDate }
         val bySubject = mine.groupBy { it.subjectId }.map { (id, list) -> AssignmentSubject(subjects.firstOrNull { it.id == id }, list.count { it.done }, list.size) }
             .sortedWith(compareBy<AssignmentSubject> { it.subject == null }.thenBy { if (it.total == 0) 1.0 else it.done.toDouble() / it.total })

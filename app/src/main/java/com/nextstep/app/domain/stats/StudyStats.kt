@@ -8,6 +8,7 @@ import com.nextstep.app.data.local.entity.TaskEntity
 import com.nextstep.app.data.local.entity.TopicEntity
 import com.nextstep.app.data.model.EventType
 import com.nextstep.app.data.model.TopicStatus
+import com.nextstep.app.domain.task.isOverdue
 import com.nextstep.app.domain.time.DateUtils
 import com.nextstep.app.domain.time.Streaks
 import java.time.LocalDate
@@ -130,7 +131,7 @@ object StudyStats {
         Streaks.current(sessions.filter { !it.deleted }.map { DateUtils.toLocalDate(it.startAt) }.toSet(), today)
 
     fun overdueTasks(tasks: List<TaskEntity>): List<TaskEntity> =
-        tasks.filter { !it.done && it.dueDate < DateUtils.today().toEpochDay() }
+        tasks.filter { it.isOverdue() }
 
     /** 다가오는 시험을 찾는 기간(일). */
     private const val EXAM_HORIZON_DAYS = 30

@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nextstep.app.domain.project.ProjectPace
 import com.nextstep.app.domain.project.ProjectProgress
+import com.nextstep.app.domain.text.ratioOf
 import com.nextstep.app.domain.time.DateUtils
-import com.nextstep.app.ui.common.ratio
 import com.nextstep.app.ui.components.card.AppCard
 import com.nextstep.app.ui.components.card.LabeledProgress
 import com.nextstep.app.ui.components.card.PaceChip
@@ -31,7 +31,7 @@ internal fun ProjectHeaderCard(p: ProjectProgress) {
             p.kind?.let { Text(it.caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             LabeledProgress(
                 label = if (p.isDone) "${p.total}단계 모두 통과" else "${p.currentIndex + 1}/${p.total}단계 · ${p.current?.title}",
-                ratio = ratio(p.currentIndex, p.total), color = MaterialTheme.colorScheme.primary,
+                ratio = ratioOf(p.currentIndex, p.total), color = MaterialTheme.colorScheme.primary,
             )
             p.targetDate?.let { target ->
                 Text(
@@ -42,7 +42,7 @@ internal fun ProjectHeaderCard(p: ProjectProgress) {
             }
             if (!p.isDone) {
                 LabeledProgress(
-                    label = "이번 주 ${p.weekMinutes}/${p.weekTarget}분 · ${p.activeDaysThisWeek}일", ratio = ratio(p.weekMinutes, p.weekTarget).coerceAtMost(1f),
+                    label = "이번 주 ${p.weekMinutes}/${p.weekTarget}분 · ${p.activeDaysThisWeek}일", ratio = ratioOf(p.weekMinutes, p.weekTarget).coerceAtMost(1f),
                     color = MaterialTheme.colorScheme.secondary,
                 )
             }
